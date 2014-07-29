@@ -116,6 +116,10 @@ class Planner:
 					 {c: self.action_list.conditions[c].copy() for c in self.action_list.conditions},
 					 {r: self.action_list.reactions[r].copy() for r in self.action_list.reactions},
 					 self.action_list.weights.copy())
+	
+	def trigger_callback(self, entity, key):
+		for callback in self.action_list.callbacks[key]:
+			callback(entity)
 
 class Action_List:
 	def __init__(self):

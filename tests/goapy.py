@@ -105,16 +105,23 @@ class Planner:
 					 {c: self.action_list.conditions[c].copy() for c in self.action_list.conditions},
 					 {r: self.action_list.reactions[r].copy() for r in self.action_list.reactions},
 					 self.action_list.weights.copy())
+	
+	def trigger_callback(self, key):
+		return self.action_list.callbacks[key]()
 
 class Action_List:
 	def __init__(self):
 		self.conditions = {}
 		self.reactions = {}
 		self.weights = {}
+		self.callbacks = {}
 
 	def add_condition(self, key, **kwargs):
 		if not key in self.weights:
 			self.weights[key] = 1
+		
+		if not key in self.callbacks:
+			self.callbacks[key] = []
 
 		if not key in self.conditions:
 			self.conditions[key] = kwargs
@@ -122,6 +129,12 @@ class Action_List:
 			return
 
 		self.conditions[key].update(kwargs)
+	
+	def add_callback(self, key, callback):
+		if not key in self.conditions:
+			raise Exception('Trying to add reaction \'%s\' without matching condition.' % key)
+		
+		self.callbacks[key].append(callback)
 
 	def add_reaction(self, key, **kwargs):
 		if not key in self.conditions:

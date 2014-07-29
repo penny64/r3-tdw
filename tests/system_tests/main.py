@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	
 	_start_time = time.time()
 	
-	for i in range(1):
+	for i in range(10):
 		events.trigger_event('tick')
 	
 	print 'Took: ', time.time()-_start_time
