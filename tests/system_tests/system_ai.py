@@ -38,7 +38,7 @@ def _register(entity):
 	                         'is_hungry': False,
 	                         'has_food': False,
 	                         'sees_item_type_weapon': False},
-	                'weights': {'find_bandage': 4,
+	                'weights': {'find_bandage': 10,
 	                            'find_weapon': 16}}
 	
 	entities.create_event(entity, 'logic')
@@ -70,6 +70,9 @@ def register_human(entity):
 	#Search
 	_ai['brain'].add_planner(brains.search_for_weapon())
 	
+	#Reload
+	_ai['brain'].add_planner(brains.reload())
+	
 	entities.register_event(entity, 'logic', _human_logic)
 	entities.register_event(entity, 'logic_offline', _human_logic_offline)
 
@@ -99,6 +102,8 @@ def _tick_offline_entities(entity):
 ###################
 
 def set_meta(entity, key, value):
+	if not key in entity['ai']['meta']:
+		raise Exception('Trying to set invalid brain meta: %s' % key)
 	entity['ai']['meta'][key] = value
 
 def _handle_goap(entity, brain='brain'):
@@ -124,7 +129,14 @@ def _animal_logic(entity):
 def _human_logic(entity):
 	entity['ai']['meta']['is_injured']
 	
-	_plan = _handle_goap(entity)[0]
+	_goap = _handle_goap(entity)
+	
+	if not _goap:
+			print 'Couldn\'t find plan.'
+			
+			return	
+	
+	_plan = _goap[0]
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 
 	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
