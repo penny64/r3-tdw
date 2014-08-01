@@ -77,6 +77,14 @@ def get_input_ord(char_ord):
 def get_input_char(char):
 	return get_input_ord(ord(char))
 
+def get_input_char_pressed(char):
+	if get_input_char(char) == 1:
+		INPUT[ord(char)] = 2
+		
+		return True
+	
+	return False
+
 def get_input_ord_pressed(char_ord):
 	if get_input_ord(char_ord) == 1:
 		INPUT[char_ord] = 2

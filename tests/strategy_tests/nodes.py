@@ -1,6 +1,7 @@
-from framework import entities, display, movement, numbers, pathfinding, tile
+from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats
 
 DRAGGING_NODE = None
+LAST_CLICKED_POS = None
 
 
 def register(entity):
@@ -10,19 +11,32 @@ def register(entity):
 	
 	entities.register_event(entity, 'logic', logic)
 	entities.register_event(entity, 'draw', draw_path)
+	entities.register_event(entity, 'position_changed', _redraw_first_node)
+
+def handle_keyboard_input(entity):
+	if LAST_CLICKED_POS:
+		if controls.get_input_char_pressed('f'):
+			create_action_node(entity,
+			                   LAST_CLICKED_POS[0],
+			                   LAST_CLICKED_POS[1],
+			                   40,
+			                   lambda: entities.trigger_event(entity, 'shoot'), icon='+')
+			
+			redraw_path(entity)
 
 def handle_mouse_pressed(entity, x, y, button):
-	global DRAGGING_NODE
+	global DRAGGING_NODE, LAST_CLICKED_POS
 	
 	if button == 1:
 		if DRAGGING_NODE:
 			entities.trigger_event(DRAGGING_NODE['node'], 'set_position', x=x, y=y)
+			entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 255))
 			
+			redraw_path(entity)
+			DRAGGING_NODE['node']['redraw_path'] = True
 			DRAGGING_NODE['node']['x'] = x
 			DRAGGING_NODE['node']['y'] = y
 			DRAGGING_NODE = None
-			
-			entity['node_path']['redraw_path'] = True
 		
 		else:
 			_hit = False
@@ -30,11 +44,12 @@ def handle_mouse_pressed(entity, x, y, button):
 			for node in entity['node_path']['nodes'].values():
 				if (x, y) == (node['node']['x'], node['node']['y']):
 					DRAGGING_NODE = node
+					entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 0))
 					
 					break
 				
 				if (x, y) in node['node']['path']:
-					print 'UH!!!!!!!!!'
+					LAST_CLICKED_POS = (x, y)
 					
 					_hit = True
 				
@@ -43,28 +58,48 @@ def handle_mouse_pressed(entity, x, y, button):
 	
 	elif button == 2:
 		if DRAGGING_NODE:
+			entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 255))
+			
 			DRAGGING_NODE = None
 		
 		else:
 			for node in entity['node_path']['nodes'].values():
 				if (x, y) == (node['node']['x'], node['node']['y']):
 					entity['node_path']['path'].remove(node['node']['_id'])
-					del entity['node_path']['nodes'][node['node']['_id']]
-					
 					entities.delete_entity(node['node'])
-					entity['node_path']['redraw_path'] = True
+					node['node']['redraw_path'] = True
+					
+					del entity['node_path']['nodes'][node['node']['_id']]
 					
 					break
 
-def _create_node(entity, x, y, passive=True, callback_on_touch=True):
+def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, callback_on_touch=True):
 	_node = entities.create_entity(group='nodes')
 	_node['x'] = x
 	_node['y'] = y
+	_node['draw_path'] = draw_path
 	_node['path'] = []
 	_node['owner_id'] = entity['_id']
+	_node['redraw_path'] = True
+	_node['action_time'] = action_time
 	
 	tile.register(_node, surface='nodes')	
 	entities.trigger_event(_node, 'set_position', x=x, y=y)
+	
+	_path_index = -1
+	
+	if LAST_CLICKED_POS:
+		for node_id in entity['node_path']['path'][:]:
+			_last_node = entity['node_path']['nodes'][node_id]
+			
+			if LAST_CLICKED_POS in _last_node['node']['path']:
+				_path_index = entity['node_path']['path'].index(node_id)
+				entity['node_path']['nodes'][entity['node_path']['path'][_path_index]]['node']['action_time'] = action_time
+				
+				break
+		
+	if _path_index == -1:
+		_path_index = len(entity['node_path']['path'])
 	
 	entity['node_path']['nodes'][_node['_id']] = {'node': _node,
 	                                              'passive': passive,
@@ -72,16 +107,21 @@ def _create_node(entity, x, y, passive=True, callback_on_touch=True):
 	                                              'call_on_touch': callback_on_touch}
 	entity['node_path']['path'].append(_node['_id'])
 	
-	entity['node_path']['redraw_path'] = True
-	
 	return _node
 
 def create_walk_node(entity, x, y):
-	_node = _create_node(entity, x, y, passive=False, callback_on_touch=False)
+	_node = _create_node(entity, x, y, draw_path=True, passive=False, callback_on_touch=False)
 	
 	entities.trigger_event(_node, 'set_char', char='O')
 	
 	entity['node_path']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity, 'move_to_position', x=_node['x'], y=_node['y'])
+
+def create_action_node(entity, x, y, time, callback, icon='X'):
+	_node = _create_node(entity, x, y, passive=False, action_time=time, callback_on_touch=True)
+	
+	entities.trigger_event(_node, 'set_char', char=icon)
+	
+	entity['node_path']['nodes'][_node['_id']]['callback'] = callback
 
 def logic(entity):
 	_last_pos = None
@@ -97,6 +137,7 @@ def logic(entity):
 		
 		if _node['call_on_touch'] and _distance:
 			continue
+		
 		elif not _distance:
 			entity['node_path']['path'].remove(node_id)
 			del entity['node_path']['nodes'][node_id]
@@ -109,11 +150,20 @@ def logic(entity):
 			_stop_here = True
 			_last_pos = (_node['node']['x'], _node['node']['y'])
 
+def _redraw_first_node(entity, **kargs):
+	if entity['node_path']['path']:
+		entity['node_path']['nodes'][entity['node_path']['path'][0]]['node']['redraw_path'] = True
+
+def redraw_path(entity):
+	for node in entity['node_path']['nodes'].values():
+		node['node']['redraw_path'] = True
+
 def draw_path(entity):
-	#TODO: Not every frame
 	_last_x, _last_y = (0, 0)
+	_node_ids = entity['node_path']['path'][:]
+	_action_time_max = 0
 	
-	for node_id in entity['node_path']['path'][:]:
+	for node_id in _node_ids:
 		_node = entity['node_path']['nodes'][node_id]
 		
 		if not _last_x:
@@ -122,16 +172,41 @@ def draw_path(entity):
 		if (_last_x, _last_y) == (_node['node']['x'], _node['node']['y']):
 			continue
 		
-		if entity['node_path']['redraw_path']:
+		if _node['node']['draw_path'] and _node['node']['redraw_path']:
 			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']))
+			
 			if (_node['node']['x'], _node['node']['y']) in _path:
 				_path.remove((_node['node']['x'], _node['node']['y']))
-				
-			_node['node']['path'] = _path
-		
-		for pos in _node['node']['path']:
-			display.write_char('level', pos[0], pos[1], '.')
 			
-		_last_x, _last_y = (_node['node']['x'], _node['node']['y'])
-	
-	entity['node_path']['redraw_path'] = False
+			_node['node']['path'] = _path
+			_node['node']['redraw_path'] = False
+		
+		_move_cost = 0
+		for pos in _node['node']['path']:
+			for node_id in _node_ids:
+				_check_node = entity['node_path']['nodes'][node_id]['node']
+				
+				if not _check_node['action_time']:
+					continue
+				
+				if (_check_node['x'], _check_node['y']) == pos:
+					_action_time_max = _check_node['action_time']
+			
+			if _action_time_max and _move_cost <= _action_time_max:
+				_color_mod = int(round(200*numbers.clip(_move_cost/float(_action_time_max), .35, 1)))
+				_color = (_color_mod, 0, 0)
+			
+			else:
+				_color = (200, 200, 200)
+			
+			if _action_time_max:
+				_move_cost += stats.get_speed(entity)
+				
+				if _move_cost >= _action_time_max:
+					_action_time_max = 0
+					_move_cost = 0
+			
+			display.write_char('level', pos[0], pos[1], '.', fore_color=_color)
+		
+		if _node['node']['draw_path']:
+			_last_x, _last_y = (_node['node']['x'], _node['node']['y'])

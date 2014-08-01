@@ -35,10 +35,14 @@ def handle_input():
 		else:
 			PAUSED = True
 	
+	if PAUSED:
+		nodes.handle_keyboard_input(PLAYER)
+	
 	return True
 
 def handle_mouse_pressed(x, y, button):
-	nodes.handle_mouse_pressed(PLAYER, x, y, button)
+	if PAUSED:
+		nodes.handle_mouse_pressed(PLAYER, x, y, button)
 
 def logic():
 	for entity_id in entities.get_entity_group('life'):
@@ -73,12 +77,15 @@ def main():
 	
 	while loop():
 		events.trigger_event('cleanup')
+		
 		continue
 	
 	framework.shutdown()
 
 def loop():
-	controls.handle_input()
+	global PAUSED
+	
+	events.trigger_event('input')
 	
 	if not handle_input():
 		return False
@@ -87,6 +94,9 @@ def loop():
 	
 	if not PAUSED:
 		events.trigger_event('tick')
+		
+		if not PLAYER['node_path']['path']:
+			PAUSED = True
 	
 	draw()
 	
