@@ -49,9 +49,9 @@ def astar(start, end, avoid=[]):
 	_path['hmap'][_path['start'][1], _path['start'][0]] = (abs(_path['start'][0]-_path['end'][0])+abs(_path['start'][1]-_path['end'][1]))*10
 	_path['fmap'][_path['start'][1], _path['start'][0]] = _path['hmap'][_path['start'][1],_path['start'][0]]
 
-	return walk_path({}, _path)
+	return walk_path(_path)
 
-def walk_path(life, path):
+def walk_path(path):
 	if path['map'][path['end'][1], path['end'][0]] == -2:
 		return False
 
@@ -69,29 +69,37 @@ def walk_path(life, path):
 		_olist.remove(node)
 
 		if tuple(node) == path['end']:
-			_olist = []
 			break
 
 		_clist.append(node)
 		_lowest = {'pos': None, 'f': 9000}
 
 		for adj in getadj(path, node):
-			if not adj in _olist:
-				if abs(node[0]-adj[0])+abs(node[1]-adj[1]) == 1:
-					_gmap[adj[1],adj[0]] = _gmap[node[1],node[0]]+10
-				else:
-					_gmap[adj[1],adj[0]] = _gmap[node[1],node[0]]+14
-
+			if abs(node[0]-adj[0])+abs(node[1]-adj[1]) == 1:
+				#_gmap[adj[1],adj[0]]
+				_cost = _gmap[node[1], node[0]] + 10
+			else:
+				_cost = _gmap[node[1], node[0]] + 14			
+			
+			_not_in = 0
+			if adj in _olist and _cost < _gmap[adj[1], adj[0]]:
+				_olist.remove(adj)
+			
+			if adj in _clist and _cost < _gmap[adj[1], adj[0]]:
+				_clist.remove(adj)
+			
+			if not adj in _olist and not adj in _clist:
 				xDistance = abs(adj[0]-path['end'][0])
 				yDistance = abs(adj[1]-path['end'][1])
 				if xDistance > yDistance:
 					_hmap[adj[1],adj[0]] = 14*yDistance + 10*(xDistance-yDistance)
 				else:
 					_hmap[adj[1],adj[0]] = 14*xDistance + 10*(yDistance-xDistance)
-
+				
+				_gmap[adj[1],adj[0]] = _cost
 				_fmap[adj[1],adj[0]] = _gmap[adj[1],adj[0]]+_hmap[adj[1],adj[0]]
 				_pmap[adj[0]][adj[1]] = node
-
+				
 				_olist.append(adj)
 
 		for o in _olist:
@@ -101,6 +109,8 @@ def walk_path(life, path):
 
 		if _lowest['pos']:
 			node = _lowest['pos']
+	
+	print time.time()-_stime
 
 	return find_path(path)
 
