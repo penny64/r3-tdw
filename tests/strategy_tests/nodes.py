@@ -49,9 +49,15 @@ def handle_mouse_pressed(entity, x, y, button):
 					break
 				
 				if (x, y) in node['node']['path']:
-					LAST_CLICKED_POS = (x, y)
+					if not (x, y) in node['node']['busy_pos']:
+						LAST_CLICKED_POS = (x, y)
+					
+					else:
+						LAST_CLICKED_POS = None
 					
 					_hit = True
+					
+					break
 				
 			if not DRAGGING_NODE and not _hit:
 				create_walk_node(entity, x, y)
@@ -74,6 +80,35 @@ def handle_mouse_pressed(entity, x, y, button):
 					break
 
 def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, callback_on_touch=True):
+	global LAST_CLICKED_POS
+	
+	_path_index = -1
+	
+	if LAST_CLICKED_POS:
+		_node_positions = [(p['node']['x'], p['node']['y']) for p in entity['node_path']['nodes'].values()]
+		
+		for node_id in entity['node_path']['path'][:]:
+			_last_node = entity['node_path']['nodes'][node_id]
+			
+			if LAST_CLICKED_POS in _last_node['node']['path']:
+				_move_cost = 0
+				
+				for pos in _last_node['node']['path'][_last_node['node']['path'].index(LAST_CLICKED_POS):]:
+					_move_cost += stats.get_speed(entity)
+					
+					if _move_cost < action_time and pos in _node_positions:
+						return
+				
+				if _move_cost < action_time:
+					return
+				
+				_path_index = entity['node_path']['path'].index(node_id)
+				entity['node_path']['nodes'][entity['node_path']['path'][_path_index]]['node']['action_time'] = action_time
+				
+				break
+		
+		LAST_CLICKED_POS = None	
+	
 	_node = entities.create_entity(group='nodes')
 	_node['x'] = x
 	_node['y'] = y
@@ -82,21 +117,10 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, cal
 	_node['owner_id'] = entity['_id']
 	_node['redraw_path'] = True
 	_node['action_time'] = action_time
+	_node['busy_pos'] = []
 	
 	tile.register(_node, surface='nodes')	
 	entities.trigger_event(_node, 'set_position', x=x, y=y)
-	
-	_path_index = -1
-	
-	if LAST_CLICKED_POS:
-		for node_id in entity['node_path']['path'][:]:
-			_last_node = entity['node_path']['nodes'][node_id]
-			
-			if LAST_CLICKED_POS in _last_node['node']['path']:
-				_path_index = entity['node_path']['path'].index(node_id)
-				entity['node_path']['nodes'][entity['node_path']['path'][_path_index]]['node']['action_time'] = action_time
-				
-				break
 		
 	if _path_index == -1:
 		_path_index = len(entity['node_path']['path'])
@@ -105,7 +129,7 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, cal
 	                                              'passive': passive,
 	                                              'callback': None,
 	                                              'call_on_touch': callback_on_touch}
-	entity['node_path']['path'].append(_node['_id'])
+	entity['node_path']['path'].insert(_path_index, _node['_id'])
 	
 	return _node
 
@@ -118,6 +142,9 @@ def create_walk_node(entity, x, y):
 
 def create_action_node(entity, x, y, time, callback, icon='X'):
 	_node = _create_node(entity, x, y, passive=False, action_time=time, callback_on_touch=True)
+	
+	if not _node:
+		return
 	
 	entities.trigger_event(_node, 'set_char', char=icon)
 	
@@ -172,6 +199,8 @@ def draw_path(entity):
 		if (_last_x, _last_y) == (_node['node']['x'], _node['node']['y']):
 			continue
 		
+		_node['node']['busy_pos'] = []
+		
 		if _node['node']['draw_path'] and _node['node']['redraw_path']:
 			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']))
 			
@@ -195,6 +224,8 @@ def draw_path(entity):
 			if _action_time_max and _move_cost <= _action_time_max:
 				_color_mod = int(round(200*numbers.clip(_move_cost/float(_action_time_max), .35, 1)))
 				_color = (_color_mod, 0, 0)
+				
+				_node['node']['busy_pos'].append(pos)
 			
 			else:
 				_color = (200, 200, 200)

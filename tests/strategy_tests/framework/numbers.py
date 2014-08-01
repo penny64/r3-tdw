@@ -1,3 +1,4 @@
+import constants
 import numpy
 import math
 
@@ -46,4 +47,4 @@ def direction_to(pos_1, pos_2):
 	return theta * (180/math.pi)
 
 def seconds_as_ticks(seconds):
-	return 30*seconds
+	return constants.FPS*seconds

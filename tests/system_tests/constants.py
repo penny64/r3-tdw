@@ -2,7 +2,7 @@
 #Release#
 #########
 
-VERSION = 0.75
+VERSION = 0.1
 VERSION_INFO = 'This is a prototype. Do not distribute.'
 
 
@@ -10,7 +10,7 @@ VERSION_INFO = 'This is a prototype. Do not distribute.'
 #Display#
 #########
 
-WINDOW_TITLE = 'moRaL'
+WINDOW_TITLE = 'r3:tdw'
 WINDOW_WIDTH = 90
 WINDOW_HEIGHT = 90
 LEVEL_WIDTH = WINDOW_WIDTH-20
