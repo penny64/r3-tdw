@@ -1,5 +1,7 @@
 from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats
 
+import time
+
 DRAGGING_NODE = None
 LAST_CLICKED_POS = None
 
@@ -24,23 +26,27 @@ def handle_keyboard_input(entity):
 			
 			redraw_path(entity)
 
+def handle_mouse_movement(entity, x, y):
+	if not DRAGGING_NODE:
+		return
+	
+	entities.trigger_event(DRAGGING_NODE['node'], 'set_position', x=x, y=y)
+	entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 255))
+	
+	DRAGGING_NODE['node']['x'] = x
+	DRAGGING_NODE['node']['y'] = y	
+	DRAGGING_NODE['node']['path'] = []
+	
+	redraw_path(entity)
+
 def handle_mouse_pressed(entity, x, y, button):
 	global DRAGGING_NODE, LAST_CLICKED_POS
 	
 	if button == 1:
 		if DRAGGING_NODE:
-			entities.trigger_event(DRAGGING_NODE['node'], 'set_position', x=x, y=y)
-			entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 255))
-			
-			redraw_path(entity)
-			DRAGGING_NODE['node']['redraw_path'] = True
-			DRAGGING_NODE['node']['x'] = x
-			DRAGGING_NODE['node']['y'] = y
 			DRAGGING_NODE = None
 		
 		else:
-			_hit = False
-			
 			for node in entity['node_path']['nodes'].values():
 				if (x, y) == (node['node']['x'], node['node']['y']):
 					DRAGGING_NODE = node
@@ -55,11 +61,9 @@ def handle_mouse_pressed(entity, x, y, button):
 					else:
 						LAST_CLICKED_POS = None
 					
-					_hit = True
-					
-					break
+					return
 				
-			if not DRAGGING_NODE and not _hit:
+			if not DRAGGING_NODE:
 				create_walk_node(entity, x, y)
 	
 	elif button == 2:
@@ -73,7 +77,7 @@ def handle_mouse_pressed(entity, x, y, button):
 				if (x, y) == (node['node']['x'], node['node']['y']):
 					entity['node_path']['path'].remove(node['node']['_id'])
 					entities.delete_entity(node['node'])
-					node['node']['redraw_path'] = True
+					redraw_path(entity)
 					
 					del entity['node_path']['nodes'][node['node']['_id']]
 					
@@ -115,7 +119,6 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, cal
 	_node['draw_path'] = draw_path
 	_node['path'] = []
 	_node['owner_id'] = entity['_id']
-	_node['redraw_path'] = True
 	_node['action_time'] = action_time
 	_node['busy_pos'] = []
 	
@@ -138,7 +141,10 @@ def create_walk_node(entity, x, y):
 	
 	entities.trigger_event(_node, 'set_char', char='O')
 	
-	entity['node_path']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity, 'move_to_position', x=_node['x'], y=_node['y'])
+	entity['node_path']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity,
+	                                                                                        'move_to_position',
+	                                                                                        x=_node['x'],
+	                                                                                        y=_node['y'])
 
 def create_action_node(entity, x, y, time, callback, icon='X'):
 	_node = _create_node(entity, x, y, passive=False, action_time=time, callback_on_touch=True)
@@ -178,12 +184,21 @@ def logic(entity):
 			_last_pos = (_node['node']['x'], _node['node']['y'])
 
 def _redraw_first_node(entity, **kargs):
-	if entity['node_path']['path']:
-		entity['node_path']['nodes'][entity['node_path']['path'][0]]['node']['redraw_path'] = True
+	_x, _y = movement.get_position(entity)
+	
+	for node_id in entity['node_path']['path']:
+		_node = entity['node_path']['nodes'][node_id]['node']
+		
+		if (_x, _y) in _node['path']:
+			if _node['draw_path']:
+				_node['path'] = _node['path'][_node['path'].index((_x, _y)):]
+				
+				break
+		
 
 def redraw_path(entity):
 	for node in entity['node_path']['nodes'].values():
-		node['node']['redraw_path'] = True
+		node['node']['path'] = []
 
 def draw_path(entity):
 	_last_x, _last_y = (0, 0)
@@ -201,14 +216,13 @@ def draw_path(entity):
 		
 		_node['node']['busy_pos'] = []
 		
-		if _node['node']['draw_path'] and _node['node']['redraw_path']:
+		if _node['node']['draw_path'] and not _node['node']['path']:
 			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']))
 			
 			if (_node['node']['x'], _node['node']['y']) in _path:
 				_path.remove((_node['node']['x'], _node['node']['y']))
 			
 			_node['node']['path'] = _path
-			_node['node']['redraw_path'] = False
 		
 		_move_cost = 0
 		for pos in _node['node']['path']:

@@ -40,6 +40,10 @@ def handle_input():
 	
 	return True
 
+def handle_mouse_movement(x, y, **kwargs):
+	if PAUSED:
+		nodes.handle_mouse_movement(PLAYER, x, y)
+
 def handle_mouse_pressed(x, y, button):
 	if PAUSED:
 		nodes.handle_mouse_pressed(PLAYER, x, y, button)
@@ -66,6 +70,7 @@ def main():
 	pathfinding.setup(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT, [])
 	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
+	events.register_event('mouse_moved', handle_mouse_movement)
 	
 	for y in range(constants.WINDOW_HEIGHT):
 		for x in range(constants.WINDOW_WIDTH):

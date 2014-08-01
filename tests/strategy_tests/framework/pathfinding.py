@@ -58,7 +58,7 @@ def walk_path(path):
 	node = path['olist'][0]
 
 	_clist = path['clist']
-	_olist = path['olist']
+	_olist = set(path['olist'])
 	_gmap = path['gmap']
 	_hmap = path['hmap']
 	_fmap = path['fmap']
@@ -76,7 +76,6 @@ def walk_path(path):
 
 		for adj in getadj(path, node):
 			if abs(node[0]-adj[0])+abs(node[1]-adj[1]) == 1:
-				#_gmap[adj[1],adj[0]]
 				_cost = _gmap[node[1], node[0]] + 10
 			else:
 				_cost = _gmap[node[1], node[0]] + 14			
@@ -91,6 +90,7 @@ def walk_path(path):
 			if not adj in _olist and not adj in _clist:
 				xDistance = abs(adj[0]-path['end'][0])
 				yDistance = abs(adj[1]-path['end'][1])
+				
 				if xDistance > yDistance:
 					_hmap[adj[1],adj[0]] = 14*yDistance + 10*(xDistance-yDistance)
 				else:
@@ -100,9 +100,9 @@ def walk_path(path):
 				_fmap[adj[1],adj[0]] = _gmap[adj[1],adj[0]]+_hmap[adj[1],adj[0]]
 				_pmap[adj[0]][adj[1]] = node
 				
-				_olist.append(adj)
+				_olist.add(adj)
 
-		for o in _olist:
+		for o in list(_olist):
 			if _fmap[o[1],o[0]] < _lowest['f']:
 				_lowest['pos'] = o
 				_lowest['f'] = _fmap[o[1],o[0]]
