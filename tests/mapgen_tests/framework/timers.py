@@ -1,12 +1,16 @@
-import entities
+import entities, events
 
 
-def register(entity):
+def register(entity, use_system_event=None):
 	entity['timers'] = []
 	
 	entities.create_event(entity, 'create_timer')
 	entities.register_event(entity, 'create_timer', create_timer)
-	entities.register_event(entity, 'tick', tick)
+	
+	if use_system_event:
+		events.register_event(use_system_event, lambda: tick(entity))
+	else:
+		entities.register_event(entity, 'tick', tick)
 
 #TODO: Timer names
 def create_timer(entity, time, name=None, repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):

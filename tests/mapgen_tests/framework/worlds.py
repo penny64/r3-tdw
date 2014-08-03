@@ -22,7 +22,8 @@ def create(world_name, width=8000, height=8000):
 
 	WORLDS[world_name] = {'size': (width, height),
                           'entities': [],
-                          'entity_groups': {}}
+                          'entity_groups': {},
+	                      'static_entity_groups': set()}
 
 	logging.debug('Created world: %s' % world_name)
 

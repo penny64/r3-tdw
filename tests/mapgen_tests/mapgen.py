@@ -1,10 +1,17 @@
-from framework import entities, numbers, shapes, tile
+from framework import entities, display, events, numbers, shapes, tile
 
+import libtcodpy as tcod
+
+import post_processing
 import constants
 import tiles
 
 import random
+import time
 import numpy
+
+X = 1
+NOISE = None
 
 
 def add_tile(raw_tile):
@@ -19,13 +26,40 @@ def add_tile(raw_tile):
 	
 	return _entity
 
+def post_process_water(width, height, tiles):
+	global X
+
+	_clouds = numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH))
+	_clouds += 1.6
+	_zoom = 2.0
+	_clouds_x = X
+	_clouds_y = X*-1
+	_size = 100.0
+	
+	X -= .005
+
+	for y in range(height):
+		for x in range(width):
+			_noise_values = [_zoom * x / (_size) + _clouds_x,
+							 _zoom * y / (_size) + _clouds_y]
+			_shade = tcod.noise_get_turbulence(NOISE, _noise_values, tcod.NOISE_SIMPLEX)
+			_shade_mod = numbers.clip(abs(_shade), .6, 1)
+			_clouds[y][x] -= _shade_mod
+
+	display.shade_surface_fore('tiles', _clouds)
+	display.shade_surface_back('tiles', _clouds)
+
 def swamp(width, height, rings=8):
+	global NOISE
+	
+	NOISE = tcod.noise_new(3)
+	
 	_tile_map = numpy.zeros((height, width))
 	_center_x, _center_y = width/2, height/2
 	_map_radius = max([width, height]) / 2
 	_number_of_rings = _map_radius / rings
 	_handled_positions = set()
-	_circs = []
+	_tiles = []
 	
 	for i in range(_number_of_rings):
 		_lod = numbers.clip((i / float(rings)) * 2, 0, .9)
@@ -39,11 +73,13 @@ def swamp(width, height, rings=8):
 				continue
 			
 			if random.uniform(.26, 1) < _lod:
-				if random.uniform(0, _lod) > .65:
-					add_tile(tiles.water(x, y))
+				if random.uniform(0, _lod) > .45:
+					_tiles.append(add_tile(tiles.swamp_water(x, y)))
 				else:
-					add_tile(tiles.grass(x, y))
+					_tiles.append(add_tile(tiles.grass(x, y)))
 				
 			else:
-				add_tile(tiles.swamp(x, y))
-			
+				_tiles.append(add_tile(tiles.swamp(x, y)))
+	
+	#events.register_event('tick', lambda: post_process_water(width, height, _tiles))
+	post_processing.run(time=30, repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles))

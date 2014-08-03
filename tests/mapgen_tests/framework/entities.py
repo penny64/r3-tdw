@@ -232,13 +232,16 @@ def delete_entity_via_id(entity_id):
 def get_entity(entity_id):
 	return ENTITIES[entity_id]
 
-def create_entity_group(group_name):
+def create_entity_group(group_name, static=False):
 	_world = worlds.get_active_world()
 
 	if group_name in _world['entity_groups']:
 		raise Exception('Trying to create duplicate entity group:' % group_name)
 
 	_world['entity_groups'][group_name] = []
+	
+	if static:
+		_world['static_entity_groups'].add(group_name)
 
 	logging.debug('Created entity group: %s' % group_name)
 
@@ -334,7 +337,7 @@ def tick():
 	_world = worlds.get_active_world()
 
 	for entity_group in _world['entity_groups'].keys():
-		if entity_group.count('static'):
+		if entity_group in _world['static_entity_groups']:
 			continue
 
 		for entity_id in _world['entity_groups'][entity_group]:

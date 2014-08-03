@@ -6,6 +6,7 @@ import constants
 
 import logging
 import numpy
+import copy
 
 
 def shutdown():
@@ -50,11 +51,19 @@ def create_surface(surface_name):
 	SURFACES[surface_name]['f'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 	SURFACES[surface_name]['f'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 	SURFACES[surface_name]['f'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['fo'] = []
+	SURFACES[surface_name]['fo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['fo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['fo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 	
 	SURFACES[surface_name]['b'] = []
 	SURFACES[surface_name]['b'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 	SURFACES[surface_name]['b'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 	SURFACES[surface_name]['b'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['bo'] = []
+	SURFACES[surface_name]['bo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['bo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
+	SURFACES[surface_name]['bo'].append(numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH), dtype=numpy.int16))
 
 def delete_surface(surface_name):
 	del SURFACES[surface_name]
@@ -68,11 +77,17 @@ def clear_rect(surface_name, x, y, width, height):
 def _set_char(surface_name, x, y, char, fore_color, back_color):
 	SURFACES[surface_name]['c'][y][x] = ord(char)
 	
+	SURFACES[surface_name]['fo'][0][y][x] = fore_color[0]
+	SURFACES[surface_name]['fo'][1][y][x] = fore_color[1]
+	SURFACES[surface_name]['fo'][2][y][x] = fore_color[2]
 	SURFACES[surface_name]['f'][0][y][x] = fore_color[0]
 	SURFACES[surface_name]['f'][1][y][x] = fore_color[1]
 	SURFACES[surface_name]['f'][2][y][x] = fore_color[2]
 	
 	if back_color:
+		SURFACES[surface_name]['bo'][0][y][x] = back_color[0]
+		SURFACES[surface_name]['bo'][1][y][x] = back_color[1]
+		SURFACES[surface_name]['bo'][2][y][x] = back_color[2]
 		SURFACES[surface_name]['b'][0][y][x] = back_color[0]
 		SURFACES[surface_name]['b'][1][y][x] = back_color[1]
 		SURFACES[surface_name]['b'][2][y][x] = back_color[2]
@@ -103,6 +118,63 @@ def write_string(surface_name, x, y, string, fore_color=(200, 200, 200), back_co
 		return False
 	
 	DRAW_CALLS.append(_write_string(surface_name, x, y, string, fore_color, back_color))
+
+def shade_surface_fore(surface_name, shader):
+	_surface = SURFACES[surface_name]
+	
+	#_surface['f'][0] = _surface['fo'][0].copy()
+	#_surface['f'][1] = _surface['fo'][1].copy()
+	#_surface['f'][2] = _surface['fo'][2].copy()	
+	
+	_f0 = _surface['f'][0] * shader
+	_f1 = _surface['f'][1] * shader
+	_f2 = _surface['f'][2] * shader
+	
+	SCREEN['f'][0] = _f0
+	SCREEN['f'][1] = _f1
+	SCREEN['f'][2] = _f2
+	
+	return
+	
+	_min_x = constants.WINDOW_WIDTH + 1
+	_max_x = -1
+	_min_y = constants.WINDOW_HEIGHT + 1
+	_max_y = -1
+	
+	for y in range(constants.WINDOW_HEIGHT):
+		for x in range(constants.WINDOW_WIDTH):
+			if shader[y][x] < 1:
+				if x > _max_x:
+					_max_x = x
+				
+				if x < _min_x:
+					_min_x = x
+				
+				if y > _max_y:
+					_max_y = y
+				
+				if y < _min_y:
+					_min_y = y
+	
+	print (_min_x, _min_y, _max_x, _max_y)
+	_surface['r'].append((_min_x, _min_y, _max_x, _max_y))
+
+def shade_surface_back(surface_name, shader):
+	_surface = SURFACES[surface_name]
+	
+	_f0 = _surface['b'][0] * shader
+	_f1 = _surface['b'][1] * shader
+	_f2 = _surface['b'][2] * shader
+	
+	SCREEN['b'][0] = _f0
+	SCREEN['b'][1] = _f1
+	SCREEN['b'][2] = _f2
+
+def shade(src_surface, dst_surface):
+	_src = SURFACES[src_surface]
+	_dst = SURFACES[dst_surface]
+	
+	_dst['f']
 
 def _clear_screen():
 	for rect in SCREEN['r']:
@@ -159,8 +231,12 @@ def _blit_surface(src_surface, dst_surface, clear=True):
 def screenshot(name):
 	tcod.sys_save_screenshot(name)
 
-def blit_surface(surface_name):
-	_blit_surface(SURFACES[surface_name], SCREEN)
+def blit_surface(surface_name, clear=True):
+	_blit_surface(SURFACES[surface_name], SCREEN, clear=clear)
+
+def reblit_whole_surface(surface_name):
+	SURFACES[surface_name]['r'].append((0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
+	_blit_surface(SURFACES[surface_name], SCREEN, clear=False)
 
 def blit_background(surface_name):
 	global BACKGROUND
@@ -168,7 +244,7 @@ def blit_background(surface_name):
 	BACKGROUND = SURFACES[surface_name]
 	clear_rects(surface_name, [(0, 0, get_size()[0], get_size()[1])])
 	
-	_blit_surface(SURFACES[surface_name], SCREEN, clear=False)
+	_blit_surface(BACKGROUND, SCREEN, clear=False)
 
 def clear_screen():
 	SCREEN['d'] = '0'*(constants.WINDOW_HEIGHT*constants.WINDOW_WIDTH)
