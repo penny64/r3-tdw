@@ -12,6 +12,9 @@ import numpy
 
 X = 1
 NOISE = None
+TILE_MAP = []
+LEVEL_WIDTH = 0
+LEVEL_HEIGHT = 0
 
 
 def add_tile(raw_tile):
@@ -41,22 +44,30 @@ def post_process_water(width, height, tiles):
 	_clouds += 1.6
 	_zoom = 2.0
 	_clouds_x = X
-	_clouds_y = X*-1
+	_clouds_y = X * -.5
 	_size = 100.0
 	
 	X -= .003
 	
-	_worker = workers.counter_2d(height, width, 18*(1+((10-constants.SHADOW_QUALITY)/10.0)), lambda x, y: _post_process_water(x, y, _clouds, tiles, _zoom, _clouds_x, _clouds_y, _size))
+	_worker = workers.counter_2d(width,
+	                             height,
+	                             18*(1+((10-constants.SHADOW_QUALITY)/10.0)),
+	                             lambda x, y: _post_process_water(x, y, _clouds, tiles, _zoom, _clouds_x, _clouds_y, _size))
 	
 	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_fore('tiles', _clouds))
 	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_back('tiles', _clouds))
 
 def swamp(width, height, rings=8):
 	global NOISE
+	global TILE_MAP
+	global LEVEL_WIDTH
+	global LEVEL_HEIGHT
 	
 	NOISE = tcod.noise_new(3)
+	LEVEL_WIDTH = width
+	LEVEL_HEIGHT = height
 	
-	_tile_map = numpy.zeros((height, width))
+	_tile_map = numpy.zeros((height, width), dtype=numpy.int)
 	_center_x, _center_y = width/2, height/2
 	_map_radius = max([width, height]) / 2
 	_number_of_rings = _map_radius / rings
@@ -76,12 +87,16 @@ def swamp(width, height, rings=8):
 			
 			if random.uniform(.26, 1) < _lod:
 				if random.uniform(0, _lod) > .45:
-					_tiles.append(add_tile(tiles.swamp_water(x, y)))
+					_tile = add_tile(tiles.swamp_water(x, y))
 				else:
-					_tiles.append(add_tile(tiles.grass(x, y)))
+					_tile = add_tile(tiles.grass(x, y))
 				
 			else:
-				_tiles.append(add_tile(tiles.swamp(x, y)))
+				_tile = add_tile(tiles.swamp(x, y))
+			
+			_tiles.append(_tile)
+			_tile_map[y][x] = int(_tile['_id'])
 	
+	TILE_MAP = _tile_map
 	#events.register_event('tick', lambda: post_process_water(width, height, _tiles))
 	post_processing.run(time=18*(1+((10-constants.SHADOW_QUALITY)/10.0)), repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles))

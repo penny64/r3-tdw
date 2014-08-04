@@ -119,33 +119,47 @@ def write_string(surface_name, x, y, string, fore_color=(200, 200, 200), back_co
 	
 	DRAW_CALLS.append(_write_string(surface_name, x, y, string, fore_color, back_color))
 
+def write_char_direct(x, y, char, fore_color, back_color):
+	SCREEN['c'][y][x] = ord(char)
+		
+	#SCREEN['fo'][0][y][x] = fore_color[0]
+	#SCREEN['fo'][1][y][x] = fore_color[1]
+	#SCREEN['fo'][2][y][x] = fore_color[2]
+	SCREEN['f'][0][y][x] = fore_color[0]
+	SCREEN['f'][1][y][x] = fore_color[1]
+	SCREEN['f'][2][y][x] = fore_color[2]
+	
+	if back_color:
+		#SCREEN['bo'][0][y][x] = back_color[0]
+		#SCREEN['bo'][1][y][x] = back_color[1]
+		#SCREEN['bo'][2][y][x] = back_color[2]
+		SCREEN['b'][0][y][x] = back_color[0]
+		SCREEN['b'][1][y][x] = back_color[1]
+		SCREEN['b'][2][y][x] = back_color[2]	
+
 def shade_surface_fore(surface_name, shader):
 	_surface = SURFACES[surface_name]
 	
-	_f0 = _surface['f'][0] * shader
-	_f1 = _surface['f'][1] * shader
-	_f2 = _surface['f'][2] * shader
+	#_f0 = _surface['f'][0] * shader
+	#_f1 = _surface['f'][1] * shader
+	#_f2 = _surface['f'][2] * shader
 	
-	SCREEN['f'][0] = _f0
-	SCREEN['f'][1] = _f1
-	SCREEN['f'][2] = _f2
+	SCREEN['f'][0] *= shader
+	SCREEN['f'][1] *= shader
+	SCREEN['f'][2] *= shader
 
 def shade_surface_back(surface_name, shader):
 	_surface = SURFACES[surface_name]
 	
-	_f0 = _surface['b'][0] * shader
-	_f1 = _surface['b'][1] * shader
-	_f2 = _surface['b'][2] * shader
+	#_f0 = _surface['b'][0] * shader
+	#_f1 = _surface['b'][1] * shader
+	#_f2 = _surface['b'][2] * shader
 	
-	SCREEN['b'][0] = _f0
-	SCREEN['b'][1] = _f1
-	SCREEN['b'][2] = _f2
-
-def shade(src_surface, dst_surface):
-	_src = SURFACES[src_surface]
-	_dst = SURFACES[dst_surface]
+	SCREEN['b'][0] *= shader
+	SCREEN['b'][1] *= shader
+	SCREEN['b'][2] *= shader
 	
-	_dst['f']
+	#print 'SHADE'
 
 def _clear_screen():
 	for rect in SCREEN['r']:
@@ -251,7 +265,6 @@ def update():
 	tcod.console_fill_background(0, SCREEN['b'][0], SCREEN['b'][1], SCREEN['b'][2])
 	tcod.console_fill_foreground(0, SCREEN['f'][0], SCREEN['f'][1], SCREEN['f'][2])
 	
-	#if DRAW_CALLS:
 	_clear_screen()
 
 def blit():

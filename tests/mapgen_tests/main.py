@@ -9,6 +9,9 @@ import mapgen
 import time
 
 
+CAMERA_X = 0
+CAMERA_Y = 0
+
 
 def handle_input():
 	if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
@@ -23,17 +26,24 @@ def handle_mouse_pressed(x, y, button):
 	pass
 
 def draw_map():
-	for entity_id in entities.get_entity_group('tiles'):
-		#_x, _y = 
-		
-		#if _x >= constants.WINDOW_WIDTH or _y >= constants.WINDOW_HEIGHT:
-		#	continue
-		
-		entities.trigger_event(entities.get_entity(entity_id), 'draw')
+	for y in range(constants.MAP_VIEW_HEIGHT):
+		for x in range(constants.MAP_VIEW_WIDTH):
+			_x = x + CAMERA_X
+			_y = y + CAMERA_Y
+			
+			if _x >= mapgen.LEVEL_WIDTH or _y >= mapgen.LEVEL_HEIGHT:
+				continue
+			
+			_tile = entities.get_entity(str(mapgen.TILE_MAP[_y][_x]))
+			
+			display.write_char_direct(x, y, _tile['tile']['char'], _tile['tile']['fore_color'], _tile['tile']['back_color'])
+			
+			#entities.trigger_event(_tile, 'set_position', x=x, y=y)
+			#entities.trigger_event(_tile, 'draw')
 	
-	display.blit_surface('tiles')
-	events.trigger_event('draw')
-	display.blit_background('tiles')
+	#display.blit_surface('tiles')
+	#events.trigger_event('draw')
+	#display.blit_background('tiles')
 
 def draw():
 	events.trigger_event('post_process')
@@ -59,16 +69,24 @@ def main():
 	framework.shutdown()
 
 def loop():
+	global CAMERA_X
+	global CAMERA_Y
+	
 	events.trigger_event('input')
 	events.trigger_event('tick')
 	
 	if not handle_input():
 		return False
 	
-	#draw_map()
+	#if CAMERA_X < constants.MAP_VIEW_WIDTH/2:
+	#	CAMERA_X += 1
+	#elif CAMERA_Y < constants.MAP_VIEW_HEIGHT/2:
+	#	CAMERA_Y += 1
+	
+	draw_map()
 	draw()
 	
-	#print display.get_fps()
+	print display.get_fps()
 	
 	return True
 
