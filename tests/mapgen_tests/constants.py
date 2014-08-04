@@ -41,6 +41,13 @@ KEY_9 = 57
 KEY_ENTER = 13
 
 
+##########
+#Graphics#
+##########
+
+SHADOW_QUALITY = 10
+
+
 ########
 #Colors#
 ########

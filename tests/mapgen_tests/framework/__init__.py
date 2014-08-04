@@ -5,6 +5,7 @@ import dijkstra
 import controls
 import display
 import numbers
+import workers
 import shapes
 import worlds
 import events
