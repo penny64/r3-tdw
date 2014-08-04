@@ -120,7 +120,7 @@ def loop():
 		return False
 	
 	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH and CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
-		scroll_map(1, 1)
+		scroll_map(0, 1)
 	
 	draw()
 	
