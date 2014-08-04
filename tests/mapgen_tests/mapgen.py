@@ -44,7 +44,7 @@ def post_process_water(width, height, tiles):
 	_clouds_y = X*-1
 	_size = 100.0
 	
-	X -= .006
+	X -= .003
 	
 	_worker = workers.counter_2d(height, width, 18*(1+((10-constants.SHADOW_QUALITY)/10.0)), lambda x, y: _post_process_water(x, y, _clouds, tiles, _zoom, _clouds_x, _clouds_y, _size))
 	

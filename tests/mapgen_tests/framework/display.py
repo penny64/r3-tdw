@@ -122,10 +122,6 @@ def write_string(surface_name, x, y, string, fore_color=(200, 200, 200), back_co
 def shade_surface_fore(surface_name, shader):
 	_surface = SURFACES[surface_name]
 	
-	#_surface['f'][0] = _surface['fo'][0].copy()
-	#_surface['f'][1] = _surface['fo'][1].copy()
-	#_surface['f'][2] = _surface['fo'][2].copy()	
-	
 	_f0 = _surface['f'][0] * shader
 	_f1 = _surface['f'][1] * shader
 	_f2 = _surface['f'][2] * shader
@@ -133,31 +129,6 @@ def shade_surface_fore(surface_name, shader):
 	SCREEN['f'][0] = _f0
 	SCREEN['f'][1] = _f1
 	SCREEN['f'][2] = _f2
-	
-	return
-	
-	_min_x = constants.WINDOW_WIDTH + 1
-	_max_x = -1
-	_min_y = constants.WINDOW_HEIGHT + 1
-	_max_y = -1
-	
-	for y in range(constants.WINDOW_HEIGHT):
-		for x in range(constants.WINDOW_WIDTH):
-			if shader[y][x] < 1:
-				if x > _max_x:
-					_max_x = x
-				
-				if x < _min_x:
-					_min_x = x
-				
-				if y > _max_y:
-					_max_y = y
-				
-				if y < _min_y:
-					_min_y = y
-	
-	print (_min_x, _min_y, _max_x, _max_y)
-	_surface['r'].append((_min_x, _min_y, _max_x, _max_y))
 
 def shade_surface_back(surface_name, shader):
 	_surface = SURFACES[surface_name]

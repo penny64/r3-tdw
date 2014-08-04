@@ -68,7 +68,7 @@ def loop():
 	#draw_map()
 	draw()
 	
-	print display.get_fps()
+	#print display.get_fps()
 	
 	return True
 
