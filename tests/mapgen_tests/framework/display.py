@@ -46,6 +46,9 @@ def create_surface(surface_name, width=constants.WINDOW_WIDTH, height=constants.
 	SURFACES[surface_name] = {}
 	SURFACES[surface_name]['c'] = numpy.zeros((height, width), dtype=numpy.int32)
 	SURFACES[surface_name]['r'] = []
+	SURFACES[surface_name]['cr'] = []
+	SURFACES[surface_name]['d'] = '0'*(width*height)
+	SURFACES[surface_name]['bg'] = None
 	
 	SURFACES[surface_name]['f'] = []
 	SURFACES[surface_name]['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
@@ -153,29 +156,37 @@ def shade_surface_back(surface_name, shader):
 
 def _clear_screen():
 	for rect in SCREEN['r']:
+		if len(rect) == 5:
+			_background = SURFACES[rect[4]]
+		else:
+			_background = BACKGROUND
+		
 		for y in range(rect[1], rect[3]):
 			for x in range(rect[0], rect[2]):
-				SCREEN['c'][y][x] = BACKGROUND['c'][y][x]
+				SCREEN['c'][y][x] = _background['c'][y][x]
 				
 				_pre = SCREEN['d'][:x+(y*constants.WINDOW_WIDTH)]
 				_post = SCREEN['d'][x+(y*constants.WINDOW_WIDTH)+1:]
 				SCREEN['d'] = _pre+'0'+_post
 				
-				SCREEN['f'][0][y][x] = BACKGROUND['f'][0][y][x]
-				SCREEN['f'][1][y][x] = BACKGROUND['f'][1][y][x]
-				SCREEN['f'][2][y][x] = BACKGROUND['f'][2][y][x]
+				SCREEN['f'][0][y][x] = _background['f'][0][y][x]
+				SCREEN['f'][1][y][x] = _background['f'][1][y][x]
+				SCREEN['f'][2][y][x] = _background['f'][2][y][x]
 				
-				if BACKGROUND['b'][0][y][x] or BACKGROUND['b'][1][y][x] or BACKGROUND['b'][2][y][x]:
-					SCREEN['b'][0][y][x] = BACKGROUND['b'][0][y][x]
-					SCREEN['b'][1][y][x] = BACKGROUND['b'][1][y][x]
-					SCREEN['b'][2][y][x] = BACKGROUND['b'][2][y][x]
+				if _background['b'][0][y][x] or _background['b'][1][y][x] or _background['b'][2][y][x]:
+					SCREEN['b'][0][y][x] = _background['b'][0][y][x]
+					SCREEN['b'][1][y][x] = _background['b'][1][y][x]
+					SCREEN['b'][2][y][x] = _background['b'][2][y][x]
 	
 	SCREEN['r'] = []
 
-def _blit_surface(src_surface, dst_surface, clear=True):
+def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 	for rect in src_surface['r']:
-		#if clear:
-		#	SCREEN['r'].append(rect[:])
+		if clear and src_name:
+			_rect = list(rect[:])
+			_rect.append(src_name)
+			
+			SCREEN['r'].append(_rect)
 		
 		for y in range(rect[1], rect[3]):
 			for x in range(rect[0], rect[2]):
@@ -228,10 +239,37 @@ def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, width, he
 	src_surface['r'] = []
 
 def blit_surface(surface_name, clear=True):
-	_blit_surface(SURFACES[surface_name], SCREEN, clear=clear)
+	_blit_surface(SURFACES[surface_name], SCREEN, clear=clear, src_name=surface_name)
 
 def blit_surface_viewport(surface_name, x, y, width, height):
 	_blit_surface_viewport(SURFACES[surface_name], SCREEN, x, y, width, height)
+
+def set_clear_surface(surface_name, background_surface_name):
+	SURFACES[surface_name]['bg'] = background_surface_name
+
+def clear_surface(surface_name, background_surface_name):
+	_surface = SURFACES[surface_name]
+	_background_surface = SURFACES[background_surface_name]
+	
+	for rect in _surface['cr']:
+		for y in range(rect[1], rect[3]):
+			for x in range(rect[0], rect[2]):
+				_surface['c'][y][x] = _background_surface['c'][y][x]
+				
+				_pre = _surface['d'][:x+(y*constants.WINDOW_WIDTH)]
+				_post = _surface['d'][x+(y*constants.WINDOW_WIDTH)+1:]
+				_surface['d'] = _pre+'0'+_post
+				
+				_surface['f'][0][y][x] = _background_surface['f'][0][y][x]
+				_surface['f'][1][y][x] = _background_surface['f'][1][y][x]
+				_surface['f'][2][y][x] = _background_surface['f'][2][y][x]
+				
+				if _background_surface['b'][0][y][x] or _background_surface['b'][1][y][x] or _background_surface['b'][2][y][x]:
+					_surface['b'][0][y][x] = _background_surface['b'][0][y][x]
+					_surface['b'][1][y][x] = _background_surface['b'][1][y][x]
+					_surface['b'][2][y][x] = _background_surface['b'][2][y][x]
+	
+	_surface['cr'] = []
 
 def screenshot(name):
 	tcod.sys_save_screenshot(name)
@@ -282,7 +320,7 @@ def update():
 	tcod.console_fill_background(0, SCREEN['b'][0], SCREEN['b'][1], SCREEN['b'][2])
 	tcod.console_fill_foreground(0, SCREEN['f'][0], SCREEN['f'][1], SCREEN['f'][2])
 	
-	#_clear_screen()
+	_clear_screen()
 
 def blit():
 	update()

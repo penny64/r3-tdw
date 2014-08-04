@@ -97,13 +97,13 @@ def swamp(width, height, rings=8):
 			_tiles.append(_tile)
 			_tile_map[y][x] = int(_tile['_id'])
 	
-	for x, y in shapes.circle(_center_x, _center_y, 30):
-		_tile = add_tile(tiles.water(x, y))
-		_tiles.append(_tile)
-		_tile_map[y][x] = int(_tile['_id'])
+	#for x, y in shapes.circle(_center_x, _center_y, 30):
+	#	_tile = add_tile(tiles.water(x, y))
+	#	_tiles.append(_tile)
+	#	_tile_map[y][x] = int(_tile['_id'])
 		
 	
 	TILE_MAP = _tile_map
 	_passes = 20
 	
-	post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles, _passes))
+	#post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles, _passes))
