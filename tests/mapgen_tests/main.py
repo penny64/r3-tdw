@@ -6,6 +6,7 @@ import post_processing
 import constants
 import mapgen
 
+import numpy
 import time
 
 
@@ -26,27 +27,68 @@ def handle_mouse_pressed(x, y, button):
 	pass
 
 def draw_map():
+	_surface = display.get_surface('tiles')
+	
 	for y in range(constants.MAP_VIEW_HEIGHT):
 		for x in range(constants.MAP_VIEW_WIDTH):
-			_x = x + CAMERA_X
-			_y = y + CAMERA_Y
-			
-			if _x >= mapgen.LEVEL_WIDTH or _y >= mapgen.LEVEL_HEIGHT:
-				continue
-			
+			_x = CAMERA_X + x
+			_y = CAMERA_Y + y
 			_tile = entities.get_entity(str(mapgen.TILE_MAP[_y][_x]))
 			
-			display.write_char_direct(x, y, _tile['tile']['char'], _tile['tile']['fore_color'], _tile['tile']['back_color'])
-			
-			#entities.trigger_event(_tile, 'set_position', x=x, y=y)
-			#entities.trigger_event(_tile, 'draw')
+			entities.trigger_event(_tile, 'draw', x=x, y=y)
+
+def scroll_map(xscroll=0, yscroll=0):
+	global CAMERA_X
+	global CAMERA_Y
 	
-	#display.blit_surface('tiles')
-	#events.trigger_event('draw')
-	#display.blit_background('tiles')
+	_surface = display.get_surface('tiles')
+	
+	if xscroll:
+		if xscroll > 0:
+			_xd = -1
+		else:
+			_xd = 1
+	
+		_surface['c'] = numpy.roll(_surface['c'], _xd, axis=1)
+		_surface['f'][0] = numpy.roll(_surface['f'][0], _xd, axis=1)
+		_surface['f'][1] = numpy.roll(_surface['f'][1], _xd, axis=1)
+		_surface['f'][2] = numpy.roll(_surface['f'][2], _xd, axis=1)	
+		_surface['b'][0] = numpy.roll(_surface['b'][0], _xd, axis=1)
+		_surface['b'][1] = numpy.roll(_surface['b'][1], _xd, axis=1)
+		_surface['b'][2] = numpy.roll(_surface['b'][2], _xd, axis=1)
+		
+		for y in range(constants.MAP_VIEW_HEIGHT):
+			_tile = entities.get_entity(str(mapgen.TILE_MAP[y][constants.MAP_VIEW_WIDTH-1+CAMERA_X+1]))
+			
+			entities.trigger_event(_tile, 'draw', x=constants.MAP_VIEW_WIDTH-1, y=y, direct=True)
+		
+		CAMERA_X += 1
+	
+	if yscroll:
+		if yscroll > 0:
+			_xd = -1
+		else:
+			_xd = 1
+	
+		_surface['c'] = numpy.roll(_surface['c'], _xd, axis=0)
+		_surface['f'][0] = numpy.roll(_surface['f'][0], _xd, axis=0)
+		_surface['f'][1] = numpy.roll(_surface['f'][1], _xd, axis=0)
+		_surface['f'][2] = numpy.roll(_surface['f'][2], _xd, axis=0)	
+		_surface['b'][0] = numpy.roll(_surface['b'][0], _xd, axis=0)
+		_surface['b'][1] = numpy.roll(_surface['b'][1], _xd, axis=0)
+		_surface['b'][2] = numpy.roll(_surface['b'][2], _xd, axis=0)
+		
+		for x in range(constants.MAP_VIEW_WIDTH):
+			print constants.MAP_VIEW_HEIGHT-1+CAMERA_Y+1, x
+			_tile = entities.get_entity(str(mapgen.TILE_MAP[constants.MAP_VIEW_HEIGHT-1+CAMERA_Y+1][x]))
+			
+			entities.trigger_event(_tile, 'draw', x=x, y=constants.MAP_VIEW_HEIGHT-1, direct=True)	
+		
+		CAMERA_Y += 1
 
 def draw():
-	events.trigger_event('post_process')
+	#events.trigger_event('post_process')
+	display.blit_surface_viewport('tiles', 0, 0, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 	events.trigger_event('draw')
 
 def main():
@@ -59,6 +101,8 @@ def main():
 	mapgen.swamp(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)	
 	print 'Took:', time.time()-_t
 	
+	display.create_surface('tiles', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	
 	draw_map()
 	
 	while loop():
@@ -69,21 +113,15 @@ def main():
 	framework.shutdown()
 
 def loop():
-	global CAMERA_X
-	global CAMERA_Y
-	
 	events.trigger_event('input')
 	events.trigger_event('tick')
 	
 	if not handle_input():
 		return False
 	
-	#if CAMERA_X < constants.MAP_VIEW_WIDTH/2:
-	#	CAMERA_X += 1
-	#elif CAMERA_Y < constants.MAP_VIEW_HEIGHT/2:
-	#	CAMERA_Y += 1
+	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH and CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
+		scroll_map(1, 1)
 	
-	draw_map()
 	draw()
 	
 	print display.get_fps()
@@ -97,7 +135,6 @@ if __name__ == '__main__':
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('systems')
 	display.create_surface('background')
-	display.create_surface('tiles')
 	post_processing.start()
 	
 	framework.run(main)

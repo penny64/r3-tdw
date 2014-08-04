@@ -4,7 +4,7 @@ from framework import entities, timers
 def _create():
 	_entity = entities.create_entity(group='systems')
 	
-	timers.register(_entity, use_system_event='post_process')
+	#timers.register(_entity)
 	
 	entities.create_event(_entity, 'finish')
 	
@@ -12,8 +12,6 @@ def _create():
 
 
 def _counter_2d_tick(entity):
-	#print 'passes:', int(entity['passes'])
-	
 	for i in range(int(entity['passes'])):
 		if entity['x']['current'] < entity['x']['max']-1:
 			entity['callback'](entity['x']['current'], entity['y']['current'])
@@ -37,10 +35,8 @@ def counter_2d(x, y, passes, callback):
 	_entity['callback'] = callback
 	_entity['passes'] = (x*y) / float(passes)
 	
-	entities.trigger_event(_entity,
-	                       'create_timer',
-	                       time=0,
-	                       repeat=-1,
-	                       repeat_callback=_counter_2d_tick)
+	entities.register_event(_entity,
+	                       'tick',
+	                       _counter_2d_tick)
 	
 	return _entity

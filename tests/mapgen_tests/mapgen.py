@@ -37,7 +37,7 @@ def _post_process_water(x, y, clouds, tiles, zoom, clouds_x, clouds_y, size):
 	
 	clouds[y][x] -= _shade_mod
 
-def post_process_water(width, height, tiles):
+def post_process_water(width, height, tiles, passes):
 	global X
 	
 	_clouds = numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH))
@@ -51,7 +51,7 @@ def post_process_water(width, height, tiles):
 	
 	_worker = workers.counter_2d(width,
 	                             height,
-	                             18*(1+((10-constants.SHADOW_QUALITY)/10.0)),
+	                             passes,
 	                             lambda x, y: _post_process_water(x, y, _clouds, tiles, _zoom, _clouds_x, _clouds_y, _size))
 	
 	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_fore('tiles', _clouds))
@@ -98,5 +98,6 @@ def swamp(width, height, rings=8):
 			_tile_map[y][x] = int(_tile['_id'])
 	
 	TILE_MAP = _tile_map
-	#events.register_event('tick', lambda: post_process_water(width, height, _tiles))
-	post_processing.run(time=18*(1+((10-constants.SHADOW_QUALITY)/10.0)), repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles))
+	_passes = 20
+	
+	post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles, _passes))
