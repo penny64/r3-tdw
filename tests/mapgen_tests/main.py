@@ -1,4 +1,4 @@
-from framework import entities, controls, display, events, worlds, tile, timers, movement, pathfinding, stats
+from framework import entities, controls, display, events, worlds, tile, timers, movement, pathfinding, stats, numbers
 
 import framework
 
@@ -13,6 +13,8 @@ import time
 CURSOR = None
 CAMERA_X = 0
 CAMERA_Y = 0
+CAMERA_LAST_X = 0
+CAMERA_LAST_Y = 0
 
 
 def handle_input():
@@ -25,7 +27,14 @@ def handle_mouse_movement(x, y, **kwargs):
 	entities.trigger_event(CURSOR, 'set_position', x=x, y=y)
 
 def handle_mouse_pressed(x, y, button):
-	pass
+	global CAMERA_X
+	global CAMERA_Y
+	
+	_c_x = (CAMERA_X+x) - (constants.MAP_VIEW_WIDTH/2)
+	_c_y = (CAMERA_Y+y) - (constants.MAP_VIEW_HEIGHT/2)
+	
+	if button == 2:
+		set_camera_pos(_c_x, _c_y)
 
 def draw_map():
 	_surface = display.get_surface('tiles')
@@ -45,6 +54,13 @@ def draw():
 	display.set_clear_surface('ui', 'tiles')
 	display.blit_surface('ui')
 	events.trigger_event('draw')
+
+def set_camera_pos(x, y):
+	global CAMERA_X
+	global CAMERA_Y
+	
+	CAMERA_X = numbers.clip(x, 0, mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH)
+	CAMERA_Y = numbers.clip(y, 0, mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT)
 
 def scroll_map(xscroll=0, yscroll=0):
 	global CAMERA_X
@@ -121,6 +137,8 @@ def main():
 	framework.shutdown()
 
 def loop():
+	global CAMERA_LAST_X
+	global CAMERA_LAST_Y
 	global CAMERA_X
 	global CAMERA_Y
 	
@@ -131,11 +149,12 @@ def loop():
 		return False
 	
 	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH and CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
-		draw_map()
-		CAMERA_X += 1
-		CAMERA_Y += 1
-		#scroll_map(0, 1)
-		#scroll_map(1, 0)
+		if not CAMERA_LAST_X == CAMERA_X or not CAMERA_LAST_Y == CAMERA_Y:
+			draw_map()
+			CAMERA_LAST_X = CAMERA_X
+			CAMERA_LAST_Y = CAMERA_Y
+			#scroll_map(0, 1)
+			#scroll_map(1, 0)
 	
 	draw()
 	
