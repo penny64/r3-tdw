@@ -39,15 +39,14 @@ def handle_mouse_pressed(x, y, button):
 def draw_map():
 	_surface = display.get_surface('tiles')
 	
-	for y in range(constants.MAP_VIEW_HEIGHT):
-		for x in range(constants.MAP_VIEW_WIDTH):
-			_x = CAMERA_X + x
-			_y = CAMERA_Y + y
-			_tile = entities.get_entity(str(mapgen.TILE_MAP[_y][_x]))
+	for y in range(mapgen.LEVEL_HEIGHT):
+		for x in range(mapgen.LEVEL_WIDTH):
+			_tile = entities.get_entity(str(mapgen.TILE_MAP[y][x]))
 			
 			entities.trigger_event(_tile, 'draw', x=x, y=y, direct=True)
 	
-	display.blit_surface_viewport('tiles', 0, 0, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+	#display.blit_surface('tiles')
+	display.blit_surface_viewport('tiles', CAMERA_X, CAMERA_Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 
 def draw():
 	entities.trigger_event(CURSOR, 'draw')
@@ -125,7 +124,7 @@ def main():
 	mapgen.swamp(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)	
 	print 'Took:', time.time()-_t
 	
-	display.create_surface('tiles', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('tiles', width=mapgen.LEVEL_WIDTH, height=mapgen.LEVEL_HEIGHT)
 	
 	draw_map()
 	
@@ -148,13 +147,14 @@ def loop():
 	if not handle_input():
 		return False
 	
-	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH and CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
+	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH or CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
 		if not CAMERA_LAST_X == CAMERA_X or not CAMERA_LAST_Y == CAMERA_Y:
-			draw_map()
+			display.blit_surface_viewport('tiles', CAMERA_X, CAMERA_Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+			
 			CAMERA_LAST_X = CAMERA_X
 			CAMERA_LAST_Y = CAMERA_Y
-			#scroll_map(0, 1)
-			#scroll_map(1, 0)
+			
+			display.set_surface_camera('tiles', CAMERA_X, CAMERA_Y)
 	
 	draw()
 	

@@ -30,8 +30,8 @@ def add_tile(raw_tile):
 	return _entity
 
 def _post_process_water(x, y, clouds, tiles, zoom, clouds_x, clouds_y, size):
-	_noise_values = [zoom * x / (size) + clouds_x,
-	                 zoom * y / (size) + clouds_y]
+	_noise_values = [(zoom * x / (size)) + clouds_x,
+	                 (zoom * y / (size)) + clouds_y]
 	_shade = tcod.noise_get_turbulence(NOISE, _noise_values, tcod.NOISE_SIMPLEX)
 	_shade_mod = numbers.clip(abs(_shade), .6, 1)
 	
@@ -43,8 +43,8 @@ def post_process_water(width, height, tiles, passes):
 	_clouds = numpy.zeros((height, width))
 	_clouds += 1.6
 	_zoom = 2.0
-	_clouds_x = X
-	_clouds_y = X * -.5
+	_clouds_x = (display.get_surface('tiles')['start_x']*.015)+X
+	_clouds_y = ((display.get_surface('tiles')['start_y']*.015)+X) * -.5
 	_size = 100.0
 	
 	X -= .003
@@ -54,8 +54,8 @@ def post_process_water(width, height, tiles, passes):
 	                             passes,
 	                             lambda x, y: _post_process_water(x, y, _clouds, tiles, _zoom, _clouds_x, _clouds_y, _size))
 	
-	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_fore('tiles', _clouds))
-	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_back('tiles', _clouds))
+	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_fore('tiles', _clouds, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT))
+	entities.register_event(_worker, 'finish', lambda e: display.shade_surface_back('tiles', _clouds, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT))
 
 def swamp(width, height, rings=8):
 	global NOISE
@@ -104,6 +104,6 @@ def swamp(width, height, rings=8):
 		
 	
 	TILE_MAP = _tile_map
-	_passes = 20
+	_passes = 4
 	
 	post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT, _tiles, _passes))

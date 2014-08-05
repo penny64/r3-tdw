@@ -49,6 +49,8 @@ def create_surface(surface_name, width=constants.WINDOW_WIDTH, height=constants.
 	SURFACES[surface_name]['cr'] = []
 	SURFACES[surface_name]['d'] = '0'*(width*height)
 	SURFACES[surface_name]['bg'] = None
+	SURFACES[surface_name]['start_x'] = 0
+	SURFACES[surface_name]['start_y'] = 0
 	
 	SURFACES[surface_name]['f'] = []
 	SURFACES[surface_name]['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
@@ -134,31 +136,37 @@ def write_char_direct(x, y, char, fore_color, back_color):
 		SCREEN['b'][1][y][x] = back_color[1]
 		SCREEN['b'][2][y][x] = back_color[2]	
 
-def shade_surface_fore(surface_name, shader):
+def shade_surface_fore(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
+	_start_x = _surface['start_x']
+	_start_y = _surface['start_y']
+	_surface['f'][0] = _surface['fo'][0].copy()
+	_surface['f'][1] = _surface['fo'][1].copy()
+	_surface['f'][2] = _surface['fo'][2].copy()
 	
-	#SCREEN['f'][0] = _surface['fo'][0] * shader
-	#SCREEN['f'][1] = _surface['fo'][1] * shader
-	#SCREEN['f'][2] = _surface['fo'][2] * shader
+	_f0 = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
+	_f1 = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
+	_f2 = _surface['fo'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader
+	
+	SCREEN['f'][0][0:height, 0:width] = _f0
+	SCREEN['f'][1][0:height, 0:width] = _f1
+	SCREEN['f'][2][0:height, 0:width] = _f2
 
-def shade_surface_back(surface_name, shader):
+def shade_surface_back(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
+	_start_x = _surface['start_x']
+	_start_y = _surface['start_y']
 	_surface['b'][0] = _surface['bo'][0].copy()
 	_surface['b'][1] = _surface['bo'][1].copy()
 	_surface['b'][2] = _surface['bo'][2].copy()
 	
-	_f0 = _surface['bo'][0] * shader
-	_f1 = _surface['bo'][1] * shader
-	_f2 = _surface['bo'][2] * shader
+	_f0 = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
+	_f1 = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
+	_f2 = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	
-	SCREEN['b'][0][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f0
-	SCREEN['b'][1][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f1
-	SCREEN['b'][2][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f2
-	
-	#
-	#SCREEN['b'][0] = _f0
-	#SCREEN['b'][1] = _f1
-	#SCREEN['b'][2] = _f2
+	SCREEN['b'][0][0:height, 0:width] = _f0
+	SCREEN['b'][1][0:height, 0:width] = _f1
+	SCREEN['b'][2][0:height, 0:width] = _f2
 
 def _clear_screen():
 	for rect in SCREEN['r']:
@@ -219,30 +227,12 @@ def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 	src_surface['r'] = []
 
 def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, width, height):
-	#for rect in src_surface['r']:
-	for y in range(start_y, start_y + height):
-		for x in range(start_x, start_x + width):
-			_dx = x - start_x
-			_dy = y - start_y				
-			
-			_char = src_surface['c'][y][x]
-			
-			dst_surface['c'][_dy][_dx] = _char
-			
-			_pre = SCREEN['d'][:_dx+(_dy*constants.WINDOW_WIDTH)]
-			_post = SCREEN['d'][_dx+(_dy*constants.WINDOW_WIDTH)+1:]
-			SCREEN['d'] = _pre+chr(_char)+_post
-			
-			dst_surface['f'][0][_dy][_dx] = src_surface['f'][0][y][x]
-			dst_surface['f'][1][_dy][_dx] = src_surface['f'][1][y][x]
-			dst_surface['f'][2][_dy][_dx] = src_surface['f'][2][y][x]
-			
-			if src_surface['b'][0][y][x] or src_surface['b'][1][y][x] or src_surface['b'][2][y][x]:
-				dst_surface['b'][0][_dy][_dx] = src_surface['b'][0][y][x]
-				dst_surface['b'][1][_dy][_dx] = src_surface['b'][1][y][x]
-				dst_surface['b'][2][_dy][_dx] = src_surface['b'][2][y][x]
-	
-	src_surface['r'] = []
+	dst_surface['f'][0][0:height, 0:width] = src_surface['f'][0][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['f'][1][0:height, 0:width] = src_surface['f'][1][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['f'][2][0:height, 0:width] = src_surface['f'][2][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][0][0:height, 0:width] = src_surface['b'][0][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][1][0:height, 0:width] = src_surface['b'][1][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][2][0:height, 0:width] = src_surface['b'][2][start_y:start_y+height, start_x:start_x+width]
 
 def blit_surface(surface_name, clear=True):
 	_blit_surface(SURFACES[surface_name], SCREEN, clear=clear, src_name=surface_name)
@@ -252,6 +242,12 @@ def blit_surface_viewport(surface_name, x, y, width, height):
 
 def set_clear_surface(surface_name, background_surface_name):
 	SURFACES[surface_name]['bg'] = background_surface_name
+
+def set_surface_camera(surface_name, x, y):
+	_surface = SURFACES[surface_name]
+	
+	_surface['start_x'] = x
+	_surface['start_y'] = y
 
 def clear_surface(surface_name, background_surface_name):
 	_surface = SURFACES[surface_name]
