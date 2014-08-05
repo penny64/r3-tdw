@@ -140,9 +140,9 @@ def shade_surface_fore(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']
 	_start_y = _surface['start_y']
-	_surface['f'][0] = _surface['fo'][0].copy()
-	_surface['f'][1] = _surface['fo'][1].copy()
-	_surface['f'][2] = _surface['fo'][2].copy()
+	_surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][2][_start_y:_start_y+height, _start_x:_start_x+width]
 	
 	_f0 = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	_f1 = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
@@ -156,9 +156,9 @@ def shade_surface_back(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']
 	_start_y = _surface['start_y']
-	_surface['b'][0] = _surface['bo'][0].copy()
-	_surface['b'][1] = _surface['bo'][1].copy()
-	_surface['b'][2] = _surface['bo'][2].copy()
+	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width]
 	
 	_f0 = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	_f1 = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
