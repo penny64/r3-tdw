@@ -137,22 +137,28 @@ def write_char_direct(x, y, char, fore_color, back_color):
 def shade_surface_fore(surface_name, shader):
 	_surface = SURFACES[surface_name]
 	
-	SCREEN['f'][0] = _surface['fo'][0] * shader
+	#SCREEN['f'][0] = _surface['fo'][0] * shader
 	#SCREEN['f'][1] = _surface['fo'][1] * shader
 	#SCREEN['f'][2] = _surface['fo'][2] * shader
 
 def shade_surface_back(surface_name, shader):
 	_surface = SURFACES[surface_name]
-	return
 	_surface['b'][0] = _surface['bo'][0].copy()
 	_surface['b'][1] = _surface['bo'][1].copy()
 	_surface['b'][2] = _surface['bo'][2].copy()
+	
 	_f0 = _surface['bo'][0] * shader
 	_f1 = _surface['bo'][1] * shader
 	_f2 = _surface['bo'][2] * shader
-	SCREEN['b'][0] = _f0
-	SCREEN['b'][1] = _f1
-	SCREEN['b'][2] = _f2
+	
+	SCREEN['b'][0][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f0
+	SCREEN['b'][1][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f1
+	SCREEN['b'][2][0:constants.MAP_VIEW_HEIGHT, 0:constants.MAP_VIEW_WIDTH] = _f2
+	
+	#
+	#SCREEN['b'][0] = _f0
+	#SCREEN['b'][1] = _f1
+	#SCREEN['b'][2] = _f2
 
 def _clear_screen():
 	for rect in SCREEN['r']:

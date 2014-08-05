@@ -51,7 +51,7 @@ def draw_map():
 
 def draw():
 	entities.trigger_event(CURSOR, 'draw')
-	display.set_clear_surface('ui', 'tiles')
+	events.trigger_event('post_process')
 	display.blit_surface('ui')
 	events.trigger_event('draw')
 
@@ -171,6 +171,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('ui')
 	display.create_surface('background')
 	display.create_surface('ui')
+	display.set_clear_surface('ui', 'tiles')
 	post_processing.start()
 	
 	framework.run(main)

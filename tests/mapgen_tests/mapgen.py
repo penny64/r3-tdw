@@ -40,7 +40,7 @@ def _post_process_water(x, y, clouds, tiles, zoom, clouds_x, clouds_y, size):
 def post_process_water(width, height, tiles, passes):
 	global X
 	
-	_clouds = numpy.zeros((constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH))
+	_clouds = numpy.zeros((height, width))
 	_clouds += 1.6
 	_zoom = 2.0
 	_clouds_x = X
@@ -106,4 +106,4 @@ def swamp(width, height, rings=8):
 	TILE_MAP = _tile_map
 	_passes = 20
 	
-	#post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(width, height, _tiles, _passes))
+	post_processing.run(time=_passes, repeat=-1, repeat_callback=lambda _: post_process_water(constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT, _tiles, _passes))
