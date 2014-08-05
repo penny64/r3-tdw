@@ -23,10 +23,11 @@ def velocity(direction, speed):
 
 	return [velocity[0], -velocity[1]]
 
+def float_distance(pos_1, pos_2):
+	return math.sqrt((pos_2[0] - pos_1[0]) ** 2 +
+	                 (pos_2[1] - pos_1[1]) ** 2)	
+	
 def distance(pos_1, pos_2, old=False):
-	#return math.sqrt((pos_2[0] - pos_1[0]) ** 2 +
-	#                 (pos_2[1] - pos_1[1]) ** 2)
-
 	if old:
 		return abs(pos_1[0]-pos_2[0])+abs(pos_1[1]-pos_2[1])
 

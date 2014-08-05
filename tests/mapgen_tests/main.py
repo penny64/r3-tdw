@@ -8,6 +8,7 @@ import mapgen
 
 import numpy
 import time
+import sys
 
 
 CURSOR = None
@@ -33,7 +34,7 @@ def handle_mouse_pressed(x, y, button):
 	_c_x = (CAMERA_X+x) - (constants.MAP_VIEW_WIDTH/2)
 	_c_y = (CAMERA_Y+y) - (constants.MAP_VIEW_HEIGHT/2)
 	
-	if button == 2:
+	if button == 1:
 		set_camera_pos(_c_x, _c_y)
 
 def draw_map():
@@ -41,11 +42,10 @@ def draw_map():
 	
 	for y in range(mapgen.LEVEL_HEIGHT):
 		for x in range(mapgen.LEVEL_WIDTH):
-			_tile = entities.get_entity(str(mapgen.TILE_MAP[y][x]))
+			_tile = mapgen.TILE_MAP[y][x]
 			
-			entities.trigger_event(_tile, 'draw', x=x, y=y, direct=True)
+			display._set_char('tiles', _tile['x'], _tile['y'], _tile['c'], _tile['c_f'], _tile['c_b'])
 	
-	#display.blit_surface('tiles')
 	display.blit_surface_viewport('tiles', CAMERA_X, CAMERA_Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 
 def draw():
@@ -121,7 +121,7 @@ def main():
 	events.register_event('mouse_moved', handle_mouse_movement)
 	
 	_t = time.time()
-	mapgen.swamp(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)	
+	mapgen.swamp(400, 400)	
 	print 'Took:', time.time()-_t
 	
 	display.create_surface('tiles', width=mapgen.LEVEL_WIDTH, height=mapgen.LEVEL_HEIGHT)
@@ -147,18 +147,18 @@ def loop():
 	if not handle_input():
 		return False
 	
-	if CAMERA_X < mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH or CAMERA_Y < mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT:
-		if not CAMERA_LAST_X == CAMERA_X or not CAMERA_LAST_Y == CAMERA_Y:
-			display.blit_surface_viewport('tiles', CAMERA_X, CAMERA_Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
-			
-			CAMERA_LAST_X = CAMERA_X
-			CAMERA_LAST_Y = CAMERA_Y
-			
-			display.set_surface_camera('tiles', CAMERA_X, CAMERA_Y)
+	if not CAMERA_LAST_X == CAMERA_X or not CAMERA_LAST_Y == CAMERA_Y:
+		display.blit_surface_viewport('tiles', CAMERA_X, CAMERA_Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+		
+		CAMERA_LAST_X = CAMERA_X
+		CAMERA_LAST_Y = CAMERA_Y
+		
+		display.set_surface_camera('tiles', CAMERA_X, CAMERA_Y)
 	
 	draw()
 	
-	print display.get_fps()
+	if '--fps' in sys.argv:
+		print display.get_fps()
 	
 	return True
 
