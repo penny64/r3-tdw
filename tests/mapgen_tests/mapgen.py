@@ -44,7 +44,7 @@ def post_process_water(width, height, tiles, passes):
 	_clouds += 1.6
 	_zoom = 2.0
 	_clouds_x = (display.get_surface('tiles')['start_x']*.015)+X
-	_clouds_y = ((display.get_surface('tiles')['start_y']*.015)+X) * -.5
+	_clouds_y = (display.get_surface('tiles')['start_y']*.015)+(X * -.5)
 	_size = 100.0
 	
 	X -= .003
