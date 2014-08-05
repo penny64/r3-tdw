@@ -101,7 +101,7 @@ def tick(entity):
 			else:
 				entity['tile']['animation'] = {}
 
-def draw(entity, x=-1, y=-1, direct=False):
+def draw(entity, x=-1, y=-1, x_mod=0, y_mod=0, direct=False):
 	_char = entity['tile']['char']
 
 	if entity['tile']['animation']:
@@ -121,14 +121,19 @@ def draw(entity, x=-1, y=-1, direct=False):
 				_animation['index'] = 0
 
 	if x > -1:
-		_x = x
+		_x = x-x_mod
 	else:
-		_x = entity['tile']['x']
+		_x = entity['tile']['x']-x_mod
 	
 	if y > -1:
-		_y = y
+		_y = y-y_mod
 	else:
-		_y = entity['tile']['y']
+		_y = entity['tile']['y']-y_mod
+
+	_surface = display.get_surface(entity['tile']['surface'])
+	
+	if _x < 0 or _y < 0 or _x >= _surface['width'] or _y >= _surface['height']:
+		return
 
 	if direct:
 		display._set_char(entity['tile']['surface'],

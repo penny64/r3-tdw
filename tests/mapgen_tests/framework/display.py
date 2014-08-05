@@ -51,6 +51,8 @@ def create_surface(surface_name, width=constants.WINDOW_WIDTH, height=constants.
 	SURFACES[surface_name]['bg'] = None
 	SURFACES[surface_name]['start_x'] = 0
 	SURFACES[surface_name]['start_y'] = 0
+	SURFACES[surface_name]['width'] = width
+	SURFACES[surface_name]['height'] = height
 	
 	SURFACES[surface_name]['f'] = []
 	SURFACES[surface_name]['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
