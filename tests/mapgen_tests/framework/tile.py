@@ -4,8 +4,8 @@ import display
 import logging
 
 
-def register(entity, surface=None, animated=True):
-	entity['tile'] = {'char': 'X',
+def register(entity, surface=None, animated=True, char='X'):
+	entity['tile'] = {'char': char,
 	                  'x': -1,
 	                  'y': -1,
 	                  'fore_color': (255, 255, 255),

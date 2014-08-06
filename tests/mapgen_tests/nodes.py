@@ -210,6 +210,8 @@ def draw_path(entity, x_mod=0, y_mod=0):
 	_last_x, _last_y = (0, 0)
 	_node_ids = entity['node_path']['path'][:]
 	_action_time_max = 0
+	_surface_width = display.get_surface('nodes')['width']
+	_surface_height = display.get_surface('nodes')['height']
 	
 	for node_id in _node_ids:
 		_node = entity['node_path']['nodes'][node_id]
@@ -242,7 +244,7 @@ def draw_path(entity, x_mod=0, y_mod=0):
 					_action_time_max = _check_node['action_time']
 			
 			if _action_time_max and _move_cost <= _action_time_max:
-				_color_mod = int(round(200*numbers.clip(_move_cost/float(_action_time_max), .35, 1)))
+				_color_mod = int(round(200*numbers.clip(_move_cost/float(_action_time_max), .75, 1)))
 				_color = (_color_mod, 0, 0)
 				
 				_node['node']['busy_pos'].append(pos)
@@ -257,10 +259,10 @@ def draw_path(entity, x_mod=0, y_mod=0):
 					_action_time_max = 0
 					_move_cost = 0
 			
-			if pos[0]-x_mod < 0 or pos[1]-y_mod < 0 or pos[0]-x_mod >= constants.WINDOW_WIDTH or pos[1]-y_mod >= constants.WINDOW_HEIGHT:
+			if pos[0]-x_mod < 0 or pos[1]-y_mod < 0 or pos[0]-x_mod >= _surface_width or pos[1]-y_mod >= _surface_height:
 				continue
 			
-			display.write_char('nodes', pos[0]-x_mod, pos[1]-y_mod, '.', fore_color=_color)
+			display.write_char('nodes', pos[0]-x_mod, pos[1]-y_mod, chr(177), fore_color=_color)
 		
 		if _node['node']['draw_path']:
 			_last_x, _last_y = (_node['node']['x'], _node['node']['y'])

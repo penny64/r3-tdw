@@ -1,4 +1,4 @@
-from framework import entities, controls, display, events, worlds, tile, timers, movement, pathfinding, stats, numbers
+from framework import entities, controls, display, events, worlds, movement, pathfinding, numbers
 
 import framework
 
@@ -8,38 +8,44 @@ import mapgen
 import camera
 import nodes
 import maps
+import life
+import ui
 
 import numpy
 import time
 import sys
 
-FPSS = 0
 CURSOR = None
 MODE = 'strategy'
+PAUSED = True
+TICK_SPEED = 2
 
-
-def create_player():
-	_entity = entities.create_entity(group='life')
-	
-	tile.register(_entity, surface='life')
-	movement.register(_entity)
-	timers.register(_entity)
-	stats.register(_entity, 10, 10, 10, 5)
-	nodes.register(_entity)
-	
-	entities.trigger_event(_entity, 'set_position', x=5, y=5)
-	
-	return _entity
 
 def handle_input():
-	global MODE
+	global MODE, PAUSED, TICK_SPEED
 	
 	if MODE in ['normal', 'strategy']:
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
-			if MODE == 'strategy':
-				MODE = 'normal'
-			else:
-				return False
+			return False
+		
+		#Center on player
+		if controls.get_input_char_pressed('\t'):
+			_x, _y = movement.get_position(PLAYER)
+			
+			camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
+		
+		#Change tick speed
+		if controls.get_input_char_pressed('1'):
+			TICK_SPEED = 1
+		
+		elif controls.get_input_char_pressed('2'):
+			TICK_SPEED = 2
+		
+		elif controls.get_input_char_pressed('3'):
+			TICK_SPEED = 3
+		
+		elif controls.get_input_char_pressed('4'):
+			TICK_SPEED = 4
 		
 		if CURSOR['tile']['x'] > constants.MAP_VIEW_WIDTH - 5:
 			camera.set_pos(camera.X + (CURSOR['tile']['x'] - (constants.MAP_VIEW_WIDTH - 5)), camera.Y)
@@ -52,6 +58,12 @@ def handle_input():
 		
 		elif CURSOR['tile']['y'] <= 5:
 			camera.set_pos(camera.X, camera.Y + (CURSOR['tile']['y'] - 5))
+		
+		if controls.get_input_char_pressed(' '):
+			if MODE == 'strategy':
+				MODE = 'normal'
+			else:
+				MODE = 'strategy'
 		
 		if MODE == 'strategy':
 			nodes.handle_keyboard_input(PLAYER)
@@ -75,6 +87,24 @@ def handle_mouse_pressed(x, y, button):
 		if button == 1:
 			camera.set_pos(_c_x, _c_y)
 
+def logic():
+	if MODE == 'normal':
+		for entity_id in entities.get_entity_group('life'):
+			entities.trigger_event(entities.get_entity(entity_id), 'logic')
+
+def tick():
+	if MODE == 'strategy':
+		return
+	
+	if PLAYER['node_path']['path']:
+		_ticks_per_tick = TICK_SPEED
+	else:
+		_ticks_per_tick = 1
+	
+	for _ in range(_ticks_per_tick):
+		for entity_id in entities.get_entity_group('life'):
+			entities.trigger_event(entities.get_entity(entity_id), 'tick')
+
 def draw():
 	entities.trigger_event(CURSOR, 'draw')
 	
@@ -84,11 +114,16 @@ def draw():
 	for entity_id in entities.get_entity_group('nodes'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
+	ui.draw_status_bar(planning=MODE == 'strategy',
+	                   executing=MODE == 'normal' and PLAYER['node_path']['path'])
+	ui.draw_life_labels()
+	ui.draw_node_path(PLAYER)
+	
+	if '--fps' in sys.argv:
+		ui.draw_fps()
+	
 	events.trigger_event('post_process')
-	
-	if MODE == 'strategy':
-		display.blit_surface('nodes')
-	
+	display.blit_surface('nodes')
 	display.blit_surface('life')
 	display.blit_surface('ui')
 	events.trigger_event('draw')
@@ -96,14 +131,16 @@ def draw():
 def main():
 	global CURSOR, PLAYER
 	
-	PLAYER = create_player()
+	PLAYER = life.human(150, 150, 'Tester Toaster')
 	CURSOR = entities.create_entity(group='systems')
 	
+	ui.boot(PLAYER)
 	framework.tile.register(CURSOR, surface='ui')
 	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
-	events.register_event('tick', camera.update)
+	events.register_event('camera', camera.update)
+	events.register_event('tick', tick)
 	
 	_t = time.time()
 	mapgen.swamp(400, 400)	
@@ -127,19 +164,15 @@ def loop():
 	global FPSS
 	
 	events.trigger_event('input')
+	logic()
 	events.trigger_event('tick')
+	
+	events.trigger_event('camera')
 	
 	if not handle_input():
 		return False
 	
 	draw()
-	
-	if '--fps' in sys.argv:
-		FPSS += 1
-		
-		if FPSS == 60:
-			print display.get_fps()
-			FPSS = 0
 	
 	return True
 
@@ -149,13 +182,13 @@ if __name__ == '__main__':
 	worlds.create('test')
 	
 	entities.create_entity_group('tiles', static=True)
-	entities.create_entity_group('life')
+	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('nodes')
 
-	display.create_surface('life')
-	display.create_surface('nodes')
+	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.set_clear_surface('ui', 'tiles')
 	

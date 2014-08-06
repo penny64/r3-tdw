@@ -11,7 +11,7 @@ EVENTS = {'BOOT': {'events': {}, 'id': 1, 'banned': set()},
           'POST_PROCESS': {'events': {}, 'id': 1, 'banned': set()},
           'DRAW': {'events': {}, 'id': 1, 'banned': set()},
           'POST_UNLOAD': {'events': {}, 'id': 1, 'banned': set()},
-          'REDRAW': {'events': {}, 'id': 1, 'banned': set()},
+          'CAMERA': {'events': {}, 'id': 1, 'banned': set()},
           'CLEANUP': {'events': {}, 'id': 1, 'banned': set()},
           'SHUTDOWN': {'events': {}, 'id': 1, 'banned': set()}}
 

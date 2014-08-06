@@ -10,7 +10,7 @@ VERSION_INFO = 'This is a prototype. Do not distribute.'
 #Display#
 #########
 
-WINDOW_TITLE = 'World Visualizer'
+WINDOW_TITLE = 'Reactor 3: The Dead World (Visualizer)'
 WINDOW_WIDTH = 90
 WINDOW_HEIGHT = 90
 MAP_VIEW_WIDTH = 75

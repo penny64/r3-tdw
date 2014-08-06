@@ -29,8 +29,8 @@ def run(*args, **kwargs):
 #########
 
 def _post_process_water(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
-	_noise_values = [(zoom * x / (size)) + clouds_x,
-	                 (zoom * y / (size)) + clouds_y]
+	_noise_values = [(zoom * x / (constants.MAP_VIEW_WIDTH)) + clouds_x,
+	                 (zoom * y / (constants.MAP_VIEW_HEIGHT)) + clouds_y]
 	_shade = tcod.noise_get_turbulence(noise, _noise_values, tcod.NOISE_SIMPLEX)
 	_shade_mod = numbers.clip(abs(_shade), .6, 1)
 	
@@ -42,8 +42,8 @@ def post_process_water(width, height, passes, noise):
 	_clouds = numpy.zeros((height, width))
 	_clouds += 1.6
 	_zoom = 2.0
-	_clouds_x = (display.get_surface('tiles')['start_x']*.015)+CLOUD_X
-	_clouds_y = (display.get_surface('tiles')['start_y']*.015)+(CLOUD_X * -.5)
+	_clouds_x = (display.get_surface('tiles')['start_x']*.03)+CLOUD_X
+	_clouds_y = (display.get_surface('tiles')['start_y']*.03)+(CLOUD_X * -.5)
 	_size = 100.0
 	
 	CLOUD_X -= .003

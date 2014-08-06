@@ -15,18 +15,6 @@ LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
 
 
-def add_tile(raw_tile):
-	_entity = entities.create_entity(group='tiles')
-	
-	tile.register(_entity, surface='tiles')
-	
-	entities.trigger_event(_entity, 'set_char', char=raw_tile['c'])
-	entities.trigger_event(_entity, 'set_fore_color', color=raw_tile['c_f'])
-	entities.trigger_event(_entity, 'set_back_color', color=raw_tile['c_b'])
-	entities.trigger_event(_entity, 'set_position', x=raw_tile['x'], y=raw_tile['y'])
-	
-	return _entity
-
 def swamp(width, height, rings=8):
 	global TILE_MAP
 	global LEVEL_WIDTH
@@ -66,15 +54,12 @@ def swamp(width, height, rings=8):
 			
 			if _dist >= 30:
 				if random.uniform(random.uniform(.15, .45), 1) < _dist / float(max([height, width])):
-					for _x, _y in shapes.circle(x, y, random.randint(5, 9)):
+					for _x, _y in shapes.circle(x, y, random.randint(7, 10)):
 						if _x < 0 or _y < 0 or _x >= width or _y >= height or (_x, _y) in _fences:
 							continue
 						
 						if random.uniform(0, _mod) < .3:
-							if random.uniform(0, 1) < .2:
-								_tile = tiles.swamp(_x, _y)
-							else:
-								_tile = tiles.grass(_x, _y)
+							_tile = tiles.grass(_x, _y)
 						else:
 							_tile = tiles.swamp_water(_x, _y)
 						
@@ -100,6 +85,6 @@ def swamp(width, height, rings=8):
 	post_processing.run(time=_passes,
 	                    repeat=-1,
 	                    repeat_callback=lambda _: post_processing.post_process_water(constants.MAP_VIEW_WIDTH,
-	                                                                 constants.MAP_VIEW_HEIGHT,
-	                                                                 _passes,
-	                                                                 _noise))
+	                                                                                 constants.MAP_VIEW_HEIGHT,
+	                                                                                 _passes,
+	                                                                                 _noise))

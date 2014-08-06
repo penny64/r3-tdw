@@ -110,7 +110,7 @@ def walk_path(path):
 		if _lowest['pos']:
 			node = _lowest['pos']
 	
-	print time.time()-_stime
+	#print time.time()-_stime
 
 	return find_path(path)
 

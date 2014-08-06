@@ -3,17 +3,13 @@ from framework import entities, numbers
 import random
 
 
-def register(entity, health, strength, defense, speed, faction='Neutral', panic=0, name='Unknown'):
+def register(entity, health, speed, faction='Neutral', name='Unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
-			  'strength': strength,
-			  'defense': defense,
-			  'panic': panic,
 	          'faction': faction,
 	          'name': name,
 	          'last_engaged': None,
-	          'perks': [],
 	          'kills': 0}
 
 	entities.create_event(entity, 'kill')
@@ -22,12 +18,6 @@ def register(entity, health, strength, defense, speed, faction='Neutral', panic=
 	entities.create_event(entity, 'hurt')
 	entities.create_event(entity, 'haste')
 	entities.create_event(entity, 'slow')
-	entities.create_event(entity, 'stress')
-	entities.create_event(entity, 'calm')
-	entities.create_event(entity, 'strengthen')
-	entities.create_event(entity, 'weaken')
-	entities.create_event(entity, 'fortify')
-	entities.create_event(entity, 'expose')
 	entities.register_event(entity, 'hurt', hurt)
 	entities.register_event(entity, 'kill', kill)
 	entities.register_event(entity, 'log_kill', log_kill)
