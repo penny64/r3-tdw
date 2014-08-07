@@ -7,11 +7,12 @@ import sys
 
 
 SAVED_MAP = None
+WEIGHT_MAP = None
 REGEN = True
 
 
-def setup(width, height, solid_positions):
-	global SAVED_MAP
+def setup(width, height, solid_positions, weight_map):
+	global SAVED_MAP, WEIGHT_MAP
 
 	_map = numpy.ones((height, width))
 	
@@ -19,6 +20,7 @@ def setup(width, height, solid_positions):
 		_map[y, x] = -2
 
 	SAVED_MAP = _map
+	WEIGHT_MAP = weight_map	
 
 def astar(start, end, avoid=[]):
 	global SAVED_MAP, REGEN
@@ -34,7 +36,7 @@ def astar(start, end, avoid=[]):
 	         'map_size': (_width, _height)}
 
 	_path['fmap'] = numpy.zeros((_height, _width), dtype=numpy.int16)
-	_path['gmap'] = numpy.zeros((_height, _width), dtype=numpy.int16)
+	_path['gmap'] = WEIGHT_MAP.copy()
 	_path['hmap'] = numpy.zeros((_height, _width), dtype=numpy.int16)
 	_path['pmap'] = []
 

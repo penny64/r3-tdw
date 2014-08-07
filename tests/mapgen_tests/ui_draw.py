@@ -13,7 +13,7 @@ def boot(entity):
 	PLAYER = entity
 
 
-def draw_status_bar(planning=False, executing=False):
+def draw_status_bar(planning=False, executing=False, execute_speed=''):
 	_x = 0
 	
 	if planning:
@@ -25,6 +25,11 @@ def draw_status_bar(planning=False, executing=False):
 		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'EXECUTING')
 		
 		_x += len('EXECUTING')+1
+	
+	if execute_speed:
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, execute_speed)
+		
+		_x += len(execute_speed)+1
 
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))

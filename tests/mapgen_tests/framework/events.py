@@ -6,6 +6,7 @@ import sys
 EVENTS = {'BOOT': {'events': {}, 'id': 1, 'banned': set()},
           'UNLOAD': {'events': {}, 'id': 1, 'banned': set()},
           'INPUT': {'events': {}, 'id': 1, 'banned': set()},
+          'LOGIC': {'events': {}, 'id': 1, 'banned': set()},
           'LOOP': {'events': {}, 'id': 1, 'banned': set()},
           'TICK': {'events': {}, 'id': 1, 'banned': set()},
           'POST_PROCESS': {'events': {}, 'id': 1, 'banned': set()},

@@ -11,6 +11,7 @@ import time
 import numpy
 
 TILE_MAP = []
+WEIGHT_MAP = None
 LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
 
@@ -19,6 +20,9 @@ def swamp(width, height, rings=8):
 	global TILE_MAP
 	global LEVEL_WIDTH
 	global LEVEL_HEIGHT
+	global WEIGHT_MAP
+	
+	WEIGHT_MAP = numpy.ones((height, width), dtype=numpy.int16)
 	
 	_noise = tcod.noise_new(3)
 	LEVEL_WIDTH = width
@@ -41,6 +45,7 @@ def swamp(width, height, rings=8):
 	for y in range(LEVEL_HEIGHT):
 		for x in range(LEVEL_WIDTH):
 			if (1 < x < width-2 and y in [2, 3]) or (1 < x < width-2 and y in [height-3, height-4]) or (x in [2, 3] and 1 < y < height-2) or (x in [width-3, width-4] and 1 < y < height-2):
+				WEIGHT_MAP[y][x] = _tile['w']
 				_tile_map[y][x] = tiles.wooden_fence(x, y)
 				_fences.add((x, y))
 				
@@ -63,6 +68,7 @@ def swamp(width, height, rings=8):
 						else:
 							_tile = tiles.swamp_water(_x, _y)
 						
+						WEIGHT_MAP[_y][_x] = _tile['w']
 						_tile_map[_y][_x] = _tile
 						_bushes.add((_x, _y))
 					
@@ -74,9 +80,11 @@ def swamp(width, height, rings=8):
 				else:
 					_tile = tiles.swamp(x, y)
 				
+				WEIGHT_MAP[y][x] = _tile['w']
 				_tile_map[y][x] = _tile
 			
 			else:
+				WEIGHT_MAP[y][x] = _tile['w']
 				_tile = tiles.swamp(x, y)
 				_tile_map[y][x] = _tile
 	
