@@ -129,7 +129,7 @@ def main():
 	mapgen.swamp(400, 400)	
 	print 'Took:', time.time()-_t
 	
-	pathfinding.setup(mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT, [], mapgen.WEIGHT_MAP)	
+	pathfinding.setup(mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT, mapgen.SOLIDS, mapgen.WEIGHT_MAP)	
 	
 	display.create_surface('tiles', width=mapgen.LEVEL_WIDTH, height=mapgen.LEVEL_HEIGHT)
 	maps.render_map(mapgen.TILE_MAP, mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT)	

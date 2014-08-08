@@ -3,6 +3,7 @@ from framework import entities, display, events, numbers, shapes, tile, workers
 import libtcodpy as tcod
 
 import post_processing
+import buildinggen
 import constants
 import tiles
 
@@ -14,6 +15,7 @@ TILE_MAP = []
 WEIGHT_MAP = None
 LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
+SOLIDS = []
 
 
 def swamp(width, height, rings=8):
@@ -21,6 +23,7 @@ def swamp(width, height, rings=8):
 	global LEVEL_WIDTH
 	global LEVEL_HEIGHT
 	global WEIGHT_MAP
+	global SOLIDS
 	
 	WEIGHT_MAP = numpy.ones((height, width), dtype=numpy.int16)
 	
@@ -88,7 +91,20 @@ def swamp(width, height, rings=8):
 				_tile = tiles.swamp(x, y)
 				_tile_map[y][x] = _tile
 	
+	_s_x, _s_y = (23, 23)
+	for plot_x, plot_y in buildinggen.generate(6, 6, 'north', ['foyer', 'living_room', 'kitchen', 'bathroom']):
+		_x, _y = (_s_x+plot_x)*7, (_s_y+plot_y)*7
+		
+		for y in range(_y, _y+7):
+			for x in range(_x, _x+7):
+				WEIGHT_MAP[y][x] = _tile['w']
+				_tile_map[y][x] = tiles.wooden_fence(x, y)
+				SOLIDS.append((x, y))
+				
+	
 	TILE_MAP = _tile_map
+	
+	#post_processing.generate_shadow_map(width, height, SOLIDS)
 	
 	post_processing.run(time=_passes,
 	                    repeat=-1,

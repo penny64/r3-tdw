@@ -3,12 +3,14 @@ from framework import display, entities, timers, events, flags, workers, numbers
 import libtcodpy as tcod
 
 import constants
+import camera
 
 import numpy
 
 PROCESSOR = None
 CLOUD_X = 0
 CLOUD_Y = 0
+SHADOWS = None
 
 
 def start():
@@ -48,6 +50,10 @@ def post_process_water(width, height, passes, noise):
 	
 	CLOUD_X -= .003
 	
+	if SHADOWS:	
+		_clouds *= SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
+		_clouds = _clouds.clip(.1, 1.6)
+	
 	_worker = workers.counter_2d(width,
 	                             height,
 	                             passes,
@@ -65,3 +71,19 @@ def post_process_water(width, height, passes, noise):
 	                                                             _clouds,
 	                                                             constants.MAP_VIEW_WIDTH,
 	                                                             constants.MAP_VIEW_HEIGHT))
+
+def generate_shadow_map(width, height, solids):
+	global SHADOWS
+	
+	SHADOWS = numpy.ones((height, width))
+	
+	for x, y in solids:
+		
+		for i in range(1, 4):
+			if (x+i, y+i) in solids:
+				continue
+			
+			print (4-i)/4.0
+			SHADOWS[y+i][x+i] = (4-i)/4.0
+	
+	
