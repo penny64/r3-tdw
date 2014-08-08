@@ -30,7 +30,7 @@ def run(*args, **kwargs):
 #Effects#
 #########
 
-def _post_process_water(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
+def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
 	_noise_values = [(zoom * x / (constants.MAP_VIEW_WIDTH)) + clouds_x,
 	                 (zoom * y / (constants.MAP_VIEW_HEIGHT)) + clouds_y]
 	_shade = tcod.noise_get_turbulence(noise, _noise_values, tcod.NOISE_SIMPLEX)
@@ -38,7 +38,7 @@ def _post_process_water(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
 	
 	clouds[y][x] -= _shade_mod
 
-def post_process_water(width, height, passes, noise):
+def post_process_clouds(width, height, passes, noise):
 	global CLOUD_X, CLOUD_Y
 	
 	_clouds = numpy.zeros((height, width))
@@ -50,14 +50,13 @@ def post_process_water(width, height, passes, noise):
 	
 	CLOUD_X -= .003
 	
-	if SHADOWS:	
-		_clouds *= SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
-		_clouds = _clouds.clip(.1, 1.6)
+	_clouds *= SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
+	_clouds = _clouds.clip(.1, 1.6)
 	
 	_worker = workers.counter_2d(width,
 	                             height,
 	                             passes,
-	                             lambda x, y: _post_process_water(x, y, _clouds, _zoom, _clouds_x, _clouds_y, _size, noise))
+	                             lambda x, y: _post_process_clouds(x, y, _clouds, _zoom, _clouds_x, _clouds_y, _size, noise))
 	
 	entities.register_event(_worker,
 	                        'finish',
@@ -76,14 +75,15 @@ def generate_shadow_map(width, height, solids):
 	global SHADOWS
 	
 	SHADOWS = numpy.ones((height, width))
+	_taken = set()
 	
 	for x, y in solids:
 		
 		for i in range(1, 4):
-			if (x+i, y+i) in solids:
+			if (x+i, y+i) in solids or (x+i, y+i) in _taken:
 				continue
 			
-			print (4-i)/4.0
-			SHADOWS[y+i][x+i] = (4-i)/4.0
+			SHADOWS[y+i][x+i] = numbers.clip((i)/4.0, .6, 1.0)
+			_taken.add((x+1, y+1))
 	
 	

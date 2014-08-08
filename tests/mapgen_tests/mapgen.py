@@ -104,11 +104,11 @@ def swamp(width, height, rings=8):
 	
 	TILE_MAP = _tile_map
 	
-	#post_processing.generate_shadow_map(width, height, SOLIDS)
+	post_processing.generate_shadow_map(width, height, SOLIDS)
 	
 	post_processing.run(time=_passes,
 	                    repeat=-1,
-	                    repeat_callback=lambda _: post_processing.post_process_water(constants.MAP_VIEW_WIDTH,
+	                    repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
 	                                                                                 constants.MAP_VIEW_HEIGHT,
 	                                                                                 _passes,
 	                                                                                 _noise))

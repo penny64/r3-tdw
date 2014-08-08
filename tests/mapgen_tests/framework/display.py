@@ -166,9 +166,9 @@ def shade_surface_back(surface_name, shader, width, height):
 	_f1 = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	_f2 = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	
-	SCREEN['b'][0][0:height, 0:width] = _f0
-	SCREEN['b'][1][0:height, 0:width] = _f1
-	SCREEN['b'][2][0:height, 0:width] = _f2
+	SCREEN['b'][0][0:height, 0:width] = _f0.clip(0, 255)
+	SCREEN['b'][1][0:height, 0:width] = _f1.clip(0, 255)
+	SCREEN['b'][2][0:height, 0:width] = _f2.clip(0, 255)
 
 def _clear_screen():
 	for rect in SCREEN['r']:

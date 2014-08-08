@@ -105,14 +105,14 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 		
 		_generate_new = True
 	
-	for y in range(height):
-		for x in range(width):
-			if (x, y) in _claimed_plots:
-				print _claimed_plots[(x, y)][0],
-			else:
-				print '.',
-		
-		print
+	#for y in range(height):
+	#	for x in range(width):
+	#		if (x, y) in _claimed_plots:
+	#			print _claimed_plots[(x, y)][0],
+	#		else:
+	#			print '.',
+	#	
+	#	print
 	
 	return _claimed_plots
 
