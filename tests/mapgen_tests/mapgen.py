@@ -91,15 +91,17 @@ def swamp(width, height, rings=8):
 				_tile = tiles.swamp(x, y)
 				_tile_map[y][x] = _tile
 	
-	_s_x, _s_y = (23, 23)
+	_s_x, _s_y = (110, 110)
+	_room_size = 11
 	for plot_x, plot_y in buildinggen.generate(6, 6, 'north', ['foyer', 'living_room', 'kitchen', 'bathroom']):
-		_x, _y = (_s_x+plot_x)*7, (_s_y+plot_y)*7
+		_x, _y = (_s_x + (plot_x*_room_size)), (_s_y + (plot_y*_room_size))
 		
-		for y in range(_y, _y+7):
-			for x in range(_x, _x+7):
-				WEIGHT_MAP[y][x] = _tile['w']
-				_tile_map[y][x] = tiles.wooden_fence(x, y)
-				SOLIDS.append((x, y))
+		for y in range(_y, _y+_room_size):
+			for x in range(_x, _x+_room_size):
+				if (x-_x == 0 or y-_y == 0 or x-_x == _room_size-1 or y-_y == _room_size-1):
+					WEIGHT_MAP[y][x] = _tile['w']
+					_tile_map[y][x] = tiles.wooden_fence(x, y)
+					SOLIDS.append((x, y))
 				
 	
 	TILE_MAP = _tile_map
