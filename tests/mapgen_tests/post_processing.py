@@ -51,7 +51,6 @@ def post_process_clouds(width, height, passes, noise):
 	CLOUD_X -= .003
 	
 	_clouds *= SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
-	_clouds = _clouds.clip(.1, 1.6)
 	
 	_worker = workers.counter_2d(width,
 	                             height,
