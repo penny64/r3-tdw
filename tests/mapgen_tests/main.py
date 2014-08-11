@@ -78,6 +78,11 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	for entity_id in entities.get_entity_group('items'):
+		_entity = entities.get_entity(entity_id)
+		
+		if _entity['stats']['owner']:
+			continue
+		
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',

@@ -4,7 +4,7 @@ from framework import entities, movement, tile
 def _create(x, y, name, char, item_type):
 	_entity = entities.create_entity(group='items')
 	
-	_entity['stats'] = {'name': name, 'type': item_type}
+	_entity['stats'] = {'name': name, 'type': item_type, 'owner': None}
 	
 	movement.register(_entity)
 	tile.register(_entity, surface='items', char=char)

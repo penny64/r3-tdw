@@ -53,6 +53,16 @@ def handle_mouse_pressed(entity, x, y, button):
 			DRAGGING_NODE = None
 		
 		else:
+			for entity_id in entities.get_entity_group('items'):
+				_item = entities.get_entity(entity_id)
+				
+				if _item['stats']['owner']:
+					continue
+				
+				if (_x, _y) == movement.get_position(_item):
+					print _item['stats']['name']
+					return
+			
 			for node in entity['node_path']['nodes'].values():
 				if (_x, _y) == (node['node']['x'], node['node']['y']):
 					DRAGGING_NODE = node

@@ -1,5 +1,7 @@
 from framework import entities, numbers, movement
 
+import life
+
 
 def get_nearest_entity_in_list(entity, entity_list):
 	_nearest_entity = {'entity': None, 'distance': 0}
@@ -14,8 +16,17 @@ def get_nearest_entity_in_list(entity, entity_list):
 	
 	return _nearest_entity['entity']
 
+
+#########
+#Actions#
+#########
+
 def get_weapon(entity):
 	_nearest_weapon = get_nearest_entity_in_list(entity, entity['ai']['visible_items']['gun'])
 	_x, _y = movement.get_position(_nearest_weapon)
 	
-	movement.walk_to_position(entity, _x, _y)
+	if numbers.distance(movement.get_position(entity), (_x, _y)):
+		movement.walk_to_position(entity, _x, _y)
+	
+	else:
+		life.pick_up_item(entity, _nearest_weapon['_id'])

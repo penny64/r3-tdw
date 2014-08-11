@@ -37,3 +37,16 @@ def get_status_string(entity):
 		return 'Moving'
 	
 	return 'Idle'
+
+def _pick_up_item(entity, item_id):
+	_item = entities.get_entity(item_id)
+	
+	_item['stats']['owner'] = entity['_id']
+
+def pick_up_item(entity, item_id):
+	if timers.has_timer_with_name(entity, 'pick_up_item'):
+		return
+	
+	_item = entities.get_entity(item_id)
+	
+	entities.trigger_event(entity, 'create_timer', time=30, exit_callback=lambda _: _pick_up_item(entity, item_id))
