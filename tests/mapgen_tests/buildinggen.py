@@ -7,7 +7,7 @@ import random
 ROOM_TYPES = {'living_room': {'plots': 4, 'avoid_rooms': [], 'tiles': tiles.concrete},
               'kitchen': {'plots': 3, 'avoid_rooms': ['bathroom'], 'tiles': tiles.concrete},
               'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen', 'foyer'], 'tiles': tiles.tile_checkered},
-              'foyer': {'plots': 2, 'avoid_rooms': ['bathroom'], 'tiles': tiles.concrete_striped}}
+              'foyer': {'plots': 2, 'avoid_rooms': ['bathroom'], 'tiles': tiles.carpet_burgandy}}
 
 
 def _generate(width, height, facing, room_types, allow_tunnels=False):

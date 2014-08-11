@@ -72,10 +72,18 @@ def concrete_striped(x, y):
 
 def tile_checkered(x, y):
 	if not x % 2 or not y % 2:
-		_c_1 = constants.BLACK_3
-		_c_2 = constants.BLACK_3
+		_c_1 = (105, 105, 105)
+		_c_2 = (105, 105, 105)
 	else:
-		_c_1 = constants.BLACK_2
-		_c_2 = constants.BLACK_2
+		_c_1 = (80, 80, 80)
+		_c_2 = (80, 80, 80)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
+def carpet_burgandy(x, y):
+	_c_1, _c_2 = random.sample([constants.BURGANDY_1,
+	                            constants.BURGANDY_2,
+	                            constants.BURGANDY_3],
+	                           2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
