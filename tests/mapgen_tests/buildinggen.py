@@ -4,7 +4,7 @@ import random
 
 ROOM_TYPES = {'living_room': {'plots': 4, 'avoid_rooms': []},
               'kitchen': {'plots': 3, 'avoid_rooms': ['bathroom']},
-              'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen']},
+              'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen', 'foyer']},
               'foyer': {'plots': 2, 'avoid_rooms': ['bathroom']}}
 
 
@@ -47,7 +47,7 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 					if n_x < 0 or n_x >= _plot_map.shape[1] or n_y < 0 or n_y >= _plot_map.shape[0]:
 						continue
 					
-					if (n_x, n_y) in _claimed_plots and _claimed_plots[(n_x, n_y)]['type'] in ROOM_TYPES[room_type]['avoid_rooms']:
+					if (n_x, n_y) in _claimed_plots:# and _claimed_plots[(n_x, n_y)]['type'] in ROOM_TYPES[room_type]['avoid_rooms']:
 						continue
 					
 					_break = False
@@ -75,6 +75,7 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 		_plots_for_this_room = [(_plot_x, _plot_y)]
 		
 		if _room['plots'] == 1:
+			_rooms.append({'type': room_type, 'plots': _plots_for_this_room, 'parent_plot': (_p_plot_x, _p_plot_y)})
 			continue
 		
 		for _ in range(_room['plots']):
@@ -109,7 +110,7 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 			_plot_map[_plot_y][_plot_x] = 1
 			_plots_for_this_room.append((_plot_x, _plot_y))
 		
-		_rooms.append({'plots': _plots_for_this_room, 'parent_plot': (_p_plot_x, _p_plot_y)})
+		_rooms.append({'type': room_type, 'plots': _plots_for_this_room, 'parent_plot': (_p_plot_x, _p_plot_y)})
 		_generate_new = True
 	
 	for y in range(height):

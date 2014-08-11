@@ -96,25 +96,40 @@ def swamp(width, height, rings=8):
 	_building, _rooms = buildinggen.generate(6, 6, 'north', ['foyer', 'living_room', 'kitchen', 'bathroom'])
 	
 	for room in _rooms:
+		_made_connection = False
 		for plot_x, plot_y in room['plots']:
 			_room = _building[(plot_x, plot_y)]
 			_build_walls = ['north', 'south', 'east', 'west']
+			_build_doors = []
 			
 			for n_plot_x, n_plot_y in [(plot_x-1, plot_y), (plot_x+1, plot_y), (plot_x, plot_y-1), (plot_x, plot_y+1)]:
+				if not (n_plot_x, n_plot_y) in room['plots'] and (n_plot_x, n_plot_y) in _building:
+					if n_plot_x - plot_x == -1:
+						_build_doors.append('west')
+					
+					elif n_plot_x - plot_x == 1:
+						_build_doors.append('east')
+					
+					if n_plot_y - plot_y == -1:
+						_build_doors.append('north')
+					
+					elif n_plot_y - plot_y == 1:
+						_build_doors.append('south')
+				
 				if (n_plot_x, n_plot_y) in _building:
-					if n_plot_x - plot_x == -1 or (n_plot_x, n_plot_y) == room['parent_plot']:
+					if n_plot_x - plot_x == -1 and not _building[(n_plot_x, n_plot_y)]['type'] in buildinggen.ROOM_TYPES[room['type']]['avoid_rooms']:
 						if 'west' in _build_walls:
 							_build_walls.remove('west')
 					
-					elif n_plot_x - plot_x == 1 or (n_plot_x, n_plot_y) == room['parent_plot']:
+					elif n_plot_x - plot_x == 1 and not _building[(n_plot_x, n_plot_y)]['type'] in buildinggen.ROOM_TYPES[room['type']]['avoid_rooms']:
 						if 'east' in _build_walls:
 							_build_walls.remove('east')
 					
-					if n_plot_y - plot_y == -1 or (n_plot_x, n_plot_y) == room['parent_plot']:
+					if n_plot_y - plot_y == -1 and not _building[(n_plot_x, n_plot_y)]['type'] in buildinggen.ROOM_TYPES[room['type']]['avoid_rooms']:
 						if 'north' in _build_walls:
 							_build_walls.remove('north')
 					
-					elif n_plot_y - plot_y == 1 or (n_plot_x, n_plot_y) == room['parent_plot']:
+					elif n_plot_y - plot_y == 1 and not _building[(n_plot_x, n_plot_y)]['type'] in buildinggen.ROOM_TYPES[room['type']]['avoid_rooms']:
 						if 'south' in _build_walls:
 							_build_walls.remove('south')
 			
@@ -123,6 +138,20 @@ def swamp(width, height, rings=8):
 			for y in range(_y, _y+_room_size):
 				for x in range(_x, _x+_room_size):
 					if ((x-_x == 0 and 'west' in _build_walls) or (y-_y == 0 and 'north' in _build_walls) or (x-_x == _room_size-1 and 'east' in _build_walls) or (y-_y == _room_size-1 and 'south' in _build_walls)):
+						WEIGHT_MAP[y][x] = _tile['w']
+						_tile_map[y][x] = tiles.wooden_fence(x, y)
+						
+						SOLIDS.append((x, y))
+			
+			for y in range(_y-1, _y+_room_size+1):
+				for x in range(_x-1, _x+_room_size+1):
+					if (x-_x in [-1, 0] and 'west' in _build_doors and (y-_y<=2 or y-_y>_room_size-3)) or (x-_x in [_room_size, _room_size+1] and 'east' in _build_doors and (y-_y<=2 or y-_y>_room_size-3)):
+						WEIGHT_MAP[y][x] = _tile['w']
+						_tile_map[y][x] = tiles.wooden_fence(x, y)
+						
+						SOLIDS.append((x, y))
+					
+					elif (y-_y in [-1, 0] and 'north' in _build_doors and (x-_x<=2 or x-_x>_room_size-3)) or (y-_y in [_room_size, _room_size+1] and 'south' in _build_doors and (x-_x<=2 or x-_x>_room_size-3)):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
