@@ -37,6 +37,7 @@ def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
 	_shade_mod = numbers.clip(abs(_shade), .6, 1)
 	
 	clouds[y][x] -= _shade_mod
+	clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
 
 def post_process_clouds(width, height, passes, noise):
 	global CLOUD_X, CLOUD_Y
@@ -50,7 +51,7 @@ def post_process_clouds(width, height, passes, noise):
 	
 	CLOUD_X -= .003
 	
-	_clouds *= SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
+	#_clouds += SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
 	
 	_worker = workers.counter_2d(width,
 	                             height,
@@ -77,12 +78,11 @@ def generate_shadow_map(width, height, solids):
 	_taken = set()
 	
 	for x, y in solids:
-		
 		for i in range(1, 4):
 			if (x+i, y+i) in solids or (x+i, y+i) in _taken:
 				continue
 			
-			SHADOWS[y+i][x+i] = numbers.clip((i)/4.0, .6, 1.0)
+			SHADOWS[y+i][x+i] = numbers.clip((i)/5.0, .35, .9)
 			_taken.add((x+1, y+1))
 	
 	

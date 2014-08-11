@@ -142,16 +142,21 @@ def swamp(width, height, rings=8):
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
 						SOLIDS.append((x, y))
+					
+					else:
+						_tile_map[y][x] = buildinggen.ROOM_TYPES[room['type']]['tiles'](x, y)
 			
-			for y in range(_y-1, _y+_room_size+1):
+			for y in range(_y, _y+_room_size):
 				for x in range(_x-1, _x+_room_size+1):
-					if (x-_x in [-1, 0] and 'west' in _build_doors and (y-_y<=2 or y-_y>_room_size-3)) or (x-_x in [_room_size, _room_size+1] and 'east' in _build_doors and (y-_y<=2 or y-_y>_room_size-3)):
+					if (x-_x in [-1, 0] and 'west' in _build_doors and (y-_y<=2 or y-_y>=_room_size-3)) or (x-_x in [_room_size, _room_size+1] and 'east' in _build_doors and (y-_y<=2 or y-_y>=_room_size-3)):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
 						SOLIDS.append((x, y))
-					
-					elif (y-_y in [-1, 0] and 'north' in _build_doors and (x-_x<=2 or x-_x>_room_size-3)) or (y-_y in [_room_size, _room_size+1] and 'south' in _build_doors and (x-_x<=2 or x-_x>_room_size-3)):
+			
+			for y in range(_y-1, _y+_room_size+1):
+				for x in range(_x, _x+_room_size):
+					if (y-_y in [-1, 0] and 'north' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)) or (y-_y in [_room_size, _room_size+1] and 'south' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						

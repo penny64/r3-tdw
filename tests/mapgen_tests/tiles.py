@@ -47,6 +47,25 @@ def wooden_fence(x, y):
 	_c_1, _c_2 = random.sample([constants.GRAY_1,
 	                           constants.GRAY_2,
 	                           constants.GRAY_3],
-	                          2)
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
+def concrete(x, y):
+	_c_1, _c_2 = random.sample([constants.DARK_GRAY_1,
+	                            constants.DARK_GRAY_2,
+	                            constants.DARK_GRAY_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
+def concrete_striped(x, y):
+	if not y % 2 or not y % 2:
+		_c_1 = constants.DARK_GRAY_1
+		_c_2 = constants.DARK_GRAY_1
+	else:
+		_c_1, _c_2 = random.sample([constants.DARK_GRAY_3,
+			                        constants.DARK_GRAY_2],
+			                       2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
