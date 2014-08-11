@@ -96,25 +96,37 @@ def swamp(width, height, rings=8):
 	_building, _rooms = buildinggen.generate(6, 6, 'north', ['foyer', 'living_room', 'kitchen', 'bathroom'])
 	
 	for room in _rooms:
-		_made_connection = False
+		_build_doors = []
+		
 		for plot_x, plot_y in room['plots']:
 			_room = _building[(plot_x, plot_y)]
 			_build_walls = ['north', 'south', 'east', 'west']
-			_build_doors = []
 			
 			for n_plot_x, n_plot_y in [(plot_x-1, plot_y), (plot_x+1, plot_y), (plot_x, plot_y-1), (plot_x, plot_y+1)]:
-				if not (n_plot_x, n_plot_y) in room['plots'] and (n_plot_x, n_plot_y) in _building:
+				if ((n_plot_x, n_plot_y) == _room['door_plot']) or (not _build_doors and not (n_plot_x, n_plot_y) in room['plots'] and (n_plot_x, n_plot_y) in _building):
 					if n_plot_x - plot_x == -1:
 						_build_doors.append('west')
+						
+						if 'west' in _build_walls:
+							_build_walls.remove('west')
 					
 					elif n_plot_x - plot_x == 1:
 						_build_doors.append('east')
+						
+						if 'east' in _build_walls:
+							_build_walls.remove('east')
 					
 					if n_plot_y - plot_y == -1:
 						_build_doors.append('north')
+						
+						if 'north' in _build_walls:
+							_build_walls.remove('north')
 					
 					elif n_plot_y - plot_y == 1:
 						_build_doors.append('south')
+						
+						if 'south' in _build_walls:
+							_build_walls.remove('south')
 				
 				if (n_plot_x, n_plot_y) in _building:
 					if n_plot_x - plot_x == -1 and not _building[(n_plot_x, n_plot_y)]['type'] in buildinggen.ROOM_TYPES[room['type']]['avoid_rooms']:

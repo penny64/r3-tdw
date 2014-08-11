@@ -6,7 +6,7 @@ import random
 
 ROOM_TYPES = {'living_room': {'plots': 4, 'avoid_rooms': [], 'tiles': tiles.concrete},
               'kitchen': {'plots': 3, 'avoid_rooms': ['bathroom'], 'tiles': tiles.concrete},
-              'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen', 'foyer'], 'tiles': tiles.concrete_striped},
+              'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen', 'foyer'], 'tiles': tiles.tile_checkered},
               'foyer': {'plots': 2, 'avoid_rooms': ['bathroom'], 'tiles': tiles.concrete_striped}}
 
 
@@ -24,18 +24,22 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 	if facing == 'north':
 		_plot_x = random.randint(0, width-1)
 		_plot_y = 0
+		_door_plot = (_plot_x, -1)
 	
 	elif facing == 'south':
 		_plot_x = random.randint(0, width-1)
 		_plot_y = height-1
+		_door_plot = (_plot_x, height)
 	
 	elif facing == 'east':
 		_plot_x = width-1
 		_plot_y = random.randint(0, height-1)
+		_door_plot = (width, _plot_y)
 	
 	elif facing == 'west':
 		_plot_x = 0
 		_plot_y = random.randint(0, height-1)
+		_door_plot = (-1, _plot_y)
 	
 	_p_plot_x, _p_plot_y = (None, None)
 	_generate_new = False
@@ -68,12 +72,15 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 					else:
 						_possible_next_plots[(_x, _y)] = [(n_x, n_y)]
 			
+			if not _possible_next_plots:
+				return -1
+			
 			_p_plot_x, _p_plot_y = random.choice(_possible_next_plots.keys())
 			_plot_x, _plot_y = random.choice(_possible_next_plots[(_p_plot_x, _p_plot_y)])
 		
 		_room = ROOM_TYPES[room_type]
 		_plot_map[_plot_y][_plot_x] = 1
-		_claimed_plots[(_plot_x, _plot_y)] = {'type': room_type, 'parent_plot': (_p_plot_x, _p_plot_y)}
+		_claimed_plots[(_plot_x, _plot_y)] = {'type': room_type, 'parent_plot': (_p_plot_x, _p_plot_y), 'door_plot': _door_plot}
 		_plots_for_this_room = [(_plot_x, _plot_y)]
 		
 		if _room['plots'] == 1:
@@ -91,7 +98,7 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 					if _plot_map[n_y][n_x]:
 						continue
 					
-					if (n_x, n_y) in _claimed_plots:# and _claimed_plots[(n_x, n_y)] in ROOM_TYPES[room_type]['avoid_rooms']:
+					if (n_x, n_y) in _claimed_plots:
 						continue
 					
 					_number_of_plots_around = available_plots_around(n_x, n_y, _plot_map, room_type, _claimed_plots, ROOM_TYPES[room_type]['avoid_rooms'])
@@ -108,7 +115,7 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 				return -1
 			
 			_plot_x, _plot_y = random.choice(_available_next_plot_spaces[max(_available_next_plot_spaces.keys())])
-			_claimed_plots[(_plot_x, _plot_y)] = {'type': room_type, 'parent_plot': (None, None)}
+			_claimed_plots[(_plot_x, _plot_y)] = {'type': room_type, 'parent_plot': (None, None), 'door_plot': _door_plot}
 			_plot_map[_plot_y][_plot_x] = 1
 			_plots_for_this_room.append((_plot_x, _plot_y))
 		
@@ -141,7 +148,7 @@ def available_plots_around(x, y, plot_map, room_name, claimed_plots, avoid_rooms
 			
 			if (n_x, n_y) in claimed_plots and claimed_plots[(n_x, n_y)] in ROOM_TYPES[room_name]['avoid_rooms']:
 				_break = True
-				print 'ooooooooo'
+				
 				break
 			
 			if not _temp_plot_map[n_y][n_x]:
