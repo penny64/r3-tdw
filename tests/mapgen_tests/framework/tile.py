@@ -4,11 +4,11 @@ import display
 import logging
 
 
-def register(entity, surface=None, animated=True, char='X'):
+def register(entity, surface=None, animated=True, char='X', fore_color=(255, 255, 255)):
 	entity['tile'] = {'char': char,
 	                  'x': -1,
 	                  'y': -1,
-	                  'fore_color': (255, 255, 255),
+	                  'fore_color': fore_color,
 	                  'back_color': None,
 	                  'surface': surface,
 	                  'flags': {},

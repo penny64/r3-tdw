@@ -10,21 +10,18 @@ import ui_input
 import ui_draw
 import mapgen
 import camera
+import items
 import nodes
 import maps
 import life
+import ai
 
 import numpy
 import time
 import sys
 
-CURSOR = None
-PAUSED = True
-
 
 def handle_input():
-	global PAUSED, TICK_SPEED
-	
 	if settings.TICK_MODE in ['normal', 'strategy']:
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
 			return False
@@ -80,10 +77,14 @@ def draw():
 	for entity_id in entities.get_entity_group('nodes'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
+	for entity_id in entities.get_entity_group('items'):
+		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
+	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
 	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_path']['path'],
 	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_path']['path'])>0))
 	ui_draw.draw_life_labels()
+	ui_draw.draw_item_labels()
 	ui_draw.draw_node_path(PLAYER)
 	
 	if '--fps' in sys.argv:
@@ -91,6 +92,7 @@ def draw():
 	
 	events.trigger_event('post_process')
 	display.blit_surface('nodes')
+	display.blit_surface('items')
 	display.blit_surface('life')
 	display.blit_surface('ui')
 	events.trigger_event('draw')
@@ -111,11 +113,14 @@ def loop():
 	return True
 
 def main():
-	global CURSOR, PLAYER
+	global PLAYER
 	
 	PLAYER = life.human(150, 150, 'Tester Toaster')
+	life.human_runner(160, 160, 'Test NPC')
+	items.glock(185, 185)
 	
 	ui_cursor.boot()
+	ai.boot()
 	ui_input.boot(PLAYER)
 	ui_draw.boot(PLAYER)
 	
@@ -150,11 +155,13 @@ if __name__ == '__main__':
 	
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)
+	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('nodes')
 
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.set_clear_surface('ui', 'tiles')

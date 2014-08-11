@@ -12,7 +12,7 @@ if __name__ == '__main__':
 							'in_engagement',
 							'in_cover',
 							'in_enemy_los',
-							'is_near')
+							'is_target_near')
 	_combat_brain.set_start_state(in_engagement=True,
 								  is_near=False,
 								  in_cover=False,

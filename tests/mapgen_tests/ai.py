@@ -1,5 +1,6 @@
 from framework import entities, events, numbers, goapy, timers, flags
 
+import ai_visuals
 import brains
 
 import logging
@@ -13,7 +14,7 @@ MOVE_OFFLINE = []
 def boot():
 	_entity = entities.create_entity('systems')
 
-	timers.register(_entity)
+	timers.register(_entity, use_system_event='logic')
 
 	entities.trigger_event(_entity, 'create_timer', time=0, repeat=-1, repeat_callback=_tick_online_entities)
 	entities.trigger_event(_entity, 'create_timer', time=numbers.seconds_as_ticks(3), repeat=-1, repeat_callback=_tick_offline_entities)
@@ -24,15 +25,16 @@ def _register(entity):
 	entity['ai'] = {'brain': goapy.World(),
 	                'brain_offline': goapy.World(),
 	                'last_action': 'idle',
-	                'meta': {'is_injured': True,
-	                         'is_panicked': True,
+	                'visible_items': [],
+	                'meta': {'is_injured': False,
+	                         'is_panicked': False,
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,
 	                         'weapon_loaded': False,
 	                         'weapon_armed': False,
-	                         'in_engagement': True,
-	                         'is_target_near': True,
+	                         'in_engagement': False,
+	                         'is_target_near': False,
 	                         'in_cover': False,
 	                         'in_enemy_los': False,
 	                         'is_hungry': False,
@@ -104,6 +106,7 @@ def _tick_offline_entities(entity):
 def set_meta(entity, key, value):
 	if not key in entity['ai']['meta']:
 		raise Exception('Trying to set invalid brain meta: %s' % key)
+	
 	entity['ai']['meta'][key] = value
 
 def _handle_goap(entity, brain='brain'):
@@ -127,14 +130,15 @@ def _animal_logic(entity):
 	_plan = _handle_goap(entity)
 
 def _human_logic(entity):
-	entity['ai']['meta']['is_injured']
+	ai_visuals.build_item_list(entity)
+	
+	if len(entity['ai']['visible_items']['gun']) > 0:
+		entity['ai']['meta']['sees_item_type_weapon'] = True
 	
 	_goap = _handle_goap(entity)
 	
 	if not _goap:
-			print 'Couldn\'t find plan.'
-			
-			return	
+		return	
 	
 	_plan = _goap[0]
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
@@ -148,6 +152,4 @@ def _animal_logic_offline(entity):
 	_plan = _handle_goap(entity, brain='brain_offline')
 
 def _human_logic_offline(entity):
-	entity['ai']['meta']['is_injured']
-	
 	_plan = _handle_goap(entity, brain='brain_offline')
