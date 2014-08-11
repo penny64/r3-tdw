@@ -101,7 +101,7 @@ def swamp(width, height, rings=8):
 			_build_walls = ['north', 'south', 'east', 'west']
 			
 			for n_plot_x, n_plot_y in [(plot_x-1, plot_y), (plot_x+1, plot_y), (plot_x, plot_y-1), (plot_x, plot_y+1)]:
-				if (n_plot_x, n_plot_y) in room['plots']:
+				if (n_plot_x, n_plot_y) in _building:
 					if n_plot_x - plot_x == -1 or (n_plot_x, n_plot_y) == room['parent_plot']:
 						if 'west' in _build_walls:
 							_build_walls.remove('west')
@@ -129,65 +129,6 @@ def swamp(width, height, rings=8):
 						SOLIDS.append((x, y))
 			
 			_last_plot_x, _last_plot_y = plot_x, plot_y
-	
-	for room in _rooms:
-		for plot_x, plot_y in room['plots']:
-			_x, _y = (_s_x + (plot_x*_room_size)), (_s_y + (plot_y*_room_size))
-			
-			for n_plot_x, n_plot_y in [(plot_x-1, plot_y), (plot_x+1, plot_y), (plot_x, plot_y-1), (plot_x, plot_y+1)]:
-				if not (n_plot_x, n_plot_y) == room['parent_plot']:
-					continue
-				
-				_x_diff = plot_x - n_plot_x
-				_y_diff = plot_y - n_plot_y
-				
-				if _x_diff == 1:
-					for y in range(_y+2, _y+_room_size-2):
-						_tile_map[y][_x] = tiles.swamp(_x, y)
-						
-						if (_x, y) in SOLIDS:
-							SOLIDS.remove((_x, y))
-						
-						_tile_map[y][_x-1] = tiles.swamp(_x-1, y)
-						
-						if (_x-1, y) in SOLIDS:
-							SOLIDS.remove((_x-1, y))
-				
-				elif _x_diff == -1:
-					for y in range(_y+2, _y+_room_size-2):
-						_tile_map[y][_x+_room_size] = tiles.swamp(_x+_room_size, y)
-						
-						if (_x+_room_size, y) in SOLIDS:
-							SOLIDS.remove((_x+_room_size, y))
-						
-						_tile_map[y][_x+_room_size-1] = tiles.swamp(_x+_room_size-1, y)
-						
-						if (_x+_room_size-1, y) in SOLIDS:
-							SOLIDS.remove((_x+_room_size-1, y))
-				
-				if _y_diff == 1:
-					for x in range(_x+2, _x+_room_size-2):
-						_tile_map[_y][x] = tiles.swamp(x, _y)
-						
-						if (x, _y) in SOLIDS:
-							SOLIDS.remove((x, _y))
-						
-						_tile_map[_y-1][x] = tiles.swamp(x, _y-1)
-						
-						if (x, _y-1) in SOLIDS:
-							SOLIDS.remove((x, _y-1))
-				
-				elif _y_diff == -1:
-					for x in range(_x+2, _x+_room_size-2):
-						_tile_map[_y+_room_size][x] = tiles.swamp(x, _y+_room_size)
-						
-						if (x, _y+_room_size) in SOLIDS:
-							SOLIDS.remove((x, _y+_room_size))
-						
-						_tile_map[_y+_room_size-1][x] = tiles.swamp(x, _y+_room_size-1)
-						
-						if (x, _y+_room_size-1) in SOLIDS:
-							SOLIDS.remove((x, _y+_room_size-1))
 					
 	
 	TILE_MAP = _tile_map
