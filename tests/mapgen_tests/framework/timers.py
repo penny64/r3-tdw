@@ -26,6 +26,18 @@ def create_timer(entity, time, name=None, repeat=0, callback=None, enter_callbac
 	                         'entered': False,
 	                         'stop': False})
 
+def get_nearest_timer(entity):
+	_nearest_timer = {'timer': None, 'time': 0}
+	
+	for timer in entity['timers']:
+		_time = timer['time'] + (timer['time_max'] * timer['repeat'])
+		
+		if not _nearest_timer['time' or _time < _nearest_timer['time']]:
+			_nearest_timer['time'] = _time
+			_nearest_timer['timer'] = timer
+	
+	return _nearest_timer['timer']
+
 def has_timer_with_name(entity, name, next_only=True):
 	for timer in entity['timers']:
 		if timer['stop']:

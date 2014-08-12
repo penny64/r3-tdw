@@ -83,7 +83,7 @@ def handle_mouse_pressed(entity, x, y, button):
 					if not (_x, _y) in node['node']['busy_pos']:
 						LAST_CLICKED_POS = (_x, _y)
 						
-						create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
+						create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1], on_path=True)
 					
 					else:
 						LAST_CLICKED_POS = None
@@ -183,8 +183,8 @@ def create_walk_node(entity, x, y):
 	                                                                                        x=_node['x'],
 	                                                                                        y=_node['y'])
 
-def create_action_node(entity, x, y, time, callback, icon='X', name='Action'):
-	_will_move = False
+def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', name='Action'):
+	_will_move = on_path
 	
 	for node_id in entity['node_path']['path']:
 		_node = entity['node_path']['nodes'][node_id]['node']
@@ -246,29 +246,32 @@ def _redraw_first_node(entity, **kargs):
 				
 				break
 
-def create_action_menu(entity, x, y):
+def create_action_menu(entity, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')
 	ui_menu.add_selectable(_menu, 'Reload', lambda: create_action_node(entity,
 	                                                                   x,
 	                                                                   y,
 	                                                                   30,
 	                                                                   lambda: entities.trigger_event(entity, 'reload'),
-	                                                                   name='Reload'))
+	                                                                   name='Reload',
+	                                                                   on_path=on_path))
 	ui_menu.add_selectable(_menu, 'Crouch', lambda: create_action_node(entity,
 	                                                                   x,
 	                                                                   y,
 	                                                                   30,
 	                                                                   lambda: entities.trigger_event(entity, 'crouch'),
-	                                                                   name='Crouch'))
+	                                                                   name='Crouch',
+	                                                                   on_path=on_path))
 
-def create_item_menu(entity, item, x, y):
+def create_item_menu(entity, item, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')
 	ui_menu.add_selectable(_menu, 'Pick Up', lambda: create_action_node(entity,
 	                                                                   x,
 	                                                                   y,
 	                                                                   30,
 	                                                                   lambda: entities.trigger_event(entity, 'pick_up_item', item_id=item['_id']),
-	                                                                   name='Pick up %s' % item['stats']['name']))
+	                                                                   name='Pick up %s' % item['stats']['name'],
+	                                                                   on_path=on_path))
 
 def redraw_path(entity):
 	for node in entity['node_path']['nodes'].values():

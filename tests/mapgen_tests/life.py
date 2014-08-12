@@ -35,6 +35,11 @@ def human_runner(x, y, name):
 ############
 
 def get_status_string(entity):
+	_timer = timers.get_nearest_timer(entity)
+	
+	if _timer and _timer['name']:
+		return _timer['name']
+	
 	if entity['movement']['path']['positions']:
 		return 'Moving'
 	
@@ -51,4 +56,8 @@ def pick_up_item(entity, item_id):
 	
 	_item = entities.get_entity(item_id)
 	
-	entities.trigger_event(entity, 'create_timer', time=30, exit_callback=lambda _: _pick_up_item(entity, item_id))
+	entities.trigger_event(entity,
+	                       'create_timer',
+	                       time=30,
+	                       name='Getting %s' % _item['stats']['name'],
+	                       exit_callback=lambda _: _pick_up_item(entity, item_id))
