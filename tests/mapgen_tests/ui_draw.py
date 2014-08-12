@@ -92,16 +92,15 @@ def draw_node_path(entity):
 		_camera_x, _camera_y = camera.X, camera.Y
 		_width = display.get_surface('life')['width']
 		_height = display.get_surface('life')['height']
-		
 		_x -= _camera_x
 		_y -= _camera_y
 		
 		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
 			continue
 		
-		_label = 'node'
+		_label = _node['name']
 		_render_x = numbers.clip(_x - len(_label)/2, 0, _width - len(_label))
-		_render_y = numbers.clip(_y - 2, 0, _height)
+		_render_y = numbers.clip(_y - 1, 0, _height)
 		
 		if _render_y == _y:
 			_render_y += 2

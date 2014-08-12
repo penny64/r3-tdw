@@ -1,4 +1,4 @@
-PLAN_TICK_RATE = 3
+PLAN_TICK_RATE = 4
 TICK_MODE = 'normal'
 
 

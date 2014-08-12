@@ -17,12 +17,14 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	if has_ai:
 		ai.register_human(_entity)
 	
+	entities.create_event(_entity, 'pick_up_item')
+	entities.register_event(_entity, 'pick_up_item', pick_up_item)
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	
 	return _entity
 
 def human(x, y, name):
-	return _create(x, y, 100, 10, name)
+	return _create(x, y, 100, 10, name, has_ai=True)
 
 def human_runner(x, y, name):
 	return _create(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)

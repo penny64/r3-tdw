@@ -7,6 +7,7 @@ import constants
 import settings
 import ui_cursor
 import ui_input
+import ui_menu
 import ui_draw
 import mapgen
 import camera
@@ -52,11 +53,6 @@ def handle_mouse_pressed(x, y, button):
 		if button == 1:
 			camera.set_pos(_c_x, _c_y)
 
-def logic():
-	if settings.TICK_MODE == 'normal':
-		for entity_id in entities.get_entity_group('life'):
-			entities.trigger_event(entities.get_entity(entity_id), 'logic')
-
 def tick():
 	if settings.TICK_MODE == 'strategy':
 		return
@@ -100,6 +96,7 @@ def draw():
 	display.blit_surface('items')
 	display.blit_surface('life')
 	display.blit_surface('ui')
+	display.blit_surface('ui_menus')
 	events.trigger_event('draw')
 
 def loop():
@@ -121,18 +118,19 @@ def main():
 	global PLAYER
 	
 	PLAYER = life.human(150, 150, 'Tester Toaster')
+	PLAYER['ai']['is_player'] = True
 	life.human_runner(160, 160, 'Test NPC')
-	items.glock(185, 185)
+	items.glock(151, 151)
 	
 	ui_cursor.boot()
 	ai.boot()
 	ui_input.boot(PLAYER)
 	ui_draw.boot(PLAYER)
+	ui_menu.boot()
 	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
-	events.register_event('logic', logic)
 	events.register_event('tick', tick)
 	
 	_t = time.time()
@@ -163,13 +161,16 @@ if __name__ == '__main__':
 	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
+	entities.create_entity_group('ui_menus')
 	entities.create_entity_group('nodes')
 
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
+	display.create_surface('ui_menus')
 	display.set_clear_surface('ui', 'tiles')
+	display.set_clear_surface('ui_menus', 'tiles')
 	
 	post_processing.start()
 	

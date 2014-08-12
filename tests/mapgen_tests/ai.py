@@ -1,6 +1,7 @@
 from framework import entities, events, numbers, goapy, timers, flags
 
 import ai_visuals
+import settings
 import brains
 
 import logging
@@ -19,13 +20,14 @@ def boot():
 	entities.trigger_event(_entity, 'create_timer', time=0, repeat=-1, repeat_callback=_tick_online_entities)
 	entities.trigger_event(_entity, 'create_timer', time=numbers.seconds_as_ticks(3), repeat=-1, repeat_callback=_tick_offline_entities)
 
-def _register(entity):
+def _register(entity, player=False):
 	ONLINE_ENTITIES.append(entity['_id'])
 	
 	entity['ai'] = {'brain': goapy.World(),
 	                'brain_offline': goapy.World(),
 	                'last_action': 'idle',
 	                'visible_items': [],
+	                'is_player': player,
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
 	                         'has_bandage': False,
@@ -53,8 +55,8 @@ def register_animal(entity):
 	entities.register_event(entity, 'logic', _animal_logic)
 	entities.register_event(entity, 'logic_offline', _animal_logic_offline)
 
-def register_human(entity):
-	_register(entity)
+def register_human(entity, player=False):
+	_register(entity, player=player)
 	_ai = entity['ai']
 	
 	#Healing
@@ -86,6 +88,9 @@ def register_human(entity):
 def _tick_online_entities(entity):
 	global ONLINE_ENTITIES
 	
+	if not settings.TICK_MODE == 'normal':
+		return
+	
 	for entity_id in ONLINE_ENTITIES:
 		if not entity_id in entities.ENTITIES:
 			logging.warning('Online entity not found in global entity list: Moving to offline queue.')
@@ -108,6 +113,9 @@ def set_meta(entity, key, value):
 		raise Exception('Trying to set invalid brain meta: %s' % key)
 	
 	entity['ai']['meta'][key] = value
+
+def set_meta_weight(entity, key, value):
+	entity['ai']['weights'][key] = value
 
 def _handle_goap(entity, brain='brain'):
 	for planner in entity['ai'][brain].planners:
@@ -134,6 +142,9 @@ def _human_logic(entity):
 	
 	if len(entity['ai']['visible_items']['gun']) > 0:
 		entity['ai']['meta']['sees_item_type_weapon'] = True
+	
+	if entity['ai']['is_player']:
+		return
 	
 	_goap = _handle_goap(entity)
 	

@@ -15,7 +15,7 @@ TILE_MAP = []
 WEIGHT_MAP = None
 LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
-SOLIDS = []
+SOLIDS = set()
 
 
 def swamp(width, height, rings=8):
@@ -153,7 +153,7 @@ def swamp(width, height, rings=8):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
-						SOLIDS.append((x, y))
+						SOLIDS.add((x, y))
 					
 					else:
 						_tile_map[y][x] = buildinggen.ROOM_TYPES[room['type']]['tiles'](x, y)
@@ -164,7 +164,7 @@ def swamp(width, height, rings=8):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
-						SOLIDS.append((x, y))
+						SOLIDS.add((x, y))
 			
 			for y in range(_y-1, _y+_room_size+1):
 				for x in range(_x, _x+_room_size):
@@ -172,7 +172,7 @@ def swamp(width, height, rings=8):
 						WEIGHT_MAP[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 						
-						SOLIDS.append((x, y))
+						SOLIDS.add((x, y))
 			
 			_last_plot_x, _last_plot_y = plot_x, plot_y
 					
