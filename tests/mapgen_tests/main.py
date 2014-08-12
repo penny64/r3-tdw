@@ -73,6 +73,9 @@ def draw():
 	for entity_id in entities.get_entity_group('nodes'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
+	for entity_id in entities.get_entity_group('effects_freetick'):
+		entities.trigger_event(entities.get_entity(entity_id), 'draw')
+	
 	for entity_id in entities.get_entity_group('items'):
 		_entity = entities.get_entity(entity_id)
 		
@@ -163,6 +166,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')
 	entities.create_entity_group('nodes')
+	entities.create_entity_group('effects_freetick')
 
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
