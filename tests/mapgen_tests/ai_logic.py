@@ -33,7 +33,7 @@ def _get_item(entity, item_id):
 		movement.walk_to_position(entity, _x, _y)
 	
 	else:
-		life.pick_up_item(entity, item_id)
+		life.get_and_store_item(entity, item_id)
 
 def get_weapon(entity):
 	_nearest_weapon = get_nearest_entity_in_list(entity, entity['ai']['visible_items']['gun'])

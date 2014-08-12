@@ -179,7 +179,7 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		return False
 
-	if timers.has_timer_with_name(entity, 'move') or timers.has_timer_with_name(entity, 'move_slow'):
+	if timers.has_timer_with_name(entity, 'move') or timers.has_timer_with_name(entity, 'move', fuzzy=True):
 		return False
 
 	_next_pos = entity['movement']['path']['positions'].pop(0)
@@ -194,4 +194,4 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		entity['movement']['path']['destination'] = None
 
-	push(entity, x=_d_x, y=_d_y, name='move_slow')
+	push(entity, x=_d_x, y=_d_y, name='Move')

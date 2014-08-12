@@ -5,6 +5,7 @@ import ui_cursor
 import ui_menu
 import mapgen
 import camera
+import items
 
 import time
 
@@ -91,14 +92,11 @@ def handle_mouse_pressed(entity, x, y, button):
 					return
 			
 			if not DRAGGING_NODE:
-				for entity_id in entities.get_entity_group('life'):
-					_target = entities.get_entity(entity_id)
+				if movement.get_position(entity) == (_x, _y):
+					LAST_CLICKED_POS = (_x, _y)
+					create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
 					
-					if movement.get_position(_target) == (_x, _y):
-						LAST_CLICKED_POS = (_x, _y)
-						create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
-						
-						return
+					return
 				
 				create_walk_node(entity, _x, _y)
 			
@@ -265,13 +263,24 @@ def create_action_menu(entity, x, y, on_path=False):
 
 def create_item_menu(entity, item, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')
-	ui_menu.add_selectable(_menu, 'Pick Up', lambda: create_action_node(entity,
-	                                                                   x,
-	                                                                   y,
-	                                                                   30,
-	                                                                   lambda: entities.trigger_event(entity, 'pick_up_item', item_id=item['_id']),
-	                                                                   name='Pick up %s' % item['stats']['name'],
-	                                                                   on_path=on_path))
+	
+	if items.get_list_of_free_holders(entity, item['_id']):
+		ui_menu.add_selectable(_menu, 'Arm', lambda: create_action_node(entity,
+			                                                            x,
+			                                                            y,
+			                                                            30,
+			                                                            lambda: entities.trigger_event(entity, 'get_and_hold_item', item_id=item['_id']),
+			                                                            name='Arm %s' % item['stats']['name'],
+			                                                            on_path=on_path))
+	
+	if items.get_list_of_free_containers(entity, item['_id']):
+		ui_menu.add_selectable(_menu, 'Store', lambda: create_action_node(entity,
+		                                                                  x,
+		                                                                  y,
+		                                                                  30,
+		                                                                  lambda: entities.trigger_event(entity, 'get_and_store_item', item_id=item['_id']),
+		                                                                  name='Store %s' % item['stats']['name'],
+		                                                                  on_path=on_path))
 
 def redraw_path(entity):
 	for node in entity['node_path']['nodes'].values():

@@ -82,7 +82,11 @@ def generate_shadow_map(width, height, solids):
 			if (x+i, y+i) in solids or (x+i, y+i) in _taken:
 				continue
 			
-			SHADOWS[y+i][x+i] = numbers.clip((i)/5.0, .35, .9)
+			_shadow = numbers.clip((i)/5.0, .35, .9)
+			
+			if _shadow < SHADOWS[y+i][x+i]:
+				SHADOWS[y+i][x+i] = _shadow
+			
 			_taken.add((x+1, y+1))
 	
 	

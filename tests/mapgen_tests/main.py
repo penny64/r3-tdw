@@ -119,7 +119,7 @@ def main():
 	
 	PLAYER = life.human(150, 150, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
-	life.human_runner(160, 160, 'Test NPC')
+	life.human_runner(175, 175, 'Test NPC')
 	items.glock(151, 151)
 	
 	ui_cursor.boot()

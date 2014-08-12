@@ -1,5 +1,6 @@
 from framework import entities, tile, timers, movement, stats
 
+import items
 import ai
 
 import nodes
@@ -13,13 +14,18 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	timers.register(_entity)
 	stats.register(_entity, health, speed, name=name, faction=faction)
 	nodes.register(_entity)
+	items.register(_entity)
 	
 	if has_ai:
 		ai.register_human(_entity)
 	
-	entities.create_event(_entity, 'pick_up_item')
-	entities.register_event(_entity, 'pick_up_item', pick_up_item)
+	entities.create_event(_entity, 'get_and_store_item')
+	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
+	entities.create_event(_entity, 'get_and_hold_item')
+	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
+	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
+	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
 	
 	return _entity
 
@@ -45,13 +51,11 @@ def get_status_string(entity):
 	
 	return 'Idle'
 
-def _pick_up_item(entity, item_id):
-	_item = entities.get_entity(item_id)
-	
-	_item['stats']['owner'] = entity['_id']
+def _get_and_store_item(entity, item_id):
+	entities.trigger_event(entity, 'store_item', item_id=item_id)
 
-def pick_up_item(entity, item_id):
-	if timers.has_timer_with_name(entity, 'pick_up_item'):
+def get_and_store_item(entity, item_id):
+	if timers.has_timer_with_name(entity, 'get_and_store_item'):
 		return
 	
 	_item = entities.get_entity(item_id)
@@ -60,4 +64,19 @@ def pick_up_item(entity, item_id):
 	                       'create_timer',
 	                       time=30,
 	                       name='Getting %s' % _item['stats']['name'],
-	                       exit_callback=lambda _: _pick_up_item(entity, item_id))
+	                       exit_callback=lambda _: _get_and_store_item(entity, item_id))
+
+def _get_and_hold_item(entity, item_id):
+	entities.trigger_event(entity, 'hold_item', item_id=item_id)
+
+def get_and_hold_item(entity, item_id):
+	if timers.has_timer_with_name(entity, 'get_and_hold_item'):
+		return
+	
+	_item = entities.get_entity(item_id)
+	
+	entities.trigger_event(entity,
+	                       'create_timer',
+	                       time=30,
+	                       name='Getting %s' % _item['stats']['name'],
+	                       exit_callback=lambda _: _get_and_hold_item(entity, item_id))

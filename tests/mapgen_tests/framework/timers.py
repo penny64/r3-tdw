@@ -38,15 +38,18 @@ def get_nearest_timer(entity):
 	
 	return _nearest_timer['timer']
 
-def has_timer_with_name(entity, name, next_only=True):
+def has_timer_with_name(entity, name, next_only=True, fuzzy=False):
 	for timer in entity['timers']:
 		if timer['stop']:
 			continue
 		
+		if fuzzy and timer['name'].lower().count(name):
+			return True
+		
 		if timer['name'] == name:
 			return True
 		
-		elif next_only:
+		if next_only:
 			return False
 	
 	return False

@@ -93,7 +93,9 @@ def swamp(width, height, rings=8):
 	
 	_s_x, _s_y = (110, 110)
 	_room_size = 11
-	_building, _rooms = buildinggen.generate(6, 6, 'north', ['foyer', 'living_room', 'kitchen', 'bathroom'])
+	_direction = random.choice(['north', 'south', 'east', 'west'])
+	_width, _height = random.choice([(6, 6), (3, 6), (6, 3)])
+	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['foyer', 'living_room', 'kitchen', 'bathroom'])
 	
 	for room in _rooms:
 		_build_doors = []
