@@ -246,6 +246,16 @@ def _redraw_first_node(entity, **kargs):
 
 def create_action_menu(entity, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')
+	
+	if items.get_items_in_holder(entity, 'weapon'):
+		ui_menu.add_selectable(_menu, 'Shoot', lambda: create_action_node(entity,
+		                                                                  x,
+		                                                                  y,
+		                                                                  5,
+		                                                                  lambda: entities.trigger_event(entity, 'shoot'),
+		                                                                  name='Shoot',
+		                                                                  on_path=on_path))
+	
 	ui_menu.add_selectable(_menu, 'Reload', lambda: create_action_node(entity,
 	                                                                   x,
 	                                                                   y,
@@ -266,12 +276,12 @@ def create_item_menu(entity, item, x, y, on_path=False):
 	
 	if items.get_list_of_free_holders(entity, item['_id']) and item['stats']['equip_to']:
 		ui_menu.add_selectable(_menu, 'Equip', lambda: create_action_node(entity,
-			                                                            x,
-			                                                            y,
-			                                                            30,
-			                                                            lambda: entities.trigger_event(entity, 'get_and_hold_item', item_id=item['_id']),
-			                                                            name='Equip %s' % item['stats']['name'],
-			                                                            on_path=on_path))
+		                                                                  x,
+		                                                                  y,
+		                                                                  30,
+		                                                                  lambda: entities.trigger_event(entity, 'get_and_hold_item', item_id=item['_id']),
+		                                                                  name='Equip %s' % item['stats']['name'],
+		                                                                  on_path=on_path))
 	
 	if items.get_list_of_free_containers(entity, item['_id']):
 		ui_menu.add_selectable(_menu, 'Store', lambda: create_action_node(entity,

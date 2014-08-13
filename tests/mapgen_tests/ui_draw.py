@@ -1,7 +1,8 @@
-from framework import display, entities, movement, numbers
+from framework import display, entities, movement, numbers, flags
 
 import constants
 import camera
+import items
 import life
 
 PLAYER = None
@@ -30,6 +31,18 @@ def draw_status_bar(planning=False, executing=False, execute_speed=''):
 		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, execute_speed)
 		
 		_x += len(execute_speed)+1
+	
+	_weapons = items.get_items_in_holder(PLAYER, 'weapon')
+	
+	if _weapons:
+		_weapon = entities.get_entity(_weapons[0])
+		_ammo = flags.get_flag(_weapon, 'ammo')
+		_ammo_max = flags.get_flag(_weapon, 'ammo_max')
+		_weapon_string = '%s (%s/%s)' % (_weapon['stats']['name'], _ammo, _ammo_max)
+		
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, _weapon_string)
+		
+		_x += len(_weapon_string)+1
 
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))

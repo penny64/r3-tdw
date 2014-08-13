@@ -179,6 +179,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
+	entities.create_entity_group('bullets')
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')

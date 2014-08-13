@@ -17,7 +17,7 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15):
 	entity['movement'] = _movement
 
 	entities.create_event(entity, 'set_position')
-	entities.create_event(entity, 'set_tank_direction')
+	entities.create_event(entity, 'set_direction')
 	entities.create_event(entity, 'set_turn_speed')
 	entities.create_event(entity, 'push_tank')
 	entities.create_event(entity, 'push')
@@ -34,7 +34,7 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15):
 	entities.register_event(entity, 'throw', _throw)
 	entities.register_event(entity, 'set_turn_speed', set_turn_speed)
 	entities.register_event(entity, 'set_position', set_position)
-	entities.register_event(entity, 'set_tank_direction', _set_tank_direction)
+	entities.register_event(entity, 'set_direction', _set_tank_direction)
 	entities.register_event(entity, 'push_tank', _push_tank)
 	entities.register_event(entity, 'move_to_position', walk_to_position)
 

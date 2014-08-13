@@ -11,6 +11,9 @@ def build_item_list(entity):
 	for entity_id in entities.get_entity_group('items'):
 		_item = entities.get_entity(entity_id)
 		
+		if not _item['stats']['type'] in entity['ai']['visible_items']:
+			continue
+		
 		if _item['stats']['owner']:
 			continue
 		
