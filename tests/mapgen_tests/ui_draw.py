@@ -85,13 +85,15 @@ def draw_item_labels():
 		display.write_string('ui', _render_x, _render_y, _label)
 
 def draw_node_path(entity):
+	_labels = {}
+	_camera_x, _camera_y = camera.X, camera.Y
+	_width = display.get_surface('life')['width']
+	_height = display.get_surface('life')['height']
+	
 	for node in entity['node_path']['nodes'].values():
 		_node = node['node']
 		
 		_x, _y = _node['x'], _node['y']
-		_camera_x, _camera_y = camera.X, camera.Y
-		_width = display.get_surface('life')['width']
-		_height = display.get_surface('life')['height']
 		_x -= _camera_x
 		_y -= _camera_y
 		
@@ -99,10 +101,18 @@ def draw_node_path(entity):
 			continue
 		
 		_label = _node['name']
-		_render_x = numbers.clip(_x - len(_label)/2, 0, _width - len(_label))
-		_render_y = numbers.clip(_y - 1, 0, _height)
 		
-		if _render_y == _y:
+		if (_x, _y) in _labels:
+			_labels[(_x, _y)] += ' -> '+_label
+		else:
+			_labels[(_x, _y)] = _label
+	
+	for x, y in _labels:
+		_label = _labels[(x, y)]
+		_render_x = numbers.clip(x - len(_label)/2, 0, _width - len(_label))
+		_render_y = numbers.clip(y - 1, 0, _height)
+		
+		if _render_y == y:
 			_render_y += 2
 		
 		display.write_string('ui', _render_x, _render_y, _label)

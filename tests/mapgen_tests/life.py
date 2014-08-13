@@ -45,6 +45,16 @@ def human(x, y, name):
 	                                                           show_mod=1.0,
 	                                                           moving=False,
 	                                                           center=True))
+	entities.register_event(_entity,
+	                        'store_item',
+	                        lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
+	                                                           _entity['tile']['y']-camera.Y-5,
+	                                                           '+%s' % entities.get_entity(item_id)['stats']['name'],
+	                                                           fore_color=(0, 255, 0),
+	                                                           speed_mod=0.3,
+	                                                           show_mod=1.0,
+	                                                           moving=False,
+	                                                           center=True))
 	
 	return _entity
 

@@ -28,7 +28,10 @@ MOVIE_TIME_MAX = 30
 def handle_input():
 	if settings.TICK_MODE in ['normal', 'strategy']:
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
-			return False
+			if ui_menu.get_active_menu():
+				ui_menu.delete(ui_menu.get_active_menu())
+			else:
+				return False
 		
 		if controls.get_input_char_pressed(' '):
 			if settings.TICK_MODE == 'strategy':
@@ -135,7 +138,7 @@ def main():
 	PLAYER = life.human(150, 150, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 	life.human_runner(175, 175, 'Test NPC')
-	items.glock(151, 151)
+	items.glock(151, 160)
 	items.ammo_9x19mm(150, 155)
 	items.leather_backpack(145, 150)
 	
