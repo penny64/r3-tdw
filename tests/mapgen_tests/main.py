@@ -21,6 +21,9 @@ import numpy
 import time
 import sys
 
+MOVIE_TIME = 0
+MOVIE_TIME_MAX = 30
+
 
 def handle_input():
 	if settings.TICK_MODE in ['normal', 'strategy']:
@@ -67,6 +70,8 @@ def tick():
 			entities.trigger_event(entities.get_entity(entity_id), 'tick')
 
 def draw():
+	global MOVIE_TIME, MOVIE_TIME_MAX
+	
 	for entity_id in entities.get_entity_group('life'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
@@ -101,6 +106,13 @@ def draw():
 	display.blit_surface('ui')
 	display.blit_surface('ui_menus')
 	events.trigger_event('draw')
+	
+	#MOVIE_TIME += 1
+	
+	#if MOVIE_TIME == MOVIE_TIME_MAX:
+	#	display.screenshot('screenshot-%s.bmp' % time.time())
+	#	
+	#	MOVIE_TIME = 0
 
 def loop():
 	global FPSS
