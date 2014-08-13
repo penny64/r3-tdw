@@ -13,10 +13,14 @@ def register(entity):
 	entities.create_event(entity, 'create_holder')
 	entities.register_event(entity, 'create_holder', add_holder)
 
-def _create(x, y, name, char, weight, item_type):
+def _create(x, y, name, char, weight, item_type, equip_to=None):
 	_entity = entities.create_entity(group='items')
 	
-	_entity['stats'] = {'name': name, 'type': item_type, 'weight': weight, 'owner': None}
+	_entity['stats'] = {'name': name,
+	                    'type': item_type,
+	                    'weight': weight,
+	                    'owner': None,
+	                    'equip_to': equip_to}
 	
 	movement.register(_entity)
 	tile.register(_entity, surface='items', char=char)
@@ -25,6 +29,11 @@ def _create(x, y, name, char, weight, item_type):
 	
 	return _entity
 
+def create_container(x, y, name, char, weight, max_weight, equip_to=None):
+	_item = _create(x, y, name, char, weight, 'container', equip_to=equip_to)
+	
+	_item['stats']['max_weight'] = max_weight
+
 def get_list_of_free_containers(entity, item_id):
 	_containers = []
 	_item = entities.get_entity(item_id)
@@ -32,7 +41,7 @@ def get_list_of_free_containers(entity, item_id):
 	for container_id in entity['inventory']['containers']:
 		_container = entities.get_entity(container_id)
 		
-		if _item['stats']['weight'] + _container['weight'] > _container['max_weight']:
+		if _item['stats']['weight'] + _container['stats']['weight'] > _container['stats']['max_weight']:
 			continue
 		
 		_containers.append(container_id)
@@ -45,6 +54,9 @@ def get_list_of_free_holders(entity, item_id):
 	
 	for holder_name in entity['inventory']['holders']:
 		_holder = entity['inventory']['holders'][holder_name]
+		
+		if not _item['stats']['equip_to'] == holder_name:
+			continue
 		
 		if _item['stats']['weight'] + _holder['weight'] > _holder['max_weight']:
 			continue
@@ -60,6 +72,9 @@ def get_list_of_free_holders(entity, item_id):
 def own_item(entity, item_id):
 	_item = entities.get_entity(item_id)
 	_item['stats']['owner'] = entity['_id']
+	
+	if _item['stats']['type'] == 'container':
+		entity['inventory']['containers'][item_id] = {'items': [], 'weight': 0, 'max_weight': _item['stats']['max_weight']}
 	
 	entity['inventory']['items'].append(item_id)
 
@@ -102,5 +117,11 @@ def hold_item(entity, item_id, holder_name=None):
 #Items#
 #######
 
+def leather_backpack(x, y):
+	return create_container(x, y, 'Leather Backpack', 'H', 4, 14, equip_to='backpack')
+
 def glock(x, y):
-	return _create(x, y, 'Glock', 'P', 4, 'gun')
+	return _create(x, y, 'Glock', 'P', 4, 'weapon', equip_to='weapon')
+
+def ammo_9x19mm(x, y):
+	return _create(x, y, '9x19mm rounds', '+', 4, 'ammo')

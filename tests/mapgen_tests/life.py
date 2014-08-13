@@ -28,6 +28,7 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
+	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
 	
 	return _entity
 
@@ -37,11 +38,12 @@ def human(x, y, name):
 	entities.register_event(_entity,
 	                        'hold_item',
 	                        lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
-	                                                           _entity['tile']['y']-camera.Y-3,
+	                                                           _entity['tile']['y']-camera.Y-5,
 	                                                           '+%s' % entities.get_entity(item_id)['stats']['name'],
 	                                                           fore_color=(0, 255, 0),
-	                                                           speed_mod=0.7,
-	                                                           show_mod=1.4,
+	                                                           speed_mod=0.3,
+	                                                           show_mod=1.0,
+	                                                           moving=False,
 	                                                           center=True))
 	
 	return _entity

@@ -124,6 +124,8 @@ def main():
 	PLAYER['ai']['is_player'] = True
 	life.human_runner(175, 175, 'Test NPC')
 	items.glock(151, 151)
+	items.ammo_9x19mm(150, 155)
+	items.leather_backpack(145, 150)
 	
 	ui_cursor.boot()
 	ai.boot()

@@ -140,7 +140,7 @@ def _animal_logic(entity):
 def _human_logic(entity):
 	ai_visuals.build_item_list(entity)
 	
-	if len(entity['ai']['visible_items']['gun']) > 0:
+	if len(entity['ai']['visible_items']['weapon']) > 0:
 		entity['ai']['meta']['sees_item_type_weapon'] = True
 	
 	if entity['ai']['is_player']:
