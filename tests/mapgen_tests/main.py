@@ -60,20 +60,11 @@ def handle_mouse_pressed(x, y, button):
 			camera.set_pos(_c_x, _c_y)
 
 def tick():
-	if settings.TICK_MODE == 'strategy':
-		return
+	for entity_id in entities.get_entity_group('life'):
+		entities.trigger_event(entities.get_entity(entity_id), 'tick')
 	
-	if PLAYER['node_path']['path']:
-		_ticks_per_tick = settings.PLAN_TICK_RATE
-	else:
-		_ticks_per_tick = 1
-	
-	for _ in range(_ticks_per_tick):
-		for entity_id in entities.get_entity_group('life'):
-			entities.trigger_event(entities.get_entity(entity_id), 'tick')
-		
-		for entity_id in entities.get_entity_group('bullets'):
-			entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	for entity_id in entities.get_entity_group('bullets'):
+		entities.trigger_event(entities.get_entity(entity_id), 'tick')
 
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
@@ -125,7 +116,17 @@ def loop():
 	global FPSS
 	
 	events.trigger_event('input')
-	events.trigger_event('logic')
+	
+	if not settings.TICK_MODE == 'strategy':
+		if PLAYER['node_path']['path']:
+			_ticks_per_tick = settings.PLAN_TICK_RATE
+		else:
+			_ticks_per_tick = 1
+		
+		for _ in range(_ticks_per_tick):
+			events.trigger_event('logic')
+			tick()
+	
 	events.trigger_event('tick')
 	events.trigger_event('camera')
 	
@@ -156,7 +157,7 @@ def main():
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
-	events.register_event('tick', tick)
+	#events.register_event('tick', tick)
 	
 	_t = time.time()
 	mapgen.swamp(400, 400)	
