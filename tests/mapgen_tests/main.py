@@ -71,6 +71,9 @@ def tick():
 	for _ in range(_ticks_per_tick):
 		for entity_id in entities.get_entity_group('life'):
 			entities.trigger_event(entities.get_entity(entity_id), 'tick')
+		
+		for entity_id in entities.get_entity_group('bullets'):
+			entities.trigger_event(entities.get_entity(entity_id), 'tick')
 
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
@@ -138,9 +141,9 @@ def main():
 	PLAYER = life.human(150, 150, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 	life.human_runner(175, 175, 'Test NPC')
-	items.glock(151, 160)
 	items.ammo_9x19mm(150, 155)
 	items.leather_backpack(145, 150)
+	life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()
 	ai.boot()
@@ -163,6 +166,7 @@ def main():
 	maps.render_map(mapgen.TILE_MAP, mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT)	
 	
 	camera.set_limits(0, 0, mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH, mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT)
+	camera.set_pos(120, 120)
 	
 	while loop():
 		events.trigger_event('cleanup')
@@ -179,7 +183,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
-	entities.create_entity_group('bullets')
+	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')

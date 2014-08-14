@@ -164,10 +164,10 @@ def hold_item(entity, item_id, holder_name=None):
 def leather_backpack(x, y):
 	return create_container(x, y, 'Leather Backpack', 'H', 4, 14, equip_to='backpack')
 
-def glock(x, y):
+def glock(x, y, ammo=0):
 	_entity = _create(x, y, 'Glock', 'P', 4, 'weapon', equip_to='weapon')
 	
-	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=0)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
 	
 	return _entity

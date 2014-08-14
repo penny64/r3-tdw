@@ -37,33 +37,33 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	return _entity
 
 def human(x, y, name):
-	_entity = _create(x, y, 100, 10, name, has_ai=True)
+	_entity = _create(x, y, 100, 20, name, has_ai=True)
 	
-	entities.register_event(_entity,
-	                        'hold_item',
-	                        lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
-	                                                           _entity['tile']['y']-camera.Y-5,
-	                                                           '+%s' % entities.get_entity(item_id)['stats']['name'],
-	                                                           fore_color=(0, 255, 0),
-	                                                           speed_mod=0.3,
-	                                                           show_mod=1.0,
-	                                                           moving=False,
-	                                                           center=True))
-	entities.register_event(_entity,
-	                        'store_item',
-	                        lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
-	                                                           _entity['tile']['y']-camera.Y-5,
-	                                                           '+%s' % entities.get_entity(item_id)['stats']['name'],
-	                                                           fore_color=(0, 255, 0),
-	                                                           speed_mod=0.3,
-	                                                           show_mod=1.0,
-	                                                           moving=False,
-	                                                           center=True))
+	#entities.register_event(_entity,
+	                        #'hold_item',
+	                        #lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
+	                                                           #_entity['tile']['y']-camera.Y-5,
+	                                                           #'+%s' % entities.get_entity(item_id)['stats']['name'],
+	                                                           #fore_color=(0, 255, 0),
+	                                                           #speed_mod=0.3,
+	                                                           #show_mod=1.0,
+	                                                           #moving=False,
+	                                                           #center=True))
+	#entities.register_event(_entity,
+	                        #'store_item',
+	                        #lambda e, item_id: effects.printer(_entity['tile']['x']-camera.X,
+	                                                           #_entity['tile']['y']-camera.Y-5,
+	                                                           #'+%s' % entities.get_entity(item_id)['stats']['name'],
+	                                                           #fore_color=(0, 255, 0),
+	                                                           #speed_mod=0.3,
+	                                                           #show_mod=1.0,
+	                                                           #moving=False,
+	                                                           #center=True))
 	
 	return _entity
 
 def human_runner(x, y, name):
-	return _create(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	return _create(x, y, 100, 20, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
 
 
 ############
@@ -150,7 +150,7 @@ def _shoot_weapon(entity, weapon_id):
 	
 	entities.trigger_event(_weapon, 'flag_sub', flag='ammo', value=1)
 	
-	items.bullet(_x, _y, _x, _y-10, 2)
+	items.bullet(_x, _y, _x, _y-10, 1)
 
 def shoot_weapon(entity):
 	if timers.has_timer_with_name(entity, 'shoot'):
