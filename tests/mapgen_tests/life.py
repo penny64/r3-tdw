@@ -2,10 +2,9 @@ from framework import entities, tile, timers, movement, stats, flags, numbers
 
 import effects
 import camera
+import nodes
 import items
 import ai
-
-import nodes
 
 
 def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_color=(255, 255, 255)):
@@ -85,10 +84,10 @@ def _get_and_store_item(entity, item_id):
 	entities.trigger_event(entity, 'store_item', item_id=item_id)
 
 def get_and_store_item(entity, item_id):
-	if timers.has_timer_with_name(entity, 'get_and_store_item'):
-		return
-
 	_item = entities.get_entity(item_id)
+	
+	if timers.has_timer_with_name(entity, 'Getting %s' % _item['stats']['name'], fuzzy=True):
+		return
 
 	entities.trigger_event(entity,
 		                   'create_timer',
@@ -100,10 +99,10 @@ def _get_and_hold_item(entity, item_id):
 	entities.trigger_event(entity, 'hold_item', item_id=item_id)
 
 def get_and_hold_item(entity, item_id):
-	if timers.has_timer_with_name(entity, 'get_and_hold_item'):
-		return
-
 	_item = entities.get_entity(item_id)
+	
+	if timers.has_timer_with_name(entity, 'Getting %s' % _item['stats']['name'], fuzzy=True):
+		return
 
 	entities.trigger_event(entity,
 		                   'create_timer',

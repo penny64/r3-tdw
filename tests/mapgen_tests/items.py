@@ -1,5 +1,7 @@
 from framework import entities, movement, numbers, flags, timers, tile
 
+import logging
+
 
 def register(entity):
 	entity['inventory'] = {'items': [],

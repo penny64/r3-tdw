@@ -56,6 +56,40 @@ def search_for_weapon():
 	
 	return _weapon_search_brain
 
+def search_for_ammo():
+	_brain = goapy.Planner('has_container', 'has_weapon', 'has_ammo', 'sees_item_type_ammo')
+	_actions = goapy.Action_List()
+
+	_brain.set_action_list(_actions)
+	_brain.set_goal_state(has_ammo=True)
+
+	_actions.add_condition('find_ammo', has_weapon=True, has_ammo=False)
+	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
+	_actions.add_reaction('find_ammo', sees_item_type_ammo=True)
+	
+	_actions.add_condition('get_ammo', sees_item_type_ammo=True, has_container=True)
+	_actions.add_callback('get_ammo', lambda entity: ai_logic.get_ammo(entity))
+	_actions.add_reaction('get_ammo', has_ammo=True)
+	
+	return _brain
+
+def search_for_container():
+	_brain = goapy.Planner('has_container', 'sees_item_type_container')
+	_actions = goapy.Action_List()
+
+	_brain.set_action_list(_actions)
+	_brain.set_goal_state(has_container=True)
+
+	_actions.add_condition('find_container', has_container=False)
+	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
+	_actions.add_reaction('find_container', sees_item_type_container=True)
+	
+	_actions.add_condition('get_container', sees_item_type_container=True)
+	_actions.add_callback('get_container', lambda entity: ai_logic.get_container(entity))
+	_actions.add_reaction('get_container', has_container=True)
+	
+	return _brain
+
 def panic():
 	_brain = goapy.Planner('is_panicked', 'in_engagement', 'is_target_near')
 	_actions = goapy.Action_List()

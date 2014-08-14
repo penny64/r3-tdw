@@ -3,6 +3,7 @@ from framework import entities, events, numbers, goapy, timers, flags
 import ai_visuals
 import settings
 import brains
+import items
 
 import logging
 
@@ -33,6 +34,7 @@ def _register(entity, player=False):
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,
+	                         'has_container': False,
 	                         'weapon_loaded': False,
 	                         'weapon_armed': False,
 	                         'in_engagement': False,
@@ -41,9 +43,12 @@ def _register(entity, player=False):
 	                         'in_enemy_los': False,
 	                         'is_hungry': False,
 	                         'has_food': False,
-	                         'sees_item_type_weapon': False},
+	                         'sees_item_type_weapon': False,
+	                         'sees_item_type_container': False,
+	                         'sees_item_type_ammo': False},
 	                'weights': {'find_bandage': 10,
-	                            'find_weapon': 16}}
+	                            'find_weapon': 16,
+	                            'find_container': 14}}
 	
 	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
@@ -73,6 +78,8 @@ def register_human(entity, player=False):
 	
 	#Search
 	_ai['brain'].add_planner(brains.search_for_weapon())
+	_ai['brain'].add_planner(brains.search_for_ammo())
+	_ai['brain'].add_planner(brains.search_for_container())
 	
 	#Reload
 	_ai['brain'].add_planner(brains.reload())
@@ -140,8 +147,12 @@ def _animal_logic(entity):
 def _human_logic(entity):
 	ai_visuals.build_item_list(entity)
 	
-	if len(entity['ai']['visible_items']['weapon']) > 0:
-		entity['ai']['meta']['sees_item_type_weapon'] = True
+	entity['ai']['meta']['sees_item_type_weapon'] = len(entity['ai']['visible_items']['weapon']) > 0
+	entity['ai']['meta']['sees_item_type_ammo'] = len(entity['ai']['visible_items']['ammo']) > 0
+	entity['ai']['meta']['sees_item_type_container'] = len(entity['ai']['visible_items']['container']) > 0
+	entity['ai']['meta']['has_weapon'] = len(items.get_items_in_holder(entity, 'weapon')) > 0
+	entity['ai']['meta']['has_ammo'] = len(items.get_items_matching(entity, {'type': 'ammo'})) > 0
+	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	
 	if entity['ai']['is_player']:
 		return
