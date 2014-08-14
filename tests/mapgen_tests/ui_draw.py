@@ -14,7 +14,7 @@ def boot(entity):
 	PLAYER = entity
 
 
-def draw_status_bar(planning=False, executing=False, execute_speed=''):
+def draw_status_bar(planning=False, executing=False, execute_speed='', selecting=False):
 	_x = 0
 	
 	if planning:
@@ -31,6 +31,11 @@ def draw_status_bar(planning=False, executing=False, execute_speed=''):
 		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, execute_speed)
 		
 		_x += len(execute_speed)+1
+	
+	if selecting:
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'SELECTING TARGET')
+		
+		_x += len('SELECTING TARGET')+1
 	
 	_weapons = items.get_items_in_holder(PLAYER, 'weapon')
 	

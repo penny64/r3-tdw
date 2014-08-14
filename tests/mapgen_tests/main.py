@@ -97,7 +97,8 @@ def draw():
 	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
 	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_path']['path'],
-	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_path']['path'])>0))
+	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_path']['path'])>0),
+	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 	ui_draw.draw_life_labels()
 	ui_draw.draw_item_labels()
 	ui_draw.draw_node_path(PLAYER)
@@ -143,7 +144,8 @@ def main():
 	life.human_runner(175, 175, 'Test NPC')
 	items.ammo_9x19mm(150, 155)
 	items.leather_backpack(145, 150)
-	life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
+	items.glock(155, 155, ammo=17)
+	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()
 	ai.boot()

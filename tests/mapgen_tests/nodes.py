@@ -11,6 +11,7 @@ import time
 
 DRAGGING_NODE = None
 LAST_CLICKED_POS = None
+SELECTING_TARGET_CALLBACK = None
 
 
 def register(entity):
@@ -50,7 +51,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 	redraw_path(entity)
 
 def handle_mouse_pressed(entity, x, y, button):
-	global DRAGGING_NODE, LAST_CLICKED_POS
+	global DRAGGING_NODE, LAST_CLICKED_POS, SELECTING_TARGET_CALLBACK
 	
 	if ui_menu.get_active_menu():
 		return
@@ -92,6 +93,20 @@ def handle_mouse_pressed(entity, x, y, button):
 					return
 			
 			if not DRAGGING_NODE:
+				if SELECTING_TARGET_CALLBACK:
+					for entity_id in entities.get_entity_group('life'):
+						if entity['_id'] == entity_id:
+							continue
+						
+						_entity = entities.get_entity(entity_id)
+						_tx, _ty = movement.get_position(_entity)
+						
+						if (_x, _y) == (_tx, _ty):
+							SELECTING_TARGET_CALLBACK(entity, entity_id)
+							SELECTING_TARGET_CALLBACK = None
+							
+							return
+				
 				if movement.get_position(entity) == (_x, _y):
 					LAST_CLICKED_POS = (_x, _y)
 					create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
@@ -248,13 +263,7 @@ def create_action_menu(entity, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')
 	
 	if items.get_items_in_holder(entity, 'weapon'):
-		ui_menu.add_selectable(_menu, 'Shoot', lambda: create_action_node(entity,
-		                                                                  x,
-		                                                                  y,
-		                                                                  5,
-		                                                                  lambda: entities.trigger_event(entity, 'shoot'),
-		                                                                  name='Shoot',
-		                                                                  on_path=on_path))
+		ui_menu.add_selectable(_menu, 'Shoot', lambda: select_target(x, y, on_path))
 	
 	ui_menu.add_selectable(_menu, 'Reload', lambda: create_action_node(entity,
 	                                                                   x,
@@ -291,6 +300,17 @@ def create_item_menu(entity, item, x, y, on_path=False):
 		                                                                  lambda: entities.trigger_event(entity, 'get_and_store_item', item_id=item['_id']),
 		                                                                  name='Store %s' % item['stats']['name'],
 		                                                                  on_path=on_path))
+
+def select_target(x, y, on_path):
+	global SELECTING_TARGET_CALLBACK
+	
+	SELECTING_TARGET_CALLBACK = lambda entity, target: create_action_node(entity,
+	                                                                      x,
+	                                                                      y,
+	                                                                      5,
+	                                                                      lambda: entities.trigger_event(entity, 'shoot', target_id=target),
+	                                                                      name='Shoot',
+	                                                                      on_path=on_path)
 
 def redraw_path(entity):
 	for node in entity['node_path']['nodes'].values():
