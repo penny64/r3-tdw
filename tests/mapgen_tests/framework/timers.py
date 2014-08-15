@@ -38,7 +38,7 @@ def get_nearest_timer(entity):
 	
 	return _nearest_timer['timer']
 
-def has_timer_with_name(entity, name, next_only=True, fuzzy=False):
+def has_timer_with_name(entity, name, next_only=False, fuzzy=False):
 	for timer in entity['timers']:
 		if timer['stop']:
 			continue
