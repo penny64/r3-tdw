@@ -121,7 +121,7 @@ def loop():
 		if PLAYER['node_path']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
-			_ticks_per_tick = 1
+			_ticks_per_tick = 3
 		
 		for _ in range(_ticks_per_tick):
 			events.trigger_event('logic')
@@ -145,7 +145,7 @@ def main():
 	life.human_runner(175, 175, 'Test NPC')
 	items.ammo_9x19mm(150, 155)
 	items.leather_backpack(145, 150)
-	items.glock(155, 155, ammo=17)
+	items.glock(155, 156, ammo=17)
 	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()
@@ -157,7 +157,6 @@ def main():
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
-	#events.register_event('tick', tick)
 	
 	_t = time.time()
 	mapgen.swamp(400, 400)	

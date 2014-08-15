@@ -87,3 +87,9 @@ def carpet_burgandy(x, y):
 	                           2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
+def debug(x, y):
+	_c_1 = (255, 0, 255)
+	_c_2 = (255, 0, 255)
+	
+	return _tile(x, y, 'X', 100, _c_1, _c_2)

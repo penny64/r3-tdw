@@ -12,7 +12,7 @@ def boot():
 	CURSOR = entities.create_entity(group='systems')
 	tile.register(CURSOR, surface='ui')
 	
-	events.register_event('logic', logic)
+	events.register_event('camera', logic)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('draw', lambda *args: entities.trigger_event(CURSOR, 'draw'))
