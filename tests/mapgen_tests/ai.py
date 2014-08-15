@@ -28,6 +28,7 @@ def _register(entity, player=False):
 	                'brain_offline': goapy.World(),
 	                'last_action': 'idle',
 	                'visible_items': [],
+	                'visible_life': [],
 	                'is_player': player,
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
@@ -146,6 +147,7 @@ def _animal_logic(entity):
 
 def _human_logic(entity):
 	ai_visuals.build_item_list(entity)
+	ai_visuals.build_life_list(entity)
 	
 	entity['ai']['meta']['sees_item_type_weapon'] = len(entity['ai']['visible_items']['weapon']) > 0
 	entity['ai']['meta']['sees_item_type_ammo'] = len(entity['ai']['visible_items']['ammo']) > 0
@@ -153,6 +155,10 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_weapon'] = len(items.get_items_in_holder(entity, 'weapon')) > 0
 	entity['ai']['meta']['has_ammo'] = len(items.get_items_matching(entity, {'type': 'ammo'})) > 0
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
+	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_life']['targets']) > 0
+	entity['ai']['meta']['in_enemy_los'] = entity['ai']['meta']['in_engagement'] #Temp
+	entity['ai']['meta']['is_target_near'] = entity['ai']['meta']['in_engagement'] #Temp
+	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['in_engagement']
 	
 	if entity['ai']['is_player']:
 		return

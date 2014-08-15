@@ -16,24 +16,28 @@ WEIGHT_MAP = None
 LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
 SOLIDS = set()
+NODE_PATH = []
 
 
 def build_node_path(x, y, plots, plot_size):
 	_marked_plots = []
 	
 	for x_plot, y_plot in plots:
-		for nx_plot, ny_plot in [(x_plot+1, y_plot), (x_plot-1, y_plot), (x_plot, y_plot+1), (x_plot, y_plot-1)]:
+		for nx_plot, ny_plot in [(x_plot+1, y_plot), (x_plot-1, y_plot), (x_plot, y_plot+1), (x_plot, y_plot-1), (x_plot-1, y_plot-1), (x_plot-1, y_plot+1), (x_plot+1, y_plot-1), (x_plot+1, y_plot+1)]:
 			if (nx_plot, ny_plot) in plots:
 				continue
 			
 			_marked_plots.append((nx_plot, ny_plot))
 	
 	for x_plot, y_plot in _marked_plots:
-		for node_x, node_y in [(x_plot+plot_size, y_plot), (x_plot-plot_size, y_plot), (x_plot, y_plot+plot_size), (x_plot, y_plot-plot_size), (x_plot+(plot_size/2), y_plot+(plot_size/2))]:
-			_x = x + (x_plot * plot_size)
-			_y = y + (y_plot * plot_size)
+		for node_x, node_y in [(x_plot+1, y_plot), (x_plot-1, y_plot), (x_plot, y_plot+1), (x_plot, y_plot-1), (x_plot-1, y_plot-1), (x_plot+1, y_plot+1), (x_plot-1, y_plot+1), (x_plot+1, y_plot-1), (x_plot+.5, y_plot+.5)]:
+			_x = int(round(x + (node_x * plot_size)))
+			_y = int(round(y + (node_y * plot_size)))
 			
-			TILE_MAP[_y][_x] = tiles.debug(_x, _y)
+			if (_x, _y) in SOLIDS:
+				continue
+			
+			NODE_PATH.append((_x, _y))
 
 def swamp(width, height, rings=8):
 	global TILE_MAP

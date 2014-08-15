@@ -101,10 +101,9 @@ def panic():
 	#_actions.add_callback('panic', lambda entity: ai.set_meta(entity, 'is_panicked', False))
 	_actions.add_reaction('panic', is_panicked=False)
 	
-	_actions.add_condition('flee', is_panicked=True, in_engagement=True, is_near=True)
-	#_actions.add_callback('flee', lambda entity: ai.set_meta(entity, 'is_panicked', False))
-	#_actions.add_callback('flee', lambda entity: ai.set_meta(entity, 'is_target_near', False))
-	_actions.add_reaction('flee', is_panicked=False, is_near=False)
+	_actions.add_condition('flee', is_panicked=True, in_engagement=True, is_target_near=True)
+	_actions.add_callback('flee', lambda entity: ai_logic.find_cover(entity))
+	_actions.add_reaction('flee', is_panicked=False, is_target_near=False)
 	
 	return _brain
 
@@ -149,10 +148,10 @@ def combat():
 
 	_combat_actions = goapy.Action_List()
 	_combat_actions.add_condition('track',
-                                  is_near=False,
+                                  is_target_near=False,
                                   weapon_armed=True)
 	#_combat_actions.add_callback('track', lambda entity: ai.set_meta(entity, 'is_target_near', True))
-	_combat_actions.add_reaction('track', is_near=True)
+	_combat_actions.add_reaction('track', is_target_near=True)
 	
 	_combat_actions.add_condition('unpack_ammo', has_ammo=False)
 	#_combat_actions.add_callback('unpack_ammo', lambda entity: ai.set_meta(entity, 'has_ammo', True))
@@ -179,7 +178,7 @@ def combat():
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
                                   weapon_armed=True,
-                                  is_near=True)
+                                  is_target_near=True)
 	#_combat_actions.add_callback('shoot', lambda entity: ai.set_meta(entity, 'in_engagement', False))
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

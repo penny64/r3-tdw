@@ -1,6 +1,7 @@
-from framework import entities, tile, timers, movement, stats, flags, numbers
+from framework import entities, tile, timers, movement, stats, flags, numbers, shapes
 
 import effects
+import mapgen
 import camera
 import nodes
 import items
@@ -68,6 +69,13 @@ def human_runner(x, y, name):
 ############
 #Operations#
 ############
+
+def can_see_position(entity, position):
+	for pos in shapes.line(movement.get_position(entity), position):
+		if pos in mapgen.SOLIDS:
+			return False
+	
+	return True
 
 def get_status_string(entity):
 	_timer = timers.get_nearest_timer(entity)
