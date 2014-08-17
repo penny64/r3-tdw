@@ -96,3 +96,6 @@ def find_cover(entity):
 		return
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
+
+def reload_weapon(entity):
+	life.reload_weapon(entity)

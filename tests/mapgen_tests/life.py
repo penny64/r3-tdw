@@ -139,7 +139,7 @@ def _reload_weapon(entity, weapon_id, ammo_id):
 		entities.delete_entity(_ammo)
 
 def reload_weapon(entity):
-	if timers.has_timer_with_name(entity, 'reload'):
+	if timers.has_timer_with_name(entity, 'Reloading'):
 		return
 
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]

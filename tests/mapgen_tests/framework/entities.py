@@ -206,21 +206,18 @@ def crash_dump(entity, dump_keys):
 def delete_all():
 	ENTITIES_TO_DELETE.update(ENTITIES.keys())
 
-def delete_entity(entity, quick=False):
+def delete_entity(entity):
 	if not entity['_id'] in ENTITIES:
 		return False
 
-	if not quick:
-		ENTITIES_TO_DELETE.add(entity['_id'])
-	else:
-		trigger_event(entity, 'delete')
-		
-		if worlds.ACTIVE_WORLD:
-			remove_entity_from_all_groups(entity)
-		
-		REVOKED_ENTITY_IDS_HOLDING.add(entity['_id'])
+	trigger_event(entity, 'delete')
+	
+	if worlds.ACTIVE_WORLD:
+		remove_entity_from_all_groups(entity)
+	
+	REVOKED_ENTITY_IDS_HOLDING.add(entity['_id'])
 
-		del ENTITIES[entity['_id']]
+	del ENTITIES[entity['_id']]
 
 def delete_entity_via_id(entity_id):
 	if not entity_id in ENTITIES:
@@ -369,7 +366,7 @@ def cleanup():
 		if worlds.ACTIVE_WORLD:
 			remove_entity_from_all_groups(_entity)
 		
-		REVOKED_ENTITY_IDS_HOLDING.add(_entity_id)
+		#REVOKED_ENTITY_IDS_HOLDING.add(_entity_id)
 
 		del ENTITIES[_entity_id]
 

@@ -35,7 +35,7 @@ def create(x, y, title=None):
 def delete(menu):
 	global ACTIVE_MENU
 	
-	entities.delete_entity(menu, quick=True)
+	entities.delete_entity(menu)
 	
 	if ACTIVE_MENU == menu:
 		_menus = entities.get_entity_group('ui_menus')

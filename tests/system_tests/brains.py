@@ -74,7 +74,7 @@ def panic():
 	return _brain
 
 def reload():
-	_brain = goapy.Planner('in_engagement', 'weapon_loaded', 'weapon_armed', 'has_ammo', 'has_weapon')
+	_brain = goapy.Planner('in_engagement', 'weapon_loaded', 'has_ammo', 'has_weapon')
 	_actions = goapy.Action_List()
 	
 	_brain.set_action_list(_actions)
@@ -83,13 +83,6 @@ def reload():
 	_actions.add_condition('reload', weapon_loaded=False, has_weapon=True, has_ammo=True, in_engagement=False)
 	_actions.add_callback('reload', lambda entity: system_ai.set_meta(entity, 'weapon_loaded', True))
 	_actions.add_reaction('reload', weapon_loaded=True)
-	
-	_actions.add_condition('arm',
-	                       weapon_loaded=True,
-	                       weapon_armed=False,
-	                       has_weapon=True)
-	_actions.add_callback('arm', lambda entity: system_ai.set_meta(entity, 'weapon_armed', True))
-	_actions.add_reaction('arm', weapon_armed=True)
 	
 	_actions.add_condition('unpack_ammo', has_ammo=False)
 	_actions.add_callback('unpack_ammo', lambda entity: system_ai.set_meta(entity, 'has_ammo', True))
@@ -104,7 +97,6 @@ def reload():
 def combat():
 	_combat_brain = goapy.Planner('has_ammo',
                                   'has_weapon',
-                                  'weapon_armed',
                                   'weapon_loaded',
                                   'in_engagement',
                                   'in_cover',
@@ -115,7 +107,7 @@ def combat():
 	_combat_actions = goapy.Action_List()
 	_combat_actions.add_condition('track',
                                   is_near=False,
-                                  weapon_armed=True)
+                                  weapon_loaded=True)
 	_combat_actions.add_callback('track', lambda entity: system_ai.set_meta(entity, 'is_target_near', True))
 	_combat_actions.add_reaction('track', is_near=True)
 	
@@ -134,17 +126,9 @@ def combat():
 	_combat_actions.add_callback('reload', lambda entity: system_ai.set_meta(entity, 'weapon_loaded', True))
 	_combat_actions.add_reaction('reload', weapon_loaded=True)
 	
-	_combat_actions.add_condition('arm',
-                                  weapon_loaded=True,
-                                  weapon_armed=False,
-	                              has_weapon=True)
-	_combat_actions.add_callback('arm', lambda entity: system_ai.set_meta(entity, 'weapon_armed', True))
-	_combat_actions.add_reaction('arm', weapon_armed=True)
-	
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
-                                  weapon_armed=True,
-                                  is_near=True)
+                                  is_target_near=True)
 	_combat_actions.add_callback('shoot', lambda entity: system_ai.set_meta(entity, 'in_engagement', False))
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

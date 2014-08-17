@@ -14,7 +14,6 @@ def register(entity):
 	entities.register_event(entity, 'hold_item', hold_item)
 	entities.create_event(entity, 'create_holder')
 	entities.register_event(entity, 'create_holder', add_holder)
-	entities.register_event(entity, 'delete', disown)
 
 def _create(x, y, name, char, weight, item_type, equip_to=None):
 	_entity = entities.create_entity(group='items')
@@ -23,11 +22,14 @@ def _create(x, y, name, char, weight, item_type, equip_to=None):
 	                    'type': item_type,
 	                    'weight': weight,
 	                    'owner': None,
-	                    'equip_to': equip_to}
+	                    'equip_to': equip_to,
+	                    'in_container': None}
 	
 	movement.register(_entity)
 	flags.register(_entity)
 	tile.register(_entity, surface='items', char=char)
+	
+	entities.register_event(_entity, 'delete', disown)
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	
@@ -113,6 +115,12 @@ def disown(entity):
 		
 		del entity['inventory']['containers'][entity['_id']]
 	
+	if entity['stats']['in_container']:
+		_owner['inventory']['containers'][entity['stats']['in_container']]['items'].remove(entity['_id'])
+		_owner['inventory']['containers'][entity['stats']['in_container']]['weight'] -= entity['stats']['weight']
+		
+		entity['stats']['in_container'] = None
+	
 	_owner['inventory']['items'].remove(entity['_id'])
 
 def own_item(entity, item_id):
@@ -134,6 +142,7 @@ def store_item(entity, item_id, container_id=None):
 		container_id = _containers[0]
 	
 	_item = entities.get_entity(item_id)
+	_item['stats']['in_container'] = container_id
 	
 	own_item(entity, item_id)
 	
