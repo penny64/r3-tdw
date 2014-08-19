@@ -106,7 +106,7 @@ def find_firing_position(entity):
 	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
 	
 	if _can_see:
-		_max_distance = 40
+		_max_distance = 25
 	else:
 		_max_distance = 10
 	

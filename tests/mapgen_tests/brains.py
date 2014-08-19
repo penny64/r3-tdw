@@ -144,9 +144,17 @@ def combat():
 	_combat_actions.add_callback('track', ai_logic.find_firing_position)
 	_combat_actions.add_reaction('track', in_enemy_los=True)
 	
+	_combat_actions.add_condition('position',
+	                              in_enemy_los=True,
+                                  is_target_near=False,
+                                  weapon_loaded=True)
+	_combat_actions.add_callback('position', ai_logic.find_firing_position)
+	_combat_actions.add_reaction('position', is_target_near=True)
+	
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
-                                  in_enemy_los=True)
+                                  in_enemy_los=True,
+	                              is_target_near=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

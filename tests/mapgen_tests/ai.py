@@ -1,4 +1,4 @@
-from framework import entities, events, numbers, goapy, timers, flags
+from framework import entities, events, numbers, goapy, timers, flags, movement
 
 import ai_visuals
 import settings
@@ -159,7 +159,12 @@ def _human_logic(entity):
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_life']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
-	entity['ai']['meta']['is_target_near'] = entity['ai']['meta']['in_enemy_los']
+	
+	if entity['ai']['meta']['in_engagement']:
+		entity['ai']['meta']['is_target_near'] = numbers.distance(movement.get_position_via_id(entity['ai']['visible_life']['targets'][0]), movement.get_position(entity)) <= 25
+	else:
+		entity['ai']['meta']['is_target_near'] = False
+		
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
 	
