@@ -140,13 +140,13 @@ def loop():
 def main():
 	global PLAYER
 	
-	PLAYER = life.human(150, 150, 'Tester Toaster')
+	PLAYER = life.human(170, 170, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
-	life.human_runner(175, 175, 'Test NPC')
-	items.ammo_9x19mm(150, 155)
-	items.leather_backpack(145, 150)
-	items.glock(155, 156)
-	items.glock(145, 146)
+	life.human_runner(195, 195, 'Test NPC')
+	items.ammo_9x19mm(170, 175)
+	items.leather_backpack(175, 170)
+	items.glock(175, 176)
+	items.glock(165, 166)
 	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()

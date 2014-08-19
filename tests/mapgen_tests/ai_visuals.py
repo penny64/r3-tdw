@@ -30,7 +30,7 @@ def build_item_list(entity):
 			entity['ai']['visible_items'][_item['stats']['type']].append(entity_id)
 
 def build_life_list(entity):
-	entity['ai']['visible_life'] = {'targets': []}
+	#entity['ai']['visible_life'] = {'targets': []}
 	
 	for entity_id in entities.get_entity_group('life'):
 		if entity['_id'] == entity_id:
@@ -54,9 +54,10 @@ def build_life_list(entity):
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),
-			            'can_see': False}
+			            'can_see': True,
+			            'last_seen_at': movement.get_position(_target)[:]}
 			
-			if _is_target:
+			if _is_target and not entity_id in entity['ai']['visible_life']['targets']:
 				entity['ai']['visible_life']['targets'].append(entity_id)
 			
 			entity['ai']['life_memory'][entity_id].update(_profile)

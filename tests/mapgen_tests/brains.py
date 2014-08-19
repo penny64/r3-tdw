@@ -147,7 +147,7 @@ def combat():
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
                                   in_enemy_los=True)
-	#_combat_actions.add_callback('shoot', lambda entity: ai.set_meta(entity, 'in_engagement', False))
+	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	
 	_combat_actions.set_weight('track', 20)

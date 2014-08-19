@@ -161,7 +161,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	items.bullet(_x, _y, _tx, _ty, 1)
 
 def shoot_weapon(entity, target_id):
-	if timers.has_timer_with_name(entity, 'shoot'):
+	if timers.has_timer_with_name(entity, 'Shoot'):
 		return
 
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]
@@ -172,6 +172,6 @@ def shoot_weapon(entity, target_id):
 
 	entities.trigger_event(entity,
 		                   'create_timer',
-		                   time=10,
+		                   time=60,
 		                   name='Shoot',
-		                   exit_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))
+		                   enter_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))

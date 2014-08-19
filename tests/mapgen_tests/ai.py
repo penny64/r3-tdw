@@ -28,7 +28,7 @@ def _register(entity, player=False):
 	                'brain_offline': goapy.World(),
 	                'last_action': 'idle',
 	                'visible_items': [],
-	                'visible_life': [],
+	                'visible_life': {'targets': []},
 	                'life_memory': {},
 	                'is_player': player,
 	                'meta': {'is_injured': False,

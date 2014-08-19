@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement, timers
+from framework import entities, numbers, movement, timers, shapes
 
 import mapgen
 import life
@@ -101,20 +101,34 @@ def find_firing_position(entity):
 	#TODO: Sort when building visible AI list
 	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
 	_x, _y = movement.get_position(entity)
-	_tx, _ty = movement.get_position(_target)
+	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
 	_closest_node = {'node': None, 'distance': 0}
+	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
+	
+	if _can_see:
+		_max_distance = 40
+	else:
+		_max_distance = 10
 	
 	for node_x, node_y in mapgen.NODE_PATH:
-		_distance = numbers.distance((_x, _y), (node_x, node_y))
+		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
-		if _distance >= 40:
+		if _distance >= _max_distance:
 			continue
 		
 		if _closest_node['node'] and _distance >= _closest_node['distance']:
 			continue
 		
-		if not life.can_see_position(_target, (node_x, node_y)):
+		_continue = False
+		
+		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
+			if pos in mapgen.SOLIDS:
+				_continue = True
+				
+				break
+		
+		if _continue:
 			continue
 		
 		if not _closest_node['node'] or _distance < _closest_node['distance']:
@@ -130,3 +144,8 @@ def find_firing_position(entity):
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
+
+def shoot_weapon(entity):
+	_target = entity['ai']['visible_life']['targets'][0]
+	
+	entities.trigger_event(entity, 'shoot', target_id=_target)
