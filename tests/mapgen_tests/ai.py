@@ -29,6 +29,7 @@ def _register(entity, player=False):
 	                'last_action': 'idle',
 	                'visible_items': [],
 	                'visible_life': [],
+	                'life_memory': {},
 	                'is_player': player,
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
@@ -157,9 +158,9 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_life']['targets']) > 0
-	entity['ai']['meta']['in_enemy_los'] = entity['ai']['meta']['in_engagement'] #Temp
-	entity['ai']['meta']['is_target_near'] = entity['ai']['meta']['in_engagement'] #Temp
-	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['visible_life']['targets'].values() if t['is_armed']]) > 0
+	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	entity['ai']['meta']['is_target_near'] = entity['ai']['meta']['in_enemy_los']
+	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
 	
 	if entity['ai']['is_player']:

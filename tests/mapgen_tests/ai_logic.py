@@ -68,7 +68,7 @@ def get_container(entity):
 
 def find_cover(entity):
 	#TODO: Sort when building visible AI list
-	_target = entities.get_entity(entity['ai']['visible_life']['targets'].keys()[0])
+	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
@@ -84,6 +84,37 @@ def find_cover(entity):
 			continue
 		
 		if life.can_see_position(_target, (node_x, node_y)):
+			continue
+		
+		if not _closest_node['node'] or _distance < _closest_node['distance']:
+			_closest_node['node'] = (node_x, node_y)
+			_closest_node['distance'] = _distance
+	
+	if not _closest_node['node']:
+		print 'No cover.'
+		
+		return
+	
+	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
+
+def find_firing_position(entity):
+	#TODO: Sort when building visible AI list
+	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	_x, _y = movement.get_position(entity)
+	_tx, _ty = movement.get_position(_target)
+	_closest_node = {'node': None, 'distance': 0}
+	
+	for node_x, node_y in mapgen.NODE_PATH:
+		_distance = numbers.distance((_x, _y), (node_x, node_y))
+		
+		#TODO: Replace with sight distance
+		if _distance >= 40:
+			continue
+		
+		if _closest_node['node'] and _distance >= _closest_node['distance']:
+			continue
+		
+		if not life.can_see_position(_target, (node_x, node_y)):
 			continue
 		
 		if not _closest_node['node'] or _distance < _closest_node['distance']:

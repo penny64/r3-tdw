@@ -139,14 +139,14 @@ def combat():
 
 	_combat_actions = goapy.Action_List()
 	_combat_actions.add_condition('track',
-                                  is_target_near=False,
+                                  in_enemy_los=False,
                                   weapon_loaded=True)
-	#_combat_actions.add_callback('track', lambda entity: ai.set_meta(entity, 'is_target_near', True))
-	_combat_actions.add_reaction('track', is_target_near=True)
+	_combat_actions.add_callback('track', ai_logic.find_firing_position)
+	_combat_actions.add_reaction('track', in_enemy_los=True)
 	
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
-                                  is_target_near=True)
+                                  in_enemy_los=True)
 	#_combat_actions.add_callback('shoot', lambda entity: ai.set_meta(entity, 'in_engagement', False))
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	
