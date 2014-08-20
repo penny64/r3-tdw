@@ -17,6 +17,7 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	stats.register(_entity, health, speed, name=name, faction=faction)
 	nodes.register(_entity)
 	items.register(_entity)
+	flags.register(_entity)
 
 	if has_ai:
 		ai.register_human(_entity)

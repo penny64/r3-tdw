@@ -4,6 +4,7 @@ import ai_visuals
 import settings
 import brains
 import items
+import life
 
 import logging
 
@@ -41,6 +42,7 @@ def _register(entity, player=False):
 	                         'in_engagement': False,
 	                         'is_target_near': False,
 	                         'is_target_armed': False,
+	                         'is_target_lost': False,
 	                         'in_cover': False,
 	                         'in_enemy_los': False,
 	                         'is_hungry': False,
@@ -161,10 +163,20 @@ def _human_logic(entity):
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	
 	if entity['ai']['meta']['in_engagement']:
-		entity['ai']['meta']['is_target_near'] = numbers.distance(movement.get_position_via_id(entity['ai']['visible_life']['targets'][0]), movement.get_position(entity)) <= 25
+		_target = entity['ai']['visible_life']['targets'][0]
+		                                       
+		entity['ai']['meta']['is_target_near'] = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity)) <= 25
+		
+		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
+			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
+				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
+		elif entity['ai']['meta']['in_enemy_los']:
+			flags.delete_flag(entity, 'search_nodes')
+				
 	else:
 		entity['ai']['meta']['is_target_near'] = False
-		
+		entity['ai']['meta']['is_target_lost'] = False
+	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
 	

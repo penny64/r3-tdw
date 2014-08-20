@@ -134,12 +134,22 @@ def combat():
                                   'weapon_loaded',
                                   'in_engagement',
                                   'in_enemy_los',
-                                  'is_target_near')
+                                  'is_target_near',
+	                              'is_target_lost')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
+	
+	_combat_actions.add_condition('search',
+		                          in_enemy_los=False,
+		                          is_target_lost=True,
+		                          weapon_loaded=True)
+	_combat_actions.add_callback('search', ai_logic.search_for_target)
+	_combat_actions.add_reaction('search', in_enemy_los=True, is_target_lost=True)
+	
 	_combat_actions.add_condition('track',
                                   in_enemy_los=False,
+	                              is_target_lost=False,
                                   weapon_loaded=True)
 	_combat_actions.add_callback('track', ai_logic.find_firing_position)
 	_combat_actions.add_reaction('track', in_enemy_los=True)

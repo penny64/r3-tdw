@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement, timers, shapes
+from framework import entities, numbers, movement, timers, shapes, flags
 
 import mapgen
 import life
@@ -141,6 +141,51 @@ def find_firing_position(entity):
 		return
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
+
+def _search_for_target(entity):
+	_nodes = flags.get_flag(entity, 'search_nodes')
+	_node_list = _nodes.keys()
+	_node_list.sort()	
+	_node_x, _node_y = _nodes[_node_list[0]][0]
+	_distance = numbers.distance(movement.get_position(entity), (_node_x, _node_y))
+	
+	if _distance <= 2:
+		_nodes[_node_list[0]].remove((_node_x, _node_y))
+		
+		if not _nodes[_node_list[0]]:
+			print 'Cleared node', _node_x, _node_y
+			del _nodes[_node_list[0]]
+	else:
+		movement.walk_to_position(entity, _node_x, _node_y)
+
+def search_for_target(entity):
+	if flags.has_flag(entity, 'search_nodes'):
+		_search_for_target(entity)
+		return
+	
+	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	_x, _y = movement.get_position(entity)
+	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
+	_closest_node = {'node': None, 'distance': 0}
+	_nodes_to_search = {}
+	
+	entities.trigger_event(entity, 'set_flag', flag='search_nodes', value=_nodes_to_search)
+	
+	for node_x, node_y in mapgen.NODE_GRID:
+		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
+		
+		if _distance >= 30:
+			continue
+		
+		if _closest_node['node'] and _distance >= _closest_node['distance']:
+			continue
+		
+		_continue = False
+		
+		if _distance in _nodes_to_search:
+			_nodes_to_search[_distance].append((node_x, node_y))
+		else:
+			_nodes_to_search[_distance] = [(node_x, node_y)]
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
