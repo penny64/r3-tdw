@@ -25,4 +25,7 @@ def handle_keyboard_input(entity):
 	if controls.get_input_char_pressed('\t'):
 		_x, _y = movement.get_position(entity)
 		
-		camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)	
+		camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
+	
+	if controls.get_input_char_pressed('O'):
+		settings.toggle_show_node_grid()

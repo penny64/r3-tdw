@@ -102,13 +102,13 @@ def draw_item_labels():
 		
 		display.write_string('ui', _render_x, _render_y, _label)
 
-def draw_node_path(entity):
+def draw_NODE_GRID(entity):
 	_labels = {}
 	_camera_x, _camera_y = camera.X, camera.Y
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
 	
-	for node in entity['node_path']['nodes'].values():
+	for node in entity['NODE_GRID']['nodes'].values():
 		_node = node['node']
 		
 		_x, _y = _node['x'], _node['y']

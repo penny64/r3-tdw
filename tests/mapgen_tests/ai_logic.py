@@ -73,7 +73,7 @@ def find_cover(entity):
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
 	
-	for node_x, node_y in mapgen.NODE_PATH:
+	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_x, _y), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
@@ -110,7 +110,7 @@ def find_firing_position(entity):
 	else:
 		_max_distance = 10
 	
-	for node_x, node_y in mapgen.NODE_PATH:
+	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
 		#TODO: Replace with sight distance

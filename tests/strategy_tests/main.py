@@ -100,7 +100,7 @@ def loop():
 	if not PAUSED:
 		events.trigger_event('tick')
 		
-		if not PLAYER['node_path']['path']:
+		if not PLAYER['NODE_GRID']['path']:
 			PAUSED = True
 	
 	draw()

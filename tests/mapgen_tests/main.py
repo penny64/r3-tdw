@@ -75,6 +75,10 @@ def draw():
 	for entity_id in entities.get_entity_group('nodes'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
+	if settings.SHOW_NODE_GRID:
+		for entity_id in entities.get_entity_group('node_grid'):
+			entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
+	
 	for entity_id in entities.get_entity_group('effects_freetick'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
 	
@@ -87,12 +91,12 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
-	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_path']['path'],
-	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_path']['path'])>0),
+	                        executing=settings.TICK_MODE == 'normal' and PLAYER['NODE_GRID']['path'],
+	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['NODE_GRID']['path'])>0),
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 	ui_draw.draw_life_labels()
 	ui_draw.draw_item_labels()
-	ui_draw.draw_node_path(PLAYER)
+	ui_draw.draw_NODE_GRID(PLAYER)
 	
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()
@@ -103,6 +107,10 @@ def draw():
 	display.blit_surface('life')
 	display.blit_surface('ui')
 	display.blit_surface('ui_menus')
+	
+	if settings.SHOW_NODE_GRID:
+		display.blit_surface('node_grid')
+	
 	events.trigger_event('draw')
 	
 	#MOVIE_TIME += 1
@@ -118,7 +126,7 @@ def loop():
 	events.trigger_event('input')
 	
 	if not settings.TICK_MODE == 'strategy':
-		if PLAYER['node_path']['path']:
+		if PLAYER['NODE_GRID']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
 			_ticks_per_tick = 3
@@ -187,6 +195,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('bullets', static=True)
+	entities.create_entity_group('node_grid', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')
@@ -196,6 +205,7 @@ if __name__ == '__main__':
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('node_grid', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
 	display.set_clear_surface('ui', 'tiles')

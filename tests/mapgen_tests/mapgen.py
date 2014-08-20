@@ -16,28 +16,25 @@ WEIGHT_MAP = None
 LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
 SOLIDS = set()
-NODE_PATH = []
+NODE_GRID = []
 
 
-def build_node_path(x, y, plots, plot_size):
-	_marked_plots = []
+def build_node_grid():
+	_ignore_positions = set()
 	
-	for x_plot, y_plot in plots:
-		for nx_plot, ny_plot in [(x_plot+1, y_plot), (x_plot-1, y_plot), (x_plot, y_plot+1), (x_plot, y_plot-1), (x_plot-1, y_plot-1), (x_plot-1, y_plot+1), (x_plot+1, y_plot-1), (x_plot+1, y_plot+1)]:
-			if (nx_plot, ny_plot) in plots:
-				continue
-			
-			_marked_plots.append((nx_plot, ny_plot))
-	
-	for x_plot, y_plot in _marked_plots:
-		for node_x, node_y in [(x_plot+1, y_plot), (x_plot-1, y_plot), (x_plot, y_plot+1), (x_plot, y_plot-1), (x_plot-1, y_plot-1), (x_plot+1, y_plot+1), (x_plot-1, y_plot+1), (x_plot+1, y_plot-1), (x_plot+.5, y_plot+.5)]:
-			_x = int(round(x + (node_x * plot_size)))
-			_y = int(round(y + (node_y * plot_size)))
-			
-			if (_x, _y) in SOLIDS:
-				continue
-			
-			NODE_PATH.append((_x, _y))
+	for x, y in SOLIDS:
+		for _sy in range(y-5, y+6):
+			for _sx in range(x-5, x+6):
+				if (_sx, _sy) in _ignore_positions:
+					continue
+				
+				if not _sx % 3 and not _sy % 3:
+					if (_sx, _sy) in SOLIDS:
+						continue
+				
+					NODE_GRID.append((_sx, _sy))
+				else:
+					_ignore_positions.add((_sx, _sy))
 
 def swamp(width, height, rings=8):
 	global TILE_MAP
@@ -201,7 +198,7 @@ def swamp(width, height, rings=8):
 	
 	TILE_MAP = _tile_map
 	
-	build_node_path(_s_x, _s_y, _building.keys(), _room_size)
+	build_node_grid()
 	
 	post_processing.generate_shadow_map(width, height, SOLIDS)
 	post_processing.run(time=_passes,
