@@ -42,7 +42,8 @@ def build_life_list(entity):
 			entity['ai']['life_memory'][entity_id] = {'distance': -1,
 				                                      'is_target': False,
 				                                      'is_armed': False,
-			                                          'can_see': False}
+			                                          'can_see': False,
+			                                          'last_seen_at': None}
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
 			if pos in mapgen.SOLIDS:
@@ -55,9 +56,18 @@ def build_life_list(entity):
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),
 			            'can_see': True,
-			            'last_seen_at': movement.get_position(_target)[:]}
+			            'last_seen_at': movement.get_position(_target)[:],
+			            'last_seen_velocity': None}
 			
 			if _is_target and not entity_id in entity['ai']['visible_life']['targets']:
 				entity['ai']['visible_life']['targets'].append(entity_id)
 			
+			if entity['ai']['life_memory'][entity_id]['last_seen_at']:
+				_last_seen_at = entity['ai']['life_memory'][entity_id]['last_seen_at'][:]
+				_velocity = (_profile['last_seen_at'][0]-_last_seen_at[0], _profile['last_seen_at'][1]-_last_seen_at[1])
+				
+				_profile['last_seen_velocity'] = _velocity
+			else:
+				_profile['last_seen_velocity'] = None
+				
 			entity['ai']['life_memory'][entity_id].update(_profile)

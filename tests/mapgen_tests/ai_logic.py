@@ -142,14 +142,21 @@ def find_firing_position(entity):
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
 
-def _search_for_target(entity):
+def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')
+	
+	if not _nodes:
+		entity['ai']['visible_life']['targets'].remove(target_id)
+		flags.delete_flag(entity, 'search_nodes')
+		
+		return
+	
 	_node_list = _nodes.keys()
 	_node_list.sort()	
 	_node_x, _node_y = _nodes[_node_list[0]][0]
 	_distance = numbers.distance(movement.get_position(entity), (_node_x, _node_y))
 	
-	if _distance <= 2:
+	if _distance <= 15 and life.can_see_position(entity, (_node_x, _node_y)):
 		_nodes[_node_list[0]].remove((_node_x, _node_y))
 		
 		if not _nodes[_node_list[0]]:
@@ -159,15 +166,24 @@ def _search_for_target(entity):
 		movement.walk_to_position(entity, _node_x, _node_y)
 
 def search_for_target(entity):
+	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	
 	if flags.has_flag(entity, 'search_nodes'):
-		_search_for_target(entity)
+		_search_for_target(entity, _target['_id'])
 		return
 	
-	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	print 'Generating new search node list.'
+	
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
-	_closest_node = {'node': None, 'distance': 0}
 	_nodes_to_search = {}
+	
+	if entity['ai']['life_memory'][_target['_id']]['last_seen_velocity']:
+		_vx, _vy = entity['ai']['life_memory'][_target['_id']]['last_seen_velocity']
+		_tx + _vx*6
+		_ty + _vy*6
+		
+		print 'Improved!'
 	
 	entities.trigger_event(entity, 'set_flag', flag='search_nodes', value=_nodes_to_search)
 	
@@ -177,13 +193,20 @@ def search_for_target(entity):
 		if _distance >= 30:
 			continue
 		
-		if _closest_node['node'] and _distance >= _closest_node['distance']:
-			continue
-		
 		_continue = False
 		
+		#for pos in shapes.line((_tx, _ty), (node_x, node_y)):
+		#	if pos in mapgen.SOLIDS:
+		#		_continue = True
+		#		
+		#		break
+		
+		if _continue:
+			continue
+		
 		if _distance in _nodes_to_search:
-			_nodes_to_search[_distance].append((node_x, node_y))
+			if not (node_x, node_y) in _nodes_to_search[_distance]:
+				_nodes_to_search[_distance].append((node_x, node_y))
 		else:
 			_nodes_to_search[_distance] = [(node_x, node_y)]
 

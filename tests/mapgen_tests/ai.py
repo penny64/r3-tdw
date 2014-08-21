@@ -171,7 +171,8 @@ def _human_logic(entity):
 			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
 				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
 		elif entity['ai']['meta']['in_enemy_los']:
-			flags.delete_flag(entity, 'search_nodes')
+			if flags.has_flag(entity, 'search_nodes'):
+				flags.delete_flag(entity, 'search_nodes')
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False
