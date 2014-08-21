@@ -195,11 +195,11 @@ def search_for_target(entity):
 		
 		_continue = False
 		
-		#for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-		#	if pos in mapgen.SOLIDS:
-		#		_continue = True
-		#		
-		#		break
+		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
+			if pos in mapgen.SOLIDS:
+				_continue = True
+				
+				break
 		
 		if _continue:
 			continue
