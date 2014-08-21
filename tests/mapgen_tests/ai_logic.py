@@ -160,7 +160,6 @@ def _search_for_target(entity, target_id):
 		_nodes[_node_list[0]].remove((_node_x, _node_y))
 		
 		if not _nodes[_node_list[0]]:
-			print 'Cleared node', _node_x, _node_y
 			del _nodes[_node_list[0]]
 	else:
 		movement.walk_to_position(entity, _node_x, _node_y)
@@ -172,8 +171,6 @@ def search_for_target(entity):
 		_search_for_target(entity, _target['_id'])
 		return
 	
-	print 'Generating new search node list.'
-	
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
 	_nodes_to_search = {}
@@ -182,8 +179,6 @@ def search_for_target(entity):
 		_vx, _vy = entity['ai']['life_memory'][_target['_id']]['last_seen_velocity']
 		_tx + _vx*6
 		_ty + _vy*6
-		
-		print 'Improved!'
 	
 	entities.trigger_event(entity, 'set_flag', flag='search_nodes', value=_nodes_to_search)
 	

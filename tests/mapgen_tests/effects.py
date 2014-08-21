@@ -1,4 +1,10 @@
-from framework import entities, flags, timers, display
+from framework import entities, flags, timers, display, numbers
+
+import constants
+import camera
+import life
+
+import random
 
 
 def _printer_tick(entity):
@@ -13,8 +19,17 @@ def _printer_draw(entity):
 	_x, _y = flags.get_flag(entity, 'text_pos')
 	
 	if _text_center:
+		if _x + len(_text[:_text_index])/2 >= camera.X + constants.MAP_VIEW_WIDTH-1:
+			return
+		
+		if _x - len(_text[:_text_index])/2 < camera.X:
+			return
+		
+		if _y >= camera.Y + constants.MAP_VIEW_HEIGHT:
+			return
+		
 		_x -= len(_text[:_text_index])/2
-		display.write_string('ui', _x, _y, _text[:_text_index], fore_color=_text_fore_color, back_color=_text_back_color)
+		display.write_string('ui', _x-camera.X, _y-camera.Y, _text[:_text_index], fore_color=_text_fore_color, back_color=_text_back_color)
 
 def _printer_move(entity):
 	_x, _y = flags.get_flag(entity, 'text_pos')
@@ -44,5 +59,21 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, ba
 	if moving:
 		entities.trigger_event(_entity, 'create_timer', time=25, repeat=len(text)/2, repeat_callback=_printer_move)
 
-def show_noise(x, y, accuracy, text, callback):
-	print 'noise!'
+def show_noise(entity, x, y, accuracy, text, callback):
+	if life.can_see_position(entity, (x, y)):
+		return
+	
+	#TODO: Hearing stat
+	if accuracy <= .75 and accuracy < random.uniform(0, 1):
+		return
+	
+	#TODO: Redo
+	while 1:
+		_nx, _ny = numbers.velocity(random.randint(0, 359), 5 * (1-accuracy))
+		_x = int(round(x + _nx))
+		_y = int(round(y + _ny))
+		
+		if not life.can_see_position(entity, (_x, _y)):
+			break
+	
+	printer(_x, _y, text, moving=False, show_mod=.2)
