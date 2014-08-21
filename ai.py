@@ -56,6 +56,8 @@ def _register(entity, player=False):
 	
 	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
+	entities.create_event(entity, 'update_target_memory')
+	entities.register_event(entity, 'update_target_memory', update_target_memory)
 
 def register_animal(entity):
 	_register(entity)
@@ -118,6 +120,14 @@ def _tick_offline_entities(entity):
 ###################
 #Entity Operations#
 ###################
+
+def update_target_memory(entity, target_id, key, value):
+	if target_id in entity['ai']['life_memory']:
+		entity['ai']['life_memory'][target_id][key] = value
+		
+		if key == 'last_seen_at' and not target_id in entity['ai']['visible_life']:
+			if not entity['stats']['faction'] == entities.get_entity(target_id)['stats']['faction']:
+				entity['ai']['visible_life']['targets'].append(target_id)
 
 def set_meta(entity, key, value):
 	if not key in entity['ai']['meta']:

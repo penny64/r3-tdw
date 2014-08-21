@@ -8,6 +8,8 @@ import items
 import noise
 import ai
 
+import random
+
 
 def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
@@ -32,8 +34,17 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
 	entities.register_event(_entity, 'shoot', shoot_weapon)
+	entities.register_event(_entity, 'heard_noise', handle_heard_noise)
 	entities.register_event(_entity, 'position_changed',
-	                        lambda e, **kwargs: entities.trigger_event(e, 'create_noise', volume=25, text='?'))
+	                        lambda e, **kwargs: entities.trigger_event(e,
+	                                                                   'create_noise',
+	                                                                   volume=25,
+	                                                                   text='?',
+	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
+	                                                                                                            'update_target_memory',
+	                                                                                                            target_id=_entity['_id'],
+	                                                                                                            key='last_seen_at',
+	                                                                                                            value=[x, y])))
 
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
@@ -76,6 +87,12 @@ def human_runner(x, y, name):
 ############
 #Operations#
 ############
+
+def handle_heard_noise(entity, x, y, text, accuracy, callback):
+	if accuracy <= .75 and accuracy < random.uniform(0, 1):
+		return
+	
+	callback(entity, x, y)
 
 def can_see_position(entity, position):
 	for pos in shapes.line(movement.get_position(entity), position):
