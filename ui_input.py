@@ -29,3 +29,6 @@ def handle_keyboard_input(entity):
 	
 	if controls.get_input_char_pressed('O'):
 		settings.toggle_show_node_grid()
+	
+	elif controls.get_input_char_pressed('o'):
+		settings.toggle_observer_mode()

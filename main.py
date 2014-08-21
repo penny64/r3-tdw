@@ -72,8 +72,15 @@ def tick():
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
 	
-	_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-	_draw_life.append(PLAYER['_id'])
+	if settings.OBSERVER_MODE:
+		_draw_life = entities.get_entity_group('life')
+		_draw_items = entities.get_entity_group('items')
+	else:
+		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		_draw_life.append(PLAYER['_id'])
+		
+		_items = PLAYER['ai']['visible_items'].values()
+		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
 	
 	for entity_id in _draw_life:
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
@@ -88,7 +95,7 @@ def draw():
 	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
 	
-	for entity_id in entities.get_entity_group('items'):
+	for entity_id in _draw_items:
 		_entity = entities.get_entity(entity_id)
 		
 		if _entity['stats']['owner']:

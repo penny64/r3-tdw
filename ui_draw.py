@@ -1,6 +1,7 @@
 from framework import display, entities, movement, numbers, flags
 
 import constants
+import settings
 import camera
 import items
 import life
@@ -57,8 +58,11 @@ def draw_life_labels():
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
 	
-	_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-	_draw_life.append(PLAYER['_id'])
+	if settings.OBSERVER_MODE:
+		_draw_life = entities.get_entity_group('life')
+	else:
+		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		_draw_life.append(PLAYER['_id'])
 	
 	for entity_id in _draw_life:
 		_entity = entities.get_entity(entity_id)
@@ -83,7 +87,12 @@ def draw_item_labels():
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
 	
-	for entity_id in entities.get_entity_group('items'):
+	if settings.OBSERVER_MODE:
+		_draw_items = entities.get_entity_group('items')
+	else:
+		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
+	
+	for entity_id in _draw_items:
 		_entity = entities.get_entity(entity_id)
 		
 		if _entity['stats']['owner']:
