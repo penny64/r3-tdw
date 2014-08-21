@@ -5,6 +5,7 @@ import mapgen
 import camera
 import nodes
 import items
+import noise
 import ai
 
 
@@ -18,6 +19,7 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
+	noise.register(_entity)
 
 	if has_ai:
 		ai.register_human(_entity)
@@ -30,6 +32,7 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
 	entities.register_event(_entity, 'shoot', shoot_weapon)
+	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: entities.trigger_event(e, 'create_noise', text='Test!'))
 
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
@@ -60,6 +63,8 @@ def human(x, y, name):
 									show_mod=1.0,
 									moving=False,
 									center=True))
+	
+	entities.register_event(_entity, 'heard_noise', effects.show_noise)
 
 	return _entity
 

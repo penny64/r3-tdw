@@ -43,3 +43,6 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, ba
 	
 	if moving:
 		entities.trigger_event(_entity, 'create_timer', time=25, repeat=len(text)/2, repeat_callback=_printer_move)
+
+def show_noise(x, y, accuracy, text, callback):
+	print 'noise!'
