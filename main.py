@@ -65,11 +65,17 @@ def tick():
 	
 	for entity_id in entities.get_entity_group('bullets'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	
+	for entity_id in entities.get_entity_group('effects'):
+		entities.trigger_event(entities.get_entity(entity_id), 'tick')
 
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
 	
-	for entity_id in entities.get_entity_group('life'):
+	_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+	_draw_life.append(PLAYER['_id'])
+	
+	for entity_id in _draw_life:
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	for entity_id in entities.get_entity_group('nodes'):
@@ -79,7 +85,7 @@ def draw():
 		for entity_id in entities.get_entity_group('node_grid'):
 			entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
-	for entity_id in entities.get_entity_group('effects_freetick'):
+	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
 	
 	for entity_id in entities.get_entity_group('items'):
@@ -96,7 +102,7 @@ def draw():
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 	ui_draw.draw_life_labels()
 	ui_draw.draw_item_labels()
-	ui_draw.draw_NODE_GRID(PLAYER)
+	ui_draw.draw_node_grid(PLAYER)
 	
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()
@@ -201,6 +207,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('ui_menus')
 	entities.create_entity_group('nodes')
 	entities.create_entity_group('effects_freetick')
+	entities.create_entity_group('effects', static=True)
 
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)

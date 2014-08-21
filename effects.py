@@ -39,8 +39,8 @@ def _printer_move(entity):
 def _printer_exit(entity):
 	entities.delete_entity(entity)
 
-def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0):
-	_entity = entities.create_entity(group='effects_freetick')
+def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0, free_tick=True):
+	_entity = entities.create_entity(group='effects' + ('_freetick' * free_tick))
 	
 	timers.register(_entity)
 	flags.register(_entity)
@@ -76,4 +76,4 @@ def show_noise(entity, x, y, accuracy, text, callback):
 		if not life.can_see_position(entity, (_x, _y)):
 			break
 	
-	printer(_x, _y, text, moving=False, show_mod=.2)
+	printer(_x, _y, text, moving=False, show_mod=.8, free_tick=False)
