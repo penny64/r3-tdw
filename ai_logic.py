@@ -68,7 +68,7 @@ def get_container(entity):
 
 def find_cover(entity):
 	#TODO: Sort when building visible AI list
-	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	_target = entities.get_entity(entity['ai']['nearest_target'])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
@@ -99,7 +99,7 @@ def find_cover(entity):
 
 def find_firing_position(entity):
 	#TODO: Sort when building visible AI list
-	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	_target = entities.get_entity(entity['ai']['nearest_target'])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
 	_closest_node = {'node': None, 'distance': 0}
@@ -146,7 +146,7 @@ def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')
 	
 	if not _nodes:
-		entity['ai']['visible_life']['targets'].remove(target_id)
+		entity['ai']['targets'].delete(target_id)
 		flags.delete_flag(entity, 'search_nodes')
 		
 		return
@@ -165,7 +165,7 @@ def _search_for_target(entity, target_id):
 		movement.walk_to_position(entity, _node_x, _node_y)
 
 def search_for_target(entity):
-	_target = entities.get_entity(entity['ai']['visible_life']['targets'][0])
+	_target = entities.get_entity(entity['ai']['nearest_target'])
 	
 	if flags.has_flag(entity, 'search_nodes'):
 		_search_for_target(entity, _target['_id'])
@@ -209,6 +209,6 @@ def reload_weapon(entity):
 	life.reload_weapon(entity)
 
 def shoot_weapon(entity):
-	_target = entity['ai']['visible_life']['targets'][0]
+	_target = entity['ai']['nearest_target']
 	
 	entities.trigger_event(entity, 'shoot', target_id=_target)

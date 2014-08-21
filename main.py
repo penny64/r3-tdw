@@ -164,6 +164,7 @@ def main():
 	PLAYER = life.human(170, 170, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 	life.human_runner(195, 195, 'Test NPC')
+	life.human_bandit(195, 135, 'Test NPC 2')
 	items.ammo_9x19mm(170, 175)
 	items.leather_backpack(175, 170)
 	items.glock(175, 176)

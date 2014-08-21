@@ -33,13 +33,17 @@ def _printer_draw(entity):
 
 def _printer_move(entity):
 	_x, _y = flags.get_flag(entity, 'text_pos')
-	_y -= 1
+	_move_direction = flags.get_flag(entity, 'move_direction')
+	_vx, _vy = numbers.velocity(_move_direction, 1)
+	_x += int(round(_vx))
+	_y += int(round(_vy))
+	
 	entities.trigger_event(entity, 'set_flag', flag='text_pos', value=(_x, _y))
 
 def _printer_exit(entity):
 	entities.delete_entity(entity)
 
-def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0, free_tick=True):
+def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, move_direction=90, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0, free_tick=True):
 	_entity = entities.create_entity(group='effects' + ('_freetick' * free_tick))
 	
 	timers.register(_entity)
@@ -53,19 +57,27 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, ba
 	entities.trigger_event(_entity, 'set_flag', flag='text_pos', value=(x, y))
 	entities.trigger_event(_entity, 'set_flag', flag='text_fore_color', value=fore_color)
 	entities.trigger_event(_entity, 'set_flag', flag='text_back_color', value=back_color)
+	entities.trigger_event(_entity, 'set_flag', flag='move_direction', value=move_direction)
 	entities.trigger_event(_entity, 'create_timer', time=12*speed_mod, repeat=len(text), repeat_callback=_printer_tick)
 	entities.trigger_event(_entity, 'create_timer', time=((10*speed_mod)*len(text))+(60*show_mod), exit_callback=_printer_exit)
 	
 	if moving:
 		entities.trigger_event(_entity, 'create_timer', time=25, repeat=len(text)/2, repeat_callback=_printer_move)
 
-def show_noise(entity, x, y, accuracy, text, callback):
+def show_noise(entity, x, y, accuracy, direction, text, callback):
 	if life.can_see_position(entity, (x, y)):
 		return
 	
 	#TODO: Hearing stat
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return
+	
+	if not direction == -1000:
+		_moving = True
+		_move_direction = direction
+	else:
+		_moving = False
+		_move_direction = 90
 	
 	#TODO: Redo
 	while 1:
@@ -76,4 +88,4 @@ def show_noise(entity, x, y, accuracy, text, callback):
 		if not life.can_see_position(entity, (_x, _y)):
 			break
 	
-	printer(_x, _y, text, moving=False, show_mod=.8, free_tick=False)
+	printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=False)

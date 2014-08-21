@@ -8,7 +8,7 @@ def register(entity):
 
 	return entity
 
-def create_noise(entity, text, volume, callback=None):
+def create_noise(entity, text, volume, direction=-1000, callback=None):
 	_x, _y = movement.get_position(entity)
 	
 	for entity_id in entities.get_entity_group('life'):
@@ -21,4 +21,4 @@ def create_noise(entity, text, volume, callback=None):
 		_distance = numbers.distance(movement.get_position(entity), movement.get_position(_target))
 		_accuracy = 1 - numbers.clip(_distance / float(volume), 0, 1)
 		
-		entities.trigger_event(_target, 'heard_noise', x=_x, y=_y, text=text, accuracy=_accuracy, callback=callback)
+		entities.trigger_event(_target, 'heard_noise', x=_x, y=_y, text=text, direction=direction, accuracy=_accuracy, callback=callback)

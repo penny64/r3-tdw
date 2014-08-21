@@ -83,12 +83,14 @@ def human(x, y, name):
 def human_runner(x, y, name):
 	return _create(x, y, 100, 20, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
 
+def human_bandit(x, y, name):
+	return _create(x, y, 100, 20, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)
 
 ############
 #Operations#
 ############
 
-def handle_heard_noise(entity, x, y, text, accuracy, callback):
+def handle_heard_noise(entity, x, y, text, direction, accuracy, callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return
 	
@@ -181,6 +183,16 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	_tx, _ty = movement.get_position(entities.get_entity(target_id))
 
 	entities.trigger_event(_weapon, 'flag_sub', flag='ammo', value=1)
+	entities.trigger_event(entity,
+	                       'create_noise',
+	                       volume=80,
+	                       direction=numbers.direction_to((_x, _y), (_tx, _ty)),
+	                       text='BAM',
+	                       callback=lambda t, x, y: entities.trigger_event(t,
+	                                                                'update_target_memory',
+	                                                                target_id=entity['_id'],
+	                                                                key='last_seen_at',
+	                                                                value=[x, y]))	
 
 	items.bullet(_x, _y, _tx, _ty, 1)
 

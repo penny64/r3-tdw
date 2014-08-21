@@ -29,7 +29,10 @@ def _register(entity, player=False):
 	                'brain_offline': goapy.World(),
 	                'last_action': 'idle',
 	                'visible_items': [],
-	                'visible_life': {'targets': []},
+	                'visible_life': set(),
+	                'visible_targets': [],
+	                'targets': set(),
+	                'nearest_target': None,
 	                'life_memory': {},
 	                'is_player': player,
 	                'meta': {'is_injured': False,
@@ -125,9 +128,9 @@ def update_target_memory(entity, target_id, key, value):
 	if target_id in entity['ai']['life_memory']:
 		entity['ai']['life_memory'][target_id][key] = value
 		
-		if key == 'last_seen_at' and not target_id in entity['ai']['visible_life']:
+		if key == 'last_seen_at' and not target_id in entity['ai']['targets']:
 			if not entity['stats']['faction'] == entities.get_entity(target_id)['stats']['faction']:
-				entity['ai']['visible_life']['targets'].append(target_id)
+				entity['ai']['targets'].add(target_id)
 
 def set_meta(entity, key, value):
 	if not key in entity['ai']['meta']:
@@ -169,11 +172,11 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_ammo'] = len(items.get_items_matching(entity, {'type': 'ammo'})) > 0
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
-	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_life']['targets']) > 0
-	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_targets']) > 0
+	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	
 	if entity['ai']['meta']['in_engagement']:
-		_target = entity['ai']['visible_life']['targets'][0]
+		_target = entity['ai']['nearest_target']
 		                                       
 		entity['ai']['meta']['is_target_near'] = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity)) <= 25
 		
@@ -188,7 +191,7 @@ def _human_logic(entity):
 		entity['ai']['meta']['is_target_near'] = False
 		entity['ai']['meta']['is_target_lost'] = False
 	
-	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['visible_life']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
+	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
 	
 	if entity['ai']['is_player']:
