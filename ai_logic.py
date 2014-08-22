@@ -80,7 +80,11 @@ def find_cover(entity):
 		
 		if _target['_id'] == _cover_data['target']:
 			if not life.can_see_position(_target, _cover_data['node']):
+				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1])
+				
 				return
+			
+			flags.delete_flag(entity, 'cover_data')
 	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_x, _y), (node_x, node_y))
@@ -139,7 +143,11 @@ def find_firing_position(entity):
 						break
 				
 				if not _invalid:
+					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1])
+					
 					return
+				
+				flags.delete_flag(entity, 'fire_data')
 	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
