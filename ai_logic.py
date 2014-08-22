@@ -4,6 +4,8 @@ import mapgen
 import life
 import ai
 
+import time
+
 
 def get_nearest_entity_in_list(entity, entity_list):
 	_nearest_entity = {'entity': None, 'distance': 0}
@@ -73,11 +75,21 @@ def find_cover(entity):
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
 	
+	_t = time.time()
+	
+	if flags.has_flag(entity, 'cover_data'):
+		_cover_data = flags.get_flag(entity, 'cover_data')
+		
+		if _target['_id'] == _cover_data['target']:
+			if not life.can_see_position(_target, _cover_data['node']):
+				print 'Cover time (saved): ', time.time()-_t
+				return
+	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_x, _y), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
-		if _distance >= 40:
+		if _distance >= 30:
 			continue
 		
 		if _closest_node['node'] and _distance >= _closest_node['distance']:
@@ -90,10 +102,14 @@ def find_cover(entity):
 			_closest_node['node'] = (node_x, node_y)
 			_closest_node['distance'] = _distance
 	
+	print 'Cover time: ', time.time()-_t
+	
 	if not _closest_node['node']:
 		print 'No cover.'
 		
 		return
+	
+	entities.trigger_event(entity, 'set_flag', flag='cover_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
 
@@ -109,6 +125,8 @@ def find_firing_position(entity):
 		_max_distance = 25
 	else:
 		_max_distance = 10
+	
+	_t = time.time()
 	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
@@ -134,6 +152,8 @@ def find_firing_position(entity):
 		if not _closest_node['node'] or _distance < _closest_node['distance']:
 			_closest_node['node'] = (node_x, node_y)
 			_closest_node['distance'] = _distance
+	
+	print 'Firing position time: ', time.time()-_t
 	
 	if not _closest_node['node']:
 		print 'No cover.'
@@ -182,6 +202,8 @@ def search_for_target(entity):
 	
 	entities.trigger_event(entity, 'set_flag', flag='search_nodes', value=_nodes_to_search)
 	
+	_t = time.time()
+	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
@@ -204,6 +226,8 @@ def search_for_target(entity):
 				_nodes_to_search[_distance].append((node_x, node_y))
 		else:
 			_nodes_to_search[_distance] = [(node_x, node_y)]
+	
+	print 'Search time: ', time.time()-_t
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
