@@ -75,14 +75,11 @@ def find_cover(entity):
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
 	
-	_t = time.time()
-	
 	if flags.has_flag(entity, 'cover_data'):
 		_cover_data = flags.get_flag(entity, 'cover_data')
 		
 		if _target['_id'] == _cover_data['target']:
 			if not life.can_see_position(_target, _cover_data['node']):
-				print 'Cover time (saved): ', time.time()-_t
 				return
 	
 	for node_x, node_y in mapgen.NODE_GRID:
@@ -102,8 +99,6 @@ def find_cover(entity):
 			_closest_node['node'] = (node_x, node_y)
 			_closest_node['distance'] = _distance
 	
-	print 'Cover time: ', time.time()-_t
-	
 	if not _closest_node['node']:
 		print 'No cover.'
 		
@@ -121,12 +116,30 @@ def find_firing_position(entity):
 	_closest_node = {'node': None, 'distance': 0}
 	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
 	
+	_t = time.time()
+	
 	if _can_see:
 		_max_distance = 25
 	else:
-		_max_distance = 10
+		_max_distance = 10	
 	
-	_t = time.time()
+	if flags.has_flag(entity, 'fire_data'):
+		_fire_data = flags.get_flag(entity, 'fire_data')
+		
+		if _target['_id'] == _fire_data['target']:
+			_distance = numbers.distance((_tx, _ty), _fire_data['node'])
+					
+			#TODO: Replace with sight distance
+			if _distance < _max_distance:
+				_invalid = False
+				
+				for pos in shapes.line((_tx, _ty), _fire_data['node']):
+					if pos in mapgen.SOLIDS:
+						_invalid = True
+						break
+				
+				if not _invalid:
+					return
 	
 	for node_x, node_y in mapgen.NODE_GRID:
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
@@ -153,12 +166,12 @@ def find_firing_position(entity):
 			_closest_node['node'] = (node_x, node_y)
 			_closest_node['distance'] = _distance
 	
-	print 'Firing position time: ', time.time()-_t
-	
 	if not _closest_node['node']:
 		print 'No cover.'
 		
 		return
+	
+	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
 
