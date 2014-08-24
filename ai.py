@@ -1,5 +1,6 @@
 from framework import entities, events, numbers, goapy, timers, flags, movement
 
+import ai_factions
 import ai_visuals
 import settings
 import brains
@@ -37,6 +38,7 @@ def _register(entity, player=False):
 	                'is_player': player,
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
+	                         'is_squad_combat_ready': False,
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,
@@ -60,6 +62,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
+	entities.create_event(entity, 'meta_change')
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
 
 def register_animal(entity):
@@ -165,6 +168,8 @@ def _human_logic(entity):
 	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
 	
+	_old_meta = entity['ai']['meta'].copy()
+	
 	entity['ai']['meta']['sees_item_type_weapon'] = len(entity['ai']['visible_items']['weapon']) > 0
 	entity['ai']['meta']['sees_item_type_ammo'] = len(entity['ai']['visible_items']['ammo']) > 0
 	entity['ai']['meta']['sees_item_type_container'] = len(entity['ai']['visible_items']['container']) > 0
@@ -174,6 +179,11 @@ def _human_logic(entity):
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	
+	ai_factions.apply_squad_meta(entity)
+	
+	if not entity['ai']['meta'] == _old_meta:
+		entities.trigger_event(entity, 'meta_change')
 	
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
@@ -206,7 +216,7 @@ def _human_logic(entity):
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 
 	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
-		print '%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name'])
+		logging.debug('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
 		
 		entity['ai']['last_action'] = _plan['actions'][0]['name']
 

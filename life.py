@@ -26,8 +26,6 @@ def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_colo
 
 	if has_ai:
 		ai.register_human(_entity)
-	
-	ai_factions.register(_entity, faction)
 
 	entities.create_event(_entity, 'get_and_store_item')
 	entities.create_event(_entity, 'get_and_hold_item')
@@ -52,6 +50,8 @@ def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_colo
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
 	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
+	
+	ai_factions.register(_entity, faction)
 
 	return _entity
 

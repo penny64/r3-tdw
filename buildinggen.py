@@ -122,14 +122,14 @@ def _generate(width, height, facing, room_types, allow_tunnels=False):
 		_rooms.append({'type': room_type, 'plots': _plots_for_this_room, 'parent_plot': (_p_plot_x, _p_plot_y)})
 		_generate_new = True
 	
-	for y in range(height):
-		for x in range(width):
-			if (x, y) in _claimed_plots:
-				print _claimed_plots[(x, y)]['type'][0],
-			else:
-				print '.',
-		
-		print
+	#for y in range(height):
+	#	for x in range(width):
+	#		if (x, y) in _claimed_plots:
+	#			print _claimed_plots[(x, y)]['type'][0],
+	#		else:
+	#			print '.',
+	#	
+	#	print
 	
 	return _claimed_plots, _rooms
 

@@ -63,11 +63,11 @@ def search_for_ammo():
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(has_ammo=True)
 
-	_actions.add_condition('find_ammo', has_weapon=True, has_ammo=False, weapon_loaded=False)
+	_actions.add_condition('find_ammo', has_weapon=True, has_ammo=False)
 	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
 	_actions.add_reaction('find_ammo', sees_item_type_ammo=True)
 	
-	_actions.add_condition('get_ammo', sees_item_type_ammo=True, has_container=True)
+	_actions.add_condition('get_ammo', sees_item_type_ammo=True, has_container=True, weapon_loaded=False, has_ammo=False)
 	_actions.add_callback('get_ammo', lambda entity: ai_logic.get_ammo(entity))
 	_actions.add_reaction('get_ammo', has_ammo=True)
 	
@@ -135,7 +135,8 @@ def combat():
                                   'in_engagement',
                                   'in_enemy_los',
                                   'is_target_near',
-	                              'is_target_lost')
+	                              'is_target_lost',
+	                              'is_squad_combat_ready')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -164,7 +165,8 @@ def combat():
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
                                   in_enemy_los=True,
-	                              is_target_near=True)
+	                              is_target_near=True,
+	                              is_squad_combat_ready=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

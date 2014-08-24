@@ -35,3 +35,9 @@ def logic():
 	
 	elif CURSOR['tile']['y'] <= 5:
 		camera.set_pos(camera.X, camera.Y + (CURSOR['tile']['y'] - 5))	
+
+def get_screen_position():
+	return CURSOR['tile']['x'], CURSOR['tile']['y']
+
+def get_map_position():
+	return CURSOR['tile']['x']+camera.X, CURSOR['tile']['y']+camera.Y

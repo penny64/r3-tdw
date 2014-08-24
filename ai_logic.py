@@ -175,8 +175,6 @@ def find_firing_position(entity):
 			_closest_node['distance'] = _distance
 	
 	if not _closest_node['node']:
-		print 'No cover.'
-		
 		return
 	
 	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})

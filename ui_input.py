@@ -1,6 +1,7 @@
-from framework import movement, controls, events, stats
+from framework import movement, entities, controls, events, stats, numbers
 
 import constants
+import ui_cursor
 import camera
 
 import settings
@@ -32,3 +33,15 @@ def handle_keyboard_input(entity):
 	
 	elif controls.get_input_char_pressed('o'):
 		settings.toggle_observer_mode()
+	
+	if controls.get_input_char_pressed('d'):
+		_mx, _my = ui_cursor.get_map_position()
+		
+		for entity_id in entities.get_entity_group('life'):
+			_entity = entities.get_entity(entity_id)
+			
+			if not numbers.distance((_mx, _my), movement.get_position(_entity)):
+				for meta_key in _entity['ai']['meta']:
+					print meta_key, _entity['ai']['meta'][meta_key]
+			
+				break

@@ -13,7 +13,7 @@ def register(entity, use_system_event=None):
 		entities.register_event(entity, 'tick', tick)
 
 #TODO: Timer names
-def create_timer(entity, time, name=None, repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):
+def create_timer(entity, time, name='', repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):
 	entity['timers'].append({'callback': callback,
 	                         'name': name,
 	                         'enter_callback': enter_callback,
