@@ -172,7 +172,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_ammo'] = len(items.get_items_matching(entity, {'type': 'ammo'})) > 0
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
-	entity['ai']['meta']['in_engagement'] = len(entity['ai']['visible_targets']) > 0
+	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	
 	if entity['ai']['meta']['in_engagement']:

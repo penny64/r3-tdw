@@ -7,7 +7,8 @@ import items
 def build_item_list(entity):
 	entity['ai']['visible_items'] = {'weapon': [],
 	                                 'container': [],
-	                                 'ammo': []}
+	                                 'ammo': [],
+	                                 'bullets': []}
 	
 	for entity_id in entities.get_entity_group('items'):
 		_item = entities.get_entity(entity_id)
@@ -83,4 +84,16 @@ def build_life_list(entity):
 			entity['ai']['life_memory'][entity_id].update(_profile)
 	
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
-	entity['ai']['nearest_target'] = _nearest_target['target_id']
+	
+	if _nearest_target['target_id']:
+		entity['ai']['nearest_target'] = _nearest_target['target_id']
+	elif entity['ai']['targets']:
+		for target_id in list(entity['ai']['targets']):
+			_target = entity['ai']['life_memory'][target_id]
+			_distance = numbers.distance(movement.get_position(entity), _target['last_seen_at'])
+			
+			if not _nearest_target['target_id'] or _distance < _nearest_target['distance']:
+				_nearest_target['target_id'] = target_id
+				_nearest_target['distance'] = _distance
+		
+		entity['ai']['nearest_target'] = _nearest_target['target_id']
