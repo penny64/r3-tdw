@@ -2,6 +2,7 @@ from framework import movement, entities, controls, events, stats, numbers
 
 import constants
 import ui_cursor
+import ui_menu
 import camera
 
 import settings
@@ -41,7 +42,20 @@ def handle_keyboard_input(entity):
 			_entity = entities.get_entity(entity_id)
 			
 			if not numbers.distance((_mx, _my), movement.get_position(_entity)):
-				for meta_key in _entity['ai']['meta']:
-					print meta_key, _entity['ai']['meta'][meta_key]
-			
+				_x, _y = ui_cursor.get_screen_position()
+				_menu = ui_menu.create(_x, _y, title='Debug')
+				ui_menu.add_selectable(_menu, 'Show Metas', lambda: _show_metas(_entity))
+				
 				break
+				
+def _show_metas(entity):
+	_x, _y = ui_cursor.get_screen_position()
+	_menu = ui_menu.create(_x, _y, title='Metas')
+	
+	for meta_key in entity['ai']['meta']:
+		if entity['ai']['meta'][meta_key]:
+			_color = (0, 200, 0)
+		else:
+			_color = (200, 0, 0)
+		
+		ui_menu.add_selectable(_menu, '%s: %s' % (meta_key, entity['ai']['meta'][meta_key]), lambda: _show_metas(_entity), fore_color=_color)
