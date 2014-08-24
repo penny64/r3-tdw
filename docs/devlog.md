@@ -1,3 +1,10 @@
+#Sun Aug 24 EDT 2014
+
+Wrote up designs for Factions and Squads, in addition to implementing some basic
+functionality and wiring Squad metas up to NPC metas for testing. Future changes
+might include disabling NPC brains instead of invalidating goal conditions via
+squad metas - we'll see after more NPC logic is introduced.
+
 #Fri Aug 22 EDT 2014
 
 Looking into faster node graph lookups. The design document calls for "sets"
