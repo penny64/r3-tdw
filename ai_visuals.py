@@ -54,7 +54,7 @@ def build_life_list(entity):
 				
 				break
 		else:
-			_is_target = not entity['stats']['faction'] == _target['stats']['faction']
+			_is_target = not entity['ai']['faction'] == _target['ai']['faction']
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),

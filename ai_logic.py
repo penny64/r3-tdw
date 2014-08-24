@@ -187,7 +187,7 @@ def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')
 	
 	if not _nodes:
-		entity['ai']['targets'].delete(target_id)
+		entity['ai']['targets'].remove(target_id)
 		flags.delete_flag(entity, 'search_nodes')
 		
 		return

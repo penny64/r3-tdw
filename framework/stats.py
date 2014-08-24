@@ -3,11 +3,10 @@ from framework import entities, numbers
 import random
 
 
-def register(entity, health, speed, faction='Neutral', name='Unknown'):
+def register(entity, health, speed, name='Unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
-	          'faction': faction,
 	          'name': name,
 	          'last_engaged': None,
 	          'kills': 0}

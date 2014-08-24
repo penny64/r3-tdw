@@ -129,7 +129,7 @@ def update_target_memory(entity, target_id, key, value):
 		entity['ai']['life_memory'][target_id][key] = value
 		
 		if key == 'last_seen_at' and not target_id in entity['ai']['targets']:
-			if not entity['stats']['faction'] == entities.get_entity(target_id)['stats']['faction']:
+			if not entity['ai']['faction'] == entities.get_entity(target_id)['ai']['faction']:
 				entity['ai']['targets'].add(target_id)
 
 def set_meta(entity, key, value):

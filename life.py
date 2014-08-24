@@ -1,5 +1,6 @@
 from framework import entities, tile, timers, movement, stats, flags, numbers, shapes
 
+import ai_factions
 import effects
 import mapgen
 import camera
@@ -11,13 +12,13 @@ import ai
 import random
 
 
-def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_color=(255, 255, 255)):
+def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity)
 	timers.register(_entity)
-	stats.register(_entity, health, speed, name=name, faction=faction)
+	stats.register(_entity, health, speed, name=name)
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
@@ -25,6 +26,8 @@ def _create(x, y, health, speed, name, faction='Neutral', has_ai=False, fore_col
 
 	if has_ai:
 		ai.register_human(_entity)
+	
+	ai_factions.register(_entity, faction)
 
 	entities.create_event(_entity, 'get_and_store_item')
 	entities.create_event(_entity, 'get_and_hold_item')

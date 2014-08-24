@@ -3,6 +3,7 @@ from framework import entities, controls, display, events, worlds, movement, pat
 import framework
 
 import post_processing
+import ai_factions
 import constants
 import settings
 import ui_cursor
@@ -161,10 +162,13 @@ def loop():
 def main():
 	global PLAYER
 	
+	ai_factions.boot()
+	
 	PLAYER = life.human(170, 170, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
-	life.human_runner(195, 195, 'Test NPC')
-	life.human_bandit(195, 135, 'Test NPC 2')
+	life.human_runner(210, 195, 'Test NPC')
+	life.human_runner(195, 160, 'Test NPC 2')
+	#life.human_bandit(195, 135, 'Test NPC 3')
 	items.ammo_9x19mm(170, 175)
 	items.leather_backpack(175, 170)
 	items.glock(175, 176)
