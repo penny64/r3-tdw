@@ -54,6 +54,11 @@ def create_squad(entity):
 	entities.register_event(entity, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(entity, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
 	
+	entities.trigger_event(entity, 'create_timer',
+	                       time=60,
+	                       repeat=-1,
+	                       repeat_callback=lambda e: update_group_status(e))
+	
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
 	                                                                    entity['stats']['name']))
@@ -113,6 +118,9 @@ def update_group_status(entity):
 	
 	for member_id in _squad['member_info']:
 		_member = _squad['member_info'][member_id]
+		
+		if not entity['ai']['current_action'] == 'idle':
+			continue
 		
 		_members_combat_ready += _member['armed']
 	

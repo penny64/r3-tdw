@@ -187,9 +187,7 @@ def main():
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
 	
-	_t = time.time()
 	mapgen.swamp(400, 400)	
-	print 'Took:', time.time()-_t
 	
 	pathfinding.setup(mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT, mapgen.SOLIDS, mapgen.WEIGHT_MAP)	
 	

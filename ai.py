@@ -28,6 +28,7 @@ def _register(entity, player=False):
 	
 	entity['ai'] = {'brain': goapy.World(),
 	                'brain_offline': goapy.World(),
+	                'current_action': 'idle',
 	                'last_action': 'idle',
 	                'visible_items': [],
 	                'visible_life': set(),
@@ -57,7 +58,8 @@ def _register(entity, player=False):
 	                         'sees_item_type_ammo': False},
 	                'weights': {'find_bandage': 10,
 	                            'find_weapon': 16,
-	                            'find_container': 14}}
+	                            'find_container': 14,
+	                            'track': 20}}
 	
 	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
@@ -210,6 +212,8 @@ def _human_logic(entity):
 	_goap = _handle_goap(entity)
 	
 	if not _goap:
+		entity['ai']['current_action'] = 'idle'
+		
 		return	
 	
 	_plan = _goap[0]
@@ -219,6 +223,8 @@ def _human_logic(entity):
 		logging.debug('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
 		
 		entity['ai']['last_action'] = _plan['actions'][0]['name']
+	
+	entity['ai']['current_action'] = _plan['actions'][0]['name']
 
 def _animal_logic_offline(entity):
 	_plan = _handle_goap(entity, brain='brain_offline')
