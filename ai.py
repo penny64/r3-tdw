@@ -55,7 +55,8 @@ def _register(entity, player=False):
 	                         'has_food': False,
 	                         'sees_item_type_weapon': False,
 	                         'sees_item_type_container': False,
-	                         'sees_item_type_ammo': False},
+	                         'sees_item_type_ammo': False,
+	                         'has_needs': False},
 	                'weights': {'find_bandage': 10,
 	                            'find_weapon': 16,
 	                            'find_container': 14,
@@ -181,6 +182,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
 	
 	ai_factions.apply_squad_meta(entity)
 	

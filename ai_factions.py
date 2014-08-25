@@ -119,15 +119,15 @@ def update_group_status(entity):
 	for member_id in _squad['member_info']:
 		_member = _squad['member_info'][member_id]
 		
-		if not entity['ai']['current_action'] == 'idle':
+		if entity['ai']['meta']['has_needs']:
 			continue
 		
 		_members_combat_ready += _member['armed']
 	
 	_squad['meta']['is_squad_combat_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75
 
-	if not _old_meta == _squad['meta']:
-		logging.info('Squad %s (%s) updated meta.' % (entity['ai']['squad'], entity['ai']['faction']))
+	#if not _old_meta == _squad['meta']:
+	#	logging.info('Squad %s (%s) updated meta.' % (entity['ai']['squad'], entity['ai']['faction']))
 
 def apply_squad_meta(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
