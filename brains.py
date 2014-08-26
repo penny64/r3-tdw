@@ -136,7 +136,8 @@ def combat():
                                   'in_enemy_los',
                                   'is_target_near',
 	                              'is_target_lost',
-	                              'is_squad_combat_ready')
+	                              'is_squad_combat_ready',
+	                              'is_squad_overwhelmed')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -166,7 +167,8 @@ def combat():
                                   weapon_loaded=True,
                                   in_enemy_los=True,
 	                              is_target_near=True,
-	                              is_squad_combat_ready=True)
+	                              is_squad_combat_ready=True,
+	                              is_squad_overwhelmed=False)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

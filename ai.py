@@ -41,6 +41,7 @@ def _register(entity, player=False):
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
 	                         'is_squad_combat_ready': False,
+	                         'is_squad_overwhelmed': False,
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,
@@ -67,6 +68,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
 	entities.create_event(entity, 'meta_change')
+	entities.create_event(entity, 'has_needs')
 	entities.create_event(entity, 'target_lost')
 	entities.create_event(entity, 'target_found')
 	entities.create_event(entity, 'squad_inform_lost_target')

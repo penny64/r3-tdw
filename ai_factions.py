@@ -45,7 +45,8 @@ def create_squad(entity):
 	_squad = {'members': set(),
 	          'leader': entity['_id'],
 	          'member_info': {},
-	          'meta': {'is_squad_combat_ready': False}}
+	          'meta': {'is_squad_combat_ready': False,
+	                   'is_squad_overwhelmed': False}}
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['squad'] = _faction['squad_id']
 	_faction['squad_id'] += 1
@@ -55,6 +56,8 @@ def create_squad(entity):
 	entities.register_event(entity, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(entity, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
 	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
+	entities.register_event(entity, 'target_lost', lambda e, **kwargs: update_combat_risk)
+	entities.register_event(entity, 'target_found', lambda e, **kwargs: update_combat_risk)
 	
 	entities.trigger_event(entity, 'create_timer',
 	                       time=60,
@@ -135,6 +138,13 @@ def update_group_status(entity):
 		_members_combat_ready += _member['armed']
 	
 	_squad['meta']['is_squad_combat_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75
+
+def update_combat_risk(entity):
+	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad_member_count = len(_squad['member_info'].keys())
+	_target_count = len(entity['ai']['targets'])
+	
+	_squad['meta']['is_squad_overwhelmed'] = _target_count > _squad_member_count
 
 def apply_squad_meta(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
