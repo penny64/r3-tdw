@@ -50,6 +50,9 @@ def build_life_list(entity):
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
 			if pos in mapgen.SOLIDS:
+				if entity['ai']['life_memory'][entity_id]['can_see'] and not entity['ai']['faction'] == _target['ai']['faction']:
+					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
+				
 				entity['ai']['life_memory'][entity_id]['can_see'] = False
 				
 				break
@@ -80,8 +83,16 @@ def build_life_list(entity):
 				_profile['last_seen_velocity'] = _velocity
 			else:
 				_profile['last_seen_velocity'] = None
-				
+			
+			if not entity['ai']['life_memory'][entity_id]['can_see'] and _is_target:
+				_could_not_see_target_before = True
+			else:
+				_could_not_see_target_before = False
+			
 			entity['ai']['life_memory'][entity_id].update(_profile)
+			
+			if _could_not_see_target_before:
+				entities.trigger_event(entity, 'target_found', target_id=entity_id)
 	
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
 	

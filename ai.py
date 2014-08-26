@@ -1,5 +1,6 @@
 from framework import entities, events, numbers, goapy, timers, flags, movement
 
+import ai_squad_logic
 import ai_factions
 import ai_visuals
 import settings
@@ -66,7 +67,15 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
 	entities.create_event(entity, 'meta_change')
+	entities.create_event(entity, 'target_lost')
+	entities.create_event(entity, 'target_found')
+	entities.create_event(entity, 'squad_inform_lost_target')
+	entities.create_event(entity, 'squad_inform_found_target')
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
+	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
+	entities.register_event(entity, 'target_found', ai_squad_logic.member_handle_found_target)
+	entities.register_event(entity, 'squad_inform_lost_target', ai_squad_logic.member_learn_lost_target)
+	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
 
 def register_animal(entity):
 	_register(entity)

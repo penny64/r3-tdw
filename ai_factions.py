@@ -1,5 +1,6 @@
 from framework import entities, numbers, movement
 
+import ai_squad_logic
 import constants
 
 import logging
@@ -53,6 +54,7 @@ def create_squad(entity):
 	entities.register_event(entity, 'meta_change', update_group_status)
 	entities.register_event(entity, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(entity, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
+	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
 	
 	entities.trigger_event(entity, 'create_timer',
 	                       time=60,
@@ -62,6 +64,15 @@ def create_squad(entity):
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
 	                                                                    entity['stats']['name']))
+
+def get_assigned_squad(entity):
+	_faction = FACTIONS[entity['ai']['faction']]
+	_squad = entity['ai']['squad']
+	
+	if _squad == -1:
+		raise Exception('Entity is not in a squad.')
+	
+	return _faction['squads'][_squad]
 
 def assign_to_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
@@ -114,7 +125,6 @@ def update_squad_member_snapshot(entity, target_id):
 def update_group_status(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
 	_members_combat_ready = 0
-	_old_meta = _squad['meta'].copy()
 	
 	for member_id in _squad['member_info']:
 		_member = _squad['member_info'][member_id]
@@ -125,9 +135,6 @@ def update_group_status(entity):
 		_members_combat_ready += _member['armed']
 	
 	_squad['meta']['is_squad_combat_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75
-
-	#if not _old_meta == _squad['meta']:
-	#	logging.info('Squad %s (%s) updated meta.' % (entity['ai']['squad'], entity['ai']['faction']))
 
 def apply_squad_meta(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
