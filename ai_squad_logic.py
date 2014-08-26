@@ -1,4 +1,4 @@
-from framework import entities
+from framework import entities, movement
 
 import ai_factions
 
@@ -51,3 +51,11 @@ def member_learn_found_target(entity, member_id, target_id):
 	                       target_id=target_id,
 	                       key='last_seen_at',
 	                       value=_sender['ai']['life_memory'][target_id]['last_seen_at'][:])
+
+
+#Make target surrender
+
+def make_target_surrender(entity):
+	_last_seen_at = entity['ai']['life_memory'][entity['ai']['nearest_target']]['last_seen_at']
+	
+	movement.walk_to_position(entity, _last_seen_at[0], _last_seen_at[1])

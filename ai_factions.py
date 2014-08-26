@@ -8,19 +8,20 @@ import logging
 FACTIONS = {}
 
 
-def _create(name, min_squad_size, max_squad_size):
+def _create(name, min_squad_size, max_squad_size, enemy_factions):
 	_faction = {'members': set(),
 	            'squads': {},
 	            'squad_id': 1,
 	            'brains': [],
-	            'squad_size_range': (min_squad_size, max_squad_size)}
+	            'squad_size_range': (min_squad_size, max_squad_size),
+	            'enemies': enemy_factions}
 	
 	FACTIONS[name] = _faction
 
 def boot():
-	_create('Bandits', 3, 5)
-	_create('Runners', 3, 5)
-	_create('Rogues', 1, 1)
+	_create('Bandits', 3, 5, ['Runners', 'Rogues'])
+	_create('Runners', 3, 5, ['Bandits'])
+	_create('Rogues', 1, 1, ['Bandits'])
 
 def register(entity, faction):
 	if not faction in FACTIONS:
@@ -46,7 +47,8 @@ def create_squad(entity):
 	          'leader': entity['_id'],
 	          'member_info': {},
 	          'meta': {'is_squad_combat_ready': False,
-	                   'is_squad_overwhelmed': False}}
+	                   'is_squad_overwhelmed': False,
+	                   'is_squad_forcing_surrender': False}}
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['squad'] = _faction['squad_id']
 	_faction['squad_id'] += 1
@@ -62,7 +64,12 @@ def create_squad(entity):
 	entities.trigger_event(entity, 'create_timer',
 	                       time=60,
 	                       repeat=-1,
-	                       repeat_callback=lambda e: update_group_status(e))
+	                       repeat_callback=update_group_status)
+	
+	entities.trigger_event(entity, 'create_timer',
+	                       time=60,
+	                       repeat=-1,
+	                       repeat_callback=update_combat_risk)
 	
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
@@ -143,8 +150,13 @@ def update_combat_risk(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
 	_squad_member_count = len(_squad['member_info'].keys())
 	_target_count = len(entity['ai']['targets'])
+	_armed_target_count = len([e for e in entity['ai']['targets'] if entity['ai']['life_memory'][e]['is_armed']])
 	
-	_squad['meta']['is_squad_overwhelmed'] = _target_count > _squad_member_count
+	if not _armed_target_count and _target_count:
+		_squad['meta']['is_squad_forcing_surrender'] = True
+		_squad['meta']['is_squad_overwhelmed'] = False
+	else:
+		_squad['meta']['is_squad_overwhelmed'] = _target_count > _squad_member_count
 
 def apply_squad_meta(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]

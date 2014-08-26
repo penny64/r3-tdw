@@ -42,6 +42,7 @@ def _register(entity, player=False):
 	                         'is_panicked': False,
 	                         'is_squad_combat_ready': False,
 	                         'is_squad_overwhelmed': False,
+	                         'is_squad_forcing_surrender': False,
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,

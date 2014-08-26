@@ -1,5 +1,6 @@
 from framework import goapy
 
+import ai_squad_logic
 import ai_logic
 import ai
 
@@ -137,7 +138,9 @@ def combat():
                                   'is_target_near',
 	                              'is_target_lost',
 	                              'is_squad_combat_ready',
-	                              'is_squad_overwhelmed')
+	                              'is_squad_overwhelmed',
+	                              'is_squad_forcing_surrender',
+	                              'is_target_armed')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -168,11 +171,25 @@ def combat():
                                   in_enemy_los=True,
 	                              is_target_near=True,
 	                              is_squad_combat_ready=True,
-	                              is_squad_overwhelmed=False)
+	                              is_squad_overwhelmed=False,
+	                              is_squad_forcing_surrender=False,
+	                              is_target_armed=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	
+	_combat_actions.add_condition('make_surrender',
+	                              weapon_loaded=True,
+	                              in_enemy_los=True,
+	                              is_target_near=True,
+	                              is_squad_combat_ready=True,
+	                              is_squad_overwhelmed=False,
+	                              is_target_armed=False,
+	                              is_squad_forcing_surrender=True)
+	_combat_actions.add_callback('make_surrender', ai_squad_logic.make_target_surrender)
+	_combat_actions.add_reaction('make_surrender', in_engagement=False)
+	
 	_combat_actions.set_weight('track', 20)
+	_combat_actions.set_weight('make_surrender', 10)
 
 	_combat_brain.set_action_list(_combat_actions)
 	
