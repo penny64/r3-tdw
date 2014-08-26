@@ -172,8 +172,7 @@ def combat():
 	                              is_target_near=True,
 	                              is_squad_combat_ready=True,
 	                              is_squad_overwhelmed=False,
-	                              is_squad_forcing_surrender=False,
-	                              is_target_armed=True)
+	                              is_squad_forcing_surrender=False)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

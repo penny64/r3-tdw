@@ -8,7 +8,7 @@ def build_item_list(entity):
 	entity['ai']['visible_items'] = {'weapon': [],
 	                                 'container': [],
 	                                 'ammo': [],
-	                                 'bullets': []}
+	                                 'bullet': []}
 	
 	for entity_id in entities.get_entity_group('items'):
 		_item = entities.get_entity(entity_id)
