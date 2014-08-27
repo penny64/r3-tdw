@@ -59,3 +59,18 @@ def make_target_surrender(entity):
 	_last_seen_at = entity['ai']['life_memory'][entity['ai']['nearest_target']]['last_seen_at']
 	
 	movement.walk_to_position(entity, _last_seen_at[0], _last_seen_at[1])
+
+
+#Failed target search
+
+def member_handle_failed_target_search(entity, target_id):
+	for member_id in ai_factions.get_assigned_squad(entity)['members']:
+		if member_id == entity['_id']:
+			continue
+			
+		_member = entities.get_entity(member_id)
+		
+		entities.trigger_event(_member, 'squad_inform_failed_search', member_id=entity['_id'], target_id=target_id)
+
+def member_learn_failed_target_search(entity, member_id, target_id):
+	print 'Learned about failed search'

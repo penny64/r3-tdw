@@ -72,13 +72,17 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'has_needs')
 	entities.create_event(entity, 'target_lost')
 	entities.create_event(entity, 'target_found')
+	entities.create_event(entity, 'target_search_failed')
 	entities.create_event(entity, 'squad_inform_lost_target')
 	entities.create_event(entity, 'squad_inform_found_target')
+	entities.create_event(entity, 'squad_inform_failed_search')
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
 	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
 	entities.register_event(entity, 'target_found', ai_squad_logic.member_handle_found_target)
+	entities.register_event(entity, 'target_search_failed', ai_squad_logic.member_handle_failed_target_search)
 	entities.register_event(entity, 'squad_inform_lost_target', ai_squad_logic.member_learn_lost_target)
 	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
+	entities.register_event(entity, 'squad_inform_failed_search', ai_squad_logic.member_learn_failed_target_search)
 
 def register_animal(entity):
 	_register(entity)

@@ -188,6 +188,8 @@ def _search_for_target(entity, target_id):
 		entity['ai']['targets'].remove(target_id)
 		flags.delete_flag(entity, 'search_nodes')
 		
+		entities.trigger_event(entity, 'target_search_failed', target_id=target_id)
+		
 		return
 	
 	_node_list = _nodes.keys()
@@ -208,6 +210,7 @@ def search_for_target(entity):
 	
 	if flags.has_flag(entity, 'search_nodes'):
 		_search_for_target(entity, _target['_id'])
+		
 		return
 	
 	_x, _y = movement.get_position(entity)
