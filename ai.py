@@ -43,6 +43,8 @@ def _register(entity, player=False):
 	                         'is_squad_combat_ready': False,
 	                         'is_squad_overwhelmed': False,
 	                         'is_squad_forcing_surrender': False,
+	                         'is_squad_mobile_ready': False,
+	                         'is_squad_leader': False,
 	                         'has_bandage': False,
 	                         'has_ammo': False,
 	                         'has_weapon': False,
@@ -100,6 +102,12 @@ def register_human(entity, player=False):
 	
 	#Combat
 	_ai['brain'].add_planner(brains.combat())
+	
+	#Regrouping
+	#NOTE: Not sure what I want this functionality to do
+	#Maybe once squads have evolved a bit more I will approach
+	#it again.
+	#_ai['brain'].add_planner(brains.squad_leader_regroup())
 
 	#Panic
 	_ai['brain'].add_planner(brains.panic())

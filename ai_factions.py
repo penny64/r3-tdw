@@ -51,6 +51,7 @@ def create_squad(entity):
 	                   'is_squad_forcing_surrender': False}}
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['squad'] = _faction['squad_id']
+	entity['ai']['meta']['is_squad_leader'] = True
 	_faction['squad_id'] += 1
 	
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(e, target_id=e['_id']))
@@ -70,11 +71,6 @@ def create_squad(entity):
 	                       time=60,
 	                       repeat=-1,
 	                       repeat_callback=update_combat_risk)
-	
-	#entities.trigger_event(entity, 'create_timer',
-	#                       time=60,
-	#                       repeat=-1,
-	#                       repeat_callback=lambda e: update_squad_member_snapshot(e, target_id=entity['_id']))
 	
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
@@ -150,6 +146,7 @@ def update_group_status(entity):
 		_members_combat_ready += _squad['member_info'][member_id]['armed']
 	
 	_squad['meta']['is_squad_combat_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5
+	_squad['meta']['is_squad_mobile_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75
 
 def update_combat_risk(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]

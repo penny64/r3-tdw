@@ -248,8 +248,6 @@ def search_for_target(entity):
 				_nodes_to_search[_distance].append((node_x, node_y))
 		else:
 			_nodes_to_search[_distance] = [(node_x, node_y)]
-	
-	print 'Search time: ', time.time()-_t
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)

@@ -74,3 +74,9 @@ def member_handle_failed_target_search(entity, target_id):
 
 def member_learn_failed_target_search(entity, member_id, target_id):
 	print 'Learned about failed search'
+
+
+#Regrouping
+
+def leader_order_regroup(entity):
+	print 'Leader ordering regroup'
