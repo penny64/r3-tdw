@@ -1,6 +1,7 @@
 from framework import entities, numbers, movement, timers, shapes, flags
 
 import mapgen
+import zones
 import life
 import ai
 
@@ -86,7 +87,7 @@ def find_cover(entity):
 			
 			flags.delete_flag(entity, 'cover_data')
 	
-	for node_x, node_y in mapgen.NODE_GRID:
+	for node_x, node_y in zones.get_active_node_grid():
 		_distance = numbers.distance((_x, _y), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
@@ -149,7 +150,7 @@ def find_firing_position(entity):
 				
 				flags.delete_flag(entity, 'fire_data')
 	
-	for node_x, node_y in mapgen.NODE_GRID:
+	for node_x, node_y in zones.get_active_node_grid():
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
@@ -226,7 +227,7 @@ def search_for_target(entity):
 	
 	_t = time.time()
 	
-	for node_x, node_y in mapgen.NODE_GRID:
+	for node_x, node_y in zones.get_active_node_grid():
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
 		if _distance >= 30:

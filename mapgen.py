@@ -29,33 +29,31 @@ def _create_node(x, y):
 	UNCLAIMED_NODES.add((x, y))
 
 def reset():
-	global SOLIDS
 	global NODE_GRID
 	global UNCLAIMED_NODES
 	global NODE_SETS
 	global NODE_SET_ID
 	global TILE_MAP
 	
-	SOLIDS = set()
 	UNCLAIMED_NODES = set()
 	NODE_GRID = {}
 	NODE_SETS = {}
 	NODE_SET_ID = 1
 	TILE_MAP = []
 
-def build_node_grid():
+def build_node_grid(solids):
 	global UNCLAIMED_NODES
 
 	_ignore_positions = set()
 
-	for x, y in SOLIDS:
+	for x, y in solids:
 		for _sy in range(y-5, y+6):
 			for _sx in range(x-5, x+6):
 				if (_sx, _sy) in _ignore_positions:
 					continue
 
 				if not _sx % 3 and not _sy % 3:
-					if (_sx, _sy) in SOLIDS:
+					if (_sx, _sy) in solids:
 						continue
 
 					_create_node(_sx, _sy)
@@ -254,7 +252,7 @@ def swamp(width, height, rings=8):
 
 	TILE_MAP = _tile_map
 
-	build_node_grid()
+	build_node_grid(SOLIDS)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
 
 	post_processing.generate_shadow_map(width, height, SOLIDS)
