@@ -237,10 +237,10 @@ def swamp(width, height, rings=8):
 		if _y > _max_y:
 			_max_y = _y
 
-		if _y < _min_x:
+		if _y < _min_y:
 			_min_y = _y
 
-	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _min_x, 0.5))), int(round(numbers.clip(_min_y, _min_y, 0.5)))
+	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.5))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
 
 	build_node_grid(SOLIDS)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)

@@ -1,4 +1,4 @@
-from framework import pathfinding, display
+from framework import pathfinding, display, shapes
 
 import libtcodpy as tcod
 
@@ -6,9 +6,11 @@ import post_processing
 import constants
 import mapgen
 import camera
+import life
 import maps
 
 import logging
+import random
 
 ZONES = {}
 ACTIVE_ZONE = None
@@ -61,3 +63,23 @@ def get_active_node_grid():
 		raise Exception('No zone is active.')
 	
 	return ZONES[ACTIVE_ZONE]['node_grid']
+
+def populate_life(zone_id):
+	_zone = ZONES[zone_id]
+	
+	for node_set_id in _zone['node_sets']:
+		_node_set = _zone['node_sets'][node_set_id]
+		_set_center_x, _set_center_y = _node_set['center']
+		_spawn_pos = []
+		
+		print _node_set['center']
+		
+		for x, y in shapes.circle(_set_center_x, _set_center_y, 5):
+			if (x, y) in _zone['solids']:
+				continue
+			
+			_spawn_pos.append((x, y))
+		
+		for i in range(2):
+			_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
+			life.human_runner(_x, _y, 'Test NPC %s' % str(i+1))

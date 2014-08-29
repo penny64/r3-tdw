@@ -167,8 +167,7 @@ def main():
 	
 	PLAYER = life.human(170, 170, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
-	life.human_runner(210, 195, 'Test NPC')
-	life.human_runner(195, 190, 'Test NPC 2')
+
 	#life.human_bandit(195, 135, 'Test NPC 3')
 	items.ammo_9x19mm(170, 176)
 	items.leather_backpack(176, 171)
