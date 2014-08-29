@@ -9,20 +9,21 @@ import logging
 FACTIONS = {}
 
 
-def _create(name, min_squad_size, max_squad_size, enemy_factions):
+def _create(name, squad_size_range, base_size_range, enemy_factions):
 	_faction = {'members': set(),
 	            'squads': {},
 	            'squad_id': 1,
 	            'brains': [],
-	            'squad_size_range': (min_squad_size, max_squad_size),
+	            'squad_size_range': squad_size_range,
+	            'base_size_range': base_size_range,
 	            'enemies': enemy_factions}
 	
 	FACTIONS[name] = _faction
 
 def boot():
-	_create('Bandits', 3, 5, ['Runners', 'Rogues'])
-	_create('Runners', 3, 5, ['Bandits'])
-	_create('Rogues', 1, 1, ['Bandits'])
+	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues'])
+	_create('Runners', (3, 5), (5, 7), ['Bandits'])
+	_create('Rogues', (1, 1), (1, 1), ['Bandits'])
 
 def register(entity, faction):
 	if not faction in FACTIONS:
@@ -142,7 +143,7 @@ def update_group_status(entity):
 	for member_id in _squad['member_info']:
 		_member = entities.get_entity(member_id)
 		
-		if _member['ai']['meta']['has_needs']:
+		if _member['ai']['meta']['has_needs'] and not _member['ai']['meta']['weapon_loaded']:
 			continue
 		
 		_members_combat_ready += _squad['member_info'][member_id]['armed']

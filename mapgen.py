@@ -245,4 +245,6 @@ def swamp(width, height, rings=8):
 	build_node_grid(SOLIDS)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
 	
-	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), WEIGHT_MAP.copy(), _tile_map, SOLIDS.copy()
+	_fsl = {'Runners': {'bases': 1, 'squads': 0}}
+	
+	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), WEIGHT_MAP.copy(), _tile_map, SOLIDS.copy(), _fsl

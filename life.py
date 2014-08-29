@@ -84,7 +84,11 @@ def human(x, y, name):
 	return _entity
 
 def human_runner(x, y, name):
-	return _create(x, y, 100, 20, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	_entity = _create(x, y, 100, 20, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	
+	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	
+	return _entity
 
 def human_bandit(x, y, name):
 	return _create(x, y, 100, 20, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)

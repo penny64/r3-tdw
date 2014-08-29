@@ -3,6 +3,7 @@ from framework import pathfinding, display, shapes
 import libtcodpy as tcod
 
 import post_processing
+import ai_factions
 import constants
 import mapgen
 import camera
@@ -16,7 +17,7 @@ ZONES = {}
 ACTIVE_ZONE = None
 
 
-def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids):
+def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list):
 	ZONES[name] = {'name': name,
 	               'width': width,
 	               'height': height,
@@ -24,7 +25,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'node_sets': node_sets,
 	               'weight_map': weight_map,
 	               'tile_map': tile_map,
-	               'solids': solids}
+	               'solids': solids,
+	               'faction_spawn_list': faction_spawn_list}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -67,19 +69,33 @@ def get_active_node_grid():
 def populate_life(zone_id):
 	_zone = ZONES[zone_id]
 	
-	for node_set_id in _zone['node_sets']:
-		_node_set = _zone['node_sets'][node_set_id]
-		_set_center_x, _set_center_y = _node_set['center']
-		_spawn_pos = []
+	for faction_name in _zone['faction_spawn_list']:
+		_spawn_profile = _zone['faction_spawn_list'][faction_name]
 		
-		print _node_set['center']
+		if _spawn_profile['bases']:
+			for b in range(_spawn_profile['bases']):
+				for node_set_id in _zone['node_sets']:
+					_node_set = _zone['node_sets'][node_set_id]
+					_set_center_x, _set_center_y = _node_set['center']
+					_spawn_pos = []
+					
+					for x, y in shapes.circle(_set_center_x, _set_center_y, 5):
+						if (x, y) in _zone['solids']:
+							continue
+						
+						_spawn_pos.append((x, y))
+					
+					_min_squad_size, _max_squad_size = ai_factions.FACTIONS[faction_name]['base_size_range']
+					
+					for i in range(random.randint(_min_squad_size, _max_squad_size)):
+						_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
+						_e = life.human_runner(_x, _y, 'Test NPC %s' % str(i+1))
+						
+						if _e['ai']['meta']['is_squad_leader']:
+							_squad = ai_factions.get_assigned_squad(_e)
+							_squad['camp_id'] = node_set_id
+							_node_set['owner'] = _e['ai']['squad']
 		
-		for x, y in shapes.circle(_set_center_x, _set_center_y, 5):
-			if (x, y) in _zone['solids']:
-				continue
-			
-			_spawn_pos.append((x, y))
-		
-		for i in range(2):
-			_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
-			life.human_runner(_x, _y, 'Test NPC %s' % str(i+1))
+		else:
+			#TODO: Squad spawns
+			pass
