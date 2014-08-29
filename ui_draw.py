@@ -120,7 +120,7 @@ def draw_node_grid(entity):
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
 	
-	for node in entity['NODE_GRID']['nodes'].values():
+	for node in entity['node_grid']['nodes'].values():
 		_node = node['node']
 		
 		_x, _y = _node['x'], _node['y']

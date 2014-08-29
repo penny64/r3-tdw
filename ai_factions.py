@@ -2,6 +2,7 @@ from framework import entities, numbers, movement
 
 import ai_squad_logic
 import constants
+import mapgen
 
 import logging
 
@@ -46,6 +47,7 @@ def create_squad(entity):
 	_squad = {'members': set([entity['_id']]),
 	          'leader': entity['_id'],
 	          'member_info': {},
+	          'camp_id': None,
 	          'meta': {'is_squad_combat_ready': False,
 	                   'is_squad_overwhelmed': False,
 	                   'is_squad_forcing_surrender': False}}

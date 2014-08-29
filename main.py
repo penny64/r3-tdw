@@ -10,6 +10,7 @@ import ui_cursor
 import ui_input
 import ui_menu
 import ui_draw
+import worldgen
 import mapgen
 import camera
 import items
@@ -105,8 +106,8 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
-	                        executing=settings.TICK_MODE == 'normal' and PLAYER['NODE_GRID']['path'],
-	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['NODE_GRID']['path'])>0),
+	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_grid']['path'],
+	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_grid']['path'])>0),
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 	ui_draw.draw_life_labels()
 	ui_draw.draw_item_labels()
@@ -140,7 +141,7 @@ def loop():
 	events.trigger_event('input')
 	
 	if not settings.TICK_MODE == 'strategy':
-		if PLAYER['NODE_GRID']['path']:
+		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
 			_ticks_per_tick = 3
@@ -187,14 +188,8 @@ def main():
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
 	
-	mapgen.swamp(400, 400)	
+	worldgen.generate()
 	
-	pathfinding.setup(mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT, mapgen.SOLIDS, mapgen.WEIGHT_MAP)	
-	
-	display.create_surface('tiles', width=mapgen.LEVEL_WIDTH, height=mapgen.LEVEL_HEIGHT)
-	maps.render_map(mapgen.TILE_MAP, mapgen.LEVEL_WIDTH, mapgen.LEVEL_HEIGHT)	
-	
-	camera.set_limits(0, 0, mapgen.LEVEL_WIDTH-constants.MAP_VIEW_WIDTH, mapgen.LEVEL_HEIGHT-constants.MAP_VIEW_HEIGHT)
 	camera.set_pos(120, 120)
 	
 	while loop():
@@ -207,7 +202,7 @@ def main():
 if __name__ == '__main__':
 	framework.init()
 	
-	worlds.create('test')
+	worlds.create('main')
 	
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)

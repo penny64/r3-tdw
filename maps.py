@@ -5,7 +5,6 @@ import mapgen
 
 def render_map(tile_map, width, height):
 	_surface = display.get_surface('tiles')
-	_node_grid_set = set(mapgen.NODE_GRID)
 	
 	for y in range(height):
 		for x in range(width):

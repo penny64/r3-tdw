@@ -15,7 +15,7 @@ SELECTING_TARGET_CALLBACK = None
 
 
 def register(entity):
-	entity['NODE_GRID'] = {'nodes': {},
+	entity['node_grid'] = {'nodes': {},
 	                       'path': [],
 	                       'redraw_path': True}
 	
@@ -74,7 +74,7 @@ def handle_mouse_pressed(entity, x, y, button):
 					create_item_menu(entity, _item, _x, _y)
 					return
 			
-			for node in entity['NODE_GRID']['nodes'].values():
+			for node in entity['node_grid']['nodes'].values():
 				if (_x, _y) == (node['node']['x'], node['node']['y']):
 					DRAGGING_NODE = node
 					entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 0))
@@ -123,13 +123,13 @@ def handle_mouse_pressed(entity, x, y, button):
 			DRAGGING_NODE = None
 		
 		else:
-			for node in entity['NODE_GRID']['nodes'].values():
+			for node in entity['node_grid']['nodes'].values():
 				if (_x, _y) == (node['node']['x'], node['node']['y']):
-					entity['NODE_GRID']['path'].remove(node['node']['_id'])
+					entity['node_grid']['path'].remove(node['node']['_id'])
 					entities.delete_entity(node['node'])
 					redraw_path(entity)
 					
-					del entity['NODE_GRID']['nodes'][node['node']['_id']]
+					del entity['node_grid']['nodes'][node['node']['_id']]
 					
 					break
 
@@ -139,10 +139,10 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 	_path_index = -1
 	
 	if LAST_CLICKED_POS:
-		_node_positions = [(p['node']['x'], p['node']['y']) for p in entity['NODE_GRID']['nodes'].values() if not p['node']['name'] == 'Walk']
+		_node_positions = [(p['node']['x'], p['node']['y']) for p in entity['node_grid']['nodes'].values() if not p['node']['name'] == 'Walk']
 		
-		for node_id in entity['NODE_GRID']['path'][:]:
-			_last_node = entity['NODE_GRID']['nodes'][node_id]
+		for node_id in entity['node_grid']['path'][:]:
+			_last_node = entity['node_grid']['nodes'][node_id]
 			
 			if LAST_CLICKED_POS in _last_node['node']['path']:
 				_move_cost = 0
@@ -153,8 +153,8 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 					if _move_cost < action_time and pos in _node_positions:
 						return
 				
-				_path_index = entity['NODE_GRID']['path'].index(node_id)
-				entity['NODE_GRID']['nodes'][entity['NODE_GRID']['path'][_path_index]]['node']['action_time'] = action_time
+				_path_index = entity['node_grid']['path'].index(node_id)
+				entity['node_grid']['nodes'][entity['node_grid']['path'][_path_index]]['node']['action_time'] = action_time
 				
 				break
 		
@@ -174,13 +174,13 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 	entities.trigger_event(_node, 'set_position', x=x, y=y)
 		
 	if _path_index == -1:
-		_path_index = len(entity['NODE_GRID']['path'])
+		_path_index = len(entity['node_grid']['path'])
 	
-	entity['NODE_GRID']['nodes'][_node['_id']] = {'node': _node,
+	entity['node_grid']['nodes'][_node['_id']] = {'node': _node,
 	                                              'passive': passive,
 	                                              'callback': None,
 	                                              'call_on_touch': callback_on_touch}
-	entity['NODE_GRID']['path'].insert(_path_index, _node['_id'])
+	entity['node_grid']['path'].insert(_path_index, _node['_id'])
 	
 	return _node
 
@@ -191,7 +191,7 @@ def create_walk_node(entity, x, y):
 	
 	entities.trigger_event(_node, 'set_char', char='O')
 	
-	entity['NODE_GRID']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity,
+	entity['node_grid']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity,
 	                                                                                        'move_to_position',
 	                                                                                        x=_node['x'],
 	                                                                                        y=_node['y'])
@@ -199,8 +199,8 @@ def create_walk_node(entity, x, y):
 def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', name='Action'):
 	_will_move = on_path
 	
-	for node_id in entity['NODE_GRID']['path']:
-		_node = entity['NODE_GRID']['nodes'][node_id]['node']
+	for node_id in entity['node_grid']['path']:
+		_node = entity['node_grid']['nodes'][node_id]['node']
 		
 		if not (_node['x'], _node['y']) == (x, y):
 			continue
@@ -218,14 +218,14 @@ def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', na
 	
 	entities.trigger_event(_node, 'set_char', char=icon)
 	
-	entity['NODE_GRID']['nodes'][_node['_id']]['callback'] = callback
+	entity['node_grid']['nodes'][_node['_id']]['callback'] = callback
 
 def logic(entity):
 	_last_pos = None
 	_stop_here = False
 	
-	for node_id in entity['NODE_GRID']['path'][:]:
-		_node = entity['NODE_GRID']['nodes'][node_id]
+	for node_id in entity['node_grid']['path'][:]:
+		_node = entity['node_grid']['nodes'][node_id]
 		
 		if _stop_here and not (_node['node']['x'], _node['node']['y']) == _last_pos:
 			break
@@ -236,8 +236,8 @@ def logic(entity):
 			continue
 		
 		elif not _distance:
-			entity['NODE_GRID']['path'].remove(node_id)
-			del entity['NODE_GRID']['nodes'][node_id]
+			entity['node_grid']['path'].remove(node_id)
+			del entity['node_grid']['nodes'][node_id]
 			
 			entities.delete_entity_via_id(node_id)
 		
@@ -250,8 +250,8 @@ def logic(entity):
 def _redraw_first_node(entity, **kargs):
 	_x, _y = movement.get_position(entity)
 	
-	for node_id in entity['NODE_GRID']['path']:
-		_node = entity['NODE_GRID']['nodes'][node_id]['node']
+	for node_id in entity['node_grid']['path']:
+		_node = entity['node_grid']['nodes'][node_id]['node']
 		
 		if (_x, _y) in _node['path']:
 			if _node['draw_path']:
@@ -313,18 +313,18 @@ def select_target(x, y, on_path):
 	                                                                      on_path=on_path)
 
 def redraw_path(entity):
-	for node in entity['NODE_GRID']['nodes'].values():
+	for node in entity['node_grid']['nodes'].values():
 		node['node']['path'] = []
 
 def draw_path(entity, x_mod=0, y_mod=0):
 	_last_x, _last_y = (0, 0)
-	_node_ids = entity['NODE_GRID']['path'][:]
+	_node_ids = entity['node_grid']['path'][:]
 	_action_time_max = 0
 	_surface_width = display.get_surface('nodes')['width']
 	_surface_height = display.get_surface('nodes')['height']
 	
 	for node_id in _node_ids:
-		_node = entity['NODE_GRID']['nodes'][node_id]
+		_node = entity['node_grid']['nodes'][node_id]
 		
 		if not _last_x:
 			_last_x, _last_y = movement.get_position(entity)
@@ -345,7 +345,7 @@ def draw_path(entity, x_mod=0, y_mod=0):
 		_move_cost = 0
 		for pos in _node['node']['path']:
 			for node_id in _node_ids:
-				_check_node = entity['NODE_GRID']['nodes'][node_id]['node']
+				_check_node = entity['node_grid']['nodes'][node_id]['node']
 				
 				if not _check_node['action_time']:
 					continue
