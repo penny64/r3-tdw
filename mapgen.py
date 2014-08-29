@@ -17,9 +17,21 @@ LEVEL_WIDTH = 0
 LEVEL_HEIGHT = 0
 SOLIDS = set()
 NODE_GRID = []
+UNCLAIMED_NODES = set()
+NODE_SETS = {}
+NODE_SET_ID = 1
+
+
+def _create_node(x, y):
+	_entity = entities.create_entity(group='node_grid')
+				
+	tile.register(_entity, surface='node_grid', fore_color=(255, 0, 255))
+	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 
 
 def build_node_grid():
+	global UNCLAIMED_NODES
+	
 	_ignore_positions = set()
 	
 	for x, y in SOLIDS:
@@ -31,10 +43,31 @@ def build_node_grid():
 				if not _sx % 3 and not _sy % 3:
 					if (_sx, _sy) in SOLIDS:
 						continue
+					
+					_create_node(_sx, _sy)
 				
 					NODE_GRID.append((_sx, _sy))
-				else:
-					_ignore_positions.add((_sx, _sy))
+				
+				_ignore_positions.add((_sx, _sy))
+	
+	UNCLAIMED_NODES = SOLIDS.copy()
+
+def add_plot_pole(x, y, radius):
+	global NODE_SET_ID
+	
+	_node_set = set()
+	
+	for node_pos in list(UNCLAIMED_NODES):
+		if numbers.distance((x, y), node_pos) > radius:
+			continue
+		
+		_node_set.add(node_pos)
+	
+	NODE_SETS[NODE_SET_ID] = {'owner': None, 'nodes': _node_set}
+	
+	NODE_SET_ID += 1
+	
+	return NODE_SET_ID-1
 
 def swamp(width, height, rings=8):
 	global TILE_MAP
@@ -196,9 +229,31 @@ def swamp(width, height, rings=8):
 			
 			_last_plot_x, _last_plot_y = plot_x, plot_y
 	
+	#TODO: Make this into a function?
+	_min_x, _max_x = (width, 0)
+	_min_y, _max_y = (height, 0)
+	
+	for x, y in _building:
+		_x, _y = (_s_x + (x*_room_size)), (_s_y + (y*_room_size))
+		
+		if _x > _max_x:
+			_max_x = _x
+		
+		if _x < _min_x:
+			_min_x = _x
+		
+		if _y > _max_y:
+			_max_y = _y
+		
+		if _y < _min_x:
+			_min_y = _y
+		
+	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _min_x, 0.5))), int(round(numbers.clip(_min_y, _min_y, 0.5)))
+	
 	TILE_MAP = _tile_map
 	
 	build_node_grid()
+	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
 	
 	post_processing.generate_shadow_map(width, height, SOLIDS)
 	post_processing.run(time=_passes,
