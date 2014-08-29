@@ -1,8 +1,5 @@
 from framework import entities, display, events, numbers, shapes, tile, workers
 
-import libtcodpy as tcod
-
-import post_processing
 import buildinggen
 import constants
 import tiles
@@ -11,7 +8,6 @@ import random
 import time
 import numpy
 
-TILE_MAP = []
 SOLIDS = set()
 NODE_GRID = {}
 UNCLAIMED_NODES = set()
@@ -39,7 +35,6 @@ def reset():
 	NODE_GRID = {}
 	NODE_SETS = {}
 	NODE_SET_ID = 1
-	TILE_MAP = []
 
 def build_node_grid(solids):
 	global UNCLAIMED_NODES
@@ -80,8 +75,6 @@ def add_plot_pole(x, y, radius):
 def swamp(width, height, rings=8):
 	WEIGHT_MAP = numpy.ones((height, width), dtype=numpy.int16)
 
-	_noise = tcod.noise_new(3)
-
 	_tile_map = []
 	for y in range(height):
 		_x = []
@@ -92,7 +85,6 @@ def swamp(width, height, rings=8):
 		_tile_map.append(_x)
 
 	_c_x, _c_y = width/2, height/2
-	_passes = 8
 	_bushes = set()
 	_fences = set()
 
@@ -250,17 +242,7 @@ def swamp(width, height, rings=8):
 
 	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _min_x, 0.5))), int(round(numbers.clip(_min_y, _min_y, 0.5)))
 
-	TILE_MAP = _tile_map
-
 	build_node_grid(SOLIDS)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
-
-	post_processing.generate_shadow_map(width, height, SOLIDS)
-	post_processing.run(time=_passes,
-		                repeat=-1,
-		                repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
-		                                                                              constants.MAP_VIEW_HEIGHT,
-		                                                                              _passes,
-		                                                                              _noise))
 	
 	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), WEIGHT_MAP.copy(), _tile_map, SOLIDS.copy()
