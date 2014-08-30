@@ -66,8 +66,9 @@ def tick():
 	for entity_id in entities.get_entity_group('life'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
 	
-	for entity_id in entities.get_entity_group('bullets'):
-		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	for i in range(16):
+		for entity_id in entities.get_entity_group('bullets'):
+			entities.trigger_event(entities.get_entity(entity_id), 'tick')
 	
 	for entity_id in entities.get_entity_group('effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
