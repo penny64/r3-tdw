@@ -22,7 +22,7 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 
 def boot():
 	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues'])
-	_create('Runners', (3, 5), (5, 7), ['Bandits'])
+	_create('Runners', (3, 5), (2, 3), ['Bandits'])
 	_create('Rogues', (1, 1), (1, 1), ['Bandits'])
 
 def register(entity, faction):
@@ -43,18 +43,32 @@ def register(entity, faction):
 #Operations#
 ############
 
+def register_with_squad(entity, squad_id):
+	entity['ai']['squad'] = squad_id
+	
+	_squad = get_assigned_squad(entity)
+	
+	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
+
 def create_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
-	_squad = {'members': set([entity['_id']]),
-	          'leader': entity['_id'],
-	          'member_info': {},
-	          'camp_id': None,
-	          'meta': {'is_squad_combat_ready': False,
-	                   'is_squad_overwhelmed': False,
-	                   'is_squad_forcing_surrender': False}}
+	_squad = entities.create_entity(group='squads')
+	_squad.update({'members': set([entity['_id']]),
+	               'leader': entity['_id'],
+	               'member_info': {},
+	               'camp_id': None,
+	               'meta': {'is_squad_combat_ready': False,
+	                        'is_squad_mobile_ready': False,
+	                        'is_squad_overwhelmed': False,
+	                        'is_squad_forcing_surrender': False}})
+	
+	entities.create_event(_squad, 'meta_change')
+	
 	_faction['squads'][_faction['squad_id']] = _squad
-	entity['ai']['squad'] = _faction['squad_id']
 	entity['ai']['meta']['is_squad_leader'] = True
+	
+	register_with_squad(entity, _faction['squad_id'])
+	
 	_faction['squad_id'] += 1
 	
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(e, target_id=e['_id']))
@@ -114,7 +128,7 @@ def assign_to_squad(entity):
 		_faction['squads'][_nearest_squad['squad_id']]['members'].add(entity['_id'])
 		_leader = entities.get_entity(_squad['leader'])
 		
-		entity['ai']['squad'] = _nearest_squad['squad_id']
+		register_with_squad(entity, _nearest_squad['squad_id'])
 		
 		entities.trigger_event(_leader, 'new_squad_member', target_id=entity['_id'])
 		entities.trigger_event(entity, 'create_timer',
@@ -136,6 +150,15 @@ def update_squad_member_snapshot(entity, target_id):
 	
 	_squad['member_info'].update({target_id: _snapshot})
 
+def set_squad_meta(entity, meta, value):
+	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_old_value = _squad['meta'][meta]
+	
+	if not value == _old_value:
+		entities.trigger_event(_squad, 'meta_change', meta=meta, value=value)
+		
+		_squad['meta'][meta] = value
+
 def update_group_status(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
 	_members_combat_ready = 0
@@ -148,8 +171,8 @@ def update_group_status(entity):
 		
 		_members_combat_ready += _squad['member_info'][member_id]['armed']
 	
-	_squad['meta']['is_squad_combat_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5
-	_squad['meta']['is_squad_mobile_ready'] = _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75
+	set_squad_meta(entity, 'is_squad_combat_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5)
+	set_squad_meta(entity, 'is_squad_mobile_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .75)
 
 def update_combat_risk(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
@@ -162,8 +185,3 @@ def update_combat_risk(entity):
 		_squad['meta']['is_squad_overwhelmed'] = False
 	else:
 		_squad['meta']['is_squad_overwhelmed'] = _armed_target_count > _squad_member_count
-
-def apply_squad_meta(entity):
-	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
-	
-	entity['ai']['meta'].update(_squad['meta'])

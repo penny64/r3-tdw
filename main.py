@@ -4,6 +4,7 @@ import framework
 
 import post_processing
 import ai_factions
+import ai_visuals
 import constants
 import settings
 import ui_cursor
@@ -70,6 +71,8 @@ def tick():
 	
 	for entity_id in entities.get_entity_group('effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	
+	ai_visuals.reset_moved_entities()
 
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
@@ -136,16 +139,15 @@ def draw():
 	#	MOVIE_TIME = 0
 
 def loop():
-	global FPSS
-	
 	events.trigger_event('input')
 	
 	if not settings.TICK_MODE == 'strategy':
 		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
-			_ticks_per_tick = 3
+			_ticks_per_tick = 12
 		
+		_t = time.time()
 		for _ in range(_ticks_per_tick):
 			events.trigger_event('logic')
 			tick()
@@ -208,6 +210,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
+	entities.create_entity_group('squads', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')

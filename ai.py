@@ -9,6 +9,7 @@ import items
 import life
 
 import logging
+import time
 
 
 ONLINE_ENTITIES = []
@@ -71,6 +72,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
 	entities.create_event(entity, 'meta_change')
+	entities.create_event(entity, 'set_meta')
 	entities.create_event(entity, 'has_needs')
 	entities.create_event(entity, 'target_lost')
 	entities.create_event(entity, 'target_found')
@@ -78,6 +80,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'squad_inform_lost_target')
 	entities.create_event(entity, 'squad_inform_found_target')
 	entities.create_event(entity, 'squad_inform_failed_search')
+	entities.register_event(entity, 'set_meta', set_meta)
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
 	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
 	entities.register_event(entity, 'target_found', ai_squad_logic.member_handle_found_target)
@@ -162,11 +165,13 @@ def update_target_memory(entity, target_id, key, value):
 			if not entity['ai']['faction'] == entities.get_entity(target_id)['ai']['faction']:
 				entity['ai']['targets'].add(target_id)
 
-def set_meta(entity, key, value):
-	if not key in entity['ai']['meta']:
-		raise Exception('Trying to set invalid brain meta: %s' % key)
+def set_meta(entity, meta, value):
+	if not meta in entity['ai']['meta']:
+		raise Exception('Trying to set invalid brain meta: %s' % meta)
 	
-	entity['ai']['meta'][key] = value
+	entity['ai']['meta'][meta] = value
+	
+	print 'Setting meta'
 
 def set_meta_weight(entity, key, value):
 	entity['ai']['weights'][key] = value
@@ -192,7 +197,10 @@ def _animal_logic(entity):
 	_plan = _handle_goap(entity)
 
 def _human_logic(entity):
-	ai_visuals.build_item_list(entity)
+	_t = time.time()
+	if entity['_id'] in ai_visuals.LIFE_MOVED:
+		ai_visuals.build_item_list(entity)
+	
 	ai_visuals.build_life_list(entity)
 	
 	_old_meta = entity['ai']['meta'].copy()
@@ -208,7 +216,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
 	
-	ai_factions.apply_squad_meta(entity)
+	#ai_factions.apply_squad_meta(entity)
 	
 	if not entity['ai']['meta'] == _old_meta:
 		entities.trigger_event(entity, 'meta_change')
@@ -244,6 +252,7 @@ def _human_logic(entity):
 	
 	_plan = _goap[0]
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
+	#print time.time() - _t
 
 	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
 		logging.debug('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))

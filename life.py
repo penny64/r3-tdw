@@ -1,12 +1,14 @@
 from framework import entities, tile, timers, movement, stats, flags, numbers, shapes
 
 import ai_factions
+import ai_visuals
 import effects
 import mapgen
 import camera
 import nodes
 import items
 import noise
+import zones
 import ai
 
 import random
@@ -46,7 +48,8 @@ def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_colo
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
 	                                                                                                            value=[x, y])))
-
+	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
 	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
@@ -56,7 +59,7 @@ def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_colo
 	return _entity
 
 def human(x, y, name):
-	_entity = _create(x, y, 100, 20, name, has_ai=True)
+	_entity = _create(x, y, 100, 10, name, has_ai=True)
 
 	entities.register_event(_entity,
 				'hold_item',
@@ -84,14 +87,14 @@ def human(x, y, name):
 	return _entity
 
 def human_runner(x, y, name):
-	_entity = _create(x, y, 100, 20, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	_entity = _create(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 	
 	return _entity
 
 def human_bandit(x, y, name):
-	return _create(x, y, 100, 20, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)
+	return _create(x, y, 100, 10, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)
 
 ############
 #Operations#
@@ -105,7 +108,7 @@ def handle_heard_noise(entity, x, y, text, direction, accuracy, callback):
 
 def can_see_position(entity, position):
 	for pos in shapes.line(movement.get_position(entity), position):
-		if pos in mapgen.SOLIDS:
+		if pos in zones.get_active_solids():
 			return False
 	
 	return True

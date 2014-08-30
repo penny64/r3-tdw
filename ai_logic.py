@@ -139,7 +139,7 @@ def find_firing_position(entity):
 				_invalid = False
 				
 				for pos in shapes.line((_tx, _ty), _fire_data['node']):
-					if pos in mapgen.SOLIDS:
+					if pos in zones.get_active_solids():
 						_invalid = True
 						break
 				
@@ -163,7 +163,7 @@ def find_firing_position(entity):
 		_continue = False
 		
 		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in mapgen.SOLIDS:
+			if pos in zones.get_active_solids():
 				_continue = True
 				
 				break
@@ -236,7 +236,7 @@ def search_for_target(entity):
 		_continue = False
 		
 		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in mapgen.SOLIDS:
+			if pos in zones.get_active_solids():
 				_continue = True
 				
 				break

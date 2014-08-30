@@ -196,7 +196,7 @@ def _bullet_tick(entity):
 	entities.trigger_event(entity, 'push_tank', direction=_direction)
 
 def bullet(x, y, tx, ty, speed):
-	_entity = _create(x, y, 'Bullet', 'o', 0, 'bullet')
+	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)

@@ -5,7 +5,6 @@ import libtcodpy as tcod
 import post_processing
 import ai_factions
 import constants
-import mapgen
 import camera
 import life
 import maps
@@ -29,8 +28,6 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'faction_spawn_list': faction_spawn_list}
 	
 	logging.info('Created zone: %s' % name)
-	
-	mapgen.reset()
 	
 	return name
 
@@ -60,11 +57,20 @@ def activate(zone_id):
 	
 	logging.info('Zone \'%s\' is online' % _zone['name'])
 
+def is_zone_active():
+	return not ACTIVE_ZONE == None
+
 def get_active_node_grid():
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')
 	
 	return ZONES[ACTIVE_ZONE]['node_grid']
+
+def get_active_solids():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['solids']
 
 def populate_life(zone_id):
 	_zone = ZONES[zone_id]

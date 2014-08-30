@@ -5,6 +5,7 @@ import ui_cursor
 import ui_menu
 import mapgen
 import camera
+import zones
 import items
 
 import time
@@ -38,7 +39,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 	if not DRAGGING_NODE:
 		return
 	
-	if (vx, vy) in mapgen.SOLIDS:
+	if (vx, vy) in zones.get_active_solids():
 		return
 	
 	entities.trigger_event(DRAGGING_NODE['node'], 'set_position', x=vx, y=vy)
@@ -63,7 +64,7 @@ def handle_mouse_pressed(entity, x, y, button):
 		if DRAGGING_NODE:
 			DRAGGING_NODE = None
 		
-		elif not (_x, _y) in mapgen.SOLIDS:
+		elif not (_x, _y) in zones.get_active_solids():
 			for entity_id in entities.get_entity_group('items'):
 				_item = entities.get_entity(entity_id)
 				

@@ -8,7 +8,6 @@ import random
 import time
 import numpy
 
-SOLIDS = set()
 NODE_GRID = {}
 UNCLAIMED_NODES = set()
 NODE_SETS = {}
@@ -24,12 +23,11 @@ def _create_node(x, y):
 	NODE_GRID[(x, y)] = _entity['_id']
 	UNCLAIMED_NODES.add((x, y))
 
-def reset():
+def _reset():
 	global NODE_GRID
 	global UNCLAIMED_NODES
 	global NODE_SETS
 	global NODE_SET_ID
-	global TILE_MAP
 	
 	UNCLAIMED_NODES = set()
 	NODE_GRID = {}
@@ -72,10 +70,13 @@ def add_plot_pole(x, y, radius):
 
 	return NODE_SET_ID-1
 
-def swamp(width, height, rings=8):
-	WEIGHT_MAP = numpy.ones((height, width), dtype=numpy.int16)
-
+def create_map(width, height):
+	_reset()
+	
+	_weight_map = numpy.ones((height, width), dtype=numpy.int16)
 	_tile_map = []
+	_solids = set()
+	
 	for y in range(height):
 		_x = []
 
@@ -83,7 +84,12 @@ def swamp(width, height, rings=8):
 			_x.append(None)
 
 		_tile_map.append(_x)
+	
+	return _weight_map, _tile_map, _solids
 
+def swamp(width, height, rings=8):
+	_weight_map, _tile_map, _solids = create_map(width, height)
+	
 	_c_x, _c_y = width/2, height/2
 	_bushes = set()
 	_fences = set()
@@ -91,7 +97,7 @@ def swamp(width, height, rings=8):
 	for y in range(height):
 		for x in range(width):
 			if (1 < x < width-2 and y in [2, 3]) or (1 < x < width-2 and y in [height-3, height-4]) or (x in [2, 3] and 1 < y < height-2) or (x in [width-3, width-4] and 1 < y < height-2):
-				WEIGHT_MAP[y][x] = _tile['w']
+				_weight_map[y][x] = _tile['w']
 				_tile_map[y][x] = tiles.wooden_fence(x, y)
 				_fences.add((x, y))
 
@@ -114,7 +120,7 @@ def swamp(width, height, rings=8):
 						else:
 							_tile = tiles.swamp_water(_x, _y)
 
-						WEIGHT_MAP[_y][_x] = _tile['w']
+						_weight_map[_y][_x] = _tile['w']
 						_tile_map[_y][_x] = _tile
 						_bushes.add((_x, _y))
 
@@ -126,11 +132,11 @@ def swamp(width, height, rings=8):
 				else:
 					_tile = tiles.swamp(x, y)
 
-				WEIGHT_MAP[y][x] = _tile['w']
+				_weight_map[y][x] = _tile['w']
 				_tile_map[y][x] = _tile
 
 			else:
-				WEIGHT_MAP[y][x] = _tile['w']
+				_weight_map[y][x] = _tile['w']
 				_tile = tiles.swamp(x, y)
 				_tile_map[y][x] = _tile
 
@@ -195,10 +201,10 @@ def swamp(width, height, rings=8):
 			for y in range(_y, _y+_room_size):
 				for x in range(_x, _x+_room_size):
 					if ((x-_x == 0 and 'west' in _build_walls) or (y-_y == 0 and 'north' in _build_walls) or (x-_x == _room_size-1 and 'east' in _build_walls) or (y-_y == _room_size-1 and 'south' in _build_walls)):
-						WEIGHT_MAP[y][x] = _tile['w']
+						_weight_map[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 
-						SOLIDS.add((x, y))
+						_solids.add((x, y))
 
 					else:
 						_tile_map[y][x] = buildinggen.ROOM_TYPES[room['type']]['tiles'](x, y)
@@ -206,18 +212,18 @@ def swamp(width, height, rings=8):
 			for y in range(_y, _y+_room_size):
 				for x in range(_x-1, _x+_room_size+1):
 					if (x-_x in [-1, 0] and 'west' in _build_doors and (y-_y<=2 or y-_y>=_room_size-3)) or (x-_x in [_room_size, _room_size+1] and 'east' in _build_doors and (y-_y<=2 or y-_y>=_room_size-3)):
-						WEIGHT_MAP[y][x] = _tile['w']
+						_weight_map[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 
-						SOLIDS.add((x, y))
+						_solids.add((x, y))
 
 			for y in range(_y-1, _y+_room_size+1):
 				for x in range(_x, _x+_room_size):
 					if (y-_y in [-1, 0] and 'north' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)) or (y-_y in [_room_size, _room_size+1] and 'south' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)):
-						WEIGHT_MAP[y][x] = _tile['w']
+						_weight_map[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
 
-						SOLIDS.add((x, y))
+						_solids.add((x, y))
 
 			_last_plot_x, _last_plot_y = plot_x, plot_y
 
@@ -242,9 +248,9 @@ def swamp(width, height, rings=8):
 
 	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.5))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
 
-	build_node_grid(SOLIDS)
+	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
 	
 	_fsl = {'Runners': {'bases': 1, 'squads': 0}}
 	
-	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), WEIGHT_MAP.copy(), _tile_map, SOLIDS.copy(), _fsl
+	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl

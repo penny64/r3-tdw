@@ -1,8 +1,19 @@
 from framework import movement, entities, numbers, shapes
 
 import mapgen
+import zones
 import items
 
+LIFE_MOVED = set()
+
+
+def add_to_moved_life(entity):
+	LIFE_MOVED.add(entity['_id'])
+
+def reset_moved_entities():
+	global LIFE_MOVED
+	
+	LIFE_MOVED = set()
 
 def build_item_list(entity):
 	entity['ai']['visible_items'] = {'weapon': [],
@@ -25,15 +36,16 @@ def build_item_list(entity):
 			continue
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_item)):
-			if pos in mapgen.SOLIDS:
+			if pos in zones.get_active_solids():
 				break
 		else:
 			entity['ai']['visible_items'][_item['stats']['type']].append(entity_id)
 
 def build_life_list(entity):
-	entity['ai']['visible_life'] = set()
 	entity['ai']['visible_targets'] = []
 	_nearest_target = {'target_id': None, 'distance': 0}
+	
+	_visible_life = set()
 	
 	for entity_id in entities.get_entity_group('life'):
 		if entity['_id'] == entity_id:
@@ -46,14 +58,18 @@ def build_life_list(entity):
 				                                      'is_target': False,
 				                                      'is_armed': False,
 			                                          'can_see': False,
-			                                          'last_seen_at': None}
+			                                          'last_seen_at': None,
+			                                          'last_seen_velocity': None}
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
-			if pos in mapgen.SOLIDS:
+			if pos in zones.get_active_solids():
 				if entity['ai']['life_memory'][entity_id]['can_see'] and not entity['ai']['faction'] == _target['ai']['faction']:
 					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 				
 				entity['ai']['life_memory'][entity_id]['can_see'] = False
+				
+				if entity_id in entity['ai']['visible_life']:
+					entity['ai']['visible_life'].remove(entity_id)
 				
 				break
 		else:
@@ -65,6 +81,7 @@ def build_life_list(entity):
 			            'last_seen_at': movement.get_position(_target)[:],
 			            'last_seen_velocity': None}
 			
+			#_visible_life.add(entity_id)
 			entity['ai']['visible_life'].add(entity_id)
 			
 			if _is_target:
@@ -94,6 +111,7 @@ def build_life_list(entity):
 			if _could_not_see_target_before:
 				entities.trigger_event(entity, 'target_found', target_id=entity_id)
 	
+	#entity['ai']['visible_life'].update(_visible_life)
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
 	
 	if _nearest_target['target_id']:
