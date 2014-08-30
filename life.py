@@ -14,7 +14,7 @@ import ai
 import random
 
 
-def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
+def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
@@ -58,8 +58,52 @@ def _create(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_colo
 
 	return _entity
 
+def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, char='m', fore_color=(255, 255, 255)):
+	_entity = entities.create_entity(group='life')
+
+	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
+	movement.register(_entity)
+	timers.register(_entity)
+	stats.register(_entity, health, speed, name=name)
+	nodes.register(_entity)
+	items.register(_entity)
+	flags.register(_entity)
+	noise.register(_entity)
+
+	if has_ai:
+		ai.register_animal(_entity)
+
+	entities.create_event(_entity, 'get_and_store_item')
+	entities.create_event(_entity, 'get_and_hold_item')
+	entities.create_event(_entity, 'reload')
+	entities.create_event(_entity, 'shoot')
+	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
+	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
+	entities.register_event(_entity, 'reload', reload_weapon)
+	entities.register_event(_entity, 'shoot', shoot_weapon)
+	entities.register_event(_entity, 'heard_noise', handle_heard_noise)
+	entities.register_event(_entity, 'position_changed',
+	                        lambda e, **kwargs: entities.trigger_event(e,
+	                                                                   'create_noise',
+	                                                                   volume=25,
+	                                                                   text='?',
+	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
+	                                                                                                            'update_target_memory',
+	                                                                                                            target_id=_entity['_id'],
+	                                                                                                            key='last_seen_at',
+	                                                                                                            value=[x, y])))
+	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	                        
+	entities.trigger_event(_entity, 'set_position', x=x, y=y)
+	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
+	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
+	
+	ai_factions.register(_entity, faction)
+
+	return _entity
+
 def human(x, y, name):
-	_entity = _create(x, y, 100, 10, name, has_ai=True)
+	_entity = _create_human(x, y, 100, 10, name, has_ai=True)
 
 	entities.register_event(_entity,
 				'hold_item',
@@ -87,14 +131,22 @@ def human(x, y, name):
 	return _entity
 
 def human_runner(x, y, name):
-	_entity = _create(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	_entity = _create_human(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 	
 	return _entity
 
 def human_bandit(x, y, name):
-	return _create(x, y, 100, 10, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)
+	return _create_human(x, y, 100, 10, name, faction='Bandits', fore_color=(140, 140, 190), has_ai=True)
+
+def wild_dog(x, y, name):
+	_entity = _create_animal(x, y, 100, 5, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
+	
+	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	
+	return _entity
+
 
 ############
 #Operations#

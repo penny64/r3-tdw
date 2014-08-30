@@ -3,6 +3,7 @@ from framework import entities, display, events, numbers, shapes, tile, workers
 import buildinggen
 import constants
 import tiles
+import life
 
 import random
 import time
@@ -144,7 +145,7 @@ def swamp(width, height, rings=8):
 	_room_size = 11
 	_direction = random.choice(['east'])
 	_width, _height = random.choice([(6, 6), (3, 6), (6, 3)])
-	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['foyer', 'living_room', 'kitchen', 'bathroom'])
+	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['living_room'])
 
 	for room in _rooms:
 		_build_doors = []
@@ -251,6 +252,7 @@ def swamp(width, height, rings=8):
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
 	
-	_fsl = {'Runners': {'bases': 1, 'squads': 0}}
+	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
+	        'Wild Dogs': {'bases': 0, 'squads': 1, 'type': life.wild_dog}}
 	
 	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl

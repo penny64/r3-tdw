@@ -95,7 +95,7 @@ def populate_life(zone_id):
 					
 					for i in range(random.randint(_min_squad_size, _max_squad_size)):
 						_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
-						_e = life.human_runner(_x, _y, 'Test NPC %s' % str(i+1))
+						_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
 						
 						if _e['ai']['meta']['is_squad_leader']:
 							_squad = ai_factions.get_assigned_squad(_e)
@@ -103,5 +103,18 @@ def populate_life(zone_id):
 							_node_set['owner'] = _e['ai']['squad']
 		
 		else:
-			#TODO: Squad spawns
-			pass
+			for b in range(_spawn_profile['squads']):
+				_spawn_pos = []
+				_center_x, _center_y = (150, 120)
+						
+				for x, y in shapes.circle(_center_x, _center_y, 5):
+					if (x, y) in _zone['solids']:
+						continue
+					
+					_spawn_pos.append((x, y))
+				
+				_min_squad_size, _max_squad_size = ai_factions.FACTIONS[faction_name]['squad_size_range']
+				
+				for i in range(random.randint(_min_squad_size, _max_squad_size)):
+					_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
+					_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))

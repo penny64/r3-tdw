@@ -89,12 +89,56 @@ def _register(entity, player=False):
 	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
 	entities.register_event(entity, 'squad_inform_failed_search', ai_squad_logic.member_learn_failed_target_search)
 
-def register_animal(entity):
-	_register(entity)
-	_ai = entity['ai']
+def _register_animal(entity, player=False):
+	ONLINE_ENTITIES.append(entity['_id'])
 	
-	entities.register_event(entity, 'logic', _animal_logic)
-	entities.register_event(entity, 'logic_offline', _animal_logic_offline)
+	entity['ai'] = {'brain': goapy.World(),
+	                'brain_offline': goapy.World(),
+	                'current_action': 'idle',
+	                'last_action': 'idle',
+	                'visible_items': [],
+	                'visible_life': set(),
+	                'visible_targets': [],
+	                'targets': set(),
+	                'nearest_target': None,
+	                'life_memory': {},
+	                'is_player': player,
+	                'meta': {'is_injured': False,
+	                         'is_panicked': False,
+	                         'is_squad_overwhelmed': False,
+	                         'is_squad_leader': False,
+	                         'is_in_melee_range': False,
+	                         'in_engagement': False,
+	                         'is_target_near': False,
+	                         'is_target_armed': False,
+	                         'is_target_lost': False,
+	                         'in_cover': False,
+	                         'in_enemy_los': False,
+	                         'is_hungry': False,
+	                         'has_food': False,
+	                         'has_needs': False},
+	                'weights': {'track': 20}}
+	
+	entities.create_event(entity, 'logic')
+	entities.create_event(entity, 'logic_offline')
+	entities.create_event(entity, 'update_target_memory')
+	entities.create_event(entity, 'meta_change')
+	entities.create_event(entity, 'set_meta')
+	entities.create_event(entity, 'has_needs')
+	entities.create_event(entity, 'target_lost')
+	entities.create_event(entity, 'target_found')
+	entities.create_event(entity, 'target_search_failed')
+	entities.create_event(entity, 'squad_inform_lost_target')
+	entities.create_event(entity, 'squad_inform_found_target')
+	entities.create_event(entity, 'squad_inform_failed_search')
+	entities.register_event(entity, 'set_meta', set_meta)
+	entities.register_event(entity, 'update_target_memory', update_target_memory)
+	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
+	entities.register_event(entity, 'target_found', ai_squad_logic.member_handle_found_target)
+	entities.register_event(entity, 'target_search_failed', ai_squad_logic.member_handle_failed_target_search)
+	entities.register_event(entity, 'squad_inform_lost_target', ai_squad_logic.member_learn_lost_target)
+	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
+	entities.register_event(entity, 'squad_inform_failed_search', ai_squad_logic.member_learn_failed_target_search)
 
 def register_human(entity, player=False):
 	_register(entity, player=player)
@@ -129,6 +173,21 @@ def register_human(entity, player=False):
 	entities.register_event(entity, 'logic', _human_logic)
 	entities.register_event(entity, 'logic_offline', _human_logic_offline)
 
+def register_animal(entity, player=False):
+	_register_animal(entity, player=player)
+	_ai = entity['ai']
+	
+	#Combat
+	_ai['brain'].add_planner(brains.dog_combat())
+
+	#Panic
+	_ai['brain'].add_planner(brains.panic())
+
+	#Food
+	_ai['brain'].add_planner(brains.food())
+	
+	entities.register_event(entity, 'logic', _animal_logic)
+	entities.register_event(entity, 'logic_offline', _animal_logic_offline)
 
 ###################
 #System Operations#
@@ -195,6 +254,64 @@ def _handle_goap(entity, brain='brain'):
 
 def _animal_logic(entity):
 	_plan = _handle_goap(entity)
+	
+	if entity['_id'] in ai_visuals.LIFE_MOVED:
+		ai_visuals.build_item_list(entity)
+	
+	ai_visuals.build_life_list(entity)
+	
+	_old_meta = entity['ai']['meta'].copy()
+	
+	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
+	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	
+	#ai_factions.apply_squad_meta(entity)
+	
+	if not entity['ai']['meta'] == _old_meta:
+		entities.trigger_event(entity, 'meta_change')
+	
+	if entity['ai']['meta']['in_engagement']:
+		_target = entity['ai']['nearest_target']
+		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
+		
+		entity['ai']['meta']['is_target_near'] = _target_distance <= 25
+		
+		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
+			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
+				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
+		elif entity['ai']['meta']['in_enemy_los']:
+			if flags.has_flag(entity, 'search_nodes'):
+				flags.delete_flag(entity, 'search_nodes')
+			
+			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
+				
+	else:
+		entity['ai']['meta']['is_target_near'] = False
+		entity['ai']['meta']['is_target_lost'] = False
+	
+	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
+	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
+	
+	if entity['ai']['is_player']:
+		return
+	
+	_goap = _handle_goap(entity)
+	
+	if not _goap:
+		entity['ai']['current_action'] = 'idle'
+		
+		return	
+	
+	_plan = _goap[0]
+	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
+	#print time.time() - _t
+
+	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
+		logging.debug('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
+		
+		entity['ai']['last_action'] = _plan['actions'][0]['name']
+	
+	entity['ai']['current_action'] = _plan['actions'][0]['name']
 
 def _human_logic(entity):
 	_t = time.time()
@@ -223,8 +340,9 @@ def _human_logic(entity):
 	
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
-		                                       
-		entity['ai']['meta']['is_target_near'] = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity)) <= 25
+		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
+		
+		entity['ai']['meta']['is_target_near'] = _target_distance <= 25
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
@@ -232,6 +350,8 @@ def _human_logic(entity):
 		elif entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
 				flags.delete_flag(entity, 'search_nodes')
+			
+			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False

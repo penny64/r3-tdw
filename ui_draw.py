@@ -93,6 +93,9 @@ def draw_item_labels():
 		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
 	
 	for entity_id in _draw_items:
+		if not entity_id in entities.ENTITIES:
+			continue
+		
 		_entity = entities.get_entity(entity_id)
 		
 		if _entity['stats']['owner']:

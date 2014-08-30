@@ -250,6 +250,12 @@ def search_for_target(entity):
 		else:
 			_nodes_to_search[_distance] = [(node_x, node_y)]
 
+def find_melee_position(entity):
+	_target = entity['ai']['nearest_target']
+	_x, _y = entity['ai']['life_memory'][_target]['last_seen_at']
+	
+	movement.walk_to_position(entity, _x, _y)
+
 def reload_weapon(entity):
 	life.reload_weapon(entity)
 
@@ -257,3 +263,6 @@ def shoot_weapon(entity):
 	_target = entity['ai']['nearest_target']
 	
 	entities.trigger_event(entity, 'shoot', target_id=_target)
+
+def melee(entity):
+	_target = entity['ai']['nearest_target']

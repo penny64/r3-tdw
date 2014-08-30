@@ -102,6 +102,9 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
 	
 	for entity_id in _draw_items:
+		if not entity_id in entities.ENTITIES:
+			continue
+		
 		_entity = entities.get_entity(entity_id)
 		
 		if _entity['stats']['owner']:
@@ -113,8 +116,11 @@ def draw():
 	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_grid']['path'],
 	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_grid']['path'])>0),
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
-	ui_draw.draw_life_labels()
-	ui_draw.draw_item_labels()
+	
+	if settings.TICK_MODE == 'strategy':
+		ui_draw.draw_life_labels()
+		ui_draw.draw_item_labels()
+	
 	ui_draw.draw_node_grid(PLAYER)
 	
 	if '--fps' in sys.argv:

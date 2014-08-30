@@ -208,3 +208,46 @@ def combat():
 	_combat_brain.set_action_list(_combat_actions)
 	
 	return _combat_brain
+
+def dog_combat():
+	_combat_brain = goapy.Planner('in_engagement',
+                                  'in_enemy_los',
+                                  'is_target_near',
+	                              'is_target_lost',
+	                              'is_squad_overwhelmed',
+	                              'is_in_melee_range')
+	_combat_brain.set_goal_state(in_engagement=False)
+
+	_combat_actions = goapy.Action_List()
+	
+	_combat_actions.add_condition('search',
+		                          in_enemy_los=False,
+		                          is_target_lost=True)
+	_combat_actions.add_callback('search', ai_logic.search_for_target)
+	_combat_actions.add_reaction('search', in_enemy_los=True, is_target_lost=True)
+	
+	_combat_actions.add_condition('track',
+                                  in_enemy_los=False,
+	                              is_target_lost=False)
+	_combat_actions.add_callback('track', ai_logic.find_firing_position)
+	_combat_actions.add_reaction('track', in_enemy_los=True)
+	
+	_combat_actions.add_condition('position',
+	                              in_enemy_los=True,
+                                  is_in_melee_range=False)
+	_combat_actions.add_callback('position', ai_logic.find_melee_position)
+	_combat_actions.add_reaction('position', is_in_melee_range=True)
+	
+	_combat_actions.add_condition('bite',
+                                  in_enemy_los=True,
+	                              is_target_near=True,
+	                              is_squad_overwhelmed=False,
+	                              is_in_melee_range=True)
+	_combat_actions.add_callback('bite', ai_logic.melee)
+	_combat_actions.add_reaction('bite', in_engagement=False)
+	
+	_combat_actions.set_weight('track', 20)
+
+	_combat_brain.set_action_list(_combat_actions)
+	
+	return _combat_brain

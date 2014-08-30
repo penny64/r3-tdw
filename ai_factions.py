@@ -24,6 +24,7 @@ def boot():
 	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues'])
 	_create('Runners', (3, 5), (2, 3), ['Bandits'])
 	_create('Rogues', (1, 1), (1, 1), ['Bandits'])
+	_create('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
 
 def register(entity, faction):
 	if not faction in FACTIONS:
@@ -146,7 +147,11 @@ def assign_to_squad(entity):
 def update_squad_member_snapshot(entity, target_id):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
 	_target = entities.get_entity(target_id)
-	_snapshot = {'armed': _target['ai']['meta']['has_weapon']}
+	
+	if 'has_weapon' in _target['ai']['meta']:
+		_snapshot = {'armed': _target['ai']['meta']['has_weapon']}
+	else:
+		_snapshot = {}
 	
 	_squad['member_info'].update({target_id: _snapshot})
 
@@ -162,6 +167,9 @@ def set_squad_meta(entity, meta, value):
 def update_group_status(entity):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
 	_members_combat_ready = 0
+	
+	if not 'has_weapon' in entity['ai']['meta']:
+		return
 	
 	for member_id in _squad['member_info']:
 		_member = entities.get_entity(member_id)
