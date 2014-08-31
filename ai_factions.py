@@ -31,6 +31,7 @@ def register(entity, faction):
 		raise Exception('Invalid faction: %s' % faction)
 	
 	entities.create_event(entity, 'new_squad_member')
+	entities.register_event(entity, 'delete', cleanup)
 	
 	entity['ai']['faction'] = faction
 	entity['ai']['squad'] = -1
@@ -39,6 +40,11 @@ def register(entity, faction):
 	
 	assign_to_squad(entity)
 
+def cleanup(entity):
+	_squad = get_assigned_squad(entity)
+	
+	_squad['members'].remove(entity['_id'])
+	del _squad['member_info'][entity['_id']]
 
 ############
 #Operations#

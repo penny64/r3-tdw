@@ -3,6 +3,7 @@ from framework import entities, events, numbers, goapy, timers, flags, movement
 import ai_squad_logic
 import ai_factions
 import ai_visuals
+import skeleton
 import settings
 import brains
 import items
@@ -80,6 +81,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'squad_inform_lost_target')
 	entities.create_event(entity, 'squad_inform_found_target')
 	entities.create_event(entity, 'squad_inform_failed_search')
+	entities.register_event(entity, 'delete', _cleanup)
 	entities.register_event(entity, 'set_meta', set_meta)
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
 	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
@@ -88,6 +90,17 @@ def _register(entity, player=False):
 	entities.register_event(entity, 'squad_inform_lost_target', ai_squad_logic.member_learn_lost_target)
 	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
 	entities.register_event(entity, 'squad_inform_failed_search', ai_squad_logic.member_learn_failed_target_search)
+
+def _cleanup(entity):
+	if entity['_id'] in ONLINE_ENTITIES:
+		ONLINE_ENTITIES.remove(entity['_id'])
+	
+	elif entity['_id'] in OFFLINE_ENTITIES:
+		OFFLINE_ENTITIES.remove(entity['_id'])
+	
+	_x, _y = movement.get_position(entity)
+	
+	items.corpse(_x, _y, entity['tile']['char'])
 
 def _register_animal(entity, player=False):
 	ONLINE_ENTITIES.append(entity['_id'])
@@ -131,6 +144,7 @@ def _register_animal(entity, player=False):
 	entities.create_event(entity, 'squad_inform_lost_target')
 	entities.create_event(entity, 'squad_inform_found_target')
 	entities.create_event(entity, 'squad_inform_failed_search')
+	entities.register_event(entity, 'delete', _cleanup)
 	entities.register_event(entity, 'set_meta', set_meta)
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
 	entities.register_event(entity, 'target_lost', ai_squad_logic.member_handle_lost_target)
@@ -201,7 +215,7 @@ def _tick_online_entities(entity):
 	
 	for entity_id in ONLINE_ENTITIES:
 		if not entity_id in entities.ENTITIES:
-			logging.warning('Online entity not found in global entity list: Moving to offline queue.')
+			logging.warning('Online entity not found in global entity list.')
 			
 			continue
 		
@@ -265,8 +279,6 @@ def _animal_logic(entity):
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	
-	#ai_factions.apply_squad_meta(entity)
-	
 	if not entity['ai']['meta'] == _old_meta:
 		entities.trigger_event(entity, 'meta_change')
 	
@@ -290,7 +302,7 @@ def _animal_logic(entity):
 		entity['ai']['meta']['is_target_lost'] = False
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
-	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
+	entity['ai']['meta']['is_panicked'] = skeleton.has_critical_injury(entity)
 	
 	if entity['ai']['is_player']:
 		return
@@ -315,9 +327,7 @@ def _animal_logic(entity):
 
 def _human_logic(entity):
 	_t = time.time()
-	if entity['_id'] in ai_visuals.LIFE_MOVED:
-		ai_visuals.build_item_list(entity)
-	
+	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
 	
 	_old_meta = entity['ai']['meta'].copy()
@@ -332,8 +342,6 @@ def _human_logic(entity):
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
-	
-	#ai_factions.apply_squad_meta(entity)
 	
 	if not entity['ai']['meta'] == _old_meta:
 		entities.trigger_event(entity, 'meta_change')
@@ -358,7 +366,7 @@ def _human_logic(entity):
 		entity['ai']['meta']['is_target_lost'] = False
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
-	entity['ai']['meta']['is_panicked'] = not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']
+	entity['ai']['meta']['is_panicked'] = (not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)
 	
 	if entity['ai']['is_player']:
 		return

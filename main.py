@@ -75,6 +75,10 @@ def tick():
 	
 	ai_visuals.reset_moved_entities()
 
+def post_tick():
+	for entity_id in entities.get_entity_group('life'):
+		entities.trigger_event(entities.get_entity(entity_id), 'post_tick')
+
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
 	
@@ -83,7 +87,9 @@ def draw():
 		_draw_items = entities.get_entity_group('items')
 	else:
 		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-		_draw_life.append(PLAYER['_id'])
+		
+		if PLAYER['_id'] in entities.ENTITIES:
+			_draw_life.append(PLAYER['_id'])
 		
 		_items = PLAYER['ai']['visible_items'].values()
 		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
@@ -162,6 +168,8 @@ def loop():
 	events.trigger_event('tick')
 	events.trigger_event('camera')
 	
+	post_tick()
+	
 	if not handle_input():
 		return False
 	
@@ -183,7 +191,7 @@ def main():
 	items.ammo_9x19mm(180, 175)
 	items.leather_backpack(186, 170)
 	items.glock(175, 176)
-	items.glock(165, 166)
+	items.glock(165, 166, ammo=17)
 	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()

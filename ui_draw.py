@@ -62,7 +62,9 @@ def draw_life_labels():
 		_draw_life = entities.get_entity_group('life')
 	else:
 		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-		_draw_life.append(PLAYER['_id'])
+		
+		if PLAYER['_id'] in entities.ENTITIES:
+			_draw_life.append(PLAYER['_id'])
 	
 	for entity_id in _draw_life:
 		_entity = entities.get_entity(entity_id)

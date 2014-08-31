@@ -44,6 +44,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	entities.create_event(_entity, 'reload')
 	entities.create_event(_entity, 'shoot')
 	entities.create_event(_entity, 'damage')
+	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
@@ -62,7 +63,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	entities.register_event(_entity, 'damage',
 	                        lambda e, **kwargs: entities.trigger_event(e,
 	                                                                   'create_noise',
-	                                                                   volume=25,
+	                                                                   volume=12,
 	                                                                   text='Ow!',
 	                                                                   owner_can_hear=True,
 	                                                                   show_on_sight=True,
@@ -70,7 +71,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	                                                                                                            'update_target_memory',
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
-	                                                                                                            value=[x, y-1])) and logging.info('what'))
+	                                                                                                            value=[x, y])))
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
 	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
@@ -93,12 +94,12 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	flags.register(_entity)
 	noise.register(_entity)
 	skeleton.register(_entity)
-	skeleton.create_limb(_entity, 'head', [], True, 0.1)
-	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88)
-	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3)
-	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3)
-	skeleton.create_limb(_entity, 'left leg', ['torso'], True, 0.45)
-	skeleton.create_limb(_entity, 'right leg', ['torso'], True, 0.45)
+	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25)
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=25)
+	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=25)
+	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=25)
+	skeleton.create_limb(_entity, 'left leg', ['torso'], True, 0.45, health=25)
+	skeleton.create_limb(_entity, 'right leg', ['torso'], True, 0.45, health=25)
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -108,6 +109,7 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	entities.create_event(_entity, 'reload')
 	entities.create_event(_entity, 'shoot')
 	entities.create_event(_entity, 'damage')
+	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
@@ -274,6 +276,12 @@ def reload_weapon(entity):
 def _shoot_weapon(entity, weapon_id, target_id):
 	_weapon = entities.get_entity(weapon_id)
 	_x, _y = movement.get_position(entities.get_entity(_weapon['stats']['owner']))
+	
+	if not target_id in entities.ENTITIES:
+		logging.warning('Target deleted during shooting.')
+		
+		return
+	
 	_tx, _ty = movement.get_position(entities.get_entity(target_id))
 
 	entities.trigger_event(_weapon, 'flag_sub', flag='ammo', value=1)
@@ -302,6 +310,7 @@ def shoot_weapon(entity, target_id):
 
 	entities.trigger_event(entity,
 		                   'create_timer',
-		                   time=60,
+		                   time=10,
+	                       repeat=3,
 		                   name='Shoot',
-		                   enter_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))
+		                   repeat_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))

@@ -169,6 +169,7 @@ def create_entity(group=None, etype='', force_id=None):
 	create_event(_entity, 'delete')
 	create_event(_entity, 'logic')
 	create_event(_entity, 'tick')
+	create_event(_entity, 'post_tick')
 
 	if group:
 		add_entity_to_group(_entity, group)

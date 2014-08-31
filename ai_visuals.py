@@ -19,7 +19,8 @@ def build_item_list(entity):
 	entity['ai']['visible_items'] = {'weapon': [],
 	                                 'container': [],
 	                                 'ammo': [],
-	                                 'bullet': []}
+	                                 'bullet': [],
+	                                 'corpse': []}
 	
 	for entity_id in entities.get_entity_group('items'):
 		_item = entities.get_entity(entity_id)
@@ -118,6 +119,11 @@ def build_life_list(entity):
 		entity['ai']['nearest_target'] = _nearest_target['target_id']
 	elif entity['ai']['targets']:
 		for target_id in list(entity['ai']['targets']):
+			if not target_id in entities.ENTITIES:
+				entity['ai']['targets'].remove(target_id)
+				
+				continue
+			
 			_target = entity['ai']['life_memory'][target_id]
 			_distance = numbers.distance(movement.get_position(entity), _target['last_seen_at'])
 			
@@ -126,3 +132,12 @@ def build_life_list(entity):
 				_nearest_target['distance'] = _distance
 		
 		entity['ai']['nearest_target'] = _nearest_target['target_id']
+
+def cleanup(entity):
+	for entity_id in entity['ai']['life_memory'].keys():
+		if not entity_id in entities.ENTITIES:
+			del entity['ai']['life_memory'][entity_id]
+	
+	for target_id in list(entity['ai']['targets']):
+		if not target_id in entities.ENTITIES:
+			entity['ai']['targets'].remove(target_id)

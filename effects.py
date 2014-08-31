@@ -94,5 +94,8 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 				break
 	else:
 		_x, _y = x, y
+		
+		if show_on_sight:
+			_y -= 1
 	
 	printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=False)

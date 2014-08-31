@@ -41,7 +41,7 @@ def food():
 	return _food_brain
 
 def search_for_weapon():
-	_weapon_search_brain = goapy.Planner('has_weapon', 'sees_item_type_weapon')
+	_weapon_search_brain = goapy.Planner('has_weapon', 'sees_item_type_weapon', 'is_panicked')
 	_weapon_search_actions = goapy.Action_List()
 
 	_weapon_search_brain.set_action_list(_weapon_search_actions)
@@ -51,14 +51,14 @@ def search_for_weapon():
 	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
 	_weapon_search_actions.add_reaction('find_weapon', sees_item_type_weapon=True)
 	
-	_weapon_search_actions.add_condition('get_weapon', sees_item_type_weapon=True)
+	_weapon_search_actions.add_condition('get_weapon', sees_item_type_weapon=True, is_panicked=False)
 	_weapon_search_actions.add_callback('get_weapon', lambda entity: ai_logic.get_weapon(entity))
 	_weapon_search_actions.add_reaction('get_weapon', has_weapon=True)
 	
 	return _weapon_search_brain
 
 def search_for_ammo():
-	_brain = goapy.Planner('has_container', 'has_weapon', 'has_ammo', 'weapon_loaded', 'sees_item_type_ammo')
+	_brain = goapy.Planner('has_container', 'has_weapon', 'has_ammo', 'weapon_loaded', 'sees_item_type_ammo', 'is_panicked')
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
@@ -68,14 +68,14 @@ def search_for_ammo():
 	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
 	_actions.add_reaction('find_ammo', sees_item_type_ammo=True)
 	
-	_actions.add_condition('get_ammo', sees_item_type_ammo=True, has_container=True, weapon_loaded=False, has_ammo=False)
+	_actions.add_condition('get_ammo', sees_item_type_ammo=True, has_container=True, weapon_loaded=False, has_ammo=False, is_panicked=False)
 	_actions.add_callback('get_ammo', lambda entity: ai_logic.get_ammo(entity))
 	_actions.add_reaction('get_ammo', has_ammo=True)
 	
 	return _brain
 
 def search_for_container():
-	_brain = goapy.Planner('has_container', 'sees_item_type_container')
+	_brain = goapy.Planner('has_container', 'sees_item_type_container', 'in_engagement')
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
@@ -85,7 +85,7 @@ def search_for_container():
 	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
 	_actions.add_reaction('find_container', sees_item_type_container=True)
 	
-	_actions.add_condition('get_container', sees_item_type_container=True)
+	_actions.add_condition('get_container', sees_item_type_container=True, in_engagement=False)
 	_actions.add_callback('get_container', lambda entity: ai_logic.get_container(entity))
 	_actions.add_reaction('get_container', has_container=True)
 	
@@ -236,7 +236,7 @@ def dog_combat():
 	                              in_enemy_los=True,
                                   is_in_melee_range=False)
 	_combat_actions.add_callback('position', ai_logic.find_melee_position)
-	_combat_actions.add_reaction('position', is_in_melee_range=True)
+	_combat_actions.add_reaction('position', is_in_melee_range=True, is_target_near=True)
 	
 	_combat_actions.add_condition('bite',
                                   in_enemy_los=True,

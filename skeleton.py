@@ -14,14 +14,14 @@ def register(entity):
 	
 	return entity
 
-def create_limb(entity, name, parent_limbs, critical, accuracy, stat_mod={}):
+def create_limb(entity, name, parent_limbs, critical, accuracy, stat_mod={}, health=100):
 	entity['skeleton'][name] = {'critical': critical,
 	                            'stat_mod': stat_mod,
 	                            'accuracy': accuracy,
 	                            'parent_limbs': parent_limbs,
 	                            'child_limbs': [],
-	                            'health': 100,
-	                            'max_health': 100}
+	                            'health': health,
+	                            'max_health': health}
 	
 	for limb in parent_limbs:
 		entity['skeleton'][limb]['child_limbs'].append(name)
@@ -40,12 +40,24 @@ def hit(entity, projectile):
 	_limb = entity['skeleton'][_limb_name]
 	_limb['health'] -= int(round(70 * _accuracy))
 	
-	print _limb_name, _limb['health']
+	#print _limb_name, _limb['health']
 	
 	if _limb['health'] <= 0:
 		if _limb['critical']:
 			entities.delete_entity(entity)
-			
-			print 'DIE'
 	else:
 		entities.trigger_event(entity, 'damage')
+
+
+############
+#Operations#
+############
+
+def has_critical_injury(entity):
+	for limb_name in entity['skeleton']:
+		_limb = entity['skeleton'][limb_name]
+		
+		if _limb['health'] / float(_limb['max_health']) <= .75:
+			return True
+
+	return False

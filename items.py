@@ -18,7 +18,7 @@ def register(entity):
 	entities.create_event(entity, 'create_holder')
 	entities.register_event(entity, 'create_holder', add_holder)
 
-def _create(x, y, name, char, weight, item_type, equip_to=None):
+def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='items')
 	
 	_entity['stats'] = {'name': name,
@@ -30,7 +30,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None):
 	
 	movement.register(_entity)
 	flags.register(_entity)
-	tile.register(_entity, surface='items', char=char)
+	tile.register(_entity, surface='items', char=char, fore_color=fore_color)
 	
 	entities.register_event(_entity, 'delete', disown)
 	
@@ -174,6 +174,9 @@ def hold_item(entity, item_id, holder_name=None):
 #######
 #Items#
 #######
+
+def corpse(x, y, char):
+	return _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))
 
 def leather_backpack(x, y):
 	return create_container(x, y, 'Leather Backpack', 'H', 4, 14, equip_to='backpack')
