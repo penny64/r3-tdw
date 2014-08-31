@@ -2,6 +2,7 @@ from framework import entities, tile, timers, movement, stats, flags, numbers, s
 
 import ai_factions
 import ai_visuals
+import skeleton
 import effects
 import mapgen
 import camera
@@ -11,6 +12,7 @@ import noise
 import zones
 import ai
 
+import logging
 import random
 
 
@@ -25,6 +27,14 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	items.register(_entity)
 	flags.register(_entity)
 	noise.register(_entity)
+	skeleton.register(_entity)
+	skeleton.create_limb(_entity, 'head', [], True, 0.1)
+	skeleton.create_limb(_entity, 'chest', ['head'], True, 0.88)
+	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.88)
+	skeleton.create_limb(_entity, 'left arm', ['chest'], False, 0.3)
+	skeleton.create_limb(_entity, 'right arm', ['chest'], False, 0.3)
+	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45)
+	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45)
 
 	if has_ai:
 		ai.register_human(_entity)
@@ -33,6 +43,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	entities.create_event(_entity, 'get_and_hold_item')
 	entities.create_event(_entity, 'reload')
 	entities.create_event(_entity, 'shoot')
+	entities.create_event(_entity, 'damage')
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
@@ -48,6 +59,18 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
 	                                                                                                            value=[x, y])))
+	entities.register_event(_entity, 'damage',
+	                        lambda e, **kwargs: entities.trigger_event(e,
+	                                                                   'create_noise',
+	                                                                   volume=25,
+	                                                                   text='Ow!',
+	                                                                   owner_can_hear=True,
+	                                                                   show_on_sight=True,
+	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
+	                                                                                                            'update_target_memory',
+	                                                                                                            target_id=_entity['_id'],
+	                                                                                                            key='last_seen_at',
+	                                                                                                            value=[x, y-1])) and logging.info('what'))
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
 	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
@@ -69,6 +92,13 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	items.register(_entity)
 	flags.register(_entity)
 	noise.register(_entity)
+	skeleton.register(_entity)
+	skeleton.create_limb(_entity, 'head', [], True, 0.1)
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88)
+	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3)
+	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3)
+	skeleton.create_limb(_entity, 'left leg', ['torso'], True, 0.45)
+	skeleton.create_limb(_entity, 'right leg', ['torso'], True, 0.45)
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -77,6 +107,7 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	entities.create_event(_entity, 'get_and_hold_item')
 	entities.create_event(_entity, 'reload')
 	entities.create_event(_entity, 'shoot')
+	entities.create_event(_entity, 'damage')
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
 	entities.register_event(_entity, 'reload', reload_weapon)
@@ -87,6 +118,7 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	                                                                   'create_noise',
 	                                                                   volume=25,
 	                                                                   text='?',
+	                                                                   owner_can_hear=False,
 	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
 	                                                                                                            'update_target_memory',
 	                                                                                                            target_id=_entity['_id'],
@@ -152,7 +184,7 @@ def wild_dog(x, y, name):
 #Operations#
 ############
 
-def handle_heard_noise(entity, x, y, text, direction, accuracy, callback):
+def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return
 	
@@ -256,7 +288,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                key='last_seen_at',
 	                                                                value=[x, y]))	
 
-	items.bullet(_x, _y, _tx, _ty, 1)
+	items.bullet(entity, _x, _y, _tx, _ty, 1)
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'Shoot'):

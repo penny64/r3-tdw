@@ -152,7 +152,7 @@ def loop():
 		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
-			_ticks_per_tick = 12
+			_ticks_per_tick = 1
 		
 		_t = time.time()
 		for _ in range(_ticks_per_tick):

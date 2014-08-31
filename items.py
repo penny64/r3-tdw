@@ -1,6 +1,9 @@
 from framework import entities, movement, numbers, flags, timers, tile
 
+import skeleton
+
 import logging
+import random
 
 
 def register(entity):
@@ -195,11 +198,25 @@ def _bullet_tick(entity):
 	
 	entities.trigger_event(entity, 'push_tank', direction=_direction)
 
-def bullet(x, y, tx, ty, speed):
+def check_for_collisions(entity):
+	for entity_id in entities.get_entity_group('life'):
+		if entity_id == entity['owner']:
+			continue
+		
+		if movement.get_position(entity) == movement.get_position_via_id(entity_id):
+			entities.trigger_event(entities.get_entity(entity_id), 'hit', projectile=entity)
+			#skeleton.hit(entities.get_entity(entity_id), entity)
+			entities.delete_entity(entity)
+			
+			return
+
+def bullet(entity, x, y, tx, ty, speed):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
+	_entity['owner'] = entity['_id']
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)
 	
-	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty)))
+	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.randint(-2, 2))
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
+	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
