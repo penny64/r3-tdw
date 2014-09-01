@@ -1,5 +1,6 @@
 from framework import entities, numbers, movement
 
+import ai_faction_logic
 import ai_squad_logic
 import constants
 import mapgen
@@ -10,6 +11,7 @@ FACTIONS = {}
 
 
 def _create(name, squad_size_range, base_size_range, enemy_factions):
+	_entity = entities.create_entity(group='factions')
 	_faction = {'members': set(),
 	            'squads': {},
 	            'squad_id': 1,
@@ -18,13 +20,19 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	            'base_size_range': base_size_range,
 	            'enemies': enemy_factions}
 	
-	FACTIONS[name] = _faction
+	_entity.update(_faction)
+	
+	FACTIONS[name] = _entity
+	
+	return _entity
 
 def boot():
 	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues', 'Wild Dogs'])
 	_create('Runners', (3, 5), (2, 3), ['Bandits', 'Wild Dogs'])
 	_create('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
-	_create('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
+	_e = _create('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
+	
+	ai_faction_logic.register_animal(_e)
 
 def register(entity, faction):
 	if not faction in FACTIONS:
@@ -39,6 +47,10 @@ def register(entity, faction):
 	FACTIONS[entity['ai']['faction']]['members'].add(entity['_id'])
 	
 	assign_to_squad(entity)
+
+def logic():
+	for faction in FACTIONS.values():
+		entities.trigger_event(faction, 'logic')
 
 def cleanup(entity):
 	_squad = get_assigned_squad(entity)
@@ -70,12 +82,15 @@ def create_squad(entity):
 	               'leader': entity['_id'],
 	               'member_info': {},
 	               'camp_id': None,
+	               'task': None,
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
 	                        'is_squad_overwhelmed': False,
 	                        'is_squad_forcing_surrender': False}})
 	
 	entities.create_event(_squad, 'meta_change')
+	entities.create_event(_squad, 'raid')
+	entities.register_event(_squad, 'raid', handle_raid)
 	
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['meta']['is_squad_leader'] = True
@@ -84,6 +99,7 @@ def create_squad(entity):
 	
 	_faction['squad_id'] += 1
 	
+	entities.create_event(entity, 'squad_inform_raid')
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(e, target_id=e['_id']))
 	entities.register_event(entity, 'meta_change', update_group_status)
 	entities.register_event(entity, 'new_squad_member', update_squad_member_snapshot)
@@ -91,6 +107,7 @@ def create_squad(entity):
 	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
 	entities.register_event(entity, 'target_lost', lambda e, **kwargs: update_combat_risk)
 	entities.register_event(entity, 'target_found', lambda e, **kwargs: update_combat_risk)
+	entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
 	
 	entities.trigger_event(entity, 'create_timer',
 	                       time=60,
@@ -149,6 +166,9 @@ def assign_to_squad(entity):
 		                       repeat=-1,
 		                       repeat_callback=lambda e: update_squad_member_snapshot(_leader, target_id=entity['_id']))
 		
+		entities.create_event(entity, 'squad_inform_raid')
+		entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
+		
 		logging.info('Faction \'%s\' added member to squad %s: %s' % (entity['ai']['faction'],
 		                                                              entity['ai']['squad'],
 		                                                              entity['stats']['name']))
@@ -205,3 +225,8 @@ def update_combat_risk(entity):
 		_squad['meta']['is_squad_overwhelmed'] = False
 	else:
 		_squad['meta']['is_squad_overwhelmed'] = _armed_target_count > _squad_member_count
+
+def handle_raid(entity, camp):
+	_leader = entities.get_entity(entity['leader'])
+	
+	ai_squad_logic.leader_handle_raid_camp(_leader, camp)

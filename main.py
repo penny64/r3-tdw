@@ -165,6 +165,8 @@ def loop():
 			events.trigger_event('logic')
 			tick()
 	
+	ai_factions.logic()
+	
 	events.trigger_event('tick')
 	events.trigger_event('camera')
 	
@@ -226,6 +228,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
 	entities.create_entity_group('squads', static=True)
+	entities.create_entity_group('factions', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')

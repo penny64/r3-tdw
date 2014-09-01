@@ -72,6 +72,12 @@ def get_active_solids():
 	
 	return ZONES[ACTIVE_ZONE]['solids']
 
+def get_active_node_sets():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['node_sets']
+
 def populate_life(zone_id):
 	_zone = ZONES[zone_id]
 	
@@ -100,7 +106,8 @@ def populate_life(zone_id):
 						if _e['ai']['meta']['is_squad_leader']:
 							_squad = ai_factions.get_assigned_squad(_e)
 							_squad['camp_id'] = node_set_id
-							_node_set['owner'] = _e['ai']['squad']
+							_node_set['owner'] = {'faction': faction_name,
+							                      'squad': _e['ai']['squad']}
 		
 		else:
 			for b in range(_spawn_profile['squads']):
