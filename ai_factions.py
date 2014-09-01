@@ -21,9 +21,9 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	FACTIONS[name] = _faction
 
 def boot():
-	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues'])
-	_create('Runners', (3, 5), (2, 3), ['Bandits'])
-	_create('Rogues', (1, 1), (1, 1), ['Bandits'])
+	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues', 'Wild Dogs'])
+	_create('Runners', (3, 5), (2, 3), ['Bandits', 'Wild Dogs'])
+	_create('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
 	_create('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
 
 def register(entity, faction):
@@ -49,6 +49,12 @@ def cleanup(entity):
 ############
 #Operations#
 ############
+
+def is_enemy(entity, target_id):
+	_target = entities.get_entity(target_id)
+	_faction = FACTIONS[entity['ai']['faction']]
+	
+	return _target['ai']['faction'] in _faction['enemies']
 
 def register_with_squad(entity, squad_id):
 	entity['ai']['squad'] = squad_id

@@ -75,7 +75,11 @@ def draw_life_labels():
 		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
 			continue
 		
-		_label = life.get_status_string(_entity)
+		if settings.OBSERVER_MODE:
+			_label = _entity['ai']['current_action']
+		else:
+			_label = life.get_status_string(_entity)
+		
 		_render_x = numbers.clip(_x - len(_label)/2, 0, _width - len(_label))
 		_render_y = numbers.clip(_y - 2, 0, _height)
 		

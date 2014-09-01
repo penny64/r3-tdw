@@ -109,23 +109,19 @@ def panic():
 	return _brain
 
 def reload():
-	_brain = goapy.Planner('in_engagement', 'weapon_loaded', 'has_ammo', 'has_weapon')
+	_brain = goapy.Planner('in_enemy_los', 'weapon_loaded', 'has_ammo', 'has_weapon')
 	_actions = goapy.Action_List()
 	
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(weapon_loaded=True)
 	
-	_actions.add_condition('reload', weapon_loaded=False, has_weapon=True, has_ammo=True)
+	_actions.add_condition('cover', in_enemy_los=True)
+	_actions.add_callback('cover', ai_logic.find_cover)
+	_actions.add_reaction('cover', in_enemy_los=False)
+	
+	_actions.add_condition('reload', weapon_loaded=False, has_weapon=True, has_ammo=True, in_enemy_los=False)
 	_actions.add_callback('reload', lambda entity: ai_logic.reload_weapon(entity))
 	_actions.add_reaction('reload', weapon_loaded=True)
-	
-	_actions.add_condition('unpack_ammo', has_ammo=False)
-	#_actions.add_callback('unpack_ammo', lambda entity: ai.set_meta(entity, 'has_ammo', True))
-	_actions.add_reaction('unpack_ammo', has_ammo=True)
-	
-	_actions.add_condition('search_for_ammo', has_ammo=False)
-	#_actions.add_callback('search_for_ammo', lambda entity: ai.set_meta(entity, 'has_ammo', True))
-	_actions.add_reaction('search_for_ammo', has_ammo=True)	
 	
 	return _brain
 
@@ -171,8 +167,9 @@ def combat():
 	_combat_actions.add_condition('track',
                                   in_enemy_los=False,
 	                              is_target_lost=False,
-                                  weapon_loaded=True)
-	_combat_actions.add_callback('track', ai_logic.find_firing_position)
+                                  weapon_loaded=True,
+	                              has_firing_position=True)
+	_combat_actions.add_callback('track', ai_logic.find_melee_position)
 	_combat_actions.add_reaction('track', in_enemy_los=True)
 	
 	_combat_actions.add_condition('position',

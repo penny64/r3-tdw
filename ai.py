@@ -236,7 +236,7 @@ def update_target_memory(entity, target_id, key, value):
 		entity['ai']['life_memory'][target_id][key] = value
 		
 		if key == 'last_seen_at' and not target_id in entity['ai']['targets']:
-			if not entity['ai']['faction'] == entities.get_entity(target_id)['ai']['faction']:
+			if ai_factions.is_enemy(entity, target_id):
 				entity['ai']['targets'].add(target_id)
 
 def set_meta(entity, meta, value):
@@ -355,8 +355,6 @@ def _human_logic(entity):
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if numbers.distance(movement.get_position(entity), entity['ai']['life_memory'][_target]['last_seen_at']) < 5 and not entity['ai']['meta']['is_target_lost']:
 				entity['ai']['meta']['is_target_lost'] = True
-			else:
-				print 'TL', numbers.distance(movement.get_position(entity), entity['ai']['life_memory'][_target]['last_seen_at'])
 		
 		elif entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):

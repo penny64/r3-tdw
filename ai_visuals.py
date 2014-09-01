@@ -1,5 +1,6 @@
 from framework import movement, entities, numbers, shapes
 
+import ai_factions
 import mapgen
 import zones
 import items
@@ -64,7 +65,7 @@ def build_life_list(entity):
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
 			if pos in zones.get_active_solids():
-				if entity['ai']['life_memory'][entity_id]['can_see'] and not entity['ai']['faction'] == _target['ai']['faction']:
+				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
 					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 				
 				entity['ai']['life_memory'][entity_id]['can_see'] = False
@@ -74,7 +75,7 @@ def build_life_list(entity):
 				
 				break
 		else:
-			_is_target = not entity['ai']['faction'] == _target['ai']['faction']
+			_is_target = ai_factions.is_enemy(entity, _target['_id'])
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),

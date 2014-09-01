@@ -1,5 +1,6 @@
 from framework import entities, numbers, movement, timers, shapes, flags
 
+import ai_debugger
 import mapgen
 import zones
 import life
@@ -114,7 +115,6 @@ def find_cover(entity):
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
 
 def find_firing_position(entity):
-	#TODO: Sort when building visible AI list
 	_target = entities.get_entity(entity['ai']['nearest_target'])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
