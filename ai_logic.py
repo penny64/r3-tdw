@@ -124,7 +124,7 @@ def find_firing_position(entity):
 	_t = time.time()
 	
 	if _can_see:
-		_max_distance = 25
+		_max_distance = 16
 	else:
 		_max_distance = 10	
 	
@@ -176,6 +176,8 @@ def find_firing_position(entity):
 			_closest_node['distance'] = _distance
 	
 	if not _closest_node['node']:
+		entity['ai']['meta']['has_firing_position'] = False
+		
 		return
 	
 	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})

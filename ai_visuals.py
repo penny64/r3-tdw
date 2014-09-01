@@ -131,6 +131,9 @@ def build_life_list(entity):
 				_nearest_target['target_id'] = target_id
 				_nearest_target['distance'] = _distance
 		
+		if not entity['ai']['nearest_target'] == _nearest_target['target_id']:
+			entity['ai']['meta']['has_firing_position'] = True
+		
 		entity['ai']['nearest_target'] = _nearest_target['target_id']
 
 def cleanup(entity):

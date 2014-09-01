@@ -154,7 +154,8 @@ def combat():
 	                              'is_squad_overwhelmed',
 	                              'is_squad_forcing_surrender',
 	                              'is_squad_mobile_ready',
-	                              'is_target_armed')
+	                              'is_target_armed',
+	                              'has_firing_position')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -176,10 +177,19 @@ def combat():
 	
 	_combat_actions.add_condition('position',
 	                              in_enemy_los=True,
-                                  is_target_near=False,
-                                  weapon_loaded=True)
+	                              is_target_near=False,
+	                              weapon_loaded=True,
+	                              has_firing_position=True)
 	_combat_actions.add_callback('position', ai_logic.find_firing_position)
 	_combat_actions.add_reaction('position', is_target_near=True)
+	
+	_combat_actions.add_condition('camp',
+	                              in_enemy_los=True,
+	                              is_target_near=False,
+	                              weapon_loaded=True,
+	                              has_firing_position=False)
+	_combat_actions.add_callback('camp', ai_logic.find_cover)
+	_combat_actions.add_reaction('camp', has_firing_position=True)
 	
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
@@ -187,7 +197,8 @@ def combat():
 	                              is_target_near=True,
 	                              is_squad_combat_ready=True,
 	                              is_squad_overwhelmed=False,
-	                              is_squad_forcing_surrender=False)
+	                              is_squad_forcing_surrender=False,
+	                              has_firing_position=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

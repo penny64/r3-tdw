@@ -51,6 +51,7 @@ def _register(entity, player=False):
 	                         'has_ammo': False,
 	                         'has_weapon': False,
 	                         'has_container': False,
+	                         'has_firing_position': False,
 	                         'weapon_loaded': False,
 	                         'in_engagement': False,
 	                         'is_target_near': False,
@@ -348,11 +349,15 @@ def _human_logic(entity):
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
 		
+		#NOTE: Mirror change in ai_logic!
 		entity['ai']['meta']['is_target_near'] = _target_distance <= 16
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
-			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
-				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
+			if numbers.distance(movement.get_position(entity), entity['ai']['life_memory'][_target]['last_seen_at']) < 5 and not entity['ai']['meta']['is_target_lost']:
+				entity['ai']['meta']['is_target_lost'] = True
+			else:
+				print 'TL', numbers.distance(movement.get_position(entity), entity['ai']['life_memory'][_target]['last_seen_at'])
+		
 		elif entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
 				flags.delete_flag(entity, 'search_nodes')
@@ -364,7 +369,7 @@ def _human_logic(entity):
 		entity['ai']['meta']['is_target_lost'] = False
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
-	entity['ai']['meta']['is_panicked'] = (not items.get_items_in_holder(entity, 'weapon') and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)
+	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)
 	
 	if entity['ai']['is_player']:
 		return
