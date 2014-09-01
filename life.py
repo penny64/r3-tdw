@@ -95,11 +95,11 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	noise.register(_entity)
 	skeleton.register(_entity)
 	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25)
-	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=25)
-	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=25)
-	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=25)
-	skeleton.create_limb(_entity, 'left leg', ['torso'], True, 0.45, health=25)
-	skeleton.create_limb(_entity, 'right leg', ['torso'], True, 0.45, health=25)
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=65)
+	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=65)
+	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=65)
+	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, health=65)
+	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, health=65)
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -296,7 +296,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                key='last_seen_at',
 	                                                                value=[x, y]))	
 
-	items.bullet(entity, _x, _y, _tx, _ty, 1)
+	items.bullet(entity, _x, _y, _tx, _ty, 1, flags.get_flag(_weapon, 'accuracy'))
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'Shoot'):

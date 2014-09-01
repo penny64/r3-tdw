@@ -236,11 +236,10 @@ def dog_combat():
 	                              in_enemy_los=True,
                                   is_in_melee_range=False)
 	_combat_actions.add_callback('position', ai_logic.find_melee_position)
-	_combat_actions.add_reaction('position', is_in_melee_range=True, is_target_near=True)
+	_combat_actions.add_reaction('position', is_in_melee_range=True)
 	
 	_combat_actions.add_condition('bite',
                                   in_enemy_los=True,
-	                              is_target_near=True,
 	                              is_squad_overwhelmed=False,
 	                              is_in_melee_range=True)
 	_combat_actions.add_callback('bite', ai_logic.melee)

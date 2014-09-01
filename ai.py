@@ -243,8 +243,6 @@ def set_meta(entity, meta, value):
 		raise Exception('Trying to set invalid brain meta: %s' % meta)
 	
 	entity['ai']['meta'][meta] = value
-	
-	print 'Setting meta'
 
 def set_meta_weight(entity, key, value):
 	entity['ai']['weights'][key] = value
@@ -350,7 +348,7 @@ def _human_logic(entity):
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
 		
-		entity['ai']['meta']['is_target_near'] = _target_distance <= 25
+		entity['ai']['meta']['is_target_near'] = _target_distance <= 16
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:

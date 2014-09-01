@@ -186,6 +186,7 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4)
 	
 	return _entity
 
@@ -213,13 +214,13 @@ def check_for_collisions(entity):
 			
 			return
 
-def bullet(entity, x, y, tx, ty, speed):
+def bullet(entity, x, y, tx, ty, speed, accuracy):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
 	_entity['owner'] = entity['_id']
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)
 	
-	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.randint(-2, 2))
+	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.randint(-accuracy, accuracy))
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))

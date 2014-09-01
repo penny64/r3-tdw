@@ -168,11 +168,13 @@ def walk_to_position(entity, x, y):
 	if _start_position == _target_position:
 		return False
 	
-	if entity['movement']['path']['destination']:
+	_avoid = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
+	
+	if entity['movement']['path']['destination'] and not entity['movement']['path']['destination'] in _avoid:
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):
 			return False
 
-	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position)
+	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, avoid=_avoid)
 	entity['movement']['path']['destination'] = _target_position
 
 def _walk_path(entity):

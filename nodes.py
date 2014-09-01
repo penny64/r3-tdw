@@ -313,6 +313,9 @@ def select_target(x, y, on_path):
 	                                                                      name='Shoot',
 	                                                                      on_path=on_path)
 
+def has_node_path(entity):
+	return len(entity['node_grid']['path']) > 0
+
 def redraw_path(entity):
 	for node in entity['node_grid']['nodes'].values():
 		node['node']['path'] = []
