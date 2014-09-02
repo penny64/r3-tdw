@@ -6,9 +6,10 @@ import stats
 import logging
 
 
-def register(entity, x=0, y=0, direction=0, turn_speed=15):
+def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	_movement = {'x': x,
 				 'y': y,
+	             'collisions': collisions,
 				 'direction': direction,
 				 'turn_speed': turn_speed,
 	             'path': {'positions': [],
@@ -96,6 +97,12 @@ def _push_tank(entity, direction):
 def _push(entity, x, y):
 	_nx = entity['movement']['x'] + x
 	_ny = entity['movement']['y'] + y
+	_solids = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
+	
+	if entity['movement']['collisions']:
+		if (_nx, _ny) in _solids:
+			print 'Collide...'
+			return	
 	
 	set_position(entity, _nx, _ny)
 
@@ -168,14 +175,14 @@ def walk_to_position(entity, x, y):
 	if _start_position == _target_position:
 		return False
 	
-	_avoid = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
-	
-	if entity['movement']['path']['destination'] and not entity['movement']['path']['destination'] in _avoid:
+	if entity['movement']['path']['destination']:
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):
 			return False
 
-	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, avoid=_avoid)
+	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position)
 	entity['movement']['path']['destination'] = _target_position
+	
+	return True
 
 def _walk_path(entity):
 	if not entity['movement']['path']['positions']:

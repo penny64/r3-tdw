@@ -1,4 +1,4 @@
-from framework import entities, display, events, numbers, shapes, tile, workers
+from framework import entities, display, events, numbers, shapes, tile, workers, flags
 
 import buildinggen
 import constants
@@ -17,12 +17,27 @@ NODE_SET_ID = 1
 
 def _create_node(x, y):
 	_entity = entities.create_entity()
-
+	
+	flags.register(_entity)
 	tile.register(_entity, surface='node_grid', fore_color=(255, 0, 255))
+	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
+	entities.trigger_event(_entity, 'set_flag', flag='owner', value=None)
+	entities.register_event(_entity, 'flag_changed', handle_node_flag_change)
 	
 	NODE_GRID[(x, y)] = _entity['_id']
 	UNCLAIMED_NODES.add((x, y))
+
+def handle_node_flag_change(entity, flag, value, last_value):
+	if flag == 'owner':
+		if value:
+			entity['tile']['char'] = 'O'
+			entity['tile']['fore_color'] = (255, 0, 0)
+		else:
+			entity['tile']['char'] = 'X'
+			entity['tile']['fore_color'] = (255, 0, 255)
+	
+	print 'Yes'
 
 def _reset():
 	global NODE_GRID

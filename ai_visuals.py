@@ -38,7 +38,7 @@ def build_item_list(entity):
 			continue
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_item)):
-			if pos in zones.get_active_solids():
+			if pos in zones.get_active_solids(entity):
 				break
 		else:
 			entity['ai']['visible_items'][_item['stats']['type']].append(entity_id)
@@ -64,7 +64,7 @@ def build_life_list(entity):
 			                                          'last_seen_velocity': None}
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
-			if pos in zones.get_active_solids():
+			if pos in zones.get_active_solids(entity):
 				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
 					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 				

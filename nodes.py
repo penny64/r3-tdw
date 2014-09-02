@@ -39,7 +39,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 	if not DRAGGING_NODE:
 		return
 	
-	if (vx, vy) in zones.get_active_solids():
+	if (vx, vy) in zones.get_active_solids(entity):
 		return
 	
 	entities.trigger_event(DRAGGING_NODE['node'], 'set_position', x=vx, y=vy)
@@ -64,7 +64,7 @@ def handle_mouse_pressed(entity, x, y, button):
 		if DRAGGING_NODE:
 			DRAGGING_NODE = None
 		
-		elif not (_x, _y) in zones.get_active_solids():
+		elif not (_x, _y) in zones.get_active_solids(entity):
 			for entity_id in entities.get_entity_group('items'):
 				_item = entities.get_entity(entity_id)
 				

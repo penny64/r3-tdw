@@ -126,7 +126,7 @@ def find_firing_position(entity):
 	if _can_see:
 		_max_distance = 16
 	else:
-		_max_distance = 10	
+		_max_distance = 16
 	
 	if flags.has_flag(entity, 'fire_data'):
 		_fire_data = flags.get_flag(entity, 'fire_data')
@@ -139,7 +139,7 @@ def find_firing_position(entity):
 				_invalid = False
 				
 				for pos in shapes.line((_tx, _ty), _fire_data['node']):
-					if pos in zones.get_active_solids():
+					if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
 						_invalid = True
 						break
 				
@@ -147,6 +147,9 @@ def find_firing_position(entity):
 					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1])
 					
 					return
+				
+				_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
+				entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
 				
 				flags.delete_flag(entity, 'fire_data')
 	
@@ -160,10 +163,16 @@ def find_firing_position(entity):
 		if _closest_node['node'] and _distance >= _closest_node['distance']:
 			continue
 		
+		_node = entities.get_entity(zones.get_active_node_grid()[(node_x, node_y)])
+		
+		if _node['flags']['owner']['value']:
+			print 'Ignore'
+			continue
+		
 		_continue = False
 		
 		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in zones.get_active_solids():
+			if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
 				_continue = True
 				
 				break
@@ -180,7 +189,10 @@ def find_firing_position(entity):
 		
 		return
 	
+	_node = entities.get_entity(zones.get_active_node_grid()[_closest_node['node']])
+	
 	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
+	entities.trigger_event(_node, 'set_flag', flag='owner', value=entity['_id'])
 	
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
 
@@ -238,7 +250,7 @@ def search_for_target(entity):
 		_continue = False
 		
 		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in zones.get_active_solids():
+			if pos in zones.get_active_solids(entity):
 				_continue = True
 				
 				break

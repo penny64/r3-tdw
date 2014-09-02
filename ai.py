@@ -181,6 +181,7 @@ def register_human(entity, player=False):
 	_ai['brain'].add_planner(brains.search_for_weapon())
 	_ai['brain'].add_planner(brains.search_for_ammo())
 	_ai['brain'].add_planner(brains.search_for_container())
+	_ai['brain'].add_planner(brains.search_for_target())
 	
 	#Reload
 	_ai['brain'].add_planner(brains.reload())
@@ -200,6 +201,10 @@ def register_animal(entity, player=False):
 
 	#Food
 	_ai['brain'].add_planner(brains.food())
+	
+	#Search
+	#TODO: Adopt for mutants
+	#_ai['brain'].add_planner(brains.search_for_target())
 	
 	entities.register_event(entity, 'logic', _animal_logic)
 	entities.register_event(entity, 'logic_offline', _animal_logic_offline)
@@ -350,7 +355,7 @@ def _human_logic(entity):
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
 		
 		#NOTE: Mirror change in ai_logic!
-		entity['ai']['meta']['is_target_near'] = _target_distance <= 16 and entity['ai']['meta']['in_enemy_los']
+		entity['ai']['meta']['is_target_near'] = _target_distance <= 16
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if not entity['ai']['meta']['is_target_lost']:

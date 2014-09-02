@@ -1,4 +1,4 @@
-from framework import pathfinding, display, shapes
+from framework import pathfinding, display, shapes, movement, entities
 
 import libtcodpy as tcod
 
@@ -66,11 +66,15 @@ def get_active_node_grid():
 	
 	return ZONES[ACTIVE_ZONE]['node_grid']
 
-def get_active_solids():
+def get_active_solids(entity, ignore_entities=[]):
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')
 	
-	return ZONES[ACTIVE_ZONE]['solids']
+	ignore_entities.append(entity['_id'])
+	_solids = ZONES[ACTIVE_ZONE]['solids'].copy()
+	_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
+	
+	return _solids
 
 def get_active_node_sets():
 	if not ACTIVE_ZONE:

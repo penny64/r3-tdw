@@ -15,6 +15,13 @@ def register(entity):
 	entities.register_event(entity, 'flag_sub', flag_sub)
 
 def set_flag(entity, flag, value):
+	if flag in entity['flags']:
+		entities.trigger_event(entity,
+		                       'flag_changed',
+		                       flag=flag,
+		                       value=value,
+		                       last_value=entity['flags'][flag]['last_value'])
+	
 	entity['flags'][flag] = {'value': value,
 							 'last_value': value,
 							 'start_value': value}

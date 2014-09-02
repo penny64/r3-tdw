@@ -20,7 +20,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	_entity = entities.create_entity(group='life')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
-	movement.register(_entity)
+	movement.register(_entity, collisions=True)
 	timers.register(_entity)
 	stats.register(_entity, health, speed, name=name)
 	nodes.register(_entity)
@@ -194,7 +194,7 @@ def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, c
 
 def can_see_position(entity, position):
 	for pos in shapes.line(movement.get_position(entity), position):
-		if pos in zones.get_active_solids():
+		if pos in zones.get_active_solids(entity):
 			return False
 	
 	return True

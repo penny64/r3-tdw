@@ -14,6 +14,7 @@ import ui_draw
 import worldgen
 import mapgen
 import camera
+import zones
 import items
 import nodes
 import maps
@@ -101,7 +102,7 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	if settings.SHOW_NODE_GRID:
-		for entity_id in entities.get_entity_group('node_grid'):
+		for entity_id in zones.get_active_node_grid().values():
 			entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
@@ -127,7 +128,7 @@ def draw():
 		ui_draw.draw_life_labels()
 		ui_draw.draw_item_labels()
 	
-	ui_draw.draw_node_grid(PLAYER)
+	ui_draw.draw_node_path(PLAYER)
 	
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()

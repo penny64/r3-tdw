@@ -123,7 +123,7 @@ def draw_item_labels():
 		
 		display.write_string('ui', _render_x, _render_y, _label)
 
-def draw_node_grid(entity):
+def draw_node_path(entity):
 	_labels = {}
 	_camera_x, _camera_y = camera.X, camera.Y
 	_width = display.get_surface('life')['width']
