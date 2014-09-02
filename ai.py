@@ -288,7 +288,7 @@ def _animal_logic(entity):
 		entity['ai']['meta']['is_target_near'] = _target_distance <= 25
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
-			if entity['ai']['meta']['is_target_near'] and not entity['ai']['meta']['is_target_lost']:
+			if not entity['ai']['meta']['is_target_lost']:
 				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
 		elif entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
@@ -350,10 +350,10 @@ def _human_logic(entity):
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
 		
 		#NOTE: Mirror change in ai_logic!
-		entity['ai']['meta']['is_target_near'] = _target_distance <= 16
+		entity['ai']['meta']['is_target_near'] = _target_distance <= 16 and entity['ai']['meta']['in_enemy_los']
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
-			if numbers.distance(movement.get_position(entity), entity['ai']['life_memory'][_target]['last_seen_at']) < 5 and not entity['ai']['meta']['is_target_lost']:
+			if not entity['ai']['meta']['is_target_lost']:
 				entity['ai']['meta']['is_target_lost'] = True
 		
 		elif entity['ai']['meta']['in_enemy_los']:
