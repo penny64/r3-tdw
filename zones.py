@@ -25,7 +25,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'weight_map': weight_map,
 	               'tile_map': tile_map,
 	               'solids': solids,
-	               'faction_spawn_list': faction_spawn_list}
+	               'faction_spawn_list': faction_spawn_list,
+	               'astar_map': None}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -41,7 +42,8 @@ def activate(zone_id):
 	
 	logging.info('Bringing zone \'%s\' online...' % _zone['name'])
 	
-	pathfinding.setup(_zone['width'], _zone['height'], _zone['solids'], _zone['weight_map'])
+	_zone['astar_map'] = pathfinding.setup(_zone['width'], _zone['height'], _zone['solids'])
+	
 	display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
 	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
 	
@@ -75,6 +77,18 @@ def get_active_solids(entity, ignore_entities=[]):
 	_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
 	
 	return _solids
+
+def get_active_astar_map():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['astar_map']
+
+def get_active_weight_map():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['weight_map']
 
 def get_active_node_sets():
 	if not ACTIVE_ZONE:
@@ -129,3 +143,9 @@ def populate_life(zone_id):
 				for i in range(random.randint(_min_squad_size, _max_squad_size)):
 					_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
 					_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
+
+def path_node_set(node_set, start, end):
+	_start = ((start[0]-node_set['min_x'])/3, (start[1]-node_set['min_y'])/3)
+	_end = ((end[0]-node_set['min_x'])/3, (end[1]-node_set['min_y'])/3)
+	
+	return pathfinding.astar(_start, _end, node_set['astar_map'], node_set['weight_map'])

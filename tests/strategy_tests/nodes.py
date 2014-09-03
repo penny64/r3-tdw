@@ -1,5 +1,7 @@
 from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats
 
+import zones
+
 import time
 
 DRAGGING_NODE = None
@@ -144,7 +146,9 @@ def create_walk_node(entity, x, y):
 	entity['NODE_GRID']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity,
 	                                                                                        'move_to_position',
 	                                                                                        x=_node['x'],
-	                                                                                        y=_node['y'])
+	                                                                                        y=_node['y'],
+	                                                                                        astar_map=zones.get_active_astar_map(),
+	                                                                                        weight_map=zones.get_active_weight_map())
 
 def create_action_node(entity, x, y, time, callback, icon='X'):
 	_node = _create_node(entity, x, y, passive=False, action_time=time, callback_on_touch=True)
@@ -217,7 +221,7 @@ def draw_path(entity):
 		_node['node']['busy_pos'] = []
 		
 		if _node['node']['draw_path'] and not _node['node']['path']:
-			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']))
+			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']), zones.get_active_astar_map(), zones.get_active_weight_map())
 			
 			if (_node['node']['x'], _node['node']['y']) in _path:
 				_path.remove((_node['node']['x'], _node['node']['y']))

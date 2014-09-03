@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement, timers, shapes, flags
+from framework import entities, numbers, movement, timers, shapes, flags, pathfinding
 
 import ai_debugger
 import mapgen
@@ -36,7 +36,7 @@ def _get_item(entity, item_id, hold=False, weight=None):
 		ai.set_meta_weight(entity, weight, 10*numbers.clip(_distance/30.0, 0, 1))
 	
 	if _distance:
-		movement.walk_to_position(entity, _x, _y)
+		movement.walk_to_position(entity, _x, _y, zones.get_active_astar_map(), zones.get_active_weight_map())
 	
 	else:
 		if hold:
@@ -82,7 +82,7 @@ def find_cover(entity):
 		
 		if _target['_id'] == _cover_data['target']:
 			if not life.can_see_position(_target, _cover_data['node']):
-				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1])
+				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 				
 				return
 			
@@ -112,7 +112,7 @@ def find_cover(entity):
 	
 	entities.trigger_event(entity, 'set_flag', flag='cover_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
 	
-	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
+	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def find_firing_position(entity):
 	_target = entities.get_entity(entity['ai']['nearest_target'])
@@ -127,6 +127,9 @@ def find_firing_position(entity):
 		_max_distance = 16
 	else:
 		_max_distance = 16
+	
+	_engage_range = int(round(_max_distance * .75))
+	_danger_distance = 6
 	
 	if flags.has_flag(entity, 'fire_data'):
 		_fire_data = flags.get_flag(entity, 'fire_data')
@@ -144,45 +147,54 @@ def find_firing_position(entity):
 						break
 				
 				if not _invalid:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1])
+					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 					
 					return
 				
-				_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
-				entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
-				
-				flags.delete_flag(entity, 'fire_data')
+		_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
+		entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
+		
+		flags.delete_flag(entity, 'fire_data')
 	
-	for node_x, node_y in zones.get_active_node_grid():
-		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
+	_node_grid = zones.get_active_node_grid()
+	_node_sets = zones.get_active_node_sets()
+	
+	for node_set_id in _node_sets.keys():
+		_node_set = _node_sets[node_set_id]
+		_weights = _node_set['weight_map'].copy()
 		
-		#TODO: Replace with sight distance
-		if _distance >= _max_distance:
-			continue
-		
-		if _closest_node['node'] and _distance >= _closest_node['distance']:
-			continue
-		
-		_node = entities.get_entity(zones.get_active_node_grid()[(node_x, node_y)])
-		
-		if _node['flags']['owner']['value']:
-			print 'Ignore'
-			continue
-		
-		_continue = False
-		
-		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
-				_continue = True
-				
-				break
-		
-		if _continue:
-			continue
-		
-		if not _closest_node['node'] or _distance < _closest_node['distance']:
-			_closest_node['node'] = (node_x, node_y)
-			_closest_node['distance'] = _distance
+		for node_x, node_y in _node_set['nodes']:
+			_distance = numbers.distance((_tx, _ty), (node_x, node_y))
+			_node = entities.get_entity(_node_grid[(node_x, node_y)])
+			
+			_self_distance = len(zones.path_node_set(_node_set, (_x, _y), (node_x, node_y)))
+			
+			#TODO: Replace with sight distance
+			if _distance >= _max_distance or _distance <= _danger_distance:
+				continue
+			
+			_score = _self_distance-_engage_range
+			
+			if _closest_node['node'] and _score >= _closest_node['score']:
+				continue
+			
+			if _node['flags']['owner']['value']:
+				continue
+			
+			_continue = False
+			
+			for pos in shapes.line((_tx, _ty), (node_x, node_y)):
+				if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
+					_continue = True
+					
+					break
+			
+			if _continue:
+				continue
+			
+			if not _closest_node['node'] or _score < _closest_node['score']:
+				_closest_node['node'] = (node_x, node_y)
+				_closest_node['score'] = _score
 	
 	if not _closest_node['node']:
 		entity['ai']['meta']['has_firing_position'] = False
@@ -194,7 +206,7 @@ def find_firing_position(entity):
 	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
 	entities.trigger_event(_node, 'set_flag', flag='owner', value=entity['_id'])
 	
-	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1])
+	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')
@@ -218,7 +230,7 @@ def _search_for_target(entity, target_id):
 		if not _nodes[_node_list[0]]:
 			del _nodes[_node_list[0]]
 	else:
-		movement.walk_to_position(entity, _node_x, _node_y)
+		movement.walk_to_position(entity, _node_x, _node_y, zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def search_for_target(entity):
 	_target = entities.get_entity(entity['ai']['nearest_target'])
@@ -276,7 +288,7 @@ def find_melee_position(entity):
 			_closest_pos['distance'] = _distance
 			_closest_pos['pos'] = (x, y)
 	
-	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1])
+	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)

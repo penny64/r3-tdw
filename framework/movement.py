@@ -168,7 +168,7 @@ def recover(entity, time=15):
 	                       exit_callback=lambda e: entities.trigger_event(e, 'recovering'),
 	                       name='recovering')
 
-def walk_to_position(entity, x, y):
+def walk_to_position(entity, x, y, astar_map, weight_map):
 	_start_position = get_position(entity)
 	_target_position = (x, y)
 	
@@ -179,7 +179,7 @@ def walk_to_position(entity, x, y):
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):
 			return False
 
-	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position)
+	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, astar_map, weight_map)
 	entity['movement']['path']['destination'] = _target_position
 	
 	return True

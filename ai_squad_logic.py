@@ -1,6 +1,7 @@
 from framework import entities, movement
 
 import ai_factions
+import zones
 
 
 def leader_handle_lost_target(entity, target_id):
@@ -58,7 +59,7 @@ def member_learn_found_target(entity, member_id, target_id):
 def make_target_surrender(entity):
 	_last_seen_at = entity['ai']['life_memory'][entity['ai']['nearest_target']]['last_seen_at']
 	
-	movement.walk_to_position(entity, _last_seen_at[0], _last_seen_at[1])
+	movement.walk_to_position(entity, _last_seen_at[0], _last_seen_at[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 
 #Failed target search

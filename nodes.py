@@ -195,7 +195,9 @@ def create_walk_node(entity, x, y):
 	entity['node_grid']['nodes'][_node['_id']]['callback'] = lambda: entities.trigger_event(entity,
 	                                                                                        'move_to_position',
 	                                                                                        x=_node['x'],
-	                                                                                        y=_node['y'])
+	                                                                                        y=_node['y'],
+	                                                                                        astar_map=zones.get_active_astar_map(),
+	                                                                                        weight_map=zones.get_active_weight_map())
 
 def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', name='Action'):
 	_will_move = on_path
@@ -339,7 +341,7 @@ def draw_path(entity, x_mod=0, y_mod=0):
 		_node['node']['busy_pos'] = []
 		
 		if _node['node']['draw_path'] and not _node['node']['path']:
-			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']))
+			_path = pathfinding.astar((_last_x, _last_y), (_node['node']['x'], _node['node']['y']), zones.get_active_astar_map(), zones.get_active_weight_map())
 			
 			if (_node['node']['x'], _node['node']['y']) in _path:
 				_path.remove((_node['node']['x'], _node['node']['y']))

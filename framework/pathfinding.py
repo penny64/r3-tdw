@@ -6,26 +6,19 @@ import time
 import sys
 
 
-SAVED_MAP = None
-WEIGHT_MAP = None
-REGEN = True
-
-
-def setup(width, height, solid_positions, weight_map):
-	global SAVED_MAP, WEIGHT_MAP
-
+def setup(width, height, solid_positions):
 	_map = numpy.ones((height, width))
 	
 	for x, y in solid_positions:
 		_map[y, x] = -2
 
-	SAVED_MAP = _map
-	WEIGHT_MAP = weight_map	
+	return _map
 
-def astar(start, end, avoid=[]):
-	global SAVED_MAP, REGEN
-
-	_height, _width = SAVED_MAP.shape
+def astar(start, end, astar_map, weight_map, avoid=[]):
+	if start == end:
+		return []
+	
+	_height, _width = astar_map.shape
 
 	_path = {'start': tuple(start),
 	         'end': tuple(end),
@@ -36,14 +29,14 @@ def astar(start, end, avoid=[]):
 	         'map_size': (_width, _height)}
 
 	_path['fmap'] = numpy.zeros((_height, _width), dtype=numpy.int16)
-	_path['gmap'] = WEIGHT_MAP.copy()
+	_path['gmap'] = weight_map.copy()
 	_path['hmap'] = numpy.zeros((_height, _width), dtype=numpy.int16)
 	_path['pmap'] = []
 
 	for x in range(_width):
 		_path['pmap'].append([0] * _height)
 
-	_path['map'] = SAVED_MAP.copy()
+	_path['map'] = astar_map.copy()
 
 	for pos in avoid:
 		_path['map'][pos[1], pos[0]] = -2
@@ -158,8 +151,5 @@ def create_path(start, end, avoid_positions=[]):
 
 	if not numbers.distance(_start, _end):
 		return []
-
-	#print 'start', '%s,%s' % ((int(round(start[0]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE, (int(round(start[1]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE), levels.chunk_is_solid('%s,%s' % ((int(round(start[0]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE, (int(round(start[1]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE))
-	#print 'end', '%s,%s' % ((int(round(end[0]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE, (int(round(end[1]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE), levels.chunk_is_solid('%s,%s' % ((int(round(end[0]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE, (int(round(end[1]))/levels.CHUNK_SIZE)*levels.CHUNK_SIZE))
 
 	return astar(start, end, avoid=avoid_positions)

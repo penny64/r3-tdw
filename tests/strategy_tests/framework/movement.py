@@ -1,6 +1,7 @@
 from framework import entities, numbers, pathfinding, timers, shapes
 
 import collidable
+import zones
 import stats
 
 import logging
@@ -172,7 +173,7 @@ def walk_to_position(entity, x, y):
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):
 			return False
 
-	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position)
+	entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, zones.get_active_astar_map(), zones.get_active_weight_map())
 	entity['movement']['path']['destination'] = _target_position
 
 def _walk_path(entity):

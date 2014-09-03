@@ -33,9 +33,11 @@ def handle_node_flag_change(entity, flag, value, last_value):
 		if value:
 			entity['tile']['char'] = 'O'
 			entity['tile']['fore_color'] = (255, 0, 0)
+			print 'Owning'
 		else:
 			entity['tile']['char'] = 'X'
 			entity['tile']['fore_color'] = (255, 0, 255)
+			print 'Disowning'
 
 def _reset():
 	global NODE_GRID
@@ -71,15 +73,42 @@ def add_plot_pole(x, y, radius):
 	global NODE_SET_ID
 
 	_node_set = set()
+	_min_x = 999999999
+	_max_x = 0
+	_min_y = 999999999
+	_max_y = 0
 
 	for node_pos in list(UNCLAIMED_NODES):
 		if numbers.distance((x, y), node_pos) > radius:
 			continue
+		
+		if node_pos[0] < _min_x:
+			_min_x = node_pos[0]
+		
+		if node_pos[0] > _max_x:
+			_max_x = node_pos[0]
+		
+		if node_pos[1] < _min_y:
+			_min_y = node_pos[1]
+		
+		if node_pos[1] > _max_y:
+			_max_y = node_pos[1]
 
 		_node_set.add(node_pos)
+	
+	_map = numpy.zeros((_max_y-_min_y, _max_x-_min_x))
+	_map -= 2
+	
+	for _x, _y in list(_node_set):
+		_map[(_y-_min_y)/3, (_x-_min_x)/3] = 1
 
-	NODE_SETS[NODE_SET_ID] = {'owner': None, 'nodes': _node_set, 'center': (x, y)}
-
+	NODE_SETS[NODE_SET_ID] = {'owner': None,
+	                          'nodes': _node_set,
+	                          'center': (x, y),
+	                          'astar_map': _map,
+	                          'min_x': _min_x,
+	                          'min_y': _min_y,
+	                          'weight_map': numpy.ones((_max_y-_min_y, _max_x-_min_x), dtype=numpy.int16)}
 	NODE_SET_ID += 1
 
 	return NODE_SET_ID-1
