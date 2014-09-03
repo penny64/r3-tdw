@@ -6,6 +6,7 @@ import ai_visuals
 import skeleton
 import settings
 import brains
+import zones
 import items
 import life
 
@@ -372,6 +373,13 @@ def _human_logic(entity):
 	else:
 		entity['ai']['meta']['is_target_near'] = False
 		entity['ai']['meta']['is_target_lost'] = False
+		
+		if flags.has_flag(entity, 'fire_data'):
+			_fire_data = flags.get_flag(entity, 'fire_data')
+			_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
+			
+			entities.trigger_event(_node, 'set_flag', flag='owner', value=None)	
+			flags.delete_flag(entity, 'fire_data')
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)

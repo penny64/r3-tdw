@@ -119,6 +119,7 @@ def find_firing_position(entity):
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
 	_closest_node = {'node': None, 'distance': 0}
+	_closest_node_target = {'node': None, 'distance': 0}
 	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
 	
 	_t = time.time()
@@ -128,6 +129,7 @@ def find_firing_position(entity):
 	else:
 		_max_distance = 16
 	
+	_max_search_distance = int(round(_max_distance * 2.5))
 	_engage_range = int(round(_max_distance * .75))
 	_danger_distance = 6
 	
@@ -138,7 +140,7 @@ def find_firing_position(entity):
 			_distance = numbers.distance((_tx, _ty), _fire_data['node'])
 					
 			#TODO: Replace with sight distance
-			if _distance < _max_distance:
+			if _distance < _max_search_distance:
 				_invalid = False
 				
 				for pos in shapes.line((_tx, _ty), _fire_data['node']):
@@ -159,24 +161,38 @@ def find_firing_position(entity):
 	_node_grid = zones.get_active_node_grid()
 	_node_sets = zones.get_active_node_sets()
 	
+	#TODO: This is gonna break terribly once multiple node sets are introudced!
+	
 	for node_set_id in _node_sets.keys():
 		_node_set = _node_sets[node_set_id]
 		_weights = _node_set['weight_map'].copy()
 		
 		for node_x, node_y in _node_set['nodes']:
-			_distance = numbers.distance((_tx, _ty), (node_x, node_y))
-			_node = entities.get_entity(_node_grid[(node_x, node_y)])
+			_distance = numbers.distance((_x, _y), (node_x, node_y))
+			_target_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 			
-			_self_distance = len(zones.path_node_set(_node_set, (_x, _y), (node_x, node_y)))
+			if not _closest_node['node'] or _distance < _closest_node['distance']:
+				_closest_node['node'] = (node_x, node_y)
+				_closest_node['distance'] = _distance
+			
+			if not _closest_node_target['node'] or _target_distance < _closest_node_target['distance']:
+				_closest_node_target['node'] = (node_x, node_y)
+				_closest_node_target['distance'] = _target_distance			
+		
+		_n_x, _n_y = _closest_node['node']
+		_t_n_x, _t_n_y = _closest_node_target['node']
+		_best_node = {'node': None, 'score': 0}
+		
+		for node_x, node_y in _node_set['nodes']:
+			_distance = numbers.distance((_t_n_x, _t_n_y), (node_x, node_y))
+			_node = entities.get_entity(_node_grid[(node_x, node_y)])
+			_self_distance = len(zones.path_node_set(_node_set, (_n_x, _n_y), (node_x, node_y)))
 			
 			#TODO: Replace with sight distance
-			if _distance >= _max_distance or _distance <= _danger_distance:
+			if _distance >= _max_search_distance or _distance <= _danger_distance:
 				continue
 			
 			_score = _self_distance-_engage_range
-			
-			if _closest_node['node'] and _score >= _closest_node['score']:
-				continue
 			
 			if _node['flags']['owner']['value']:
 				continue
@@ -192,21 +208,32 @@ def find_firing_position(entity):
 			if _continue:
 				continue
 			
-			if not _closest_node['node'] or _score < _closest_node['score']:
-				_closest_node['node'] = (node_x, node_y)
-				_closest_node['score'] = _score
+			if not _best_node['node'] or _score < _best_node['score']:
+				_best_node['score'] = _score
+				_best_node['node'] = (node_x, node_y)
+			
+			_nx, _ny = (int(round((node_x-_node_set['min_x'])/3.0)), int(round((node_y-_node_set['min_y'])/3.0)))
+			_weights[_ny, _nx] += _score
 	
-	if not _closest_node['node']:
+	if not _best_node['node']:
+		return
+	
+	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True)
+	
+	if not _node_set_path:
 		entity['ai']['meta']['has_firing_position'] = False
 		
 		return
 	
-	_node = entities.get_entity(zones.get_active_node_grid()[_closest_node['node']])
+	_end_node_x, _end_node_y = _node_set_path[len(_node_set_path)-1]
+	_end_node = (_end_node_x, _end_node_y)
 	
-	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
+	_node = entities.get_entity(zones.get_active_node_grid()[_end_node])
+	
+	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _end_node})
 	entities.trigger_event(_node, 'set_flag', flag='owner', value=entity['_id'])
 	
-	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+	movement.set_path(entity, _node_set_path)
 
 def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')

@@ -33,11 +33,10 @@ def handle_node_flag_change(entity, flag, value, last_value):
 		if value:
 			entity['tile']['char'] = 'O'
 			entity['tile']['fore_color'] = (255, 0, 0)
-			print 'Owning'
+			
 		else:
 			entity['tile']['char'] = 'X'
 			entity['tile']['fore_color'] = (255, 0, 255)
-			print 'Disowning'
 
 def _reset():
 	global NODE_GRID
@@ -100,7 +99,7 @@ def add_plot_pole(x, y, radius):
 	_map -= 2
 	
 	for _x, _y in list(_node_set):
-		_map[(_y-_min_y)/3, (_x-_min_x)/3] = 1
+		_map[int(round((_y-_min_y)/3.0)), int(round((_x-_min_x)/3.0))] = 1
 
 	NODE_SETS[NODE_SET_ID] = {'owner': None,
 	                          'nodes': _node_set,

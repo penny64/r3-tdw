@@ -144,8 +144,29 @@ def populate_life(zone_id):
 					_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
 					_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
 
-def path_node_set(node_set, start, end):
-	_start = ((start[0]-node_set['min_x'])/3, (start[1]-node_set['min_y'])/3)
-	_end = ((end[0]-node_set['min_x'])/3, (end[1]-node_set['min_y'])/3)
+def path_node_set(node_set, start, end, weights=None, path=False):
+	if not weights == None:
+		_weights = weights
+	else:
+		_weights = node_set['weight_map']
 	
-	return pathfinding.astar(_start, _end, node_set['astar_map'], node_set['weight_map'])
+	_start = (int(round((start[0]-node_set['min_x'])/3.0)), int(round((start[1]-node_set['min_y'])/3.0)))
+	_end = (int(round((end[0]-node_set['min_x'])/3.0)), int(round((end[1]-node_set['min_y'])/3.0)))
+	_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights)
+	
+	if not _path:
+		print 'No path'
+		return []
+	
+	if path:
+		_last_pos = (start[0], start[1])
+		_return_path = []
+		
+		for pos in _path[1:]:
+			_pos = (node_set['min_x']+(pos[0] * 3), node_set['min_y']+(pos[1] * 3))
+			_return_path.extend(pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map()))
+			_last_pos = _pos[:]
+	
+		return _return_path
+	
+	return _path

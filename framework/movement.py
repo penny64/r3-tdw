@@ -184,6 +184,10 @@ def walk_to_position(entity, x, y, astar_map, weight_map):
 	
 	return True
 
+def set_path(entity, path):
+	entity['movement']['path']['positions'] = path
+	entity['movement']['path']['destination'] = path[len(path)-1]
+
 def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		return False
