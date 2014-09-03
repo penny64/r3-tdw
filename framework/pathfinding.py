@@ -1,9 +1,14 @@
 import framework
 
+import multiprocessing
 import numbers
 import numpy
 import time
 import sys
+
+PROCESSES = {}
+PROCESS_ID = 1
+PROCESSING_QUEUE = multiprocessing.Queue()
 
 
 def setup(width, height, solid_positions):
@@ -13,6 +18,42 @@ def setup(width, height, solid_positions):
 		_map[y, x] = -2
 
 	return _map
+
+def astar_mp(start, end, astar_map, weight_map, callback, avoid=[]):
+	global PROCESS_ID
+	
+	def worker(process_id, start, end, astar_map, weight_map, queue, avoid=[]):
+		_path = astar(start, end, astar_map, weight_map, avoid=avoid)
+		
+		queue.put([process_id, _path])
+
+	_p = multiprocessing.Process(target=worker,
+	                             args=(PROCESS_ID, start, end, astar_map, weight_map, PROCESSING_QUEUE),
+	                             kwargs={'avoid': avoid})
+	
+	PROCESSES[PROCESS_ID] = [callback, _p]
+	PROCESS_ID += 1	
+	
+	_p.start()	
+
+def wait_for_astar():
+	global PROCESSES, PROCESS_ID
+	
+	if not PROCESSES:
+		return False
+	
+	for i in PROCESSES:
+		_id, _p = PROCESSING_QUEUE.get()
+		
+		PROCESSES[_id][0](_p)
+
+	for p in PROCESSES.values():
+		p[1].join()
+	
+	PROCESSES = {}
+	PROCESS_ID = 1
+	
+	return True
 
 def astar(start, end, astar_map, weight_map, avoid=[]):
 	if start == end:

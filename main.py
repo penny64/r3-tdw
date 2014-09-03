@@ -168,6 +168,10 @@ def loop():
 	
 	ai_factions.logic()
 	
+	_t = time.time()
+	if pathfinding.wait_for_astar():
+		print 'Took', time.time()-_t
+	
 	events.trigger_event('tick')
 	events.trigger_event('camera')
 	
