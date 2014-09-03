@@ -300,6 +300,7 @@ def _animal_logic(entity):
 				flags.delete_flag(entity, 'search_nodes')
 			
 			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
+			entity['ai']['meta']['is_target_lost'] = False
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False
@@ -366,6 +367,7 @@ def _human_logic(entity):
 				flags.delete_flag(entity, 'search_nodes')
 			
 			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
+			entity['ai']['meta']['is_target_lost'] = False
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False

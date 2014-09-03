@@ -36,8 +36,6 @@ def handle_node_flag_change(entity, flag, value, last_value):
 		else:
 			entity['tile']['char'] = 'X'
 			entity['tile']['fore_color'] = (255, 0, 255)
-	
-	print 'Yes'
 
 def _reset():
 	global NODE_GRID
