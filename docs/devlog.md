@@ -1,3 +1,20 @@
+#Wed Sep  3 2014
+
+Of course the good ideas come at 2 AM: Looks like I'll be able to do some proper
+flanking in the combat positioning logic via node set pathfinding. Details:
+
+1) Set the weight of the node set to a high number (1000)
+
+2) Do regular node scoring, using node set pathfinding if needed
+
+3) Apply score to weight
+
+4) Apply weights, run pathfinding
+
+Assuming nodes are scored with friendly/enemy positions in mind, flanking,
+target avoidance, and proper firing positions are all found automatically by the
+search. First thing I'm doing in the morning.
+
 #Tue Sep  2 2014
 
 Working with the GOAP model a bit for human NPCS: Looks like a monolithic combat
