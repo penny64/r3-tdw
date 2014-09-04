@@ -1,3 +1,28 @@
+#Thu Sep  4 2014
+
+Felt more ambitious than usual and took a stab at multiprocessing - and it
+worked this time, although currently only for pathfinding. Some general advice
+is to choose your battles; in a language like Python, memory isn't easily shared
+between two processes, so the time it will take to copy data from one process
+to another needs to be considered. Unfortunately, a lot of things that would
+benefit from SMP usually deal with a large amount of data, and the time spent
+copying it might be longer than the non-SMP code takes to process it.
+
+I did run into something unusual, though: pathfinding isn't made faster by SMP -
+it's a bit slower, actually. Pathfinding (9 times out of 10) is the very last
+bit of logic an NPC runs, which blocks the main thread from continuing to the
+next NPC's logic. SMP allows us to offload that task and continue down the list
+of NPCs, spawning processes for each pathing request, then waiting (if needed)
+for the spawned processes to finish before we draw the frame.
+
+Another challenge is deciding exactly when SMP needs to be used. Some paths are
+better performed on the main thread (since copying over the relevant data to
+new process is usually slower.) A good way to check is distance from the start
+and end points: Large paths should be offloaded, while short ones should be done
+on the main thread. However, we know that even a short distance can result in
+paths 100x as long - in this case, we can sometimes look at the context and use
+another metric to decide whether SMP is worh it in that case.
+
 #Wed Sep  3 2014
 
 Of course the good ideas come at 2 AM: Looks like I'll be able to do some proper

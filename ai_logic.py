@@ -134,7 +134,7 @@ def find_firing_position(entity):
 	
 	_max_search_distance = int(round(_max_distance * 2.5))
 	_engage_range = int(round(_max_distance * .75))
-	_danger_distance = 6
+	_danger_distance = 5
 	
 	if flags.has_flag(entity, 'fire_data'):
 		_fire_data = flags.get_flag(entity, 'fire_data')
@@ -187,15 +187,18 @@ def find_firing_position(entity):
 		_best_node = {'node': None, 'score': 0}
 		
 		for node_x, node_y in _node_set['nodes']:
-			_distance = numbers.distance((_t_n_x, _t_n_y), (node_x, node_y))
+			_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 			_node = entities.get_entity(_node_grid[(node_x, node_y)])
 			_self_distance = len(zones.path_node_set(_node_set, (_n_x, _n_y), (node_x, node_y)))
+			
+			if (node_x, node_y) in _solids:
+				continue
 			
 			#TODO: Replace with sight distance
 			if _distance >= _max_search_distance or _distance <= _danger_distance:
 				continue
 			
-			_score = _self_distance-_engage_range
+			_score = _engage_range-_self_distance
 			
 			if _node['flags']['owner']['value']:
 				continue
@@ -219,6 +222,8 @@ def find_firing_position(entity):
 			_weights[_ny, _nx] += _score
 	
 	if not _best_node['node']:
+		entity['ai']['meta']['has_firing_position'] = False
+		
 		return
 	
 	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True, avoid=_solids)
@@ -233,7 +238,7 @@ def find_firing_position(entity):
 	
 	_node = entities.get_entity(zones.get_active_node_grid()[_end_node])
 	
-	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _end_node})
+	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _end_node, 'score': _best_node['score']})
 	entities.trigger_event(_node, 'set_flag', flag='owner', value=entity['_id'])
 	
 	movement.set_path(entity, _node_set_path)

@@ -170,7 +170,8 @@ def loop():
 	
 	_t = time.time()
 	if pathfinding.wait_for_astar():
-		print 'Took', time.time()-_t
+		#print 'Took', time.time()-_t
+		pass
 	
 	events.trigger_event('tick')
 	events.trigger_event('camera')

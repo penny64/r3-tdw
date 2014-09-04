@@ -158,7 +158,6 @@ def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
 	_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights)
 	
 	if not _path:
-		print 'No path'
 		return []
 	
 	if path:
