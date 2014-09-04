@@ -23,6 +23,15 @@ on the main thread. However, we know that even a short distance can result in
 paths 100x as long - in this case, we can sometimes look at the context and use
 another metric to decide whether SMP is worh it in that case.
 
+---
+
+I've been working on AI for a while, so I think it's time to call it quits and
+pick something else to work on. Map generation needs work; the Swamps bother me
+because they're generated in such a stale way (and the current code I'm using
+might actually be slower than something that uses a noise algo.) I might write
+some general mapgen tools to experiment with different functions and their
+inputs.
+
 #Wed Sep  3 2014
 
 Of course the good ideas come at 2 AM: Looks like I'll be able to do some proper

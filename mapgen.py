@@ -1,5 +1,7 @@
 from framework import entities, display, events, numbers, shapes, tile, workers, flags
 
+import libtcodpy as tcod
+
 import buildinggen
 import constants
 import tiles
@@ -136,52 +138,51 @@ def swamp(width, height, rings=8):
 	_bushes = set()
 	_fences = set()
 
+	#for y in range(height):
+	#	for x in range(width):
+	#		if (1 < x < width-2 and y in [2, 3]) or (1 < x < width-2 and y in [height-3, height-4]) or (x in [2, 3] and 1 < y < height-2) or (x in [width-3, width-4] and 1 < y < height-2):
+	#			_weight_map[y][x] = _tile['w']
+	#			_tile_map[y][x] = tiles.wooden_fence(x, y)
+	#			_fences.add((x, y))
+
+	#			continue
+	_zoom = 1.2
+	_noise = tcod.noise_new(3)
+	
 	for y in range(height):
 		for x in range(width):
-			if (1 < x < width-2 and y in [2, 3]) or (1 < x < width-2 and y in [height-3, height-4]) or (x in [2, 3] and 1 < y < height-2) or (x in [width-3, width-4] and 1 < y < height-2):
-				_weight_map[y][x] = _tile['w']
-				_tile_map[y][x] = tiles.wooden_fence(x, y)
-				_fences.add((x, y))
-
-				continue
-
-			if (x, y) in _bushes or (x, y) in _fences:
-				continue
-
-			_dist = numbers.float_distance((x, y), (_c_x, _c_y))
-			_mod = (_dist / float(max([height, width]))) * 1.3
-
-			if _dist >= 30:
-				if random.uniform(random.uniform(.15, .45), 1) < _dist / float(max([height, width])):
-					for _x, _y in shapes.circle(x, y, random.randint(7, 10)):
-						if _x < 0 or _y < 0 or _x >= width or _y >= height or (_x, _y) in _fences:
-							continue
-
-						if random.uniform(0, _mod) < .3:
-							_tile = tiles.grass(_x, _y)
-						else:
-							_tile = tiles.swamp_water(_x, _y)
-
-						_weight_map[_y][_x] = _tile['w']
-						_tile_map[_y][_x] = _tile
-						_bushes.add((_x, _y))
-
-					continue
-
-				if random.uniform(random.uniform(.1, .2), 1) < _dist / float(max([height, width])):
+			_c_dist = numbers.float_distance((x, y), (_c_x, _c_y)) / float(max([width, height]))
+			_noise_values = [(_zoom * x / (constants.MAP_VIEW_WIDTH)),
+					         (_zoom * y / (constants.MAP_VIEW_HEIGHT))]
+			_noise_value = numbers.clip(tcod.noise_get_turbulence(_noise, _noise_values, tcod.NOISE_SIMPLEX) - .7, .5-_c_dist, 1)
+			
+			print _noise_value
+			
+			if _noise_value > .3:
+				_tile = tiles.grass(x, y)
+				
+			elif _noise_value > .2:
+				if random.uniform(.2, .3) + (_noise_value-.2) > .3:
 					_tile = tiles.grass(x, y)
-
 				else:
 					_tile = tiles.swamp(x, y)
-
-				_weight_map[y][x] = _tile['w']
-				_tile_map[y][x] = _tile
-
+			
+			elif _noise_value >= 0:
+				if random.uniform(0, .2) + (_noise_value) > .2:
+					_tile = tiles.swamp(x, y)
+				else:
+					_tile = tiles.swamp_water(x, y)
+			
+			elif _noise_value < 0:
+				_tile = tiles.wooden_fence(x, y)
+				_solids.add((x, y))
+			
 			else:
-				_weight_map[y][x] = _tile['w']
 				_tile = tiles.swamp(x, y)
-				_tile_map[y][x] = _tile
-
+				
+			_tile_map[y][x] = _tile
+			_weight_map[y][x] = _tile['w']
+	
 	_s_x, _s_y = (110, 110)
 	_room_size = 11
 	_direction = random.choice(['east'])
