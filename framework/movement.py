@@ -13,7 +13,8 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 				 'direction': direction,
 				 'turn_speed': turn_speed,
 	             'path': {'positions': [],
-	                      'destination': None}}
+	                      'destination': None,
+	                      'refresh': False}}
 
 	entity['movement'] = _movement
 
@@ -101,6 +102,7 @@ def _push(entity, x, y):
 	
 	if entity['movement']['collisions']:
 		if (_nx, _ny) in _solids:
+			entity['movement']['path']['refresh'] = True
 			print 'Collide...'
 			return	
 	
@@ -180,18 +182,22 @@ def walk_to_position(entity, x, y, astar_map, weight_map, smp=False):
 			return False
 	
 	if smp:
-		print 'smp'
 		pathfinding.astar_mp(_start_position, _target_position, astar_map, weight_map,
 		                     lambda path: set_path(entity, path))			
 	else:
 		entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, astar_map, weight_map)
 		entity['movement']['path']['destination'] = _target_position
+		entity['movement']['path']['refresh'] = False
 	
 	return True
 
 def set_path(entity, path):
+	if not path:
+		return
+	
 	entity['movement']['path']['positions'] = path
 	entity['movement']['path']['destination'] = path[len(path)-1]
+	entity['movement']['path']['refresh'] = False
 
 def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
@@ -199,6 +205,9 @@ def _walk_path(entity):
 
 	if timers.has_timer_with_name(entity, 'move') or timers.has_timer_with_name(entity, 'move', fuzzy=True):
 		return False
+	
+	if entity['movement']['path']['refresh']:
+		set_path(entity, [get_position(entity)])
 
 	_next_pos = entity['movement']['path']['positions'].pop(0)
 	_x, _y = get_position(entity)

@@ -36,7 +36,7 @@ def _get_item(entity, item_id, hold=False, weight=None):
 		ai.set_meta_weight(entity, weight, 10*numbers.clip(_distance/30.0, 0, 1))
 	
 	if _distance:
-		movement.walk_to_position(entity, _x, _y, zones.get_active_astar_map(), zones.get_active_weight_map())
+		movement.walk_to_position(entity, _x, _y, zones.get_active_astar_map(), zones.get_active_weight_map(), smp=True)
 	
 	else:
 		if hold:
@@ -121,6 +121,8 @@ def find_firing_position(entity):
 	_closest_node = {'node': None, 'distance': 0}
 	_closest_node_target = {'node': None, 'distance': 0}
 	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
+	_active_solids = zones.get_active_solids(_target, ignore_entities=[entity['_id']])
+	_solids = zones.get_active_solids(_target, ignore_entities=[entity['_id']])
 	
 	_t = time.time()
 	
@@ -144,13 +146,12 @@ def find_firing_position(entity):
 				_invalid = False
 				
 				for pos in shapes.line((_tx, _ty), _fire_data['node']):
-					if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
+					if pos in _active_solids:
 						_invalid = True
 						break
 				
 				if not _invalid:
-					print 'Not moving? Check here.'
-					#movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=True)
 					
 					return
 				
@@ -201,7 +202,7 @@ def find_firing_position(entity):
 			_continue = False
 			
 			for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-				if pos in zones.get_active_solids(_target, ignore_entities=[entity['_id']]):
+				if pos in _solids:
 					_continue = True
 					
 					break
@@ -262,6 +263,7 @@ def _search_for_target(entity, target_id):
 
 def search_for_target(entity):
 	_target = entities.get_entity(entity['ai']['nearest_target'])
+	_solids = zones.get_active_solids(entity)
 	
 	if flags.has_flag(entity, 'search_nodes'):
 		_search_for_target(entity, _target['_id'])
@@ -290,7 +292,7 @@ def search_for_target(entity):
 		_continue = False
 		
 		for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-			if pos in zones.get_active_solids(entity):
+			if pos in _solids:
 				_continue = True
 				
 				break

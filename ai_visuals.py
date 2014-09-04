@@ -23,6 +23,8 @@ def build_item_list(entity):
 	                                 'bullet': [],
 	                                 'corpse': []}
 	
+	_active_solids = zones.get_active_solids(entity)
+	
 	for entity_id in entities.get_entity_group('items'):
 		_item = entities.get_entity(entity_id)
 		
@@ -38,7 +40,7 @@ def build_item_list(entity):
 			continue
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_item)):
-			if pos in zones.get_active_solids(entity):
+			if pos in _active_solids:
 				break
 		else:
 			entity['ai']['visible_items'][_item['stats']['type']].append(entity_id)
@@ -46,6 +48,7 @@ def build_item_list(entity):
 def build_life_list(entity):
 	entity['ai']['visible_targets'] = []
 	_nearest_target = {'target_id': None, 'distance': 0}
+	_solids = zones.get_active_solids(entity)
 	
 	_visible_life = set()
 	
@@ -64,7 +67,7 @@ def build_life_list(entity):
 			                                          'last_seen_velocity': None}
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
-			if pos in zones.get_active_solids(entity):
+			if pos in _solids:
 				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
 					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 				

@@ -193,8 +193,10 @@ def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, c
 	callback(entity, x, y)
 
 def can_see_position(entity, position):
+	_solids = zones.get_active_solids(entity)
+	
 	for pos in shapes.line(movement.get_position(entity), position):
-		if pos in zones.get_active_solids(entity):
+		if pos in _solids:
 			return False
 	
 	return True
