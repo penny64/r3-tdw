@@ -170,7 +170,7 @@ def recover(entity, time=15):
 	                       exit_callback=lambda e: entities.trigger_event(e, 'recovering'),
 	                       name='recovering')
 
-def walk_to_position(entity, x, y, astar_map, weight_map, smp=False):
+def walk_to_position(entity, x, y, astar_map, weight_map, avoid=[], smp=False):
 	_start_position = get_position(entity)
 	_target_position = (x, y)
 	
@@ -183,9 +183,9 @@ def walk_to_position(entity, x, y, astar_map, weight_map, smp=False):
 	
 	if smp:
 		pathfinding.astar_mp(_start_position, _target_position, astar_map, weight_map,
-		                     lambda path: set_path(entity, path))			
+		                     lambda path: set_path(entity, path), avoid=avoid)
 	else:
-		entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, astar_map, weight_map)
+		entity['movement']['path']['positions'] = pathfinding.astar(get_position(entity), _target_position, astar_map, weight_map, avoid=avoid)
 		entity['movement']['path']['destination'] = _target_position
 		entity['movement']['path']['refresh'] = False
 	

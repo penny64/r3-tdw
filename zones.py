@@ -78,6 +78,9 @@ def get_active_solids(entity, ignore_entities=[]):
 	
 	return _solids
 
+def get_active_life_positions(entity):
+	return [movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
+
 def get_active_astar_map():
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')
@@ -144,7 +147,7 @@ def populate_life(zone_id):
 					_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
 					_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
 
-def path_node_set(node_set, start, end, weights=None, path=False):
+def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
 	if not weights == None:
 		_weights = weights
 	else:
@@ -164,7 +167,7 @@ def path_node_set(node_set, start, end, weights=None, path=False):
 		
 		for pos in _path[1:]:
 			_pos = (node_set['min_x']+(pos[0] * 3), node_set['min_y']+(pos[1] * 3))
-			_return_path.extend(pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map()))
+			_return_path.extend(pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map(), avoid=avoid))
 			_last_pos = _pos[:]
 	
 		return _return_path

@@ -76,13 +76,14 @@ def find_cover(entity):
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = movement.get_position(_target)
 	_closest_node = {'node': None, 'distance': 0}
+	_solids = zones.get_active_life_positions(entity)
 	
 	if flags.has_flag(entity, 'cover_data'):
 		_cover_data = flags.get_flag(entity, 'cover_data')
 		
 		if _target['_id'] == _cover_data['target']:
 			if not life.can_see_position(_target, _cover_data['node']):
-				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
 				
 				return
 			
@@ -112,7 +113,7 @@ def find_cover(entity):
 	
 	entities.trigger_event(entity, 'set_flag', flag='cover_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
 	
-	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
 
 def find_firing_position(entity):
 	_target = entities.get_entity(entity['ai']['nearest_target'])
@@ -151,7 +152,7 @@ def find_firing_position(entity):
 						break
 				
 				if not _invalid:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
 					
 					return
 				
@@ -220,7 +221,7 @@ def find_firing_position(entity):
 	if not _best_node['node']:
 		return
 	
-	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True)
+	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True, avoid=_solids)
 	
 	if not _node_set_path:
 		entity['ai']['meta']['has_firing_position'] = False
@@ -318,7 +319,7 @@ def find_melee_position(entity):
 			_closest_pos['distance'] = _distance
 			_closest_pos['pos'] = (x, y)
 	
-	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=False)
+	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=True)
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
