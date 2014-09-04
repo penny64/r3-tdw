@@ -151,7 +151,7 @@ def find_firing_position(entity):
 						break
 				
 				if not _invalid:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=True)
+					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 					
 					return
 				
@@ -318,7 +318,7 @@ def find_melee_position(entity):
 			_closest_pos['distance'] = _distance
 			_closest_pos['pos'] = (x, y)
 	
-	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=True)
+	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=False)
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
