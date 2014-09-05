@@ -156,8 +156,6 @@ def swamp(width, height, rings=8):
 					         (_zoom * y / (constants.MAP_VIEW_HEIGHT))]
 			_noise_value = numbers.clip(tcod.noise_get_turbulence(_noise, _noise_values, tcod.NOISE_SIMPLEX) - .7, .5-_c_dist, 1)
 			
-			print _noise_value, _c_dist
-			
 			if _noise_value > .3:
 				_tile = tiles.grass(x, y)
 				
@@ -166,20 +164,27 @@ def swamp(width, height, rings=8):
 					if _c_dist < .35:
 						_tile = tiles.grass(x, y)
 					else:
-						_tile = tiles.swamp_water(x, y)
+						_tile = tiles.grass(x, y)
 				else:
 					#TODO: Slowly dither in swamp water
-					_tile = tiles.swamp(x, y)
+					if _c_dist < .35:
+						_tile = tiles.swamp(x, y)
+					else:
+						_tile = tiles.swamp(x, y)
 			
 			elif _noise_value >= 0:
-				if random.uniform(0, .2) + (_noise_value) > .2:
+				_r_val = random.uniform(0, .2) + (_noise_value)
+				
+				if _r_val > .2:
 					_tile = tiles.swamp(x, y)
 				else:
-					_tile = tiles.swamp_water(x, y)
+					if random.uniform(0, .2) + (_noise_value) > .2:
+						_tile = tiles.swamp_water(x, y)
+					else:
+						_tile = tiles.tall_grass(x, y)
 			
-			elif _noise_value < 0:
-				_tile = tiles.wooden_fence(x, y)
-				_solids.add((x, y))
+			elif _noise_value < 0:#random.uniform(-.1, 0):
+				_tile = tiles.tall_grass(x, y)
 			
 			else:
 				_tile = tiles.swamp(x, y)

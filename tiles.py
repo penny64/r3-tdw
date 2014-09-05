@@ -35,6 +35,14 @@ def grass(x, y):
 	
 	return _tile(x, y, random.choice(['.', ',', '\'']), 3, _c_1, _c_2)
 
+def tall_grass(x, y):
+	_c_1, _c_2 = random.sample([constants.DARK_FOREST_GREEN_1,
+	                           constants.DARK_FOREST_GREEN_2,
+	                           constants.DARK_FOREST_GREEN_3],
+	                          2)
+	
+	return _tile(x, y, random.choice(['.', ',', '\'']), 3, _c_1, _c_2)
+
 def water(x, y):
 	_c_1, _c_2 = random.sample([constants.WATER_1,
 	                           constants.WATER_2,
