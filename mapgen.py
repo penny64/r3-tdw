@@ -183,7 +183,7 @@ def swamp(width, height, rings=8):
 					else:
 						_tile = tiles.tall_grass(x, y)
 			
-			elif _noise_value < 0:#random.uniform(-.1, 0):
+			elif _noise_value < 0:
 				_tile = tiles.tall_grass(x, y)
 			
 			else:
@@ -192,7 +192,7 @@ def swamp(width, height, rings=8):
 			_tile_map[y][x] = _tile
 			_weight_map[y][x] = _tile['w']
 	
-	_s_x, _s_y = (110, 110)
+	_s_x, _s_y = ((width/2)-20, (height/2)-20)
 	_room_size = 11
 	_direction = random.choice(['east'])
 	_width, _height = random.choice([(6, 6), (3, 6), (6, 3)])

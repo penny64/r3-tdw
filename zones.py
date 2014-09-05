@@ -166,7 +166,12 @@ def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
 		
 		for pos in _path[1:]:
 			_pos = (node_set['min_x']+(pos[0] * 3), node_set['min_y']+(pos[1] * 3))
-			_return_path.extend(pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map(), avoid=avoid))
+			_n_path = pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map(), avoid=avoid)
+			
+			if not _n_path:
+				return []
+			
+			_return_path.extend(_n_path)
 			_last_pos = _pos[:]
 	
 		return _return_path
