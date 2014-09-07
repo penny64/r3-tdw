@@ -272,8 +272,6 @@ def _handle_goap(entity, brain='brain'):
 	return entity['ai'][brain].get_plan(debug=False)
 
 def _animal_logic(entity):
-	_plan = _handle_goap(entity)
-	
 	if entity['_id'] in ai_visuals.LIFE_MOVED:
 		ai_visuals.build_item_list(entity)
 	

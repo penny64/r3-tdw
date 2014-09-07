@@ -18,23 +18,7 @@ def _human_logic(entity):
 	pass
 
 def _animal_logic(entity):
-	_camps = zones.get_active_node_sets()
-	
-	for camp_id in _camps:
-		_camp = _camps[camp_id]
-		
-		if not _camp['owner']['faction'] in entity['enemies']:
-			continue
-	
-		for squad_id in entity['squads']:
-			_squad = entity['squads'][squad_id]
-			
-			if _squad['task']:
-				continue
-			
-			entities.trigger_event(_squad, 'raid', camp=_camps[camp_id])
-			
-			_squad['task'] = 'raid'
+	pass
 	
 
 ############

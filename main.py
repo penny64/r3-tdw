@@ -5,6 +5,7 @@ import framework
 import post_processing
 import ai_factions
 import ai_visuals
+import ai_squads
 import constants
 import settings
 import ui_cursor
@@ -167,6 +168,7 @@ def loop():
 			tick()
 	
 	ai_factions.logic()
+	ai_squads.logic()
 	
 	_t = time.time()
 	if pathfinding.wait_for_astar():

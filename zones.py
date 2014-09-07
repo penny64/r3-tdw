@@ -4,6 +4,7 @@ import libtcodpy as tcod
 
 import post_processing
 import ai_factions
+import ai_squads
 import constants
 import camera
 import life
@@ -125,7 +126,7 @@ def populate_life(zone_id):
 						_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
 						
 						if _e['ai']['meta']['is_squad_leader']:
-							_squad = ai_factions.get_assigned_squad(_e)
+							_squad = ai_squads.get_assigned_squad(_e)
 							_squad['camp_id'] = node_set_id
 							_node_set['owner'] = {'faction': faction_name,
 							                      'squad': _e['ai']['squad']}

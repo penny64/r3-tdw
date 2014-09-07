@@ -4,6 +4,8 @@ import ai_squad_logic
 import ai_logic
 import ai
 
+import logging
+
 
 def heal():
 	_heal_brain = goapy.Planner('is_injured', 'has_bandage')
@@ -154,6 +156,19 @@ def squad_leader_regroup():
 	_actions.add_condition('regroup', is_squad_mobile_ready=False, in_engagement=False, is_target_lost=False)
 	_actions.add_callback('regroup', ai_squad_logic.leader_order_regroup)
 	_actions.add_reaction('regroup', is_squad_mobile_ready=True)
+	
+	return _brain
+
+def squad_capture_camp():
+	_brain = goapy.Planner('has_camp')
+	_actions = goapy.Action_List()
+	
+	_brain.set_action_list(_actions)
+	_brain.set_goal_state(has_camp=True)
+	
+	_actions.add_condition('capture', has_camp=False)
+	_actions.add_callback('capture', ai_squad_logic.capture_camp)
+	_actions.add_reaction('capture', has_camp=True)
 	
 	return _brain
 

@@ -1,17 +1,69 @@
-from framework import entities, movement
+from framework import entities, movement, goapy
 
 import ai_factions
+import ai_squads
+import brains
 import zones
 
+def register_human(entity):
+	entity['brain'] = goapy.World()
+	entity['brain'].add_planner(brains.squad_capture_camp())
+	
+	entities.register_event(entity, 'logic', _human_logic)
+	
+	return entity
+
+def _handle_goap(entity, brain='brain'):
+	for planner in entity[brain].planners:
+		_start_state = {}
+		
+		for key in planner.values.keys():
+			_start_state[key] = entity['meta'][key]
+			
+		for key in planner.action_list.conditions.keys():
+			if key in entity['weights']:
+				planner.action_list.set_weight(key, entity['weights'][key])
+		
+		planner.set_start_state(**_start_state)
+		
+	entity[brain].calculate()
+	
+	return entity[brain].get_plan(debug=False)
+
+
+#######
+#Logic#
+#######
+
+def _human_logic(entity):
+	if not entity['leader']:
+		return
+	
+	entity['meta']['has_camp'] = entity['camp_id'] > 0
+	
+	if entities.get_entity(entity['leader'])['ai']['is_player']:
+		return
+	
+	_goap = _handle_goap(entity)
+	
+	if not _goap:
+		return	
+	
+	_plan = _goap[0]
+	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 
 def leader_handle_lost_target(entity, target_id):
 	pass
 
 
+############
+#Operations#
+############
+
 #Lost targets
 
 def member_handle_lost_target(entity, target_id):
-	for member_id in ai_factions.get_assigned_squad(entity)['members']:
+	for member_id in ai_squads.get_assigned_squad(entity)['members']:
 		if member_id == entity['_id']:
 			continue
 			
@@ -34,7 +86,7 @@ def member_learn_lost_target(entity, member_id, target_id):
 #Found targets
 
 def member_handle_found_target(entity, target_id):
-	for member_id in ai_factions.get_assigned_squad(entity)['members']:
+	for member_id in ai_squads.get_assigned_squad(entity)['members']:
 		if member_id == entity['_id']:
 			continue
 			
@@ -65,7 +117,7 @@ def make_target_surrender(entity):
 #Failed target search
 
 def member_handle_failed_target_search(entity, target_id):
-	for member_id in ai_factions.get_assigned_squad(entity)['members']:
+	for member_id in ai_squads.get_assigned_squad(entity)['members']:
 		if member_id == entity['_id']:
 			continue
 			
@@ -86,7 +138,7 @@ def leader_order_regroup(entity):
 #Raiding
 
 def leader_handle_raid_camp(entity, camp):
-	for member_id in ai_factions.get_assigned_squad(entity)['members']:
+	for member_id in ai_squads.get_assigned_squad(entity)['members']:
 		_member = entities.get_entity(member_id)
 		
 		entities.trigger_event(_member, 'squad_inform_raid', member_id=entity['_id'], camp=camp)
@@ -102,3 +154,22 @@ def member_learn_raid(entity, member_id, camp):
 	                                                    'last_seen_at': movement.get_position(_camp_leader),
 	                                                    'last_seen_velocity': None}
 	entity['ai']['targets'].add(_camp_leader['_id'])
+
+
+##################
+#Squad Operations#
+##################
+
+def capture_camp(entity):
+	_faction = ai_factions.FACTIONS[entity['faction']]
+	_camps = zones.get_active_node_sets()
+	
+	for camp_id in _camps:
+		_camp = _camps[camp_id]
+		
+		if not _camp['owner']['faction'] in _faction['enemies']:
+			continue
+		
+		entities.trigger_event(entity, 'raid', camp=_camps[camp_id])
+		
+		entity['task'] = 'raid'
