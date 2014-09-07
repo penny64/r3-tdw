@@ -190,7 +190,7 @@ def main():
 	
 	ai_factions.boot()
 	
-	PLAYER = life.human(170, 170, 'Tester Toaster')
+	PLAYER = life.human(240, 230, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 
 	#life.human_bandit(195, 135, 'Test NPC 3')

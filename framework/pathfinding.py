@@ -3,6 +3,7 @@ import framework
 import multiprocessing
 import numbers
 import numpy
+
 import time
 import sys
 
@@ -64,7 +65,7 @@ def astar(start, end, astar_map, weight_map, avoid=[]):
 	_path = {'start': tuple(start),
 	         'end': tuple(end),
 	         'olist': [tuple(start)],
-	         'clist': [],
+	         'clist': set(),
 	         'segments': [],
 	         'map': [],
 	         'map_size': (_width, _height)}
@@ -87,6 +88,7 @@ def astar(start, end, astar_map, weight_map, avoid=[]):
 
 	return walk_path(_path)
 
+#@profile
 def walk_path(path):
 	if path['map'][path['end'][1], path['end'][0]] == -2:
 		return False
@@ -99,6 +101,7 @@ def walk_path(path):
 	_hmap = path['hmap']
 	_fmap = path['fmap']
 	_pmap = path['pmap']
+	_o_scores = {}
 	_stime = time.time()
 
 	while len(_olist):
@@ -107,10 +110,11 @@ def walk_path(path):
 		if tuple(node) == path['end']:
 			break
 
-		_clist.append(node)
+		_clist.add(node)
 		_lowest = {'pos': None, 'f': 9000}
+		_lowest_from_new_set = {'pos': None, 'f': 9000}
 
-		for adj in getadj(path, node):
+		for adj in getadj(path, node, _clist):
 			if abs(node[0]-adj[0])+abs(node[1]-adj[1]) == 1:
 				_cost = _gmap[node[1], node[0]] + 10
 			else:
@@ -132,35 +136,55 @@ def walk_path(path):
 				else:
 					_hmap[adj[1],adj[0]] = 14*xDistance + 10*(yDistance-xDistance)
 				
+				if _fmap[adj[1],adj[0]] in _o_scores:
+					if adj in _o_scores[_fmap[adj[1],adj[0]]]:
+						_o_scores[_fmap[adj[1],adj[0]]].remove(adj)
+				
 				_gmap[adj[1],adj[0]] = _cost
 				_fmap[adj[1],adj[0]] = _gmap[adj[1],adj[0]]+_hmap[adj[1],adj[0]]
 				_pmap[adj[0]][adj[1]] = node
 				
+				if _fmap[adj[1],adj[0]] in _o_scores:
+					_o_scores[_fmap[adj[1],adj[0]]].add(adj)
+				else:
+					_o_scores[_fmap[adj[1],adj[0]]] = set([adj])
+				
 				_olist.add(adj)
 
-		for o in list(_olist):
-			if _fmap[o[1],o[0]] < _lowest['f']:
-				_lowest['pos'] = o
-				_lowest['f'] = _fmap[o[1],o[0]]
-
-		if _lowest['pos']:
-			node = _lowest['pos']
-	
-	#print time.time()-_stime
+		if len(_o_scores):
+			_ordered_keys = _o_scores.keys()
+			_ordered_keys.sort()
+			
+			for _min_key in _ordered_keys:
+				_list = list(_o_scores[_min_key])
+				
+				if _list:
+					node = _list[0]
+					_o_scores[_min_key].remove(node)
+					
+					if not len(_o_scores[_min_key]):
+						del _o_scores[_min_key]
+					
+					break
 
 	return find_path(path)
 
-def getadj(path, pos, checkclist=True):
+def getadj(path, pos, cset):
 	adj = []
 
-	for r in [(-1,-1),(0,-1),(1,-1),(-1,0),(1,0),(-1,1),(0,1),(1,1)]:
-		_x = pos[0]+r[0]
-		_y = pos[1]+r[1]
+	for _x, _y in [(pos[0]-1, pos[1]-1),
+	               (pos[0], pos[1]-1),
+	               (pos[0]+1, pos[1]-1),
+	               (pos[0]-1, pos[1]),
+	               (pos[0]+1, pos[1]),
+	               (pos[0]-1, pos[1]+1),
+	               (pos[0], pos[1]+1),
+	               (pos[0]+1, pos[1]+1)]:
 
-		if _x<0 or _x>=path['map_size'][0]-1 or _y<0 or _y>=path['map_size'][1]-1 or path['map'][_y,_x]==-2:
+		if path['map'][_y,_x]==-2 or _x<0 or _x>=path['map_size'][0]-1 or _y<0 or _y>=path['map_size'][1]-1:
 			continue
 
-		if (_x, _y) in path['clist'] and checkclist:
+		if (_x, _y) in cset:
 			continue
 
 		adj.append((_x, _y))

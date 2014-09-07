@@ -1,4 +1,6 @@
-from framework import entities
+from framework import entities, display, movement
+
+import constants
 
 import random
 
@@ -39,6 +41,10 @@ def hit(entity, projectile):
 	_limb_name = random.choice(_hit_map)
 	_limb = entity['skeleton'][_limb_name]
 	_limb['health'] -= int(round(70 * _accuracy))
+	
+	#_x, _y = movement.get_position(entity)
+	
+	#display.write_char_direct('tiles', _x, _y, 'X', (200, 0, 0), None)
 	
 	#print _limb_name, _limb['health']
 	

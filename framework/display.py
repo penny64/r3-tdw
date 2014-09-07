@@ -126,17 +126,19 @@ def write_string(surface_name, x, y, string, fore_color=(200, 200, 200), back_co
 	
 	DRAW_CALLS.append(_write_string(surface_name, x, y, string, fore_color, back_color))
 
-def write_char_direct(x, y, char, fore_color, back_color):
-	SCREEN['c'][y][x] = ord(char)
+def write_char_direct(surface_name, x, y, char, fore_color, back_color):
+	_surface = SURFACES[surface_name]
 	
-	SCREEN['f'][0][y][x] = fore_color[0]
-	SCREEN['f'][1][y][x] = fore_color[1]
-	SCREEN['f'][2][y][x] = fore_color[2]
+	_surface['c'][y][x] = ord(char)
+	
+	_surface['f'][0][y][x] = fore_color[0]
+	_surface['f'][1][y][x] = fore_color[1]
+	_surface['f'][2][y][x] = fore_color[2]
 	
 	if back_color:
-		SCREEN['b'][0][y][x] = back_color[0]
-		SCREEN['b'][1][y][x] = back_color[1]
-		SCREEN['b'][2][y][x] = back_color[2]	
+		_surface['b'][0][y][x] = back_color[0]
+		_surface['b'][1][y][x] = back_color[1]
+		_surface['b'][2][y][x] = back_color[2]	
 
 def shade_surface_fore(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]

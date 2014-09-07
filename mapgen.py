@@ -131,21 +131,10 @@ def create_map(width, height):
 	
 	return _weight_map, _tile_map, _solids
 
-def swamp(width, height, rings=8):
+def swamp(width, height):
 	_weight_map, _tile_map, _solids = create_map(width, height)
 	
 	_c_x, _c_y = width/2, height/2
-	_bushes = set()
-	_fences = set()
-
-	#for y in range(height):
-	#	for x in range(width):
-	#		if (1 < x < width-2 and y in [2, 3]) or (1 < x < width-2 and y in [height-3, height-4]) or (x in [2, 3] and 1 < y < height-2) or (x in [width-3, width-4] and 1 < y < height-2):
-	#			_weight_map[y][x] = _tile['w']
-	#			_tile_map[y][x] = tiles.wooden_fence(x, y)
-	#			_fences.add((x, y))
-
-	#			continue
 	_zoom = 1.2
 	_noise = tcod.noise_new(3)
 	

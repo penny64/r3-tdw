@@ -10,14 +10,14 @@ def register_human(entity):
 	return entity
 
 def register_animal(entity):
-	entities.register_event(entity, 'logic', _human_animal)
+	entities.register_event(entity, 'logic', _animal_logic)
 	
 	return entity
 
 def _human_logic(entity):
 	pass
 
-def _human_animal(entity):
+def _animal_logic(entity):
 	_camps = zones.get_active_node_sets()
 	
 	for camp_id in _camps:

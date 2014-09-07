@@ -16,6 +16,7 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	            'squads': {},
 	            'squad_id': 1,
 	            'brains': [],
+	            'meta': {},
 	            'squad_size_range': squad_size_range,
 	            'base_size_range': base_size_range,
 	            'enemies': enemy_factions}
@@ -26,13 +27,25 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	
 	return _entity
 
-def boot():
-	_create('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues', 'Wild Dogs'])
-	_create('Runners', (3, 5), (2, 3), ['Bandits', 'Wild Dogs'])
-	_create('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
-	_e = _create('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
+def create_human_faction(name, squad_size_range, base_size_range, enemy_factions):
+	_faction = _create(name, squad_size_range, base_size_range, enemy_factions)
+	_faction['meta'] = {'wants_territory': False}
 	
-	ai_faction_logic.register_animal(_e)
+	return _faction
+
+def create_dog_faction(name, squad_size_range, base_size_range, enemy_factions):
+	_faction = _create(name, squad_size_range, base_size_range, enemy_factions)
+	_faction['meta'] = {'wants_territory': False}
+	
+	ai_faction_logic.register_animal(_faction)
+	
+	return _faction
+
+def boot():
+	create_human_faction('Bandits', (3, 5), (4, 6), ['Runners', 'Rogues', 'Wild Dogs'])
+	create_human_faction('Runners', (3, 5), (2, 3), ['Bandits', 'Wild Dogs'])
+	create_human_faction('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
+	create_dog_faction('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
 
 def register(entity, faction):
 	if not faction in FACTIONS:
@@ -83,10 +96,13 @@ def create_squad(entity):
 	               'member_info': {},
 	               'camp_id': None,
 	               'task': None,
+	               'brains': [],
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
 	                        'is_squad_overwhelmed': False,
-	                        'is_squad_forcing_surrender': False}})
+	                        'is_squad_forcing_surrender': False,
+	                        'wants_artifacts': False,
+	                        'wants_weapons': False}})
 	
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')

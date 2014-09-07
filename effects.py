@@ -1,6 +1,7 @@
 from framework import entities, flags, timers, display, numbers
 
 import constants
+import settings
 import camera
 import zones
 import life
@@ -66,6 +67,9 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, mo
 		entities.trigger_event(_entity, 'create_timer', time=25, repeat=len(text)/2, repeat_callback=_printer_move)
 
 def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback):
+	if settings.OBSERVER_MODE:
+		return
+	
 	if not zones.is_zone_active():
 		return
 	

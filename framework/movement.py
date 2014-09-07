@@ -1,6 +1,7 @@
 from framework import entities, numbers, pathfinding, timers, shapes
 
 import collidable
+import settings
 import stats
 
 import logging
@@ -170,12 +171,15 @@ def recover(entity, time=15):
 	                       exit_callback=lambda e: entities.trigger_event(e, 'recovering'),
 	                       name='recovering')
 
-def walk_to_position(entity, x, y, astar_map, weight_map, avoid=[], smp=False):
+def walk_to_position(entity, x, y, astar_map, weight_map, avoid=[], smp=-1):
 	_start_position = get_position(entity)
 	_target_position = (x, y)
 	
 	if _start_position == _target_position:
 		return False
+	
+	if smp == True or (smp == -1 and numbers.distance(_start_position, _target_position) > settings.SMP_MIN_PATH_DISTANCE):
+		smp = settings.ALLOW_SMP
 	
 	if entity['movement']['path']['destination']:
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):

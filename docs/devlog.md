@@ -1,3 +1,10 @@
+#Sat Sep  6 2014
+
+Heavily optimized pathfinding today. The changes are local to the framework, so
+this is something I can carry over to future projects, which is very much needed
+since it's been the bottleneck for performance. I'm sure there's some micro-
+optimizations left to be made, but the improvement would be negligible.
+
 #Thu Sep  4 2014
 
 Felt more ambitious than usual and took a stab at multiprocessing - and it

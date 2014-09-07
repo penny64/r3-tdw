@@ -316,15 +316,19 @@ def find_melee_position(entity):
 	_target = entity['ai']['nearest_target']
 	_x, _y = entity['ai']['life_memory'][_target]['last_seen_at']
 	_closest_pos = {'pos': None, 'distance': 0}
+	_solids = zones.get_active_solids(entity, ignore_entities=[_target])
 	
 	for x, y in [(_x-1, _y), (_x+1, _y), (_x, _y-1), (_x, _y+1), (_x-1, _y-1), (_x+1, _y-1), (_x-1, _y+1), (_x+1, _y+1)]:
+		if (x, y) in _solids:
+			continue
+		
 		_distance = numbers.distance(movement.get_position(entity), (x, y))
 		
 		if not _closest_pos['pos'] or _distance < _closest_pos['distance']:
 			_closest_pos['distance'] = _distance
 			_closest_pos['pos'] = (x, y)
 	
-	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), smp=False)
+	movement.walk_to_position(entity, _closest_pos['pos'][0], _closest_pos['pos'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def reload_weapon(entity):
 	life.reload_weapon(entity)
