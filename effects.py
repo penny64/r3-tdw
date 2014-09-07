@@ -1,4 +1,4 @@
-from framework import entities, flags, timers, display, numbers
+from framework import entities, flags, timers, display, numbers, tile, movement
 
 import constants
 import settings
@@ -7,6 +7,35 @@ import zones
 import life
 
 import random
+
+
+def _create(x, y, surface='effects', group='effects'):
+	_entity = entities.create_entity()
+
+	movement.register(_entity)
+	tile.register(_entity, surface=surface)
+	
+	timers.register(_entity)
+	entities.add_entity_to_group(_entity, group)
+
+	entities.trigger_event(_entity, 'set_position', x=x, y=y)
+
+	return _entity
+
+def blood(x, y, surface='effects', group='effects'):
+	_blood = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	entities.trigger_event(_blood, 'set_char', char=random.choice([';', '3', '.', '^']))
+
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.BLOOD_1, constants.BLOOD_2, constants.BLOOD_3]), 0.4)
+	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.BLOOD_1, constants.BLOOD_2, constants.BLOOD_3]), 0.4)
+	
+	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
+	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
+
+	return _blood
 
 
 def _printer_tick(entity):
@@ -46,7 +75,7 @@ def _printer_exit(entity):
 	entities.delete_entity(entity)
 
 def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, move_direction=90, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0, free_tick=True):
-	_entity = entities.create_entity(group='effects' + ('_freetick' * free_tick))
+	_entity = entities.create_entity(group='ui_effects' + ('_freetick' * free_tick))
 	
 	timers.register(_entity)
 	flags.register(_entity)

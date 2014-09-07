@@ -88,7 +88,7 @@ def tick(entity):
 	if not _animation:
 		return
 
-	if _animation['delay']:
+	if _animation['delay'] > 0:
 		_animation['delay'] -= 1
 	else:
 		_animation['delay'] = _animation['delay_max']
@@ -111,7 +111,7 @@ def draw(entity, x=-1, y=-1, x_mod=0, y_mod=0, direct=False):
 		if _char == '@@':
 			_char = entity['tile']['char']
 
-		if _animation['delay']:
+		if _animation['delay'] > 0:
 			_animation['delay'] -= 1
 		else:
 			_animation['delay'] = _animation['delay_max']

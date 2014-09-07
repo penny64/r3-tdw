@@ -75,6 +75,9 @@ def tick():
 	for entity_id in entities.get_entity_group('effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
 	
+	for entity_id in entities.get_entity_group('ui_effects'):
+		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	
 	ai_visuals.reset_moved_entities()
 
 def post_tick():
@@ -106,8 +109,11 @@ def draw():
 		for entity_id in zones.get_active_node_grid().values():
 			entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
-	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
+	for entity_id in entities.get_entity_groups(['ui_effects', 'ui_effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
+	
+	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
+		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
 	for entity_id in _draw_items:
 		if not entity_id in entities.ENTITIES:
@@ -135,6 +141,7 @@ def draw():
 		ui_draw.draw_fps()
 	
 	events.trigger_event('post_process')
+	display.blit_surface('effects')
 	display.blit_surface('nodes')
 	display.blit_surface('items')
 	display.blit_surface('life')
@@ -242,14 +249,18 @@ if __name__ == '__main__':
 	entities.create_entity_group('ui_menus')
 	entities.create_entity_group('nodes')
 	entities.create_entity_group('effects_freetick')
+	entities.create_entity_group('ui_effects_freetick')
 	entities.create_entity_group('effects', static=True)
+	entities.create_entity_group('ui_effects', static=True)
 
 	display.create_surface('life', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('items', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('node_grid', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('effects', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
+	#display.set_clear_surface('effects', 'tiles')
 	display.set_clear_surface('ui', 'tiles')
 	display.set_clear_surface('ui_menus', 'tiles')
 	

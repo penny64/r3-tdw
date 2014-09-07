@@ -185,6 +185,7 @@ def find_firing_position(entity):
 		_n_x, _n_y = _closest_node['node']
 		_t_n_x, _t_n_y = _closest_node_target['node']
 		_best_node = {'node': None, 'score': 0}
+		_score_weight = {}
 		
 		for node_x, node_y in _node_set['nodes']:
 			_distance = numbers.distance((_tx, _ty), (node_x, node_y))
@@ -198,9 +199,16 @@ def find_firing_position(entity):
 			if _distance >= _max_search_distance or _distance <= _danger_distance:
 				continue
 			
-			_score = _engage_range-_self_distance
+			_score = _engage_range+_self_distance
+			_nx, _ny = (int(round((node_x-_node_set['min_x'])/3.0)), int(round((node_y-_node_set['min_y'])/3.0)))
+			
+			if (_nx, _ny) in _score_weight:
+				_score += _score_weight[_nx, _ny]
 			
 			if _node['flags']['owner']['value']:
+				for c_x, c_y in [(_nx-1, _ny-1), (_nx, _ny-1), (_nx+1, _ny-1), (_nx-1, _ny), (_nx+1, _ny), (_nx-1, _ny+1), (_nx, _ny+1), (_nx+1, _ny+1)]:
+					_weights[c_y, c_x] += 100
+					_score_weight[c_x, c_y] = 100
 				continue
 			
 			_continue = False
@@ -218,7 +226,6 @@ def find_firing_position(entity):
 				_best_node['score'] = _score
 				_best_node['node'] = (node_x, node_y)
 			
-			_nx, _ny = (int(round((node_x-_node_set['min_x'])/3.0)), int(round((node_y-_node_set['min_y'])/3.0)))
 			_weights[_ny, _nx] += _score
 	
 	if not _best_node['node']:

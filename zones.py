@@ -69,11 +69,13 @@ def get_active_node_grid():
 	
 	return ZONES[ACTIVE_ZONE]['node_grid']
 
-def get_active_solids(entity, ignore_entities=[]):
+def get_active_solids(entity, ignore_entities=[], ignore_calling_entity=False):
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')
 	
-	ignore_entities.append(entity['_id'])
+	if not ignore_calling_entity:
+		ignore_entities.append(entity['_id'])
+	
 	_solids = ZONES[ACTIVE_ZONE]['solids'].copy()
 	_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
 	
@@ -134,7 +136,7 @@ def populate_life(zone_id):
 		else:
 			for b in range(_spawn_profile['squads']):
 				_spawn_pos = []
-				_center_x, _center_y = (150, 120)
+				_center_x, _center_y = (190, 200)
 						
 				for x, y in shapes.circle(_center_x, _center_y, 5):
 					if (x, y) in _zone['solids']:
