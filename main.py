@@ -260,7 +260,7 @@ if __name__ == '__main__':
 	display.create_surface('effects', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
-	#display.set_clear_surface('effects', 'tiles')
+	display.set_clear_surface('effects', 'tiles')
 	display.set_clear_surface('ui', 'tiles')
 	display.set_clear_surface('ui_menus', 'tiles')
 	

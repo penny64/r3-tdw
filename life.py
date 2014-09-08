@@ -289,6 +289,8 @@ def _shoot_weapon(entity, weapon_id, target_id):
 		return
 	
 	_tx, _ty = movement.get_position(entities.get_entity(target_id))
+	_direction = numbers.direction_to((_x, _y), (_tx, _ty))
+	effects.muzzle_flash(_x, _y, _direction)
 
 	entities.trigger_event(_weapon, 'flag_sub', flag='ammo', value=1)
 	entities.trigger_event(entity,
