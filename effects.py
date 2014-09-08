@@ -37,43 +37,90 @@ def blood(x, y, surface='effects', group='effects'):
 
 	return _blood
 
-def _muzzle_flash(entity):
+def _muzzle_flash_move(entity):
 	_direction = movement.get_direction(entity)
 	_nx, _ny = numbers.velocity(_direction, 1)
 	
-	entity['alpha'] -= 0.05
+	movement.push(entity, _nx, _ny, time=3)
+
+def _muzzle_flash_fade(entity):
+	entity['alpha'] -= 0.07
 	
-	_color = list(display.get_color_at('tiles', _nx, _ny))
+	_x, _y = movement.get_position(entity)
+		
+	_color = list(display.get_color_at('tiles', _x, _y))
 	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), entity['alpha'])
 	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), entity['alpha'])
 	
 	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
-	entities.trigger_event(entity, 'set_back_color', color=_color[1])	
-	
-	movement.push(entity, _nx, _ny, time=3)
+	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
 
 def _muzzle_delete(entity):
 	entities.delete_entity(entity)
 
-def muzzle_flash(x, y, direction, surface='effects', group='effects'):
+def muzzle_flash(x, y, direction, surface='effects', group='effects', start_alpha=0.4, no_move=False):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	
 	entities.trigger_event(_blood, 'set_char', char=random.choice([';', '3', '.', '^']))
-	_blood['alpha'] = 0.4
+	_blood['alpha'] = start_alpha
 
 	_color = list(display.get_color_at('tiles', _x, _y))
-	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), 0.4)
-	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), 0.4)
+	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), start_alpha)
+	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), start_alpha)
 	
 	entities.trigger_event(_blood, 'set_direction', direction=direction+random.randint(-35, 35))
 	
-	_muzzle_flash(_blood)
+	_muzzle_flash_move(_blood)
 	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
-	entities.trigger_event(_blood, 'create_timer', time=2, repeat=random.randint(1, 3), repeat_callback=_muzzle_flash, exit_callback=_muzzle_delete)
+	
+	if not no_move:
+		entities.trigger_event(_blood, 'create_timer', time=2, repeat=random.randint(1, 3), repeat_callback=_muzzle_flash_move, exit_callback=_muzzle_delete)
+	
+	entities.trigger_event(_blood, 'create_timer', time=1, repeat=6, repeat_callback=_muzzle_flash_fade)
 
 	return _blood
+
+def _vapor_fade(entity):
+	entity['alpha'] -= 0.095
+	
+	if entity['alpha'] <= 0:
+		entities.delete_entity(entity)
+		
+		return
+	
+	_x, _y = movement.get_position(entity)
+		
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), entity['alpha'])
+	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), entity['alpha'])
+	
+	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
+	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
+
+def vapor(x, y, surface='effects', group='effects', start_alpha=0.9):
+	_vapor = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	entities.trigger_event(_vapor, 'set_char', char=' ')
+	_vapor['alpha'] = start_alpha
+
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), start_alpha)
+	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), start_alpha)
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
+	_muzzle_flash_move(_vapor)
+	entities.trigger_event(_vapor, 'set_fore_color', color=_color[0])
+	entities.trigger_event(_vapor, 'set_back_color', color=_color[1])
+	
+	entities.trigger_event(_vapor, 'create_timer', time=0, repeat=-1, repeat_callback=_vapor_fade)
+
+	return _vapor
 
 def _printer_tick(entity):
 	entities.trigger_event(entity, 'flag_add', flag='text_index', value=1)

@@ -102,6 +102,12 @@ def get_active_node_sets():
 	
 	return ZONES[ACTIVE_ZONE]['node_sets']
 
+def get_active_size():
+	if not ACTIVE_ZONE:
+			raise Exception('No zone is active.')	
+	
+	return ZONES[ACTIVE_ZONE]['width'], ZONES[ACTIVE_ZONE]['height']
+
 def populate_life(zone_id):
 	_zone = ZONES[zone_id]
 	

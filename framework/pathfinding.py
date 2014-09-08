@@ -166,6 +166,8 @@ def walk_path(path):
 						del _o_scores[_min_key]
 					
 					break
+	
+	#print time.time()-_stime, numbers.distance(path['start'], path['end'])
 
 	return find_path(path)
 
