@@ -32,6 +32,10 @@ def blood(x, y, surface='effects', group='effects'):
 	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.BLOOD_1, constants.BLOOD_2, constants.BLOOD_3]), 0.4)
 	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.BLOOD_1, constants.BLOOD_2, constants.BLOOD_3]), 0.4)
 	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
 	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
 
@@ -52,6 +56,10 @@ def _muzzle_flash_fade(entity):
 	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), entity['alpha'])
 	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), entity['alpha'])
 	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
 	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
 
@@ -68,6 +76,10 @@ def muzzle_flash(x, y, direction, surface='effects', group='effects', start_alph
 	_color = list(display.get_color_at('tiles', _x, _y))
 	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), start_alpha)
 	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), start_alpha)
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
 	
 	entities.trigger_event(_blood, 'set_direction', direction=direction+random.randint(-35, 35))
 	
@@ -95,6 +107,10 @@ def _vapor_fade(entity):
 	_color = list(display.get_color_at('tiles', _x, _y))
 	_color[0] = numbers.interp_velocity(_color[0], (255, 255, 255), entity['alpha'])
 	_color[1] = numbers.interp_velocity(_color[1], (255, 255, 255), entity['alpha'])
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
 	
 	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
