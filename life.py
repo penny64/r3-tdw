@@ -30,11 +30,11 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	skeleton.register(_entity)
 	skeleton.create_limb(_entity, 'head', [], True, 0.1)
 	skeleton.create_limb(_entity, 'chest', ['head'], True, 0.88)
-	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.88)
-	skeleton.create_limb(_entity, 'left arm', ['chest'], False, 0.3)
-	skeleton.create_limb(_entity, 'right arm', ['chest'], False, 0.3)
-	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45)
-	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45)
+	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.75)
+	skeleton.create_limb(_entity, 'left arm', ['chest'], False, 0.3, can_sever=True, stat_mod={'accuracy': .22})
+	skeleton.create_limb(_entity, 'right arm', ['chest'], False, 0.3, can_sever=True, stat_mod={'accuracy': .22})
+	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'speed': .4})
 
 	if has_ai:
 		ai.register_human(_entity)
@@ -304,7 +304,9 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                key='last_seen_at',
 	                                                                value=[x, y]))	
 
-	items.bullet(entity, _x, _y, _tx, _ty, 1, flags.get_flag(_weapon, 'accuracy'))
+	entities.trigger_event(entity, 'get_accuracy')
+
+	items.bullet(entity, _x, _y, _tx, _ty, 1, int(round(flags.get_flag(_weapon, 'accuracy') * entity['stats']['accuracy'])))
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'Shoot'):

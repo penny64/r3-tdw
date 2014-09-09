@@ -3,6 +3,7 @@ from framework import display, entities, timers, events, flags, workers, numbers
 import libtcodpy as tcod
 
 import constants
+import settings
 import camera
 
 import numpy
@@ -49,9 +50,8 @@ def post_process_clouds(width, height, passes, noise):
 	_clouds_y = (display.get_surface('tiles')['start_y']*.03)+(CLOUD_X * -.5)
 	_size = 100.0
 	
-	CLOUD_X -= .003
-	
-	#_clouds += SHADOWS[camera.Y:camera.Y+height, camera.X:camera.X+width]
+	if settings.TICK_MODE == 'normal':
+		CLOUD_X -= .003
 	
 	_worker = workers.counter_2d(width,
 	                             height,

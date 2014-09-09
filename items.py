@@ -6,6 +6,7 @@ import zones
 
 import logging
 import random
+import sys
 
 
 def register(entity):
@@ -239,4 +240,6 @@ def bullet(entity, x, y, tx, ty, speed, accuracy):
 	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.randint(-accuracy, accuracy))
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
-	entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))
+	
+	if not '--no-fx' in sys.argv:
+		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))

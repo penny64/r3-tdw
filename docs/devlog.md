@@ -1,3 +1,15 @@
+#Mon Sep  8 2014
+
+It occurs to me that that something is terribly broken with firing positions.
+The node path is generating correctly, but unfortunately the gaps between nodes
+are proving troublesome, causing NPCs to path through walls. The immediate
+solution would be to ensure buildings are placed and sized to a number evenly
+divisible by 3, but I may settle with just generating nodes at every tile.
+Given that node set paths are generated in two passes (abstract path, then the
+full path) we'd be doing less work by generating nodes on every tile. Scoring
+node sets will be much harder now, though, but we can always delegate tasks to
+another process if needed.
+
 #Sat Sep  6 2014
 
 Heavily optimized pathfinding today. The changes are local to the framework, so

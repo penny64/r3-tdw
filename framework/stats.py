@@ -3,10 +3,13 @@ from framework import entities, numbers
 import random
 
 
-def register(entity, health, speed, name='Unknown'):
+def register(entity, health, speed, accuracy=1.0, name='Unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
+	          'max_speed': speed,
+	          'accuracy': accuracy,
+	          'max_accuracy': accuracy,
 	          'name': name,
 	          'last_engaged': None,
 	          'kills': 0}
@@ -17,6 +20,8 @@ def register(entity, health, speed, name='Unknown'):
 	entities.create_event(entity, 'hurt')
 	entities.create_event(entity, 'haste')
 	entities.create_event(entity, 'slow')
+	entities.create_event(entity, 'get_speed')
+	entities.create_event(entity, 'get_accuracy')
 	entities.register_event(entity, 'hurt', hurt)
 	entities.register_event(entity, 'kill', kill)
 	entities.register_event(entity, 'log_kill', log_kill)
@@ -50,13 +55,27 @@ def get_strength(entity, items=True):
 
 def get_speed(entity, items=True):
 	#TODO: Let events modify this value
-	_speed = entity['stats']['speed']
+	entity['stats']['speed'] = entity['stats']['max_speed']
+	
+	entities.trigger_event(entity, 'get_speed')
 	
 	#if items:
 	#	for item in inventory.get_items(entity):
 	#		_speed += item['stats']['speed']
 	
-	return _speed
+	return entity['stats']['speed']
+
+def get_accuracy(entity):
+	#TODO: Let events modify this value
+	entity['stats']['accuracy'] = entity['stats']['max_accuracy']
+	
+	entities.trigger_event(entity, 'get_accuracy')
+	
+	#if items:
+	#	for item in inventory.get_items(entity):
+	#		_speed += item['stats']['speed']
+	
+	return entity['stats']['accuracy']
 
 def get_damage_mod(entity):
 	return numbers.clip(random.randint(0, get_strength(entity)) / float(get_strength(entity)), .50, 1)

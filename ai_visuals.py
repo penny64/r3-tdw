@@ -49,7 +49,6 @@ def build_life_list(entity):
 	entity['ai']['visible_targets'] = []
 	_nearest_target = {'target_id': None, 'distance': 0}
 	_solids = zones.get_active_solids(entity)
-	
 	_visible_life = set()
 	
 	for entity_id in entities.get_entity_group('life'):
@@ -66,18 +65,26 @@ def build_life_list(entity):
 			                                          'last_seen_at': None,
 			                                          'last_seen_velocity': None}
 		
-		for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
-			if pos in _solids:
-				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
-					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
-				
-				entity['ai']['life_memory'][entity_id]['can_see'] = False
-				
-				if entity_id in entity['ai']['visible_life']:
-					entity['ai']['visible_life'].remove(entity_id)
-				
-				break
+		if not ai_factions.is_enemy(entity, entity_id):
+			_visible = True
 		else:
+			for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
+				if pos in _solids:
+					if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
+						entities.trigger_event(entity, 'target_lost', target_id=entity_id)
+					
+					entity['ai']['life_memory'][entity_id]['can_see'] = False
+					
+					if entity_id in entity['ai']['visible_life']:
+						entity['ai']['visible_life'].remove(entity_id)
+					
+					_visible = False
+					
+					break
+			else:
+				_visible = True
+		
+		if _visible:
 			_is_target = ai_factions.is_enemy(entity, _target['_id'])
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
@@ -86,7 +93,6 @@ def build_life_list(entity):
 			            'last_seen_at': movement.get_position(_target)[:],
 			            'last_seen_velocity': None}
 			
-			#_visible_life.add(entity_id)
 			entity['ai']['visible_life'].add(entity_id)
 			
 			if _is_target:
@@ -116,7 +122,6 @@ def build_life_list(entity):
 			if _could_not_see_target_before:
 				entities.trigger_event(entity, 'target_found', target_id=entity_id)
 	
-	#entity['ai']['visible_life'].update(_visible_life)
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
 	
 	if _nearest_target['target_id']:

@@ -144,7 +144,13 @@ def leader_handle_raid_camp(entity, camp):
 		entities.trigger_event(_member, 'squad_inform_raid', member_id=entity['_id'], camp=camp)
 
 def member_learn_raid(entity, member_id, camp):
-	_camp_leader = entities.get_entity(ai_factions.FACTIONS[camp['owner']['faction']]['squads'][camp['owner']['squad']]['leader'])
+	_faction = ai_factions.FACTIONS[camp['owner']['faction']]
+	_squad = _faction['squads'][camp['owner']['squad']]
+	
+	if not _squad['leader']:
+		return
+	
+	_camp_leader = entities.get_entity(_squad['leader'])
 	
 	#TODO: Don't do this
 	entity['ai']['life_memory'][_camp_leader['_id']] = {'distance': -1,
