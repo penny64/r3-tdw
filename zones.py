@@ -157,7 +157,7 @@ def populate_life(zone_id):
 					_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
 					_e = _spawn_profile['type'](_x, _y, 'Test NPC %s' % str(i+1))
 
-def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
+def path_node_set(node_set, start, end, weights=None, path=False, entity=None, avoid=[]):
 	if not weights == None:
 		_weights = weights
 	else:
@@ -175,34 +175,25 @@ def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
 	
 	_start = (int(round((start[0]-node_set['min_x']))), int(round((start[1]-node_set['min_y']))))
 	_end = (int(round((end[0]-node_set['min_x']))), int(round((end[1]-node_set['min_y']))))
-	_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights, avoid=_n_avoid)
+	_node_set_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights, avoid=_n_avoid)
 
-	if not _path:
+	if not _node_set_path:
 		return []
 	
-	_astar_map = get_active_astar_map()
-	_weight_map = get_active_weight_map()
-	
 	if path:
-		_last_pos = (start[0], start[1])
-		_return_path = []
+		_actual_path = []
+		_astar_map = get_active_astar_map()
+		_weight_map = get_active_weight_map()
+		_x, _y = movement.get_position(entity)
 		
-		for pos in _path[1:]:
-			_pos = (node_set['min_x']+(pos[0]), node_set['min_y']+(pos[1]))
-			
-			if _pos in avoid:
-				logging.warning('Weird path generated.')
-				
-				return []
-			
-			_n_path = pathfinding.astar(_last_pos, _pos, _astar_map, _weight_map, avoid=avoid)
-			
-			if not _n_path:
-				return []
-			
-			_return_path.extend(_n_path)
-			_last_pos = _pos[:]
+		for pos in _node_set_path:
+			_actual_path.append((node_set['min_x']+pos[0], node_set['min_y']+pos[1]))
+		
+		print (_x, _y), _actual_path[0], (_x, _y) in avoid, _actual_path[0] in avoid
+		print _astar_map[_actual_path[0][1], _actual_path[0][0]]
+		_n_path = pathfinding.astar((_x, _y), _actual_path[0], _astar_map, _weight_map, avoid=avoid)
+		_n_path.extend(_actual_path)
 	
-		return _return_path
+		return _n_path
 	
-	return _path
+	return _node_set_path

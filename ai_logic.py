@@ -151,8 +151,8 @@ def find_firing_position(entity):
 						
 						break
 				
-				if not _invalid:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
+				if not _invalid and entity['movement']['path']['positions']:
+					#movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
 					
 					return
 				
@@ -240,7 +240,7 @@ def find_firing_position(entity):
 		
 		return
 	
-	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True, avoid=_solids)
+	_node_set_path = zones.path_node_set(_node_set, (_n_x, _n_y), (_best_node['node'][0], _best_node['node'][1]), weights=_weights, path=True, entity=entity, avoid=_solids)
 	
 	if not _node_set_path:
 		entity['ai']['meta']['has_firing_position'] = False
