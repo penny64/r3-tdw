@@ -102,6 +102,13 @@ def _cleanup(entity):
 	
 	_x, _y = movement.get_position(entity)
 	
+	if flags.has_flag(entity, 'fire_data'):
+		_fire_data = flags.get_flag(entity, 'fire_data')
+		_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
+		
+		entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
+		flags.delete_flag(entity, 'fire_data')
+	
 	items.corpse(_x, _y, entity['tile']['char'])
 
 def _register_animal(entity, player=False):
