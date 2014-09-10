@@ -82,6 +82,12 @@ def astar(start, end, astar_map, weight_map, avoid=[]):
 
 	for pos in avoid:
 		_path['map'][pos[1], pos[0]] = -2
+	
+	if _path['map'][start[1], start[0]] == -2:
+		raise Exception('Start point is a solid!')
+	
+	if _path['map'][end[1], end[0]] == -2:
+		raise Exception('End point is a solid!')
 
 	_path['hmap'][_path['start'][1], _path['start'][0]] = (abs(_path['start'][0]-_path['end'][0])+abs(_path['start'][1]-_path['end'][1]))*10
 	_path['fmap'][_path['start'][1], _path['start'][0]] = _path['hmap'][_path['start'][1],_path['start'][0]]
@@ -183,7 +189,7 @@ def getadj(path, pos, cset):
 	               (pos[0], pos[1]+1),
 	               (pos[0]+1, pos[1]+1)]:
 
-		if path['map'][_y,_x]==-2 or _x<0 or _x>=path['map_size'][0]-1 or _y<0 or _y>=path['map_size'][1]-1:
+		if _x<0 or _x>=path['map_size'][0] or _y<0 or _y>=path['map_size'][1] or path['map'][_y,_x]==-2:
 			continue
 
 		if (_x, _y) in cset:
@@ -200,13 +206,14 @@ def find_path(path):
 	node = path['pmap'][path['end'][0]][path['end'][1]]
 	_path = [(path['end'][0], path['end'][1])]
 	_broken = False
+	
+	if not node:
+		print 'Path failed.'
+		
+		return []
 
 	while not tuple(node) == tuple(path['start']):
-		if not node:
-			_broken = True
-			break
-		else:
-			_path.insert(0, node)
+		_path.insert(0, node)
 
 		node = path['pmap'][node[0]][node[1]]
 

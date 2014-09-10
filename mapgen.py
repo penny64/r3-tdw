@@ -70,7 +70,7 @@ def build_node_grid(solids):
 
 				_ignore_positions.add((_sx, _sy))
 
-def add_plot_pole(x, y, radius):
+def add_plot_pole(x, y, radius, solids, cell_split=3.0):
 	global NODE_SET_ID
 
 	_node_set = set()
@@ -97,11 +97,13 @@ def add_plot_pole(x, y, radius):
 
 		_node_set.add(node_pos)
 	
-	_map = numpy.zeros((_max_y-_min_y, _max_x-_min_x))
-	_map -= 2
+	_map = numpy.ones(((_max_y-_min_y)+1, (_max_x-_min_x)+1))
 	
-	for _x, _y in list(_node_set):
-		_map[int(round((_y-_min_y)/3.0)), int(round((_x-_min_x)/3.0))] = 1
+	for _x, _y in solids:
+		if _x >= _max_x or _x <= _min_x or _y >= _max_y or _y <= _min_y:
+			continue
+		
+		_map[int(round((_y-_min_y))), int(round((_x-_min_x)))] = -2
 
 	NODE_SETS[NODE_SET_ID] = {'owner': None,
 	                          'nodes': _node_set,
@@ -109,8 +111,20 @@ def add_plot_pole(x, y, radius):
 	                          'astar_map': _map,
 	                          'min_x': _min_x,
 	                          'min_y': _min_y,
-	                          'weight_map': numpy.ones((_max_y-_min_y, _max_x-_min_x), dtype=numpy.int16)}
+	                          'cell_split': float(cell_split),
+	                          'weight_map': numpy.ones(((_max_y-_min_y)+1, (_max_x-_min_x)+1), dtype=numpy.int16)}
 	NODE_SET_ID += 1
+	
+	for y in range(_max_y-_min_y):
+		for x in range(_max_x-_min_x):
+			_val = int(round(_map[y, x]))
+			
+			if _val == -2:
+				print '#',
+			elif _val == 1:
+				print '.',
+		
+		print
 
 	return NODE_SET_ID-1
 
@@ -290,7 +304,7 @@ def swamp(width, height):
 	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.5))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
 
 	build_node_grid(_solids)
-	add_plot_pole(_plot_pole_x, _plot_pole_y, 40)
+	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
 	
 	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
 	        'Bandits': {'bases': 0, 'squads': 1, 'type': life.human_bandit}}

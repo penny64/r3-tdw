@@ -227,7 +227,7 @@ def check_for_collisions(entity):
 def _bullet_effects(entity, x, y):
 	_distance = numbers.distance((x, y), entity['start_position'])
 	
-	effects.vapor(x, y, start_alpha=numbers.clip((0.75-(_distance/35.0))+random.uniform(-.1, .1), 0, 1))
+	effects.vapor(x, y, start_alpha=numbers.clip((0.6-(_distance/35.0))+random.uniform(-.1, .1), 0, 1))
 
 def bullet(entity, x, y, tx, ty, speed, accuracy):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')

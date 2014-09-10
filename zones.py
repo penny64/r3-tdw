@@ -6,6 +6,7 @@ import post_processing
 import ai_factions
 import ai_squads
 import constants
+import effects
 import camera
 import life
 import maps
@@ -161,21 +162,40 @@ def path_node_set(node_set, start, end, weights=None, path=False, avoid=[]):
 		_weights = weights
 	else:
 		_weights = node_set['weight_map']
+		
+	_n_avoid = []
 	
-	_start = (int(round((start[0]-node_set['min_x'])/3.0)), int(round((start[1]-node_set['min_y'])/3.0)))
-	_end = (int(round((end[0]-node_set['min_x'])/3.0)), int(round((end[1]-node_set['min_y'])/3.0)))
-	_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights)
+	for p in avoid:
+		_p_x, _p_y = p[0]-node_set['min_x'], p[1]-node_set['min_y']
+		
+		if _p_x < node_set['min_x'] or _p_y < node_set['min_y'] or _p_x >= node_set['max_x'] or _p_y >= node_set['max_y']:
+			continue
+		
+		_n_avoid.append((_p_x, _p_y))
 	
+	_start = (int(round((start[0]-node_set['min_x']))), int(round((start[1]-node_set['min_y']))))
+	_end = (int(round((end[0]-node_set['min_x']))), int(round((end[1]-node_set['min_y']))))
+	_path = pathfinding.astar(_start, _end, node_set['astar_map'], _weights, avoid=_n_avoid)
+
 	if not _path:
 		return []
+	
+	_astar_map = get_active_astar_map()
+	_weight_map = get_active_weight_map()
 	
 	if path:
 		_last_pos = (start[0], start[1])
 		_return_path = []
 		
 		for pos in _path[1:]:
-			_pos = (node_set['min_x']+(pos[0] * 3), node_set['min_y']+(pos[1] * 3))
-			_n_path = pathfinding.astar(_last_pos, _pos, get_active_astar_map(), get_active_weight_map(), avoid=avoid)
+			_pos = (node_set['min_x']+(pos[0]), node_set['min_y']+(pos[1]))
+			
+			if _pos in avoid:
+				logging.warning('Weird path generated.')
+				
+				return []
+			
+			_n_path = pathfinding.astar(_last_pos, _pos, _astar_map, _weight_map, avoid=avoid)
 			
 			if not _n_path:
 				return []

@@ -107,7 +107,7 @@ def find_cover(entity):
 			_closest_node['distance'] = _distance
 	
 	if not _closest_node['node']:
-		print 'No cover.'
+		#print 'No cover.'
 		
 		return
 	
@@ -122,7 +122,6 @@ def find_firing_position(entity):
 	_closest_node = {'node': None, 'distance': 0}
 	_closest_node_target = {'node': None, 'distance': 0}
 	_can_see = entity['ai']['life_memory'][_target['_id']]['can_see']
-	_active_solids = zones.get_active_solids(_target, ignore_entities=[entity['_id']])
 	_solids = zones.get_active_solids(_target, ignore_entities=[entity['_id']])
 	
 	_t = time.time()
@@ -147,8 +146,9 @@ def find_firing_position(entity):
 				_invalid = False
 				
 				for pos in shapes.line((_tx, _ty), _fire_data['node']):
-					if pos in _active_solids:
+					if pos in _solids:
 						_invalid = True
+						
 						break
 				
 				if not _invalid:
@@ -174,6 +174,9 @@ def find_firing_position(entity):
 			_distance = numbers.distance((_x, _y), (node_x, node_y))
 			_target_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 			
+			if (node_x, node_y) in _solids:
+				continue
+			
 			if not _closest_node['node'] or _distance < _closest_node['distance']:
 				_closest_node['node'] = (node_x, node_y)
 				_closest_node['distance'] = _distance
@@ -182,6 +185,7 @@ def find_firing_position(entity):
 				_closest_node_target['node'] = (node_x, node_y)
 				_closest_node_target['distance'] = _target_distance			
 		
+		#TODO: Maybe use closest_node again?
 		_n_x, _n_y = _closest_node['node']
 		_t_n_x, _t_n_y = _closest_node_target['node']
 		_best_node = {'node': None, 'score': 0}
@@ -200,13 +204,16 @@ def find_firing_position(entity):
 				continue
 			
 			_score = _engage_range+_self_distance
-			_nx, _ny = (int(round((node_x-_node_set['min_x'])/3.0)), int(round((node_y-_node_set['min_y'])/3.0)))
+			_nx, _ny = (int(round((node_x-_node_set['min_x']))), int(round((node_y-_node_set['min_y']))))
 			
 			if (_nx, _ny) in _score_weight:
 				_score += _score_weight[_nx, _ny]
 			
 			if _node['flags']['owner']['value']:
 				for c_x, c_y in [(_nx-1, _ny-1), (_nx, _ny-1), (_nx+1, _ny-1), (_nx-1, _ny), (_nx+1, _ny), (_nx-1, _ny+1), (_nx, _ny+1), (_nx+1, _ny+1)]:
+					if c_x < _node_set['min_x'] or c_x >= _node_set['max_x'] or c_y < _node_set['min_y'] or c_y >= _node_set['max_y']:
+						continue
+					
 					_weights[c_y, c_x] += 100
 					_score_weight[c_x, c_y] = 100
 				continue
