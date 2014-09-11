@@ -1,3 +1,16 @@
+#Thu Sep 11 2014
+
+Firing positions got a redo yesterday, and I think it's safe to say this method
+is much better; instead of doing some very demanding work to find the best
+position right away, much simpler and faster logic is done more often, updating
+every few moves instead. The advantage of the old method was having proper
+distances to nodes based on node set paths, but now I'm using the old distance
+formula with a +10 penalty to the node score when walls are found in the NPC's
+LOS to that node. Any issues I have now are strictly related to not considering
+multiple targets when choosing positions. Maybe a better method would be to
+check each target's LOS to that node and score from there, picking the node that
+the least number of targets can see.
+
 #Mon Sep  8 2014
 
 It occurs to me that that something is terribly broken with firing positions.

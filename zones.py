@@ -70,15 +70,17 @@ def get_active_node_grid():
 	
 	return ZONES[ACTIVE_ZONE]['node_grid']
 
-def get_active_solids(entity, ignore_entities=[], ignore_calling_entity=False):
+def get_active_solids(entity, ignore_entities=[], ignore_calling_entity=False, no_life=False):
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')
 	
-	if not ignore_calling_entity:
-		ignore_entities.append(entity['_id'])
-	
 	_solids = ZONES[ACTIVE_ZONE]['solids'].copy()
-	_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
+	
+	if not no_life:
+		if not ignore_calling_entity:
+			ignore_entities.append(entity['_id'])
+		
+		_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
 	
 	return _solids
 

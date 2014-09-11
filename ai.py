@@ -2,6 +2,7 @@ from framework import entities, events, numbers, goapy, timers, flags, movement
 
 import ai_squad_logic
 import ai_factions
+import ai_debugger
 import ai_visuals
 import skeleton
 import settings
@@ -397,16 +398,22 @@ def _human_logic(entity):
 	if not _goap:
 		entity['ai']['current_action'] = 'idle'
 		
+		entities.trigger_event(entity, 'stop')
+		
 		return	
 	
 	_plan = _goap[0]
+	
+	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
+		if entity['_id'] in ai_debugger.WATCHING:
+			logging.info('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
+		
+		entities.trigger_event(entity, 'stop')
+		
+		entity['ai']['last_action'] = _plan['actions'][0]['name']	
+	
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 	#print time.time() - _t
-
-	if not entity['ai']['last_action'] == _plan['actions'][0]['name']:
-		logging.debug('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
-		
-		entity['ai']['last_action'] = _plan['actions'][0]['name']
 	
 	entity['ai']['current_action'] = _plan['actions'][0]['name']
 

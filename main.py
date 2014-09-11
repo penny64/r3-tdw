@@ -169,7 +169,6 @@ def loop():
 		else:
 			_ticks_per_tick = 1
 		
-		_t = time.time()
 		for _ in range(_ticks_per_tick):
 			events.trigger_event('logic')
 			tick()
@@ -177,9 +176,7 @@ def loop():
 	ai_factions.logic()
 	ai_squads.logic()
 	
-	_t = time.time()
 	if pathfinding.wait_for_astar():
-		#print 'Took', time.time()-_t
 		pass
 	
 	events.trigger_event('tick')
@@ -199,16 +196,16 @@ def main():
 	
 	ai_factions.boot()
 	
-	PLAYER = life.human(240, 230, 'Tester Toaster')
+	PLAYER = life.human(260, 260, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 
 	#life.human_bandit(195, 135, 'Test NPC 3')
-	items.ammo_9x19mm(170, 176)
-	items.leather_backpack(176, 171)
-	items.ammo_9x19mm(180, 175)
-	items.leather_backpack(186, 170)
-	items.glock(175, 176)
-	items.glock(165, 166, ammo=17)
+	#items.ammo_9x19mm(170, 176)
+	#items.leather_backpack(176, 171)
+	#items.ammo_9x19mm(180, 175)
+	#items.leather_backpack(186, 170)
+	#items.glock(175, 176)
+	#items.glock(165, 166, ammo=17)
 	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
 	
 	ui_cursor.boot()

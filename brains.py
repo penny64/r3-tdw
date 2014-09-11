@@ -83,9 +83,9 @@ def search_for_container():
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(has_container=True)
 
-	_actions.add_condition('find_container', has_container=False)
+	#_actions.add_condition('find_container', has_container=False, in_engagement=False)
 	#_weapon_search_actions.add_callback('find_weapon', lambda entity: ai_logic.find_weapon(entity))
-	_actions.add_reaction('find_container', sees_item_type_container=True)
+	#_actions.add_reaction('find_container', sees_item_type_container=True)
 	
 	_actions.add_condition('get_container', sees_item_type_container=True, in_engagement=False)
 	_actions.add_callback('get_container', lambda entity: ai_logic.get_container(entity))

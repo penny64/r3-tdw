@@ -57,20 +57,20 @@ def build_node_grid(solids):
 	_ignore_positions = set()
 
 	for x, y in solids:
-		for _sy in range(y-5, y+6):
-			for _sx in range(x-5, x+6):
+		for _sy in range(y-5, y+6, 2):
+			for _sx in range(x-5, x+6, 2):
 				if (_sx, _sy) in _ignore_positions:
 					continue
 
-				if not _sx % 3 and not _sy % 3:
-					if (_sx, _sy) in solids:
-						continue
+				if (_sx, _sy) in solids:
+					continue
 
-					_create_node(_sx, _sy)
+				_create_node(_sx, _sy)
 
-				_ignore_positions.add((_sx, _sy))
+				for _x, _y in [(_sx-1, _sy-1), (_sx, _sy-1), (_sx+1, _sy-1), (_sx-1, _sy), (_sx, _sy), (_sx-1, _sy+1), (_sx, _sy+1), (_sx+1, _sy+1)]:
+					_ignore_positions.add((_x, _y))
 
-def add_plot_pole(x, y, radius, solids, cell_split=3.0):
+def add_plot_pole(x, y, radius, solids, cell_split=3.0, debug=False):
 	global NODE_SET_ID
 
 	_node_set = set()
@@ -97,6 +97,7 @@ def add_plot_pole(x, y, radius, solids, cell_split=3.0):
 
 		_node_set.add(node_pos)
 	
+	print _min_x, _min_y, _max_x, _max_y
 	_map = numpy.ones(((_max_y-_min_y)+1, (_max_x-_min_x)+1))
 	
 	for _x, _y in solids:
@@ -115,16 +116,17 @@ def add_plot_pole(x, y, radius, solids, cell_split=3.0):
 	                          'weight_map': numpy.ones(((_max_y-_min_y)+1, (_max_x-_min_x)+1), dtype=numpy.int16)}
 	NODE_SET_ID += 1
 	
-	for y in range(_max_y-_min_y):
-		for x in range(_max_x-_min_x):
-			_val = int(round(_map[y, x]))
+	if debug:
+		for y in range(_max_y-_min_y):
+			for x in range(_max_x-_min_x):
+				_val = int(round(_map[y, x]))
+				
+				if _val == -2:
+					print '#',
+				elif _val == 1:
+					print '.',
 			
-			if _val == -2:
-				print '#',
-			elif _val == 1:
-				print '.',
-		
-		print
+			print
 
 	return NODE_SET_ID-1
 
@@ -151,6 +153,7 @@ def swamp(width, height):
 	_c_x, _c_y = width/2, height/2
 	_zoom = 1.2
 	_noise = tcod.noise_new(3)
+	_possible_trees = set()
 	
 	for y in range(height):
 		for x in range(width):
@@ -161,13 +164,16 @@ def swamp(width, height):
 			
 			if _noise_value > .3:
 				_tile = tiles.grass(x, y)
+				_possible_trees.add((x, y))
 				
 			elif _noise_value > .2:
 				if random.uniform(.2, .3) + (_noise_value-.2) > .3:
 					if _c_dist < .35:
 						_tile = tiles.grass(x, y)
+						_possible_trees.add((x, y))
 					else:
 						_tile = tiles.grass(x, y)
+						_possible_trees.add((x, y))
 				else:
 					#TODO: Slowly dither in swamp water
 					if _c_dist < .35:
@@ -188,6 +194,7 @@ def swamp(width, height):
 			
 			elif _noise_value < 0:
 				_tile = tiles.tall_grass(x, y)
+				_possible_trees.add((x, y))
 			
 			else:
 				_tile = tiles.swamp(x, y)
@@ -301,7 +308,15 @@ def swamp(width, height):
 		if _y < _min_y:
 			_min_y = _y
 
-	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.5))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
+	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.05))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
+	_tree_plots = list(_possible_trees - _solids)
+	
+	for x, y in random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots))):
+		_tile = tiles.wooden_fence(x, y)
+		_weight_map[y][x] = _tile['w']
+		_tile_map[y][x] =_tile
+
+		_solids.add((x, y))	
 
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
