@@ -18,7 +18,7 @@ ZONES = {}
 ACTIVE_ZONE = None
 
 
-def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list):
+def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees):
 	ZONES[name] = {'name': name,
 	               'width': width,
 	               'height': height,
@@ -28,7 +28,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'tile_map': tile_map,
 	               'solids': solids,
 	               'faction_spawn_list': faction_spawn_list,
-	               'astar_map': None}
+	               'astar_map': None,
+	               'trees': trees}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -49,7 +50,7 @@ def activate(zone_id):
 	display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
 	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
 	
-	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'])
+	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.run(time=8,
                         repeat=-1,
                         repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,

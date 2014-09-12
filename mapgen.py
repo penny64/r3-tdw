@@ -310,13 +310,14 @@ def swamp(width, height):
 
 	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.05))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
 	_tree_plots = list(_possible_trees - _solids)
+	_trees = {}
 	
 	for x, y in random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots))):
 		_tile = tiles.wooden_fence(x, y)
 		_weight_map[y][x] = _tile['w']
 		_tile_map[y][x] =_tile
-
 		_solids.add((x, y))	
+		_trees[x, y] = random.randint(7, 12)
 
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
@@ -324,4 +325,4 @@ def swamp(width, height):
 	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
 	        'Bandits': {'bases': 0, 'squads': 1, 'type': life.human_bandit}}
 	
-	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl
+	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees

@@ -1,4 +1,4 @@
-from framework import display, entities, timers, events, flags, workers, numbers
+from framework import display, entities, timers, events, flags, workers, numbers, shapes
 
 import libtcodpy as tcod
 
@@ -71,13 +71,16 @@ def post_process_clouds(width, height, passes, noise):
 	                                                             constants.MAP_VIEW_WIDTH,
 	                                                             constants.MAP_VIEW_HEIGHT))
 
-def generate_shadow_map(width, height, solids):
+def generate_shadow_map(width, height, solids, trees):
 	global SHADOWS
 	
 	SHADOWS = numpy.ones((height, width))
 	_taken = set()
 	
 	for x, y in solids:
+		if (x, y) in trees:
+			continue
+		
 		for i in range(1, 4):
 			if (x+i, y+i) in solids or (x+i, y+i) in _taken or x+i >= width or y+i >= height:
 				break
@@ -89,4 +92,16 @@ def generate_shadow_map(width, height, solids):
 			
 			_taken.add((x+1, y+1))
 	
+	_taken = set()
 	
+	for _x, _y in trees.keys():
+		_tree_size = float(trees[_x, _y])
+		
+		for x, y in shapes.circle(_x, _y, int(_tree_size)):
+			if (x, y) in solids or x >= width or y >= height or x < 0 or y <0:
+				continue
+			
+			_distance = numbers.float_distance((x, y), (_x, _y))
+			_shadow = numbers.clip(1 - ((_distance / _tree_size) + .45), .1, .9)
+			
+			SHADOWS[y][x] = numbers.clip(SHADOWS[y][x]-_shadow, .45, 1)
