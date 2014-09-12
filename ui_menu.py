@@ -68,8 +68,8 @@ def handle_mouse_moved(x, y, dx, dy):
 	if not _menu:
 		return
 	
-	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+len(_menu['items']):
-		_selected_index = y-_menu['y']
+	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+(len(_menu['items']) * 3):
+		_selected_index = (y-_menu['y']) / 3
 		
 		if _selected_index >= len(_menu['items']):
 			return False
@@ -87,8 +87,8 @@ def handle_mouse_pressed(x, y, button):
 	if not _menu:
 		return
 	
-	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+len(_menu['items']):
-		_selected_index = y-_menu['y']
+	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+(len(_menu['items']) * 3):
+		_selected_index = (y-_menu['y']) / 3
 		
 		if _selected_index >= len(_menu['items']):
 			return False
@@ -157,6 +157,7 @@ def add_selectable(menu, text, callback, fore_color=(230, 230, 230), back_color=
 
 def draw(menu, surface):
 	_y_mod = 0
+	_yy_mod = 0
 	
 	for item_id in menu['items']:
 		_item = menu['items'][item_id]
@@ -167,8 +168,15 @@ def draw(menu, surface):
 		else:
 			_back_color = _item['back_color']
 		
-		display.write_string(surface, menu['x'], menu['y']+_y_mod, _text, fore_color=_item['fore_color'], back_color=_back_color)
+		for i in range(-1, 2):
+			if i:
+				display.write_string(surface, menu['x'], menu['y']+_y_mod+_yy_mod, ' ' * len(_text), fore_color=_item['fore_color'], back_color=_back_color)
+			else:
+				display.write_string(surface, menu['x'], menu['y']+_y_mod+_yy_mod, _text, fore_color=_item['fore_color'], back_color=_back_color)
+			
+			_yy_mod += 1
 		
+		_yy_mod -= 1
 		_y_mod += 1
 
 def draw_all(surface):

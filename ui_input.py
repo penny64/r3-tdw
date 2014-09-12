@@ -54,8 +54,7 @@ def handle_keyboard_input(entity):
 				break
 				
 def _show_metas(entity):
-	_x, _y = ui_cursor.get_screen_position()
-	_menu = ui_menu.create(_x, _y, title='Metas')
+	_menu = ui_menu.create(0, 0, title='Metas')
 	_keys = entity['ai']['meta'].keys()
 	_keys.sort()
 	
