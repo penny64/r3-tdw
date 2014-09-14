@@ -177,15 +177,15 @@ def swamp(width, height):
 				else:
 					#TODO: Slowly dither in swamp water
 					if _c_dist < .35:
-						_tile = tiles.swamp(x, y)
+						_tile = tiles.swamp_water(x, y)
 					else:
-						_tile = tiles.swamp(x, y)
+						_tile = tiles.swamp_water(x, y)
 			
 			elif _noise_value >= 0:
 				_r_val = random.uniform(0, .2) + (_noise_value)
 				
 				if _r_val > .2:
-					_tile = tiles.swamp(x, y)
+					_tile = tiles.swamp_water(x, y)
 				else:
 					if random.uniform(0, .2) + (_noise_value) > .2:
 						_tile = tiles.swamp_water(x, y)
@@ -314,13 +314,38 @@ def swamp(width, height):
 	_used_trees = random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots)))
 	_bush_plots = set(_tree_plots) - set(_used_trees)
 	_used_bush = random.sample(_bush_plots, numbers.clip(int(round((width * height) * .003)), 0, len(_bush_plots)))
+	_swamp_plots = set(_tree_plots) - set(_used_bush)
+	_used_swamp = random.sample(_swamp_plots, numbers.clip(int(round((width * height) * .003)), 0, len(_swamp_plots)))
 	
 	for x, y in _used_trees:
-		_tile = tiles.wooden_fence(x, y)
-		_weight_map[y][x] = _tile['w']
-		_tile_map[y][x] =_tile
-		_solids.add((x, y))	
-		_trees[x, y] = random.randint(7, 12)
+		_size = random.randint(7, 12)
+		_trees[x, y] = _size
+		
+		for w in range(random.randint(2, 4)):
+			_walker_x = x
+			_walker_y = y
+			_walker_direction = random.randint(0, 359)
+			
+			for i in range(random.randint(_size/4, _size/2)):
+				_actual_x, _actual_y = int(round(_walker_x)), int(round(_walker_y))
+				
+				if _actual_x < 0 or _actual_y < 0 or _actual_x >= width or _actual_y >= height or (_actual_x, _actual_y) in _solids:
+					break
+				
+				_center_mod = numbers.float_distance((_actual_x, _actual_y), (x, y)) / float(_size)
+				_tile = tiles.tree(_actual_x, _actual_y)
+				_weight_map[_actual_y][_actual_x] = _tile['w']
+				_tile_map[_actual_y][_actual_x] = _tile
+				
+				if random.randint(0, 3):
+					_trees[_actual_x, _actual_y] = random.randint(1, _size)
+				
+				_solids.add((_actual_x, _actual_y))
+				_walker_direction += random.randint(-45, 45)
+				_n_x, _n_y = numbers.velocity(_walker_direction, 1)
+				
+				_walker_x += _n_x
+				_walker_y += _n_y
 	
 	for x, y in _used_bush:
 		_center_mod = numbers.float_distance((x, y), (_plot_pole_x, _plot_pole_y)) / 60.0
@@ -337,6 +362,22 @@ def swamp(width, height):
 			
 			if _walker_x < 0 or _walker_y < 0 or _walker_x >= width or _walker_y >= height or (_walker_x, _walker_y) in _solids:
 				break
+	
+	for x, y in _used_swamp:
+		_center_mod = numbers.float_distance((x, y), (_plot_pole_x, _plot_pole_y)) / 120.0
+		_walker_x = x
+		_walker_y = y
+		
+		for i in range(int(round(random.randint(44, 55) * (1-_center_mod)))):
+			_tile = tiles.swamp(_walker_x, _walker_y)
+			_weight_map[_walker_y][_walker_x] = _tile['w']
+			_tile_map[_walker_y][_walker_x] =_tile
+			
+			_walker_x += random.randint(-1, 1)
+			_walker_y += random.randint(-1, 1)
+			
+			if _walker_x < 0 or _walker_y < 0 or _walker_x >= width or _walker_y >= height or (_walker_x, _walker_y) in _solids:
+				break
 
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
@@ -344,4 +385,4 @@ def swamp(width, height):
 	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
 	        'Bandits': {'bases': 0, 'squads': 1, 'type': life.human_bandit}}
 	
-	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees
+	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _built_on

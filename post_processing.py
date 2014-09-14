@@ -31,16 +31,19 @@ def run(*args, **kwargs):
 #Effects#
 #########
 
-def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise):
+def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise, inside):
 	_noise_values = [(zoom * x / (constants.MAP_VIEW_WIDTH)) + clouds_x,
 	                 (zoom * y / (constants.MAP_VIEW_HEIGHT)) + clouds_y]
 	_shade = tcod.noise_get_turbulence(noise, _noise_values, tcod.NOISE_SIMPLEX)
 	_shade_mod = numbers.clip(abs(_shade), .6, 1)
 	
-	clouds[y][x] -= _shade_mod
-	clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
+	if not (camera.X+x, camera.Y+y) in inside:
+		clouds[y][x] -= _shade_mod
+		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
+	else:
+		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
 
-def post_process_clouds(width, height, passes, noise):
+def post_process_clouds(width, height, passes, noise, inside):
 	global CLOUD_X, CLOUD_Y
 	
 	_clouds = numpy.zeros((height, width))
@@ -56,7 +59,7 @@ def post_process_clouds(width, height, passes, noise):
 	_worker = workers.counter_2d(width,
 	                             height,
 	                             passes,
-	                             lambda x, y: _post_process_clouds(x, y, _clouds, _zoom, _clouds_x, _clouds_y, _size, noise))
+	                             lambda x, y: _post_process_clouds(x, y, _clouds, _zoom, _clouds_x, _clouds_y, _size, noise, inside))
 	
 	entities.register_event(_worker,
 	                        'finish',

@@ -18,7 +18,7 @@ ZONES = {}
 ACTIVE_ZONE = None
 
 
-def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees):
+def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees, inside):
 	ZONES[name] = {'name': name,
 	               'width': width,
 	               'height': height,
@@ -29,7 +29,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'solids': solids,
 	               'faction_spawn_list': faction_spawn_list,
 	               'astar_map': None,
-	               'trees': trees}
+	               'trees': trees,
+	               'inside': inside}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -56,7 +57,8 @@ def activate(zone_id):
                         repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
                                                                                       constants.MAP_VIEW_HEIGHT,
                                                                                       8,
-                                                                                      _noise))	
+                                                                                      _noise,
+	                                                                                  _zone['inside']))
 	
 	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)	
 	

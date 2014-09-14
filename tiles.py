@@ -11,6 +11,14 @@ def _tile(x, y, char, weight, fore_color, back_color):
 	        'c_b': back_color,
 	        'w': weight}
 
+def tree(x, y):
+	_c_1, _c_2 = random.sample([(77, 54, 29),
+	                           (67, 44, 19),
+	                           (57, 54, 29)],
+	                          2)
+	
+	return _tile(x, y, ' ', 6, _c_1, _c_2)
+
 def swamp(x, y):
 	_c_1, _c_2 = random.sample([constants.SATURATED_GREEN_1,
 	                           constants.SATURATED_GREEN_2,
