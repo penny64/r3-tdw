@@ -46,8 +46,8 @@ def post_process_clouds(width, height, passes, noise):
 	_clouds = numpy.zeros((height, width))
 	_clouds += 1.6
 	_zoom = 2.0
-	_clouds_x = (display.get_surface('tiles')['start_x']*.03)+CLOUD_X
-	_clouds_y = (display.get_surface('tiles')['start_y']*.03)+(CLOUD_X * -.5)
+	_clouds_x = (display.get_surface('tiles')['start_x']*.016)+CLOUD_X
+	_clouds_y = (display.get_surface('tiles')['start_y']*.016)+(CLOUD_X * -.5)
 	_size = 100.0
 	
 	if settings.TICK_MODE == 'normal':
@@ -101,7 +101,7 @@ def generate_shadow_map(width, height, solids, trees):
 			if (x, y) in solids or x >= width or y >= height or x < 0 or y <0:
 				continue
 			
-			_distance = numbers.float_distance((x, y), (_x, _y))
-			_shadow = numbers.clip(1 - ((_distance / _tree_size) + .45), .1, .9)
+			_distance = numbers.float_distance((x, y), (_x, _y))*1.25
+			_shadow = numbers.clip(1 - ((_distance / _tree_size) + .25), .1, .9)
 			
 			SHADOWS[y][x] = numbers.clip(SHADOWS[y][x]-_shadow, .45, 1)

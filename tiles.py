@@ -25,7 +25,7 @@ def swamp_water(x, y):
 	                           constants.SWAMP_WATER_3],
 	                          2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 10, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 125, _c_1, _c_2)
 
 def grass(x, y):
 	_c_1, _c_2 = random.sample([constants.FOREST_GREEN_1,
@@ -49,7 +49,7 @@ def water(x, y):
 	                           constants.WATER_3],
 	                          2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 20, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 150, _c_1, _c_2)
 
 def wooden_fence(x, y):
 	_c_1, _c_2 = random.sample([constants.GRAY_1,

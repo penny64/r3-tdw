@@ -5,6 +5,7 @@ import constants
 import ui_cursor
 import ui_menu
 import camera
+import zones
 
 import settings
 
@@ -52,6 +53,15 @@ def handle_keyboard_input(entity):
 				ui_menu.add_selectable(_menu, 'Overwatch', lambda: ai_debugger.register(_entity))
 				
 				break
+	
+	if controls.get_input_char_pressed('l'):
+		_x, _y = ui_cursor.get_screen_position()
+		_mx, _my = ui_cursor.get_map_position()
+		_weight = zones.get_active_weight_map()[_my, _mx]
+		_menu = ui_menu.create(_x, _y, title='Tile Info')
+		
+		ui_menu.add_selectable(_menu, 'Weight: %s' % _weight, lambda: _)
+		#ui_menu.add_selectable(_menu, 'Overwatch', lambda: _)
 				
 def _show_metas(entity):
 	_menu = ui_menu.create(0, 0, title='Metas')

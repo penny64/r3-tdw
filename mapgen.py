@@ -97,7 +97,6 @@ def add_plot_pole(x, y, radius, solids, cell_split=3.0, debug=False):
 
 		_node_set.add(node_pos)
 	
-	print _min_x, _min_y, _max_x, _max_y
 	_map = numpy.ones(((_max_y-_min_y)+1, (_max_x-_min_x)+1))
 	
 	for _x, _y in solids:
@@ -154,6 +153,7 @@ def swamp(width, height):
 	_zoom = 1.2
 	_noise = tcod.noise_new(3)
 	_possible_trees = set()
+	_built_on = set()
 	
 	for y in range(height):
 		for x in range(width):
@@ -265,11 +265,11 @@ def swamp(width, height):
 					if ((x-_x == 0 and 'west' in _build_walls) or (y-_y == 0 and 'north' in _build_walls) or (x-_x == _room_size-1 and 'east' in _build_walls) or (y-_y == _room_size-1 and 'south' in _build_walls)):
 						_weight_map[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
-
 						_solids.add((x, y))
 
 					else:
 						_tile_map[y][x] = buildinggen.ROOM_TYPES[room['type']]['tiles'](x, y)
+						_built_on.add((x, y))
 
 			for y in range(_y, _y+_room_size):
 				for x in range(_x-1, _x+_room_size+1):
@@ -284,7 +284,6 @@ def swamp(width, height):
 					if (y-_y in [-1, 0] and 'north' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)) or (y-_y in [_room_size, _room_size+1] and 'south' in _build_doors and (x-_x<=2 or x-_x>=_room_size-3)):
 						_weight_map[y][x] = _tile['w']
 						_tile_map[y][x] = tiles.wooden_fence(x, y)
-
 						_solids.add((x, y))
 
 			_last_plot_x, _last_plot_y = plot_x, plot_y
@@ -309,15 +308,35 @@ def swamp(width, height):
 			_min_y = _y
 
 	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.05))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
-	_tree_plots = list(_possible_trees - _solids)
+	_tree_plots = _possible_trees - _solids
+	_tree_plots = list(_tree_plots - _built_on)
 	_trees = {}
+	_used_trees = random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots)))
+	_bush_plots = set(_tree_plots) - set(_used_trees)
+	_used_bush = random.sample(_bush_plots, numbers.clip(int(round((width * height) * .003)), 0, len(_bush_plots)))
 	
-	for x, y in random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots))):
+	for x, y in _used_trees:
 		_tile = tiles.wooden_fence(x, y)
 		_weight_map[y][x] = _tile['w']
 		_tile_map[y][x] =_tile
 		_solids.add((x, y))	
 		_trees[x, y] = random.randint(7, 12)
+	
+	for x, y in _used_bush:
+		_center_mod = numbers.float_distance((x, y), (_plot_pole_x, _plot_pole_y)) / 60.0
+		_walker_x = x
+		_walker_y = y
+		
+		for i in range(int(round(random.randint(44, 55) * _center_mod))):
+			_tile = tiles.swamp_water(_walker_x, _walker_y)
+			_weight_map[_walker_y][_walker_x] = _tile['w']
+			_tile_map[_walker_y][_walker_x] =_tile
+			
+			_walker_x += random.randint(-1, 1)
+			_walker_y += random.randint(-1, 1)
+			
+			if _walker_x < 0 or _walker_y < 0 or _walker_x >= width or _walker_y >= height or (_walker_x, _walker_y) in _solids:
+				break
 
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
