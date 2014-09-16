@@ -161,6 +161,8 @@ def human(x, y, name):
 									center=True))
 	
 	entities.register_event(_entity, 'heard_noise', effects.show_noise)
+	
+	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
 	return _entity
 
@@ -305,8 +307,9 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                value=[x, y]))	
 
 	entities.trigger_event(entity, 'get_accuracy')
+	_accuracy = stats.get_accuracy(entity, weapon_id)
 
-	items.bullet(entity, _x, _y, _tx, _ty, 1, int(round(flags.get_flag(_weapon, 'accuracy') * entity['stats']['accuracy'])))
+	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy)
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'Shoot'):

@@ -80,11 +80,18 @@ def handle_mouse_moved(x, y, dx, dy):
 			return
 		
 		_menu['index'] = _selected_index
+	else:
+		_menu['index'] = -1
 
 def handle_mouse_pressed(x, y, button):
 	_menu = get_active_menu()
 	
 	if not _menu:
+		return
+	
+	if button == 2:
+		delete(ACTIVE_MENU)
+		
 		return
 	
 	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+(len(_menu['items']) * 3):

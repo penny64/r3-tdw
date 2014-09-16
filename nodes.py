@@ -1,5 +1,16 @@
+#########
+#WARNING#
+#########
+
+#This file has been marked as MESSY by flags (Luke M.) on 9/16/14
+#MESSY files may be hard to read or are trending towards an unmaintainable
+#state. This file will be refactored heavily in the future - keep this in
+#mind when adding additional code.
+
+
 from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats
 
+import ai_factions
 import constants
 import ui_cursor
 import ui_menu
@@ -94,28 +105,29 @@ def handle_mouse_pressed(entity, x, y, button):
 					return
 			
 			if not DRAGGING_NODE:
-				if SELECTING_TARGET_CALLBACK:
-					for entity_id in entities.get_entity_group('life'):
-						if entity['_id'] == entity_id:
-							continue
-						
-						_entity = entities.get_entity(entity_id)
-						_tx, _ty = movement.get_position(_entity)
-						
-						if (_x, _y) == (_tx, _ty):
+				for entity_id in entities.get_entity_group('life'):
+					if entity['_id'] == entity_id:
+						continue
+					
+					_entity = entities.get_entity(entity_id)
+					_tx, _ty = movement.get_position(_entity)
+					
+					if (_x, _y) == (_tx, _ty):
+						if SELECTING_TARGET_CALLBACK:
 							SELECTING_TARGET_CALLBACK(entity, entity_id)
 							SELECTING_TARGET_CALLBACK = None
-							
-							return
+						else:
+							LAST_CLICKED_POS = (_x, _y)
+					
+							create_life_interact_menu(entity, entity_id)
+						
+						return
 				
 				if movement.get_position(entity) == (_x, _y):
 					LAST_CLICKED_POS = (_x, _y)
 					create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
 					
 					return
-				
-				create_walk_node(entity, _x, _y)
-			
 	
 	elif button == 2:
 		if DRAGGING_NODE:
@@ -133,6 +145,8 @@ def handle_mouse_pressed(entity, x, y, button):
 					del entity['node_grid']['nodes'][node['node']['_id']]
 					
 					break
+			else:
+				create_walk_node(entity, _x, _y)
 
 def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, name='Node', callback_on_touch=True):
 	global LAST_CLICKED_POS
@@ -282,6 +296,27 @@ def create_action_menu(entity, x, y, on_path=False):
 	                                                                   lambda: entities.trigger_event(entity, 'crouch'),
 	                                                                   name='Crouch',
 	                                                                   on_path=on_path))
+
+def create_life_interact_menu(entity, target_id):
+	if not items.get_items_in_holder(entity, 'weapon'):
+		return
+	
+	_target = entities.get_entity(target_id)
+	_is_enemy = ai_factions.is_enemy(entity, target_id)
+	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-4, title='Context')
+	
+	ui_menu.add_selectable(_menu, 'Shoot%s' % (' (Friendly fire)' * (not _is_enemy)), lambda: create_shoot_menu(entity, target_id))
+
+def create_shoot_menu(entity, target_id):
+	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Context')
+	_accuracy = stats.get_accuracy(entity, items.get_items_in_holder(entity, 'weapon')[0])
+	_x, _y = movement.get_position(entity)
+	_tx, _ty = movement.get_position_via_id(target_id)
+	_direction = numbers.direction_to((_x, _y), (_tx, _ty))
+	_final_direction = _direction + (_accuracy * numbers.distance((_x, _y), (_tx, _ty)))
+	
+	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % (100 * (_direction / float(_final_direction))), lambda: _)
+	ui_menu.add_selectable(_menu, 'Snipe (Acc: %s)' % _accuracy, lambda: _)
 
 def create_item_menu(entity, item, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')

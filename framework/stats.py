@@ -1,4 +1,4 @@
-from framework import entities, numbers
+from framework import entities, numbers, flags
 
 import random
 
@@ -44,7 +44,6 @@ def log_kill(entity, **kwarg):
 	entity['stats']['kills'] += 1
 
 def get_strength(entity, items=True):
-	#TODO: Let events modify this value
 	_strength = entity['stats']['strength']
 	
 	#if items:
@@ -54,7 +53,6 @@ def get_strength(entity, items=True):
 	return _strength
 
 def get_speed(entity, items=True):
-	#TODO: Let events modify this value
 	entity['stats']['speed'] = entity['stats']['max_speed']
 	
 	entities.trigger_event(entity, 'get_speed')
@@ -65,17 +63,14 @@ def get_speed(entity, items=True):
 	
 	return entity['stats']['speed']
 
-def get_accuracy(entity):
-	#TODO: Let events modify this value
+def get_accuracy(entity, weapon_id):
 	entity['stats']['accuracy'] = entity['stats']['max_accuracy']
+	_weapon = entities.get_entity(weapon_id)
 	
 	entities.trigger_event(entity, 'get_accuracy')
+	_weapon_accuracy = flags.get_flag(_weapon, 'accuracy')
 	
-	#if items:
-	#	for item in inventory.get_items(entity):
-	#		_speed += item['stats']['speed']
-	
-	return entity['stats']['accuracy']
+	return int(round(_weapon_accuracy * entity['stats']['accuracy']))
 
 def get_damage_mod(entity):
 	return numbers.clip(random.randint(0, get_strength(entity)) / float(get_strength(entity)), .50, 1)

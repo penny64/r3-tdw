@@ -41,7 +41,7 @@ def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise, in
 		clouds[y][x] -= _shade_mod
 		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
 	else:
-		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
+		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x] #TODO: Inside lighting here
 
 def post_process_clouds(width, height, passes, noise, inside):
 	global CLOUD_X, CLOUD_Y
