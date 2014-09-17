@@ -8,6 +8,7 @@ import ai_visuals
 import ai_squads
 import constants
 import settings
+import ui_dialog
 import ui_cursor
 import ui_input
 import ui_menu
@@ -147,6 +148,7 @@ def draw():
 	display.blit_surface('life')
 	display.blit_surface('ui')
 	display.blit_surface('ui_menus')
+	display.blit_surface('ui_dialogs')
 	
 	if settings.SHOW_NODE_GRID:
 		display.blit_surface('node_grid')
@@ -213,6 +215,7 @@ def main():
 	ui_input.boot(PLAYER)
 	ui_draw.boot(PLAYER)
 	ui_menu.boot()
+	ui_dialog.boot()
 	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
@@ -244,6 +247,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')
+	entities.create_entity_group('ui_dialogs')
 	entities.create_entity_group('nodes')
 	entities.create_entity_group('effects_freetick')
 	entities.create_entity_group('ui_effects_freetick')
@@ -257,9 +261,11 @@ if __name__ == '__main__':
 	display.create_surface('effects', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
+	display.create_surface('ui_dialogs')
 	display.set_clear_surface('effects', 'tiles')
 	display.set_clear_surface('ui', 'tiles')
 	display.set_clear_surface('ui_menus', 'tiles')
+	display.set_clear_surface('ui_dialogs', 'tiles')
 	
 	post_processing.start()
 	

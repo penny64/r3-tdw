@@ -1,7 +1,10 @@
 from framework import entities, movement, numbers, flags, timers, tile
 
 import skeleton
+import ui_dialog
+import ui_menu
 import effects
+import camera
 import zones
 
 import logging
@@ -35,6 +38,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	flags.register(_entity)
 	tile.register(_entity, surface='items', char=char, fore_color=fore_color)
 	
+	entities.create_event(_entity, 'get_interactions')
 	entities.register_event(_entity, 'delete', disown)
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
@@ -180,7 +184,15 @@ def hold_item(entity, item_id, holder_name=None):
 #######
 
 def corpse(x, y, char):
-	return _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))
+	_entity = _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))
+	
+	entities.register_event(_entity, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
+	                                                                                            'Examine',
+	                                                                                            lambda: ui_dialog.create(x-camera.X,
+	                                                                                                                     y-camera.Y,
+	                                                                                                                     'Dead?')))
+	
+	return _entity
 
 def leather_backpack(x, y):
 	return create_container(x, y, 'Leather Backpack', 'H', 4, 14, equip_to='backpack')
