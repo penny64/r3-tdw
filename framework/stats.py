@@ -15,27 +15,17 @@ def register(entity, health, speed, accuracy=1.0, name='Unknown'):
 	          'kills': 0}
 
 	entities.create_event(entity, 'kill')
+	entities.create_event(entity, 'killed_by')
 	entities.create_event(entity, 'log_kill')
 	entities.create_event(entity, 'heal')
-	entities.create_event(entity, 'hurt')
 	entities.create_event(entity, 'haste')
 	entities.create_event(entity, 'slow')
 	entities.create_event(entity, 'get_speed')
 	entities.create_event(entity, 'get_accuracy')
-	entities.register_event(entity, 'hurt', hurt)
 	entities.register_event(entity, 'kill', kill)
 	entities.register_event(entity, 'log_kill', log_kill)
 
 	entity['stats'] = _stats
-
-def hurt(entity, damage, target_id):
-	_target = entities.get_entity(target_id)
-
-	entity['stats']['health'] -= damage
-	
-	if entity['stats']['health'] <= 0:
-		entities.trigger_event(entity, 'kill')
-		entities.trigger_event(_target, 'log_kill', target_id=entity['_id'])
 
 def kill(entity, **kwargs):
 	entities.delete_entity(entity)

@@ -45,7 +45,8 @@ def hit(entity, projectile):
 	
 	_limb_name = random.choice(_hit_map)
 	_limb = entity['skeleton'][_limb_name]
-	_limb['health'] -= int(round(70 * _accuracy))
+	_damage = int(round(70 * _accuracy))
+	_limb['health'] -= _damage
 	_x, _y = movement.get_position(entity)
 	_x += int(round(random.uniform(-1, 1)))
 	_y += int(round(random.uniform(-1, 1)))
@@ -57,8 +58,15 @@ def hit(entity, projectile):
 	
 	if _limb['health'] <= 0:
 		if _limb['critical']:
+			if projectile['owner'] in entities.ENTITIES:
+				entities.trigger_event(entities.get_entity(projectile['owner']), 'log_kill', target_id=entity['_id'])
+				entities.trigger_event(entity, 'killed_by', target_id=projectile['owner'])
+			
 			entities.delete_entity(entity)
 	else:
+		if projectile['owner'] in entities.ENTITIES:
+			entities.trigger_event(entities.get_entity(projectile['owner']), 'did_damage', target_id=entity['_id'], damage=_damage)
+		
 		entities.trigger_event(entity, 'damage')
 
 

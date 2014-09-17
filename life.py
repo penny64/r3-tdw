@@ -44,6 +44,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	entities.create_event(_entity, 'reload')
 	entities.create_event(_entity, 'shoot')
 	entities.create_event(_entity, 'damage')
+	entities.create_event(_entity, 'did_damage')
 	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
@@ -158,6 +159,26 @@ def human(x, y, name):
 									speed_mod=0.3,
 									show_mod=1.0,
 									moving=False,
+									center=True))
+	entities.register_event(_entity,
+				'did_damage',
+				lambda e, target_id, damage: effects.printer(entities.get_entity(target_id)['tile']['x'],
+									entities.get_entity(target_id)['tile']['y']-1,
+									'%s' % damage,
+									fore_color=(200, 0, 0),
+									speed_mod=0.3,
+									show_mod=1.0,
+									moving=True,
+									center=True))
+	entities.register_event(_entity,
+				'log_kill',
+				lambda e, target_id: effects.printer(entities.get_entity(target_id)['tile']['x'],
+									entities.get_entity(target_id)['tile']['y']-1,
+									'KILL',
+									fore_color=(255, 0, 0),
+									speed_mod=0.3,
+									show_mod=1.0,
+									moving=True,
 									center=True))
 	
 	entities.register_event(_entity, 'heard_noise', effects.show_noise)

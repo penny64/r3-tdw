@@ -30,6 +30,9 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	
 	_entity.update(_faction)
 	
+	entities.create_event(_entity, 'add_member')
+	entities.register_event(_entity, 'add_member', add_member)
+	
 	FACTIONS[name] = _entity
 	
 	return _entity
@@ -62,6 +65,8 @@ def register(entity, faction):
 	
 	FACTIONS[entity['ai']['faction']]['members'].add(entity['_id'])
 	
+	entities.trigger_event(FACTIONS[entity['ai']['faction']], 'add_member', target_id=entity['_id'] )
+	
 	ai_squads.assign_to_squad(entity)
 
 def logic():
@@ -82,6 +87,12 @@ def cleanup(entity):
 ############
 #Operations#
 ############
+
+def add_member(entity, target_id):
+	entities.register_event(entities.get_entity(target_id), 'killed_by', lambda e, **kwargs: handle_member_killed(entity, target_id))
+
+def handle_member_killed(entity, target_id):
+	print 'Member lost!'
 
 def is_enemy(entity, target_id):
 	_target = entities.get_entity(target_id)

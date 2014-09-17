@@ -105,7 +105,7 @@ def handle_mouse_pressed(entity, x, y, button):
 					return
 			
 			if not DRAGGING_NODE:
-				for entity_id in entities.get_entity_group('life'):
+				for entity_id in [t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]:
 					if entity['_id'] == entity_id:
 						continue
 					
@@ -122,12 +122,6 @@ def handle_mouse_pressed(entity, x, y, button):
 							create_life_interact_menu(entity, entity_id)
 						
 						return
-				
-				if movement.get_position(entity) == (_x, _y):
-					LAST_CLICKED_POS = (_x, _y)
-					create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1])
-					
-					return
 	
 	elif button == 2:
 		if DRAGGING_NODE:
@@ -244,8 +238,9 @@ def logic(entity):
 	for node_id in entity['node_grid']['path'][:]:
 		_node = entity['node_grid']['nodes'][node_id]
 		
-		if _stop_here and not (_node['node']['x'], _node['node']['y']) == _last_pos:
-			break
+		if not (_node['node']['x'], _node['node']['y']) == movement.get_position(entity):
+			if _stop_here and not (_node['node']['x'], _node['node']['y']) == _last_pos:
+				break
 		
 		_distance = numbers.distance((_node['node']['x'], _node['node']['y']), movement.get_position(entity))
 		
@@ -314,8 +309,15 @@ def create_shoot_menu(entity, target_id):
 	_tx, _ty = movement.get_position_via_id(target_id)
 	_direction = numbers.direction_to((_x, _y), (_tx, _ty))
 	_final_direction = _direction + (_accuracy * numbers.distance((_x, _y), (_tx, _ty)))
+	_spray_accuracy = (100 * (_direction / float(_final_direction)))
 	
-	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % (100 * (_direction / float(_final_direction))), lambda: _)
+	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % _spray_accuracy, lambda: create_action_node(entity,
+	                                                                                                _x,
+	                                                                                                _y,
+	                                                                                                5,
+	                                                                                                lambda: entities.trigger_event(entity, 'shoot', target_id=target_id),
+	                                                                                                name='Shoot',
+	                                                                                                on_path=True))
 	ui_menu.add_selectable(_menu, 'Snipe (Acc: %s)' % _accuracy, lambda: _)
 
 def create_item_menu(entity, item, x, y, on_path=False):
