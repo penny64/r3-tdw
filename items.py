@@ -39,6 +39,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	tile.register(_entity, surface='items', char=char, fore_color=fore_color)
 	
 	entities.create_event(_entity, 'get_interactions')
+	entities.create_event(_entity, 'get_actions')
 	entities.register_event(_entity, 'delete', disown)
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
@@ -203,6 +204,18 @@ def glock(x, y, ammo=0):
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4)
+	
+	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
+	#                                                                                       'Single shot',
+	#                                                                                       lambda: ui_dialog.create(x-camera.X,
+	#                                                                                                                y-camera.Y,
+	#                                                                                                                'Dead?')))
+	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
+	#                                                                                       '3-burst',
+	#                                                                                       lambda: ui_dialog.create(x-camera.X,
+	#                                                                                                                y-camera.Y,
+	#                                                                                                                'Dead?')))	
+	
 	
 	return _entity
 

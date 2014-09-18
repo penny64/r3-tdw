@@ -12,6 +12,7 @@ PROCESSOR = None
 CLOUD_X = 0
 CLOUD_Y = 0
 SHADOWS = None
+LIGHTS = None
 
 
 def start():
@@ -26,6 +27,8 @@ def start():
 def run(*args, **kwargs):
 	entities.trigger_event(PROCESSOR, 'create_timer', *args, **kwargs)
 
+def get_light_map():
+	return LIGHTS
 
 #########
 #Effects#
@@ -42,6 +45,11 @@ def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise, in
 		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
 	else:
 		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x] #TODO: Inside lighting here
+	
+	#TODO: Future
+	#clouds *= LIGHTS[camera.Y:camera.Y+y, camera.X:camera.X+x]
+	
+	clouds[y][x] *= LIGHTS[camera.Y+y, camera.X+x]
 
 def post_process_clouds(width, height, passes, noise, inside):
 	global CLOUD_X, CLOUD_Y
@@ -73,6 +81,15 @@ def post_process_clouds(width, height, passes, noise, inside):
 	                                                             _clouds,
 	                                                             constants.MAP_VIEW_WIDTH,
 	                                                             constants.MAP_VIEW_HEIGHT))
+
+def post_process_lights():
+	global LIGHTS
+	
+	if not settings.TICK_MODE == 'normal':
+		return
+	
+	LIGHTS *= .98
+	LIGHTS = LIGHTS.clip(1, 2)
 
 def generate_shadow_map(width, height, solids, trees):
 	global SHADOWS
@@ -108,3 +125,8 @@ def generate_shadow_map(width, height, solids, trees):
 			_shadow = numbers.clip(1 - ((_distance / _tree_size) + .25), .1, .9)
 			
 			SHADOWS[y][x] = numbers.clip(SHADOWS[y][x]-_shadow, .45, 1)
+
+def generate_light_map(width, height, solids, trees):
+	global LIGHTS
+	
+	LIGHTS = numpy.ones((height, width))

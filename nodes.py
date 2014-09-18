@@ -303,14 +303,16 @@ def create_life_interact_menu(entity, target_id):
 	ui_menu.add_selectable(_menu, 'Shoot%s' % (' (Friendly fire)' * (not _is_enemy)), lambda: create_shoot_menu(entity, target_id))
 
 def create_shoot_menu(entity, target_id):
+	_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
 	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Context')
-	_accuracy = stats.get_accuracy(entity, items.get_items_in_holder(entity, 'weapon')[0])
+	_accuracy = stats.get_accuracy(entity, _weapon['_id'])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = movement.get_position_via_id(target_id)
 	_direction = numbers.direction_to((_x, _y), (_tx, _ty))
 	_final_direction = _direction + (_accuracy * numbers.distance((_x, _y), (_tx, _ty)))
 	_spray_accuracy = (100 * (_direction / float(_final_direction)))
 	
+	entities.trigger_event(_weapon, 'get_actions', menu=_menu)
 	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % _spray_accuracy, lambda: create_action_node(entity,
 	                                                                                                _x,
 	                                                                                                _y,

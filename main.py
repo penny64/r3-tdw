@@ -34,7 +34,9 @@ MOVIE_TIME_MAX = 30
 def handle_input():
 	if settings.TICK_MODE in ['normal', 'strategy']:
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
-			if ui_menu.get_active_menu():
+			if ui_dialog.get_active_dialog():
+				ui_dialog.delete(ui_dialog.get_active_dialog())
+			elif ui_menu.get_active_menu():
 				ui_menu.delete(ui_menu.get_active_menu())
 			else:
 				return False

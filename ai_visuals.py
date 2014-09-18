@@ -85,12 +85,20 @@ def build_life_list(entity):
 				_visible = True
 		
 		if _visible:
+			_previous_last_seen_at = entity['ai']['life_memory'][entity_id]['last_seen_at']
+			_target_position = movement.get_position(_target)[:]
+			
+			if movement.get_position(_target) == _previous_last_seen_at:
+				_new_last_seen_at = _previous_last_seen_at
+			else:
+				_new_last_seen_at = _target_position
+			
 			_is_target = ai_factions.is_enemy(entity, _target['_id'])
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),
 			            'can_see': True,
-			            'last_seen_at': movement.get_position(_target)[:],
+			            'last_seen_at': _new_last_seen_at,
 			            'last_seen_velocity': None}
 			
 			entity['ai']['visible_life'].add(entity_id)

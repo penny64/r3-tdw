@@ -63,7 +63,12 @@ def draw(dialog, surface):
 	
 	for i in range(-3, 3):
 		if i == -3:
-			display.write_string(surface, dialog['x'], dialog['y']+_y_mod+_yy_mod, dialog['title'], fore_color=(255, 255, 255), back_color=(60, 60, 60))
+			display.write_string(surface,
+			                     dialog['x'],
+			                     dialog['y']+_y_mod+_yy_mod,
+			                     ' %s ' % dialog['title'] + ' ' * ((len(_text) - len(dialog['title']))-2),
+			                     fore_color=(250, 250, 250),
+			                     back_color=(60, 60, 60))
 		elif i:
 			display.write_string(surface, dialog['x'], dialog['y']+_y_mod+_yy_mod, ' ' * len(_text), back_color=(10, 10, 10))
 		else:

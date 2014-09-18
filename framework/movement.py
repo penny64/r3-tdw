@@ -106,7 +106,7 @@ def _push(entity, x, y):
 	if entity['movement']['collisions']:
 		if (_nx, _ny) in _solids:
 			entity['movement']['path']['refresh'] = True
-			print 'Collide...'
+			
 			return	
 	
 	set_position(entity, _nx, _ny)

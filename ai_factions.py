@@ -26,7 +26,24 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	            'meta': {},
 	            'squad_size_range': squad_size_range,
 	            'base_size_range': base_size_range,
-	            'enemies': enemy_factions}
+	            'enemies': enemy_factions,
+	            'relations': {}}
+	
+	for faction_name in FACTIONS:
+		_other_faction = FACTIONS[faction_name]
+		
+		if name in _other_faction['enemies']:
+			_other_score = 0
+		else:
+			_other_score = 25
+		
+		if faction_name in enemy_factions:
+			_score = 0
+		else:
+			_score = 25
+		
+		_other_faction['relations'][name] = _other_score
+		_faction['relations'][faction_name] = _score
 	
 	_entity.update(_faction)
 	
@@ -65,7 +82,7 @@ def register(entity, faction):
 	
 	FACTIONS[entity['ai']['faction']]['members'].add(entity['_id'])
 	
-	entities.trigger_event(FACTIONS[entity['ai']['faction']], 'add_member', target_id=entity['_id'] )
+	entities.trigger_event(FACTIONS[entity['ai']['faction']], 'add_member', member_id=entity['_id'] )
 	
 	ai_squads.assign_to_squad(entity)
 
@@ -88,11 +105,22 @@ def cleanup(entity):
 #Operations#
 ############
 
-def add_member(entity, target_id):
-	entities.register_event(entities.get_entity(target_id), 'killed_by', lambda e, **kwargs: handle_member_killed(entity, target_id))
+def add_member(entity, member_id):
+	entities.register_event(entities.get_entity(member_id), 'killed_by', lambda e, target_id, **kwargs: handle_member_killed(entity, member_id, target_id))
 
-def handle_member_killed(entity, target_id):
-	print 'Member lost!'
+def handle_member_killed(entity, member_id, target_id):
+	_member = entities.get_entity(member_id)
+	_target = entities.get_entity(target_id)
+	_target_faction = _target['ai']['faction']
+	
+	if _target_faction == _member['ai']['faction']:
+		logging.info('Friendly fire resulted in death: %s' % _target_faction)
+	
+	if not _target_faction in entity['enemies']:
+		entity['relations'][_target_faction] = 0
+		entity['enemies'].append(_target_faction)
+		
+		logging.info('%s is now hostile to %s: Murder' % (_member['ai']['faction'], _target_faction))
 
 def is_enemy(entity, target_id):
 	_target = entities.get_entity(target_id)

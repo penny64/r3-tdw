@@ -330,6 +330,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	entities.trigger_event(entity, 'get_accuracy')
 	_accuracy = stats.get_accuracy(entity, weapon_id)
 
+	effects.light(_x, _y, random.randint(2, 5))
 	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy)
 
 def shoot_weapon(entity, target_id):

@@ -52,6 +52,7 @@ def activate(zone_id):
 	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
+	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.run(time=8,
                         repeat=-1,
                         repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
@@ -59,6 +60,9 @@ def activate(zone_id):
                                                                                       8,
                                                                                       _noise,
 	                                                                                  _zone['inside']))
+	post_processing.run(time=0,
+	                    repeat=-1,
+	                    repeat_callback=lambda _: post_processing.post_process_lights())
 	
 	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)	
 	

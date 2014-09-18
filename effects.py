@@ -1,5 +1,6 @@
-from framework import entities, flags, timers, display, numbers, tile, movement
+from framework import entities, flags, timers, display, numbers, tile, movement, shapes
 
+import post_processing
 import constants
 import settings
 import camera
@@ -232,3 +233,10 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 			_y -= 1
 	
 	printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=False)
+
+def light(x, y, brightness):
+	_light_map = post_processing.get_light_map()
+	
+	for _x, _y in shapes.circle(x, y, brightness):
+		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
+		_light_map[_y, _x] = 2 * _brightness
