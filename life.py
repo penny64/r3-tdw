@@ -139,6 +139,8 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 
 def human(x, y, name):
 	_entity = _create_human(x, y, 100, 10, name, has_ai=True)
+	
+	entities.trigger_event(_entity, 'set_flag', flag='is_player', value=True)
 
 	entities.register_event(_entity,
 				'hold_item',

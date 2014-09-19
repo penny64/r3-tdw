@@ -1,10 +1,11 @@
-from framework import entities, numbers, movement
+from framework import entities, numbers, movement, flags
 
 FACTIONS = {}
 
 import ai_faction_logic
 import ai_squad_logic
 import ai_squads
+import ui_dialog
 import constants
 import mapgen
 
@@ -115,12 +116,18 @@ def handle_member_killed(entity, member_id, target_id):
 	
 	if _target_faction == _member['ai']['faction']:
 		logging.info('Friendly fire resulted in death: %s' % _target_faction)
+		
+		return
 	
 	if not _target_faction in entity['enemies']:
 		entity['relations'][_target_faction] = 0
 		entity['enemies'].append(_target_faction)
 		
 		logging.info('%s is now hostile to %s: Murder' % (_member['ai']['faction'], _target_faction))
+		
+		if flags.has_flag(_target, 'is_player') and flags.get_flag(_target, 'is_player'):
+			_x, _y = movement.get_position(_target)
+			ui_dialog.create(_x, _y, '%s is now hostile towards you.' % _member['ai']['faction'], title='Alert')
 
 def is_enemy(entity, target_id):
 	_target = entities.get_entity(target_id)

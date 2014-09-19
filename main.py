@@ -167,7 +167,7 @@ def draw():
 def loop():
 	events.trigger_event('input')
 	
-	if not settings.TICK_MODE == 'strategy':
+	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
 		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:

@@ -1,5 +1,7 @@
-from framework import movement, entities, events, tile
+from framework import movement, entities, events, tile, controls
 
+import ui_dialog
+import ui_menu
 import constants
 import camera
 
@@ -15,6 +17,7 @@ def boot():
 	events.register_event('camera', logic)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('mouse_pressed', handle_mouse_pressed)
+	events.register_event('input', handle_keyboard_input)
 	events.register_event('draw', lambda *args: entities.trigger_event(CURSOR, 'draw'))
 
 def handle_mouse_movement(x, y, **kwargs):
@@ -23,18 +26,30 @@ def handle_mouse_movement(x, y, **kwargs):
 def handle_mouse_pressed(x, y, button):
 	pass
 
+def handle_keyboard_input():
+	if controls.get_input_char('w'):
+		camera.set_pos(camera.X, camera.Y - 2)
+	elif controls.get_input_char('s'):
+		camera.set_pos(camera.X, camera.Y + 2)
+	
+	if controls.get_input_char('a'):
+		camera.set_pos(camera.X - 2, camera.Y)
+	elif controls.get_input_char('d'):
+		camera.set_pos(camera.X + 2, camera.Y)
+
 def logic():
-	if CURSOR['tile']['x'] > constants.MAP_VIEW_WIDTH - 5:
-		camera.set_pos(camera.X + (CURSOR['tile']['x'] - (constants.MAP_VIEW_WIDTH - 5)), camera.Y)
-	
-	elif CURSOR['tile']['x'] <= 5:
-		camera.set_pos(camera.X + (CURSOR['tile']['x'] - 5), camera.Y)
-	
-	if CURSOR['tile']['y'] > constants.MAP_VIEW_HEIGHT - 5:
-		camera.set_pos(camera.X, camera.Y + (CURSOR['tile']['y'] - (constants.MAP_VIEW_HEIGHT - 5)))
-	
-	elif CURSOR['tile']['y'] <= 5:
-		camera.set_pos(camera.X, camera.Y + (CURSOR['tile']['y'] - 5))	
+	if not ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU:
+		if CURSOR['tile']['x'] > constants.MAP_VIEW_WIDTH - 5:
+			camera.set_pos(camera.X + 3, camera.Y)
+		
+		elif CURSOR['tile']['x'] <= 5:
+			camera.set_pos(camera.X - 3, camera.Y)
+		
+		if CURSOR['tile']['y'] > constants.MAP_VIEW_HEIGHT - 5:
+			camera.set_pos(camera.X, camera.Y + 3)
+		
+		elif CURSOR['tile']['y'] <= 5:
+			camera.set_pos(camera.X, camera.Y - 3)	
 
 def get_screen_position():
 	return CURSOR['tile']['x'], CURSOR['tile']['y']
