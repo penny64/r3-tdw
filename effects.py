@@ -243,3 +243,24 @@ def light(x, y, brightness):
 	for _x, _y in shapes.circle(x, y, brightness):
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
 		_light_map[_y, _x] = 2 * _brightness
+
+def _message_draw(entity):
+	_text = flags.get_flag(entity, 'text')
+	
+	for i in range(0, 3):
+		if i == 1:
+			display.write_string('ui', 3, 3+i, '  %s  ' % _text, fore_color=(200, 200, 200), back_color=(60, 60, 60))
+		else:
+			display.write_string('ui', 3, 3+i, ' ' * (len(_text) + 4), fore_color=(20, 20, 20), back_color=(60, 60, 60))
+
+def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10)):
+	_entity = entities.create_entity(group='ui_effects_freetick')
+	
+	timers.register(_entity)
+	flags.register(_entity)
+	
+	entities.create_event(_entity, 'draw')
+	entities.register_event(_entity, 'draw', _message_draw)
+	entities.trigger_event(_entity, 'set_flag', flag='text', value=text)
+	
+	return _entity

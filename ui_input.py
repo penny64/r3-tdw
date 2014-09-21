@@ -4,6 +4,7 @@ import ai_debugger
 import constants
 import ui_cursor
 import ui_menu
+import effects
 import camera
 import zones
 
@@ -32,7 +33,7 @@ def handle_keyboard_input(entity):
 		camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
 	
 	if controls.get_input_char_pressed('z'):
-		entities.delete_entity(entity)
+		effects.message('Heard!')
 	
 	if controls.get_input_char_pressed('O'):
 		settings.toggle_show_node_grid()
