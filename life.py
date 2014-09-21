@@ -2,6 +2,7 @@ from framework import entities, tile, timers, movement, stats, flags, numbers, s
 
 import ai_factions
 import ai_visuals
+import ui_dialog
 import skeleton
 import effects
 import mapgen
@@ -183,7 +184,7 @@ def human(x, y, name):
 									moving=True,
 									center=True))
 	
-	entities.register_event(_entity, 'heard_noise', effects.show_noise)
+	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
@@ -215,11 +216,24 @@ def wild_dog(x, y, name):
 #Operations#
 ############
 
-def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback):
+def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return
 	
 	callback(entity, x, y)
+
+def handle_player_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
+	_entity = effects.show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
+	
+	if not _entity:
+		return
+	
+	if not context_callback:
+		return
+	
+	_x, _y = flags.get_flag(_entity, 'text_orig_pos')
+	
+	entities.register_event(_entity, 'delete', lambda e: noise.create_context(_x, _y, text, context_callback))
 
 def can_see_position(entity, position):
 	_solids = zones.get_active_solids(entity)
@@ -327,7 +341,8 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                'update_target_memory',
 	                                                                target_id=entity['_id'],
 	                                                                key='last_seen_at',
-	                                                                value=[x, y]))	
+	                                                                value=[x, y]),
+	                       context_callback=lambda x, y: ui_dialog.create(x, y, 'Gunshot (Unknown)', title='Noise'))
 
 	entities.trigger_event(entity, 'get_accuracy')
 	_accuracy = stats.get_accuracy(entity, weapon_id)

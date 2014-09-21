@@ -187,6 +187,7 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, mo
 	entities.trigger_event(_entity, 'set_flag', flag='text_index', value=0)
 	entities.trigger_event(_entity, 'set_flag', flag='text_center', value=center)
 	entities.trigger_event(_entity, 'set_flag', flag='text_pos', value=(x, y))
+	entities.trigger_event(_entity, 'set_flag', flag='text_orig_pos', value=(x, y))
 	entities.trigger_event(_entity, 'set_flag', flag='text_fore_color', value=fore_color)
 	entities.trigger_event(_entity, 'set_flag', flag='text_back_color', value=back_color)
 	entities.trigger_event(_entity, 'set_flag', flag='move_direction', value=move_direction)
@@ -195,6 +196,8 @@ def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, mo
 	
 	if moving:
 		entities.trigger_event(_entity, 'create_timer', time=25, repeat=len(text)/2, repeat_callback=_printer_move)
+	
+	return _entity
 
 def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback):
 	if settings.OBSERVER_MODE:
@@ -232,7 +235,7 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 		if show_on_sight:
 			_y -= 1
 	
-	printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=False)
+	return printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=True)
 
 def light(x, y, brightness):
 	_light_map = post_processing.get_light_map()

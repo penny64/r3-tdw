@@ -118,6 +118,9 @@ def draw():
 	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 	
+	for entity_id in entities.get_entity_group('contexts'):
+		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
+	
 	for entity_id in _draw_items:
 		if not entity_id in entities.ENTITIES:
 			continue
@@ -253,6 +256,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('nodes')
 	entities.create_entity_group('effects_freetick')
 	entities.create_entity_group('ui_effects_freetick')
+	entities.create_entity_group('contexts')
 	entities.create_entity_group('effects', static=True)
 	entities.create_entity_group('ui_effects', static=True)
 

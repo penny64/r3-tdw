@@ -1,4 +1,4 @@
-from framework import movement, entities, events, tile, controls
+from framework import movement, entities, events, tile, controls, flags
 
 import ui_dialog
 import ui_menu
@@ -24,7 +24,20 @@ def handle_mouse_movement(x, y, **kwargs):
 	entities.trigger_event(CURSOR, 'set_position', x=x, y=y)
 
 def handle_mouse_pressed(x, y, button):
-	pass
+	_x = x + camera.X
+	_y = y + camera.Y
+	
+	if button == 1:
+		for entity_id in entities.get_entity_group('contexts'):
+			_entity = entities.get_entity(entity_id)
+			
+			if not _entity['callback']:
+				continue
+			
+			if (_entity['tile']['x'], _entity['tile']['y']) == (_x, _y):
+				_entity['callback'](x+2, y-3)
+				
+				break
 
 def handle_keyboard_input():
 	if controls.get_input_char('w'):

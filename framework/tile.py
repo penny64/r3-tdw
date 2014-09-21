@@ -96,7 +96,9 @@ def tick(entity):
 
 		if _animation['index'] == len(_animation['tiles']):
 			if _animation['repeat']:
-				_animation['repeat'] -= 1
+				if not _animation['repeat'] == -1:
+					_animation['repeat'] -= 1
+				
 				_animation['index'] = 0
 			else:
 				entity['tile']['animation'] = {}
