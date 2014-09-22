@@ -19,6 +19,13 @@ import random
 
 def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
+	
+	entities.create_event(_entity, 'get_and_store_item')
+	entities.create_event(_entity, 'get_and_hold_item')
+	entities.create_event(_entity, 'reload')
+	entities.create_event(_entity, 'shoot')
+	entities.create_event(_entity, 'damage')
+	entities.create_event(_entity, 'did_damage')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -40,12 +47,6 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	if has_ai:
 		ai.register_human(_entity)
 
-	entities.create_event(_entity, 'get_and_store_item')
-	entities.create_event(_entity, 'get_and_hold_item')
-	entities.create_event(_entity, 'reload')
-	entities.create_event(_entity, 'shoot')
-	entities.create_event(_entity, 'damage')
-	entities.create_event(_entity, 'did_damage')
 	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)

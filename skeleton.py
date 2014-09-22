@@ -18,6 +18,7 @@ def register(entity):
 	entities.register_event(entity, 'get_speed', get_speed_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
 	entities.register_event(entity, 'damage', handle_pain)
+	entities.register_event(entity, 'tick', tick)
 	
 	return entity
 
@@ -72,6 +73,14 @@ def hit(entity, projectile):
 
 def handle_pain(entity, limb, damage):
 	entity['stats']['pain'] += damage
+	
+	if damage > 40:
+		entities.trigger_event(entity, 'create_timer', time=(damage-30) * 60, name='passout')
+		entities.trigger_event(entity, 'stop')
+		entities.trigger_event(entity, 'animate', animation=['s', '@@'], repeat=4)
+
+def tick(entity):
+	entity['stats']['pain'] = numbers.clip(entity['stats']['pain'] * .98, 0, 1000)
 
 
 ############

@@ -1,3 +1,18 @@
+#Mon Sep 22 2014
+
+Lots of changes over the past 10+ days. We're floating between features right
+now and evaluating what needs to be done first before we can realistically
+begin growing more zones and approaching offline AI. The framework has become
+predictable and stable - maybe in the future we should consider adding some kind
+of subclassing for default systems (like `stats`.) Alternatively, move `stats`
+out to gameland, because I very rarely feel safe editing the framework for game-
+specific stuff.
+
+Largely, there's still some major features missing that I'll need to address
+soon: Item spawns and more mapgen landmarks. I have nothing left to add to the
+Swamps because the player will hopefully not be spending much time there, so
+that puts a lot of pressure on future mapgen functions.
+
 #Thu Sep 11 2014
 
 Firing positions got a redo yesterday, and I think it's safe to say this method

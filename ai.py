@@ -338,6 +338,11 @@ def _animal_logic(entity):
 	entity['ai']['current_action'] = _plan['actions'][0]['name']
 
 def _human_logic(entity):
+	if timers.has_timer_with_name(entity, 'passout'):
+		print 'Passout'
+		
+		return
+	
 	_t = time.time()
 	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
