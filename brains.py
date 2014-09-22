@@ -119,13 +119,9 @@ def panic():
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(is_panicked=False)
 	
-	_actions.add_condition('panic', is_panicked=True, in_engagement=False)
-	#_actions.add_callback('panic', lambda entity: ai.set_meta(entity, 'is_panicked', False))
-	_actions.add_reaction('panic', is_panicked=False)
-	
-	_actions.add_condition('flee', is_panicked=True, in_engagement=True, is_target_near=True)
+	_actions.add_condition('flee', is_panicked=True, in_engagement=True)
 	_actions.add_callback('flee', lambda entity: ai_logic.find_cover(entity))
-	_actions.add_reaction('flee', is_panicked=False, is_target_near=False)
+	_actions.add_reaction('flee', is_panicked=False)
 	
 	return _brain
 
@@ -185,7 +181,8 @@ def combat():
 	                              'is_squad_forcing_surrender',
 	                              'is_squad_mobile_ready',
 	                              'is_target_armed',
-	                              'has_firing_position')
+	                              'has_firing_position',
+	                              'is_panicked')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -209,7 +206,8 @@ def combat():
 	                              is_squad_combat_ready=True,
 	                              is_squad_overwhelmed=False,
 	                              is_squad_forcing_surrender=False,
-	                              has_firing_position=True)
+	                              has_firing_position=True,
+	                              is_panicked=False)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	

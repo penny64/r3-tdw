@@ -8,6 +8,7 @@ def register(entity, health, speed, accuracy=1.0, name='Unknown'):
 			  'max_health': health,
 			  'speed': speed,
 	          'max_speed': speed,
+	          'pain': 0,
 	          'accuracy': accuracy,
 	          'max_accuracy': accuracy,
 	          'name': name,

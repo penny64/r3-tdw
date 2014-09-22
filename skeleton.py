@@ -17,6 +17,7 @@ def register(entity):
 	entities.register_event(entity, 'hit', hit)
 	entities.register_event(entity, 'get_speed', get_speed_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
+	entities.register_event(entity, 'damage', handle_pain)
 	
 	return entity
 
@@ -67,7 +68,10 @@ def hit(entity, projectile):
 		if projectile['owner'] in entities.ENTITIES:
 			entities.trigger_event(entities.get_entity(projectile['owner']), 'did_damage', target_id=entity['_id'], damage=_damage)
 		
-		entities.trigger_event(entity, 'damage')
+		entities.trigger_event(entity, 'damage', limb=_limb_name, damage=_damage)
+
+def handle_pain(entity, limb, damage):
+	entity['stats']['pain'] += damage
 
 
 ############
@@ -100,7 +104,7 @@ def has_critical_injury(entity):
 	for limb_name in entity['skeleton']:
 		_limb = entity['skeleton'][limb_name]
 		
-		if _limb['health'] / float(_limb['max_health']) <= .75:
+		if _limb['health'] / float(_limb['max_health']) <= .25:
 			return True
 
 	return False
