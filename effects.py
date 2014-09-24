@@ -9,6 +9,8 @@ import life
 
 import random
 
+MESSAGES_ACTIVE = 0
+
 
 def _create(x, y, surface='effects', group='effects'):
 	_entity = entities.create_entity()
@@ -246,21 +248,36 @@ def light(x, y, brightness):
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')
+	_index = flags.get_flag(entity, 'index')
 	
 	for i in range(0, 3):
 		if i == 1:
-			display.write_string('ui', 3, 3+i, '  %s  ' % _text, fore_color=(200, 200, 200), back_color=(60, 60, 60))
+			display.write_string('ui', 3, 3 + i + (4 * _index), '  %s  ' % _text, fore_color=(200, 200, 200), back_color=(60, 60, 60))
 		else:
-			display.write_string('ui', 3, 3+i, ' ' * (len(_text) + 4), fore_color=(20, 20, 20), back_color=(60, 60, 60))
+			display.write_string('ui', 3, 3 + i + (4 * _index), ' ' * (len(_text) + 4), fore_color=(20, 20, 20), back_color=(60, 60, 60))
+
+def _message_delete(entity):
+	global MESSAGES_ACTIVE
+	
+	print 'OK'
+	
+	MESSAGES_ACTIVE -= 1
 
 def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10)):
+	global MESSAGES_ACTIVE
+	
 	_entity = entities.create_entity(group='ui_effects_freetick')
 	
-	timers.register(_entity)
+	timers.register(_entity, use_system_event='draw')
 	flags.register(_entity)
 	
 	entities.create_event(_entity, 'draw')
 	entities.register_event(_entity, 'draw', _message_draw)
+	entities.register_event(_entity, 'delete', _message_delete)
+	entities.trigger_event(_entity, 'create_timer', time=30 * constants.SHOW_MESSAGES_FOR, exit_callback=entities.delete_entity)
 	entities.trigger_event(_entity, 'set_flag', flag='text', value=text)
+	entities.trigger_event(_entity, 'set_flag', flag='index', value=MESSAGES_ACTIVE)
+	
+	MESSAGES_ACTIVE += 1
 	
 	return _entity

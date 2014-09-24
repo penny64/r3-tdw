@@ -206,7 +206,7 @@ def swamp(width, height):
 	_room_size = 11
 	_direction = random.choice(['east'])
 	_width, _height = random.choice([(6, 6), (3, 6), (6, 3)])
-	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['living_room'])
+	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['trader_room'])
 
 	for room in _rooms:
 		_build_doors = []

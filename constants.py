@@ -51,6 +51,8 @@ MAX_SQUAD_LEADER_DISTANCE = 60
 #Graphics#
 ##########
 
+SHOW_MESSAGES_FOR = 6 #Seconds
+
 
 ########
 #Colors#

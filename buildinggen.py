@@ -4,7 +4,8 @@ import numpy
 
 import random
 
-ROOM_TYPES = {'living_room': {'plots': 4, 'avoid_rooms': [], 'tiles': tiles.concrete},
+ROOM_TYPES = {'trader_room': {'plots': 1, 'avoid_rooms': [], 'tiles': tiles.concrete},
+              'living_room': {'plots': 4, 'avoid_rooms': [], 'tiles': tiles.concrete},
               'kitchen': {'plots': 3, 'avoid_rooms': ['bathroom'], 'tiles': tiles.concrete},
               'bathroom': {'plots': 1, 'avoid_rooms': ['kitchen', 'foyer'], 'tiles': tiles.tile_checkered},
               'foyer': {'plots': 2, 'avoid_rooms': ['bathroom'], 'tiles': tiles.carpet_burgandy}}
