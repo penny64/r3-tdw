@@ -105,7 +105,7 @@ def handle_mouse_pressed(entity, x, y, button):
 					return
 			
 			if not DRAGGING_NODE:
-				for entity_id in [t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]:
+				for entity_id in [t for t in entity['ai']['visible_life'] if entity['ai']['life_memory'][t]['can_see']]:
 					if entity['_id'] == entity_id:
 						continue
 					

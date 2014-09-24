@@ -5,14 +5,15 @@ def register(entity, use_system_event=None):
 	entity['timers'] = []
 	
 	entities.create_event(entity, 'create_timer')
+	entities.create_event(entity, 'clear_timers')
 	entities.register_event(entity, 'create_timer', create_timer)
+	entities.register_event(entity, 'clear_timers', clear_timers)
 	
 	if use_system_event:
 		events.register_event(use_system_event, lambda: tick(entity))
 	else:
 		entities.register_event(entity, 'tick', tick)
 
-#TODO: Timer names
 def create_timer(entity, time, name='', repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):
 	entity['timers'].append({'callback': callback,
 	                         'name': name,
@@ -25,6 +26,9 @@ def create_timer(entity, time, name='', repeat=0, callback=None, enter_callback=
 	                         'repeat': repeat,
 	                         'entered': False,
 	                         'stop': False})
+
+def clear_timers(entity):
+	entity['timers'] = []
 
 def get_nearest_timer(entity):
 	_nearest_timer = {'timer': None, 'time': 0}

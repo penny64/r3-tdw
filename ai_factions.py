@@ -7,6 +7,7 @@ import ai_squad_logic
 import ai_squads
 import ui_dialog
 import constants
+import effects
 import mapgen
 
 import logging
@@ -126,8 +127,7 @@ def handle_member_killed(entity, member_id, target_id):
 		logging.info('%s is now hostile to %s: Murder' % (_member['ai']['faction'], _target_faction))
 		
 		if flags.has_flag(_target, 'is_player') and flags.get_flag(_target, 'is_player'):
-			_x, _y = movement.get_position(_target)
-			ui_dialog.create(_x, _y, '%s is now hostile towards you.' % _member['ai']['faction'], title='Alert')
+			effects.message('%s now see you as hostile.' % _member['ai']['faction'])
 
 def is_enemy(entity, target_id):
 	_target = entities.get_entity(target_id)

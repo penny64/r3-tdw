@@ -280,9 +280,10 @@ def _handle_goap(entity, brain='brain'):
 	return entity['ai'][brain].get_plan(debug=False)
 
 def _animal_logic(entity):
-	if entity['_id'] in ai_visuals.LIFE_MOVED:
-		ai_visuals.build_item_list(entity)
+	if timers.has_timer_with_name(entity, 'passout'):
+		return	
 	
+	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
 	
 	_old_meta = entity['ai']['meta'].copy()
@@ -339,8 +340,6 @@ def _animal_logic(entity):
 
 def _human_logic(entity):
 	if timers.has_timer_with_name(entity, 'passout'):
-		print 'Passout'
-		
 		return
 	
 	_t = time.time()
