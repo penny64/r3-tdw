@@ -397,6 +397,10 @@ def _human_logic(entity):
 	if entity['ai']['is_player']:
 		return
 	
+	#TODO: Experimental!
+	#if entity['ai']['meta'] == _old_meta:
+	#	return
+	
 	_goap = _handle_goap(entity)
 	
 	if not _goap:
@@ -412,6 +416,7 @@ def _human_logic(entity):
 		if entity['_id'] in ai_debugger.WATCHING:
 			logging.info('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
 		
+		#TODO: Only do this if the action requires movement changes
 		entities.trigger_event(entity, 'stop')
 		
 		entity['ai']['last_action'] = _plan['actions'][0]['name']	
