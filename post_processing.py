@@ -40,11 +40,12 @@ def _post_process_clouds(x, y, clouds, zoom, clouds_x, clouds_y, size, noise, in
 	_shade = tcod.noise_get_turbulence(noise, _noise_values, tcod.NOISE_SIMPLEX)
 	_shade_mod = numbers.clip(abs(_shade), .6, 1)
 	
-	if not (camera.X+x, camera.Y+y) in inside:
-		clouds[y][x] -= _shade_mod
-		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
-	else:
-		clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x] #TODO: Inside lighting here
+	#TODO: Inside lighting
+	#if not (camera.X+x, camera.Y+y) in inside:
+	clouds[y][x] -= _shade_mod
+	clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x]
+	#else:
+	#	clouds[y][x] *= SHADOWS[camera.Y+y][camera.X+x] #TODO: Inside lighting here
 	
 	#TODO: Future
 	#clouds *= LIGHTS[camera.Y:camera.Y+y, camera.X:camera.X+x]

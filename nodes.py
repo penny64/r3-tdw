@@ -61,6 +61,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 	DRAGGING_NODE['node']['path'] = []
 	
 	redraw_path(entity)
+	entities.trigger_event(entity, 'stop')
 
 def handle_mouse_pressed(entity, x, y, button):
 	global DRAGGING_NODE, LAST_CLICKED_POS, SELECTING_TARGET_CALLBACK
@@ -122,6 +123,8 @@ def handle_mouse_pressed(entity, x, y, button):
 							create_life_interact_menu(entity, entity_id)
 						
 						return
+				else:
+					create_walk_node(entity, _x, _y, clear=True)
 	
 	elif button == 2:
 		if DRAGGING_NODE:
@@ -193,8 +196,12 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 	
 	return _node
 
-def create_walk_node(entity, x, y):
-	_walk_speed = 'Walk'
+def create_walk_node(entity, x, y, clear=False):
+	_walk_speed = chr(31)
+	
+	if clear:
+		clear_path(entity)
+		redraw_path(entity)
 	
 	_node = _create_node(entity, x, y, draw_path=True, passive=False, name=_walk_speed, callback_on_touch=False)
 	
@@ -358,6 +365,16 @@ def select_target(x, y, on_path):
 
 def has_node_path(entity):
 	return len(entity['node_grid']['path']) > 0
+
+def clear_path(entity):
+	for node_id in entity['node_grid']['path']:
+		_last_node = entity['node_grid']['nodes'][node_id]
+		
+		entities.delete_entity(_last_node['node'])
+	
+	entities.trigger_event(entity, 'stop')
+	entity['node_grid']['path'] = []
+	entity['node_grid']['nodes'] = {}
 
 def redraw_path(entity):
 	for node in entity['node_grid']['nodes'].values():

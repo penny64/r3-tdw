@@ -11,14 +11,17 @@ VERSION_INFO = 'This is a prototype. Do not distribute.'
 #########
 
 WINDOW_TITLE = 'Reactor 3 - The Dead World'
-WINDOW_WIDTH = 120
-WINDOW_HEIGHT = 100
+WINDOW_WIDTH = 100
+WINDOW_HEIGHT = 70
 MAP_VIEW_WIDTH = WINDOW_WIDTH
 MAP_VIEW_HEIGHT = WINDOW_HEIGHT-1
 FPS = 60
 MAX_DRAW_CALLS_PER_FRAME = (WINDOW_WIDTH*WINDOW_HEIGHT) * 2
 SHOW_MOUSE = True
 
+#########
+#Content#
+#########
 
 #######
 #Input#
@@ -81,6 +84,10 @@ ROCK_3 = (203, 203, 203)
 DARK_GRAY_1 = (70, 70, 70)
 DARK_GRAY_2 = (80, 80, 80)
 DARK_GRAY_3 = (85, 85, 85)
+
+DARKER_GRAY_1 = (60, 60, 60)
+DARKER_GRAY_2 = (70, 70, 70)
+DARKER_GRAY_3 = (75, 75, 75)
 
 GRAY_1 = (100, 100, 100)
 GRAY_2 = (110, 110, 110)

@@ -17,15 +17,23 @@ def boot(entity):
 def handle_keyboard_input(entity):
 	if controls.get_input_char_pressed('1'):
 		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .1)))
+		settings.set_plan_tick_rate_string('>')
 	
 	elif controls.get_input_char_pressed('2'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .25)))
+		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .15)))
+		settings.set_plan_tick_rate_string('>>')
 	
 	elif controls.get_input_char_pressed('3'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .4)))
+		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .2)))
+		settings.set_plan_tick_rate_string('>>>')
 	
 	elif controls.get_input_char_pressed('4'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .55)))
+		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .25)))
+		settings.set_plan_tick_rate_string('>>>>')
+	
+	elif controls.get_input_char_pressed('5'):
+		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .3)))
+		settings.set_plan_tick_rate_string('>>>>>')
 	
 	if controls.get_input_char_pressed('\t'):
 		_x, _y = movement.get_position(entity)

@@ -76,12 +76,18 @@ def concrete(x, y):
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
 
 def concrete_striped(x, y):
-	if not x % 2 or not y % 4:
-		_c_1 = constants.DARK_GRAY_1
-		_c_2 = constants.DARK_GRAY_1
+	if random.randint(0, 1):
+		if not x % 2 or not y % 4:
+			_c_1 = constants.DARKER_GRAY_1
+			_c_2 = constants.DARKER_GRAY_1
+		else:
+			_c_1, _c_2 = random.sample([constants.DARKER_GRAY_3,
+				                        constants.DARKER_GRAY_2],
+				                       2)
 	else:
-		_c_1, _c_2 = random.sample([constants.DARK_GRAY_3,
-			                        constants.DARK_GRAY_2],
+		_c_1, _c_2 = random.sample([constants.DARKER_GRAY_1,
+			                        constants.DARKER_GRAY_2,
+			                        constants.DARKER_GRAY_3],
 			                       2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)

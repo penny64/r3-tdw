@@ -7,6 +7,7 @@ import constants
 import logging
 import numpy
 import copy
+import os
 
 
 def shutdown():
@@ -23,6 +24,7 @@ def boot():
 	
 	framework.events.register_event('draw', blit)
 	
+	tcod.console_set_custom_font(os.path.join('data', 'tiles', 'dejavu_wide12x12_gs_tc.png'), flags=tcod.FONT_LAYOUT_TCOD|tcod.FONT_TYPE_GREYSCALE)
 	tcod.console_init_root(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT, constants.WINDOW_TITLE, renderer=tcod.RENDERER_GLSL)
 	tcod.console_set_keyboard_repeat(200, 0)
 	tcod.sys_set_fps(constants.FPS)	

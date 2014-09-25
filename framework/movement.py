@@ -198,6 +198,8 @@ def walk_to_position(entity, x, y, astar_map, weight_map, avoid=[], smp=-1):
 	return True
 
 def stop(entity):
+	timers.delete_timer(entity, 'move')
+	
 	entity['movement']['path']['positions'] = []
 	entity['movement']['path']['destination'] = None
 	entity['movement']['path']['refresh'] = False

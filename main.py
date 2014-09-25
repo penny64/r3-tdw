@@ -134,7 +134,7 @@ def draw():
 	
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
 	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_grid']['path'],
-	                        execute_speed='>' * numbers.clip(5-(stats.get_speed(PLAYER)/settings.PLAN_TICK_RATE), 1, 4) * (len(PLAYER['node_grid']['path'])>0),
+	                        execute_speed=settings.PLAN_TICK_RATE_STRING,
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 	
 	if settings.TICK_MODE == 'strategy':

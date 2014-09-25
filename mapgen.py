@@ -153,7 +153,6 @@ def swamp(width, height):
 	_zoom = 1.2
 	_noise = tcod.noise_new(3)
 	_possible_trees = set()
-	_built_on = set()
 	
 	for y in range(height):
 		for x in range(width):
@@ -208,9 +207,10 @@ def swamp(width, height):
 	
 	_s_x, _s_y = ((width/2)-20, (height/2)-20)
 	_building_space = set()
+	_walls = set()
 	
 	#Building
-	_width, _height = random.choice([(10, 10), (6, 10), (10, 6)])
+	_width, _height = random.choice([(20, 20), (12, 20), (20, 12)])
 	_random_dir = random.randint(0, 3)
 	
 	if _random_dir == 1:
@@ -241,6 +241,7 @@ def swamp(width, height):
 			elif x == 0 or y == 0 or x == _width or y == _height:
 				_tile = tiles.wooden_fence(_x, _y)
 				_solids.add((_x, _y))
+				_walls.add((_x, _y))
 			
 			else:
 				_tile = tiles.concrete(_x, _y)
@@ -279,22 +280,30 @@ def swamp(width, height):
 			_solids.add((_xx, _yy))
 	
 	#Ground: Inside wall - outside building
-	_ground_seeds = random.sample(list(_ground_space), 30)
+	_ground_seeds = random.sample(list(_ground_space - _building_space), 50)
 	
 	for x, y in _ground_seeds:
 		_walker_x = x
 		_walker_y = y
+		_last_dir = -2, -2
 		
-		for i in range(random.randint(40, 60)):
+		for i in range(random.randint(80, 90)):
 			_tile = tiles.concrete_striped(_walker_x, _walker_y)
 			_weight_map[_walker_y][_walker_x] = _tile['w']
 			_tile_map[_walker_y][_walker_x] =_tile
 			
-			_walker_x += random.randint(-1, 1)
-			_walker_y += random.randint(-1, 1)
+			_dir = random.randint(-1, 1), random.randint(-1, 1)
+			_n_x = _walker_x + _dir[0]
+			_n_y = _walker_y + _dir[1]
 			
-			if (_walker_x, _walker_y) in _building_space or (_walker_x, _walker_y) in _solids:
-				break
+			while (_n_x, _n_y) in _building_space or (_n_x, _n_y) in _solids or _last_dir == _dir:
+				_dir = random.randint(-1, 1), random.randint(-1, 1)
+				_n_x = _walker_x + _dir[0]
+				_n_y = _walker_y + _dir[1]
+			
+			_last_dir = _dir[0] * -1, _dir[0] * -1
+			_walker_x = _n_x
+			_walker_y = _n_y
 	
 	#Bushes around outside wall
 
@@ -359,7 +368,7 @@ def swamp(width, height):
 
 					else:
 						_tile_map[y][x] = buildinggen.ROOM_TYPES[room['type']]['tiles'](x, y)
-						_built_on.add((x, y))
+						_building_space.add((x, y))
 
 			for y in range(_y, _y+_room_size):
 				for x in range(_x-1, _x+_room_size+1):
@@ -399,7 +408,7 @@ def swamp(width, height):
 
 	_plot_pole_x, _plot_pole_y = _s_x, _s_y
 	_tree_plots = _possible_trees - _solids
-	_tree_plots = list(_tree_plots - _built_on)
+	_tree_plots = list(_tree_plots - _building_space)
 	_trees = {}
 	_used_trees = random.sample(_tree_plots, numbers.clip(int(round((width * height) * .001)), 0, len(_tree_plots)))
 	_bush_plots = set(_tree_plots) - set(_used_trees)
@@ -411,7 +420,7 @@ def swamp(width, height):
 		_size = random.randint(7, 12)
 		_trees[x, y] = _size
 		
-		for w in range(random.randint(2, 4)):
+		for w in range(random.randint(1, 2)):
 			_walker_x = x
 			_walker_y = y
 			_walker_direction = random.randint(0, 359)
@@ -475,4 +484,4 @@ def swamp(width, height):
 	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
 	        'Bandits': {'bases': 0, 'squads': 1, 'type': life.human_bandit}}
 	
-	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _built_on
+	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _building_space - _walls

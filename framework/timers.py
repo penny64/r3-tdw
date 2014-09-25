@@ -58,6 +58,16 @@ def has_timer_with_name(entity, name, next_only=False, fuzzy=False):
 	
 	return False
 
+def delete_timer(entity, name):
+	for timer in entity['timers']:
+		if timer['stop']:
+			continue
+		
+		if timer['name'].lower().count(name):
+			entity['timers'].remove(timer)
+			
+			break
+
 def tick(entity):
 	_remove_timers = []
 	
