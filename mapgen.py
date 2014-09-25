@@ -202,13 +202,103 @@ def swamp(width, height):
 			_tile_map[y][x] = _tile
 			_weight_map[y][x] = _tile['w']
 	
+	#############
+	#Trader camp#
+	#############
+	
 	_s_x, _s_y = ((width/2)-20, (height/2)-20)
-	_room_size = 11
-	_direction = random.choice(['east'])
-	_width, _height = random.choice([(6, 6), (3, 6), (6, 3)])
-	_building, _rooms = buildinggen.generate(_width, _height, _direction, ['trader_room'])
+	_building_space = set()
+	
+	#Building
+	_width, _height = random.choice([(10, 10), (6, 10), (10, 6)])
+	_random_dir = random.randint(0, 3)
+	
+	if _random_dir == 1:
+		_door_x = _width / 2
+		_door_y = 0
+	
+	elif _random_dir == 2:
+		_door_x = _width / 2
+		_door_y = _height
+	
+	elif _random_dir == 3:
+		_door_x = 0
+		_door_y = _height / 2
+	
+	else:
+		_door_x = _width
+		_door_y = _height / 2
+	
+	for y in range(_height+1):
+		_y = _s_y+y
+		
+		for x in range(_width+1):
+			_x = _s_x+x
+			
+			if (x, y) == (_door_x, _door_y):
+				_tile = tiles.concrete(_x, _y)
+			
+			elif x == 0 or y == 0 or x == _width or y == _height:
+				_tile = tiles.wooden_fence(_x, _y)
+				_solids.add((_x, _y))
+			
+			else:
+				_tile = tiles.concrete(_x, _y)
+			
+			_weight_map[_y][_x] = _tile['w']
+			_tile_map[_y][_x] = _tile
+			_building_space.add((_x, _y))
+	
+	#Wall
+	_width, _height = _width * 4, _height * 4
+	_ground_space = set()
+	
+	for y in range(_height + 1):
+		_y = _s_y + y
+		_yy = _y - int(round(_height * .4))
+		
+		for x in range(_width + 1):
+			_x = _s_x + x
+			_xx = _x - int(round(_width * .4))
+			
+			if random.uniform(0, 1) >= .75:
+				continue
+			
+			if x == 0 or y == 0 or x == _width or y == _height:
+				_tile = tiles.wooden_fence(_xx, _yy)
+			else:
+				if (_xx, _yy) in _building_space:
+					continue
+				
+				_ground_space.add((_xx, _yy))
+				
+				continue
+			
+			_weight_map[_yy][_xx] = _tile['w']
+			_tile_map[_yy][_xx] = _tile
+			_solids.add((_xx, _yy))
+	
+	#Ground: Inside wall - outside building
+	_ground_seeds = random.sample(list(_ground_space), 30)
+	
+	for x, y in _ground_seeds:
+		_walker_x = x
+		_walker_y = y
+		
+		for i in range(random.randint(40, 60)):
+			_tile = tiles.concrete_striped(_walker_x, _walker_y)
+			_weight_map[_walker_y][_walker_x] = _tile['w']
+			_tile_map[_walker_y][_walker_x] =_tile
+			
+			_walker_x += random.randint(-1, 1)
+			_walker_y += random.randint(-1, 1)
+			
+			if (_walker_x, _walker_y) in _building_space or (_walker_x, _walker_y) in _solids:
+				break
+	
+	#Bushes around outside wall
 
-	for room in _rooms:
+	"""for room in _rooms:
 		_build_doors = []
 
 		for plot_x, plot_y in room['plots']:
@@ -305,9 +395,9 @@ def swamp(width, height):
 			_max_y = _y
 
 		if _y < _min_y:
-			_min_y = _y
+			_min_y = _y"""
 
-	_plot_pole_x, _plot_pole_y = int(round(numbers.clip(_min_x, _max_x, 0.05))), int(round(numbers.clip(_min_y, _max_y, 0.5)))
+	_plot_pole_x, _plot_pole_y = _s_x, _s_y
 	_tree_plots = _possible_trees - _solids
 	_tree_plots = list(_tree_plots - _built_on)
 	_trees = {}
