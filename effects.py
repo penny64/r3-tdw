@@ -259,8 +259,6 @@ def _message_draw(entity):
 def _message_delete(entity):
 	global MESSAGES_ACTIVE
 	
-	print 'OK'
-	
 	MESSAGES_ACTIVE -= 1
 
 def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10)):

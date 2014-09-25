@@ -4,5 +4,8 @@
 *.dylib
 *.wpr
 *.wpu
+*.py.*prof
+profile.*
+kernprof.py
 .DS_STORE
 .r3

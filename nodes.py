@@ -151,7 +151,7 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 	_path_index = -1
 	
 	if LAST_CLICKED_POS:
-		_node_positions = [(p['node']['x'], p['node']['y']) for p in entity['node_grid']['nodes'].values() if not p['node']['name'] == 'Walk']
+		_node_positions = [(p['node']['x'], p['node']['y']) for p in entity['node_grid']['nodes'].values() if not p['node']['name'] == chr(31)]
 		
 		for node_id in entity['node_grid']['path'][:]:
 			_last_node = entity['node_grid']['nodes'][node_id]
@@ -223,7 +223,7 @@ def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', na
 		if not (_node['x'], _node['y']) == (x, y):
 			continue
 		
-		if _node['name'] == 'Walk':
+		if _node['name'] == chr(31):
 			_will_move = True
 	
 	if not _will_move:
