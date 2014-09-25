@@ -1,6 +1,12 @@
-#Tue Sep 23 2014
+#Thu Sep 25 2014
 
-
+A font change has changed the feeling of the game almost entirely, and new code
+for generating the trade building looks great. I'm going to work on making this
+area seems as alive as possible for the first official screenshot, which
+shouldn't be too far off if I keep working at this rate. Also of note is the
+change in resolution, which can go up to 1080p while still keeping 60fps. I've
+settled for a smaller window, but I would like to enable custom window sizes
+eventually for those who want to see more of the map.
 
 #Mon Sep 22 2014
 

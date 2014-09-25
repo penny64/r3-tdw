@@ -87,6 +87,9 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 
 def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, char='m', fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
+	
+	entities.create_event(_entity, 'damage')
+	entities.create_event(_entity, 'did_damage')	
 
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
