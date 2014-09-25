@@ -161,3 +161,7 @@ def cleanup(entity):
 	for target_id in list(entity['ai']['targets']):
 		if not target_id in entities.ENTITIES:
 			entity['ai']['targets'].remove(target_id)
+	
+	for entity_id in list(entity['ai']['visible_life']):
+		if not entity_id in entities.ENTITIES:
+			entity['ai']['visible_life'].remove(entity_id)
