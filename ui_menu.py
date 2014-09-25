@@ -3,12 +3,20 @@ from framework import entities, display, events
 import ui_cursor
 
 ACTIVE_MENU = None
+DELAY = 0
 
 
 def boot():
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_moved)
 	events.register_event('draw', lambda: draw_all('ui_menus'))
+	events.register_event('tick', tick)
+
+def tick():
+	global DELAY
+		
+	if DELAY > 0:
+		DELAY -= 1
 
 def create(x, y, title=None):
 	global ACTIVE_MENU
@@ -33,7 +41,7 @@ def create(x, y, title=None):
 	return _entity
 
 def delete(menu):
-	global ACTIVE_MENU
+	global ACTIVE_MENU, DELAY
 	
 	entities.delete_entity(menu)
 	
@@ -46,6 +54,8 @@ def delete(menu):
 			
 		else:
 			ACTIVE_MENU = None
+	
+	DELAY = 30
 
 def get_next_item_id(menu):
 	_id = menu['item_id']

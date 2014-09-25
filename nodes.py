@@ -66,7 +66,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 def handle_mouse_pressed(entity, x, y, button):
 	global DRAGGING_NODE, LAST_CLICKED_POS, SELECTING_TARGET_CALLBACK
 	
-	if ui_menu.get_active_menu():
+	if ui_menu.get_active_menu() or ui_menu.DELAY:
 		return
 	
 	_x = x+camera.X
