@@ -92,6 +92,23 @@ def concrete_striped(x, y):
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
 
+def wood_floor(x, y):
+	if random.randint(0, 1):
+		if not x % 2 or not y % 4:
+			_c_1 = constants.WOOD_3
+			_c_2 = constants.WOOD_3
+		else:
+			_c_1, _c_2 = random.sample([constants.WOOD_1,
+				                        constants.WOOD_2],
+				                       2)
+	else:
+		_c_1, _c_2 = random.sample([constants.WOOD_1,
+			                        constants.WOOD_2,
+			                        constants.WOOD_3],
+			                       2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
 def tile_checkered(x, y):
 	if not x % 2 or not y % 2:
 		_c_1 = (105, 105, 105)
@@ -109,6 +126,12 @@ def carpet_burgandy(x, y):
 	                           2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+
+def trade_window(x, y):
+	_c_1 = (10, 10, 10)
+	_c_2 = (10, 10, 10)
+	
+	return _tile(x, y, '#', 100, _c_1, _c_2)
 
 def debug(x, y):
 	_c_1 = (255, 0, 255)

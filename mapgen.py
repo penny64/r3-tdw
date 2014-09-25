@@ -229,6 +229,29 @@ def swamp(width, height):
 		_door_x = _width
 		_door_y = _height / 2
 	
+	if _width > _height:
+		if _random_dir in [1, 3]:
+			_mod = .75
+		else:
+			_mod = .25
+		
+		_trade_room_x = int(round(_width * _mod))
+		_trade_room_y = -1
+		_trade_window_x = _trade_room_x
+		_trade_window_y = _height / 2
+	else:
+		if _random_dir == 1:
+			_mod = .75
+		else:
+			_mod = .25
+		
+		_trade_room_x = -1
+		_trade_room_y = int(round(_height * _mod))
+		_trade_window_x = _width / 2
+		_trade_window_y = _trade_room_y
+	
+	_placed_trade_window = False
+	
 	for y in range(_height+1):
 		_y = _s_y+y
 		
@@ -244,7 +267,16 @@ def swamp(width, height):
 				_walls.add((_x, _y))
 			
 			else:
-				_tile = tiles.concrete(_x, _y)
+				if x == _trade_window_x and y == _trade_window_y:
+					_tile = tiles.trade_window(_x, _y)
+					
+				elif x == _trade_room_x or y == _trade_room_y:
+					_tile = tiles.wooden_fence(_x, _y)
+					_solids.add((_x, _y))
+					_walls.add((_x, _y))
+				
+				else:
+					_tile = tiles.wood_floor(_x, _y)
 			
 			_weight_map[_y][_x] = _tile['w']
 			_tile_map[_y][_x] = _tile
