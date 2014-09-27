@@ -57,7 +57,7 @@ def handle_mouse_movement(entity, x, y, vx, vy):
 	entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 255))
 	
 	DRAGGING_NODE['node']['x'] = vx
-	DRAGGING_NODE['node']['y'] = vy	
+	DRAGGING_NODE['node']['y'] = vy
 	DRAGGING_NODE['node']['path'] = []
 	
 	redraw_path(entity)
