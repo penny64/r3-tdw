@@ -1,4 +1,4 @@
-from framework import movement, entities, numbers, shapes
+from framework import movement, entities, numbers, shapes, stats
 
 import ai_factions
 import mapgen
@@ -36,7 +36,7 @@ def build_item_list(entity):
 		
 		_distance = numbers.distance(movement.get_position(entity), movement.get_position(_item))
 		
-		if _distance >= 100:
+		if _distance >= stats.get_vision(entity):
 			continue
 		
 		for pos in shapes.line(movement.get_position(entity), movement.get_position(_item)):
@@ -68,21 +68,24 @@ def build_life_list(entity):
 		if not ai_factions.is_enemy(entity, entity_id):
 			_visible = True
 		else:
-			for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
-				if pos in _solids:
-					if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
-						entities.trigger_event(entity, 'target_lost', target_id=entity_id)
-					
-					entity['ai']['life_memory'][entity_id]['can_see'] = False
-					
-					if entity_id in entity['ai']['visible_life']:
-						entity['ai']['visible_life'].remove(entity_id)
-					
-					_visible = False
-					
-					break
+			if numbers.distance(movement.get_position(entity), movement.get_position(_target)) > stats.get_vision(entity):
+				_visible = False
 			else:
-				_visible = True
+				for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
+					if pos in _solids:
+						if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
+							entities.trigger_event(entity, 'target_lost', target_id=entity_id)
+						
+						entity['ai']['life_memory'][entity_id]['can_see'] = False
+						
+						if entity_id in entity['ai']['visible_life']:
+							entity['ai']['visible_life'].remove(entity_id)
+						
+						_visible = False
+						
+						break
+				else:
+					_visible = True
 		
 		if _visible:
 			_previous_last_seen_at = entity['ai']['life_memory'][entity_id]['last_seen_at']
@@ -100,6 +103,9 @@ def build_life_list(entity):
 			            'can_see': True,
 			            'last_seen_at': _new_last_seen_at,
 			            'last_seen_velocity': None}
+			
+			if not entity_id in entity['ai']['visible_life']:
+				entities.trigger_event(entity, 'new_target_spotted', target_id=entity_id)
 			
 			entity['ai']['visible_life'].add(entity_id)
 			

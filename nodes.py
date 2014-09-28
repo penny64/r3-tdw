@@ -141,6 +141,9 @@ def handle_mouse_pressed(entity, x, y, button):
 					
 					del entity['node_grid']['nodes'][node['node']['_id']]
 					
+					if not entity['node_grid']['nodes']:
+						clear_path(entity)
+					
 					break
 			else:
 				create_walk_node(entity, _x, _y)

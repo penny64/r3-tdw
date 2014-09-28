@@ -152,7 +152,8 @@ def populate_life(zone_id):
 		else:
 			for b in range(_spawn_profile['squads']):
 				_spawn_pos = []
-				_center_x, _center_y = (190, 200)
+				
+				_center_x, _center_y = random.sample([_zone['width'] - 50, _zone['height'] - 50, 50, 50], 2)
 						
 				for x, y in shapes.circle(_center_x, _center_y, 5):
 					if (x, y) in _zone['solids']:

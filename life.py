@@ -17,7 +17,7 @@ import logging
 import random
 
 
-def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
+def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
 	
 	entities.create_event(_entity, 'get_and_store_item')
@@ -30,7 +30,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
 	timers.register(_entity)
-	stats.register(_entity, health, speed, name=name)
+	stats.register(_entity, health, speed, vision, name=name)
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
@@ -85,7 +85,7 @@ def _create_human(x, y, health, speed, name, faction='Rogues', has_ai=False, for
 
 	return _entity
 
-def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, char='m', fore_color=(255, 255, 255)):
+def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_ai=False, char='m', fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
 	
 	entities.create_event(_entity, 'damage')
@@ -94,18 +94,18 @@ def _create_animal(x, y, health, speed, name, faction='Mutants', has_ai=False, c
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
 	timers.register(_entity)
-	stats.register(_entity, health, speed, name=name)
+	stats.register(_entity, health, speed, vision, name=name)
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
 	noise.register(_entity)
 	skeleton.register(_entity)
 	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25)
-	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=65)
-	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=65)
-	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=65)
-	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, health=65)
-	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, health=65)
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=65, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=65, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=65, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, health=65, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, health=65, stat_mod={'speed': .4})
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -187,6 +187,9 @@ def human(x, y, name):
 									show_mod=1.0,
 									moving=True,
 									center=True))
+	entities.register_event(_entity,
+				'broadcast',
+				lambda e, message: effects.message(message))
 	
 	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
 	
@@ -241,6 +244,9 @@ def handle_player_heard_noise(entity, x, y, text, direction, accuracy, show_on_s
 
 def can_see_position(entity, position):
 	_solids = zones.get_active_solids(entity)
+	
+	if numbers.distance(movement.get_position(entity), position) > stats.get_vision(entity):
+		return False
 	
 	for pos in shapes.line(movement.get_position(entity), position):
 		if pos in _solids:

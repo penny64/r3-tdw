@@ -25,7 +25,7 @@ def boot():
 	
 	framework.events.register_event('draw', blit)
 	
-	tcod.console_set_custom_font(os.path.join('data', 'tiles', 'dejavu_wide12x12_gs_tc.png'),
+	tcod.console_set_custom_font(os.path.join('data', 'tiles', 'dejavu_wide12x12_gs_tc.png'),#,'consolas10x10_gs_tc.png')
 	                             flags=tcod.FONT_LAYOUT_TCOD|tcod.FONT_TYPE_GREYSCALE)
 	tcod.console_init_root(constants.WINDOW_WIDTH,
 	                       constants.WINDOW_HEIGHT,

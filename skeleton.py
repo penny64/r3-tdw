@@ -17,6 +17,7 @@ def register(entity):
 	entities.register_event(entity, 'hit', hit)
 	entities.register_event(entity, 'get_speed', get_speed_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
+	entities.register_event(entity, 'get_vision', get_vision_mod)
 	entities.register_event(entity, 'damage', handle_pain)
 	entities.register_event(entity, 'tick', tick)
 	
@@ -72,12 +73,14 @@ def hit(entity, projectile):
 		entities.trigger_event(entity, 'damage', limb=_limb_name, damage=_damage)
 
 def handle_pain(entity, limb, damage):
-	entity['stats']['pain'] += damage
+	_pain = int(round(damage * .75))
 	
-	if damage > 40:
+	entity['stats']['pain'] += _pain
+	
+	if _pain > 40:
 		entities.trigger_event(entity, 'stop')
 		entities.trigger_event(entity, 'clear_timers')
-		entities.trigger_event(entity, 'create_timer', time=(damage-30) * 60, name='passout')
+		entities.trigger_event(entity, 'create_timer', time=(_pain-30) * 60, name='passout')
 		entities.trigger_event(entity, 'animate', animation=['s', '@@'], repeat=4)
 
 def tick(entity):
@@ -88,27 +91,25 @@ def tick(entity):
 #Operations#
 ############
 
-def get_speed_mod(entity):
+def get_stat_mod(entity, stat):
 	for limb_name in entity['skeleton']:
 		_limb = entity['skeleton'][limb_name]
 		
-		if 'speed' in _limb['stat_mod']:
+		if stat in _limb['stat_mod']:
 			_mod = _limb['health'] / float(_limb['max_health'])
 			
-			entity['stats']['speed'] *= numbers.clip(1+(1-_mod), 1, 1+_limb['stat_mod']['speed'])
+			entity['stats'][stat] *= numbers.clip(1+(1-_mod), 1, 1+_limb['stat_mod'][stat])
 	
-	entity['stats']['speed'] = int(round(entity['stats']['speed']))
+	return int(round(entity['stats'][stat]))
+
+def get_speed_mod(entity):
+	entity['stats']['speed'] = get_stat_mod(entity, 'speed')
 
 def get_accuracy_mod(entity):
-	for limb_name in entity['skeleton']:
-		_limb = entity['skeleton'][limb_name]
-		
-		if 'accuracy' in _limb['stat_mod']:
-			_mod = _limb['health'] / float(_limb['max_health'])
-			
-			entity['stats']['accuracy'] *= numbers.clip(1+(1-_mod), 1, 1+_limb['stat_mod']['accuracy'])
-	
-	entity['stats']['accuracy'] = int(round(entity['stats']['accuracy']))
+	entity['stats']['accuracy'] = get_stat_mod(entity, 'accuracy')
+
+def get_vision_mod(entity):
+	entity['stats']['vision'] = get_stat_mod(entity, 'vision')
 
 def has_critical_injury(entity):
 	for limb_name in entity['skeleton']:

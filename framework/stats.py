@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, accuracy=1.0, name='Unknown'):
+def register(entity, health, speed, vision, accuracy=1.0, name='Unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
@@ -11,6 +11,8 @@ def register(entity, health, speed, accuracy=1.0, name='Unknown'):
 	          'pain': 0,
 	          'accuracy': accuracy,
 	          'max_accuracy': accuracy,
+	          'vision': vision,
+	          'max_vision': vision,
 	          'name': name,
 	          'last_engaged': None,
 	          'kills': 0}
@@ -22,6 +24,7 @@ def register(entity, health, speed, accuracy=1.0, name='Unknown'):
 	entities.create_event(entity, 'haste')
 	entities.create_event(entity, 'slow')
 	entities.create_event(entity, 'get_speed')
+	entities.create_event(entity, 'get_vision')
 	entities.create_event(entity, 'get_accuracy')
 	entities.register_event(entity, 'kill', kill)
 	entities.register_event(entity, 'log_kill', log_kill)
@@ -33,6 +36,13 @@ def kill(entity, **kwargs):
 
 def log_kill(entity, **kwarg):
 	entity['stats']['kills'] += 1
+
+def get_vision(entity):
+	entity['stats']['vision'] = entity['stats']['max_vision']
+	
+	entities.trigger_event(entity, 'get_vision')
+	
+	return entity['stats']['vision']
 
 def get_strength(entity, items=True):
 	_strength = entity['stats']['strength']

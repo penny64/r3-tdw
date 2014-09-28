@@ -2,7 +2,7 @@
 #Release#
 #########
 
-VERSION = 0.1
+VERSION = 0.15
 VERSION_INFO = 'This is a prototype. Do not distribute.'
 
 
@@ -11,8 +11,8 @@ VERSION_INFO = 'This is a prototype. Do not distribute.'
 #########
 
 WINDOW_TITLE = 'Reactor 3 - The Dead World'
-WINDOW_WIDTH = 100 #120
-WINDOW_HEIGHT = 70 #75
+WINDOW_WIDTH = 120
+WINDOW_HEIGHT = 75
 MAP_VIEW_WIDTH = WINDOW_WIDTH
 MAP_VIEW_HEIGHT = WINDOW_HEIGHT-1
 FPS = 60
