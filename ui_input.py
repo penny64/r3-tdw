@@ -3,6 +3,7 @@ from framework import movement, entities, controls, events, stats, numbers
 import ai_debugger
 import constants
 import ui_cursor
+import ui_panel
 import ui_menu
 import effects
 import camera
@@ -36,9 +37,10 @@ def handle_keyboard_input(entity):
 		settings.set_plan_tick_rate_string('>>>>>')
 	
 	if controls.get_input_char_pressed('\t'):
-		_x, _y = movement.get_position(entity)
+		#_x, _y = movement.get_position(entity)
 		
-		camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
+		#camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
+		ui_panel.show_inventory(entity)
 	
 	if controls.get_input_char_pressed('z'):
 		effects.message('Heard!')

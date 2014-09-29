@@ -10,6 +10,7 @@ import constants
 import settings
 import ui_dialog
 import ui_cursor
+import ui_panel
 import ui_input
 import ui_menu
 import ui_draw
@@ -155,6 +156,9 @@ def draw():
 	display.blit_surface('ui_menus')
 	display.blit_surface('ui_dialogs')
 	
+	if ui_panel.ACTIVE_MENU:
+		display.blit_surface_viewport('ui_inventory', 0, 0, 35, constants.MAP_VIEW_HEIGHT, dx=constants.MAP_VIEW_WIDTH-35)
+	
 	if settings.SHOW_NODE_GRID:
 		display.blit_surface('node_grid')
 	
@@ -265,6 +269,7 @@ if __name__ == '__main__':
 	display.create_surface('nodes', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('node_grid', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('effects', width=constants.MAP_VIEW_WIDTH, height=constants.MAP_VIEW_HEIGHT)
+	display.create_surface('ui_inventory', width=35, height=constants.MAP_VIEW_HEIGHT)
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
 	display.create_surface('ui_dialogs')
@@ -272,6 +277,7 @@ if __name__ == '__main__':
 	display.set_clear_surface('ui', 'tiles')
 	display.set_clear_surface('ui_menus', 'tiles')
 	display.set_clear_surface('ui_dialogs', 'tiles')
+	display.set_clear_surface('ui_inventory', 'tiles')
 	
 	post_processing.start()
 	

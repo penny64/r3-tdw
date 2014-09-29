@@ -238,19 +238,20 @@ def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 	
 	src_surface['r'] = []
 
-def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, width, height):
-	dst_surface['f'][0][0:height, 0:width] = src_surface['f'][0][start_y:start_y+height, start_x:start_x+width]
-	dst_surface['f'][1][0:height, 0:width] = src_surface['f'][1][start_y:start_y+height, start_x:start_x+width]
-	dst_surface['f'][2][0:height, 0:width] = src_surface['f'][2][start_y:start_y+height, start_x:start_x+width]
-	dst_surface['b'][0][0:height, 0:width] = src_surface['b'][0][start_y:start_y+height, start_x:start_x+width]
-	dst_surface['b'][1][0:height, 0:width] = src_surface['b'][1][start_y:start_y+height, start_x:start_x+width]
-	dst_surface['b'][2][0:height, 0:width] = src_surface['b'][2][start_y:start_y+height, start_x:start_x+width]
+def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, dst_x, dst_y, width, height):
+	dst_surface['f'][0][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][0][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['f'][1][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][1][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['f'][2][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][2][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][0][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['b'][0][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][1][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['b'][1][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['b'][2][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['b'][2][start_y:start_y+height, start_x:start_x+width]
+	dst_surface['c'][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['c'][start_y:start_y+height, start_x:start_x+width]
 
 def blit_surface(surface_name, clear=True):
 	_blit_surface(SURFACES[surface_name], SCREEN, clear=clear, src_name=surface_name)
 
-def blit_surface_viewport(surface_name, x, y, width, height):
-	_blit_surface_viewport(SURFACES[surface_name], SCREEN, x, y, width, height)
+def blit_surface_viewport(surface_name, x, y, width, height, dx=0, dy=0):
+	_blit_surface_viewport(SURFACES[surface_name], SCREEN, x, y, dx, dy, width, height)
 
 def set_clear_surface(surface_name, background_surface_name):
 	SURFACES[surface_name]['bg'] = background_surface_name

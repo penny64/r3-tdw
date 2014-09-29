@@ -51,7 +51,7 @@ def handle_keyboard_input():
 		camera.set_pos(camera.X + 2, camera.Y)
 
 def logic():
-	if not ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU:
+	if not ui_dialog.ACTIVE_DIALOG and not ui_menu.ACTIVE_MENU:
 		if CURSOR['tile']['x'] > constants.MAP_VIEW_WIDTH - 5:
 			camera.set_pos(camera.X + 3, camera.Y)
 		

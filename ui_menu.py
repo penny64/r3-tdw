@@ -9,7 +9,7 @@ DELAY = 0
 def boot():
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_moved)
-	events.register_event('draw', lambda: draw_all('ui_menus'))
+	events.register_event('draw', draw_all)
 	events.register_event('tick', tick)
 
 def tick():
@@ -18,7 +18,7 @@ def tick():
 	if DELAY > 0:
 		DELAY -= 1
 
-def create(x, y, title=None):
+def create(x, y, title=None, surface='ui_menus'):
 	global ACTIVE_MENU
 	
 	_entity = entities.create_entity(group='ui_menus')
@@ -26,6 +26,7 @@ def create(x, y, title=None):
 	                'active': True,
 	                'index': 0,
 	                'item_id': 0,
+	                'surface': surface,
 	                'x': x,
 	                'y': y})
 	
@@ -172,7 +173,7 @@ def add_selectable(menu, text, callback, fore_color=(230, 230, 230), back_color=
 	                      'back_color': back_color,
 	                      'close_on_select': close_on_select}
 
-def draw(menu, surface):
+def draw(menu):
 	_y_mod = 0
 	_yy_mod = 0
 	
@@ -187,15 +188,15 @@ def draw(menu, surface):
 		
 		for i in range(-1, 2):
 			if i:
-				display.write_string(surface, menu['x'], menu['y']+_y_mod+_yy_mod, ' ' * len(_text), fore_color=_item['fore_color'], back_color=_back_color)
+				display.write_string(menu['surface'], menu['x'], menu['y']+_y_mod+_yy_mod, ' ' * len(_text), fore_color=_item['fore_color'], back_color=_back_color)
 			else:
-				display.write_string(surface, menu['x'], menu['y']+_y_mod+_yy_mod, _text, fore_color=_item['fore_color'], back_color=_back_color)
+				display.write_string(menu['surface'], menu['x'], menu['y']+_y_mod+_yy_mod, _text, fore_color=_item['fore_color'], back_color=_back_color)
 			
 			_yy_mod += 1
 		
 		_yy_mod -= 1
 		_y_mod += 1
 
-def draw_all(surface):
+def draw_all():
 	for menu_id in entities.get_entity_group('ui_menus'):
-		draw(entities.get_entity(menu_id), surface)
+		draw(entities.get_entity(menu_id))
