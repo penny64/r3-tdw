@@ -82,8 +82,6 @@ def handle_mouse_moved(x, y, dx, dy):
 	
 	_m_x, _m_y = _menu['x'] + _menu['click_offset'][0], _menu['y'] + _menu['click_offset'][1]
 	
-	print x, y, _m_x, _m_y
-	
 	if x >= _m_x and x <= _m_x+10 and y >= _m_y and y <= _m_y+(len(_menu['items']) * 3):
 		_selected_index = (y-_m_y) / 3
 		

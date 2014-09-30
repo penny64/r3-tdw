@@ -37,10 +37,16 @@ def handle_keyboard_input(entity):
 		settings.set_plan_tick_rate_string('>>>>>')
 	
 	if controls.get_input_char_pressed('\t'):
-		#_x, _y = movement.get_position(entity)
+		if settings.TICK_MODE == 'strategy':
+			if ui_panel.ACTIVE_MENU:
+				ui_panel.close()
+			else:
+				ui_panel.show_inventory(entity)
 		
-		#camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
-		ui_panel.show_inventory(entity)
+		else:
+			_x, _y = movement.get_position(entity)
+			
+			camera.set_pos(_x - constants.MAP_VIEW_WIDTH/2, _y - constants.MAP_VIEW_HEIGHT/2)
 	
 	if controls.get_input_char_pressed('z'):
 		effects.message('Heard!')

@@ -9,6 +9,8 @@ ACTIVE_MENU = None
 def close():
     global ACTIVE_MENU
     
+    ui_menu.delete(ACTIVE_MENU)
+    
     ACTIVE_MENU = None
 
 def show_inventory(entity):
