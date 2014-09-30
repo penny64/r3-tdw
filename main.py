@@ -39,23 +39,23 @@ def handle_input():
 				ui_dialog.delete(ui_dialog.get_active_dialog())
 			elif ui_menu.get_active_menu():
 				_menu = ui_menu.get_active_menu()
-				
+
 				ui_menu.delete(_menu)
-				
+
 				if ui_panel.ACTIVE_MENU == _menu:
 					ui_panel.close()
 			else:
 				return False
-		
+
 		if controls.get_input_char_pressed(' '):
 			if settings.TICK_MODE == 'strategy':
 				settings.TICK_MODE = 'normal'
 			else:
 				settings.TICK_MODE = 'strategy'
-		
+
 		if settings.TICK_MODE == 'strategy':
 			nodes.handle_keyboard_input(PLAYER)
-	
+
 	return True
 
 def handle_mouse_movement(x, y, **kwargs):
@@ -65,28 +65,28 @@ def handle_mouse_movement(x, y, **kwargs):
 def handle_mouse_pressed(x, y, button):
 	if settings.TICK_MODE == 'strategy':
 		nodes.handle_mouse_pressed(PLAYER, x, y, button)
-	
+
 	elif settings.TICK_MODE == 'normal':
 		_c_x = (camera.X+x) - (constants.MAP_VIEW_WIDTH/2)
 		_c_y = (camera.Y+y) - (constants.MAP_VIEW_HEIGHT/2)
-		
+
 		if button == 1:
 			camera.set_pos(_c_x, _c_y)
 
 def tick():
 	for entity_id in entities.get_entity_group('life'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
-	
+
 	for i in range(16):
 		for entity_id in entities.get_entity_group('bullets'):
 			entities.trigger_event(entities.get_entity(entity_id), 'tick')
-	
+
 	for entity_id in entities.get_entity_group('effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
-	
+
 	for entity_id in entities.get_entity_group('ui_effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
-	
+
 	ai_visuals.reset_moved_entities()
 
 def post_tick():
@@ -95,63 +95,63 @@ def post_tick():
 
 def draw():
 	global MOVIE_TIME, MOVIE_TIME_MAX
-	
+
 	if settings.OBSERVER_MODE:
 		_draw_life = entities.get_entity_group('life')
 		_draw_items = entities.get_entity_group('items')
 	else:
 		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-		
+
 		if PLAYER['_id'] in entities.ENTITIES:
 			_draw_life.append(PLAYER['_id'])
-		
+
 		_items = PLAYER['ai']['visible_items'].values()
 		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
-	
+
 	for entity_id in _draw_life:
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	for entity_id in entities.get_entity_group('nodes'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	if settings.SHOW_NODE_GRID:
 		for entity_id in zones.get_active_node_grid().values():
 			entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	for entity_id in entities.get_entity_groups(['ui_effects', 'ui_effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw')
-	
+
 	for entity_id in entities.get_entity_groups(['effects', 'effects_freetick']):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	for entity_id in entities.get_entity_group('contexts'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	for entity_id in _draw_items:
 		if not entity_id in entities.ENTITIES:
 			continue
-		
+
 		_entity = entities.get_entity(entity_id)
-		
+
 		if _entity['stats']['owner']:
 			continue
-		
+
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
-	
+
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
 	                        executing=settings.TICK_MODE == 'normal' and PLAYER['node_grid']['path'],
 	                        execute_speed=settings.PLAN_TICK_RATE_STRING,
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
-	
+
 	if settings.TICK_MODE == 'strategy':
 		ui_draw.draw_life_labels()
 		ui_draw.draw_item_labels()
-	
+
 	ui_draw.draw_node_path(PLAYER)
-	
+
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()
-	
+
 	events.trigger_event('post_process')
 	display.blit_surface('effects')
 	display.blit_surface('nodes')
@@ -160,17 +160,17 @@ def draw():
 	display.blit_surface('ui')
 	display.blit_surface('ui_menus')
 	display.blit_surface('ui_dialogs')
-	
+
 	if ui_panel.ACTIVE_MENU:
 		display.blit_surface_viewport('ui_inventory', 0, 0, 35, constants.MAP_VIEW_HEIGHT, dx=constants.MAP_VIEW_WIDTH-35)
-	
+
 	if settings.SHOW_NODE_GRID:
 		display.blit_surface('node_grid')
-	
+
 	events.trigger_event('draw')
-	
+
 	#MOVIE_TIME += 1
-	
+
 	#if MOVIE_TIME == MOVIE_TIME_MAX:
 	#	display.screenshot('screenshot-%s.bmp' % time.time())
 	#	
@@ -178,40 +178,40 @@ def draw():
 
 def loop():
 	events.trigger_event('input')
-	
+
 	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
 		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		else:
 			_ticks_per_tick = 1
-		
+
 		for _ in range(_ticks_per_tick):
 			events.trigger_event('logic')
 			tick()
-	
+
 	ai_factions.logic()
 	ai_squads.logic()
-	
+
 	if pathfinding.wait_for_astar():
 		pass
-	
+
 	events.trigger_event('tick')
 	events.trigger_event('camera')
-	
+
 	post_tick()
-	
+
 	if not handle_input():
 		return False
-	
+
 	draw()
-	
+
 	return True
 
 def main():
 	global PLAYER
-	
+
 	ai_factions.boot()
-	
+
 	PLAYER = life.human(210, 210, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 
@@ -223,34 +223,34 @@ def main():
 	#items.glock(175, 176)
 	#items.glock(165, 166, ammo=17)
 	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
-	
+
 	ui_cursor.boot()
 	ai.boot()
 	ui_input.boot(PLAYER)
 	ui_draw.boot(PLAYER)
 	ui_menu.boot()
 	ui_dialog.boot()
-	
+
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
-	
+
 	worldgen.generate()
-	
+
 	camera.set_pos(120, 120)
-	
+
 	while loop():
 		events.trigger_event('cleanup')
-		
+
 		continue
-	
+
 	framework.shutdown()
 
 if __name__ == '__main__':
 	framework.init()
-	
+
 	worlds.create('main')
-	
+
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
@@ -278,12 +278,7 @@ if __name__ == '__main__':
 	display.create_surface('ui')
 	display.create_surface('ui_menus')
 	display.create_surface('ui_dialogs')
-	display.set_clear_surface('effects', 'tiles')
-	display.set_clear_surface('ui', 'tiles')
-	display.set_clear_surface('ui_menus', 'tiles')
-	display.set_clear_surface('ui_dialogs', 'tiles')
-	display.set_clear_surface('ui_inventory', 'tiles')
-	
+
 	post_processing.start()
-	
+
 	framework.run(main)

@@ -159,7 +159,7 @@ def select(menu):
 	
 	return _item['callback'](**_item['kwargs'])
 
-def add_title(menu, text, fore_color=(255, 255, 255), back_color=(1, 1, 1)):
+def add_title(menu, text, fore_color=(255, 255, 255), back_color=(45, 45, 45)):
 	_id = get_next_item_id(menu)
 	
 	menu['items'][_id] = {'text': text,

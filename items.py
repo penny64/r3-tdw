@@ -28,6 +28,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	_entity = entities.create_entity(group='items')
 	
 	_entity['stats'] = {'name': name,
+	                    'display_name': name,
 	                    'type': item_type,
 	                    'weight': weight,
 	                    'owner': None,
@@ -40,7 +41,8 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	
 	entities.create_event(_entity, 'get_interactions')
 	entities.create_event(_entity, 'get_actions')
-	entities.register_event(_entity, 'delete', disown)
+	entities.create_event(_entity, 'get_display_name')
+	entities.register_event(_entity, 'get_display_name', get_display_name)
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	
@@ -109,6 +111,15 @@ def get_items_matching(entity, match):
 ############
 #Operations#
 ############
+
+def get_display_name(entity):
+	entity['stats']['display_name'] = entity['stats']['name']
+
+def _handle_weapon_display_name(entity):
+	_weapon_ammo = flags.get_flag(entity, 'ammo')
+	_weapon_ammo_max = flags.get_flag(entity, 'ammo_max')	
+	
+	entity['stats']['display_name'] += ' (%s/%s)' % (_weapon_ammo, _weapon_ammo_max)
 
 def disown(entity):
 	if not entity['stats']['owner']:
@@ -204,6 +215,7 @@ def glock(x, y, ammo=0):
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4)
+	entities.register_event(_entity, 'get_display_name', _handle_weapon_display_name)
 	
 	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
 	#                                                                                       'Single shot',
@@ -235,6 +247,11 @@ def check_for_collisions(entity):
 	_x, _y = movement.get_position(entity)
 	
 	if _x < 0 or _x >= zones.get_active_size()[0]-1 or _y < 0 or _y >= zones.get_active_size()[1]-1:
+		entities.delete_entity(entity)
+		
+		return
+	
+	if (_x, _y) in zones.get_active_solids():
 		entities.delete_entity(entity)
 		
 		return
