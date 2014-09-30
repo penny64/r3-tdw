@@ -38,7 +38,12 @@ def handle_input():
 			if ui_dialog.get_active_dialog():
 				ui_dialog.delete(ui_dialog.get_active_dialog())
 			elif ui_menu.get_active_menu():
-				ui_menu.delete(ui_menu.get_active_menu())
+				_menu = ui_menu.get_active_menu()
+				
+				ui_menu.delete(_menu)
+				
+				if ui_panel.ACTIVE_MENU == _menu:
+					ui_panel.close()
 			else:
 				return False
 		

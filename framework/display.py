@@ -148,6 +148,15 @@ def write_char_direct(surface_name, x, y, char, fore_color, back_color):
 		_surface['b'][1][y][x] = back_color[1]
 		_surface['b'][2][y][x] = back_color[2]	
 
+def fill_surface(surface_name, color):
+	_surface = SURFACES[surface_name]
+	_surface['b'][0] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16) + color[0]
+	_surface['b'][1] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16) + color[1]
+	_surface['b'][2] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16) + color[2]
+	_surface['f'][0] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16)
+	_surface['f'][1] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16)
+	_surface['f'][2] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int16)
+
 def shade_surface_fore(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']

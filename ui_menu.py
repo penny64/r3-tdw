@@ -18,7 +18,7 @@ def tick():
 	if DELAY > 0:
 		DELAY -= 1
 
-def create(x, y, title=None, surface='ui_menus'):
+def create(x, y, title=None, surface='ui_menus', click_offset=(0, 0)):
 	global ACTIVE_MENU
 	
 	_entity = entities.create_entity(group='ui_menus')
@@ -27,6 +27,7 @@ def create(x, y, title=None, surface='ui_menus'):
 	                'index': 0,
 	                'item_id': 0,
 	                'surface': surface,
+	                'click_offset': click_offset,
 	                'x': x,
 	                'y': y})
 	
@@ -79,8 +80,12 @@ def handle_mouse_moved(x, y, dx, dy):
 	if not _menu:
 		return
 	
-	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+(len(_menu['items']) * 3):
-		_selected_index = (y-_menu['y']) / 3
+	_m_x, _m_y = _menu['x'] + _menu['click_offset'][0], _menu['y'] + _menu['click_offset'][1]
+	
+	print x, y, _m_x, _m_y
+	
+	if x >= _m_x and x <= _m_x+10 and y >= _m_y and y <= _m_y+(len(_menu['items']) * 3):
+		_selected_index = (y-_m_y) / 3
 		
 		if _selected_index >= len(_menu['items']):
 			return False
@@ -100,13 +105,15 @@ def handle_mouse_pressed(x, y, button):
 	if not _menu:
 		return
 	
+	_m_x, _m_y = _menu['x'] + _menu['click_offset'][0], _menu['y'] + _menu['click_offset'][1]
+	
 	if button == 2:
 		delete(ACTIVE_MENU)
 		
 		return
 	
-	if x >= _menu['x'] and x <= _menu['x']+10 and y >= _menu['y'] and y <= _menu['y']+(len(_menu['items']) * 3):
-		_selected_index = (y-_menu['y']) / 3
+	if x >= _m_x and x <= _m_x+10 and y >= _m_y and y <= _m_y+(len(_menu['items']) * 3):
+		_selected_index = (y-_m_y) / 3
 		
 		if _selected_index >= len(_menu['items']):
 			return False
