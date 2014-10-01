@@ -123,8 +123,21 @@ def handle_mouse_pressed(entity, x, y, button):
 							create_life_interact_menu(entity, entity_id)
 						
 						return
+				
 				else:
-					create_walk_node(entity, _x, _y, clear=True)
+					for entity_id in entities.get_entity_group('contexts'):
+						_entity = entities.get_entity(entity_id)
+						
+						if not _entity['callback']:
+							continue
+						
+						if (_entity['tile']['x'], _entity['tile']['y']) == (_x, _y):
+							_entity['callback'](x+2, y-3)
+							
+							break
+					
+					else:
+						create_walk_node(entity, _x, _y, clear=True)
 	
 	elif button == 2:
 		if DRAGGING_NODE:

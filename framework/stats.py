@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, vision, accuracy=1.0, name='Unknown'):
+def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
@@ -15,7 +15,11 @@ def register(entity, health, speed, vision, accuracy=1.0, name='Unknown'):
 	          'max_vision': vision,
 	          'name': name,
 	          'last_engaged': None,
+	          'respect': 0,
+	          'rank': 'Unknown',
 	          'kills': 0}
+	
+	entity['stats'] = _stats
 
 	entities.create_event(entity, 'kill')
 	entities.create_event(entity, 'killed_by')
@@ -23,19 +27,45 @@ def register(entity, health, speed, vision, accuracy=1.0, name='Unknown'):
 	entities.create_event(entity, 'heal')
 	entities.create_event(entity, 'haste')
 	entities.create_event(entity, 'slow')
+	entities.create_event(entity, 'set_respect')
+	entities.create_event(entity, 'set_rank')
 	entities.create_event(entity, 'get_speed')
 	entities.create_event(entity, 'get_vision')
 	entities.create_event(entity, 'get_accuracy')
 	entities.register_event(entity, 'kill', kill)
+	entities.register_event(entity, 'set_respect', set_respect)
+	entities.register_event(entity, 'set_rank', set_rank)
+	entities.register_event(entity, 'log_kill', add_respect)
 	entities.register_event(entity, 'log_kill', log_kill)
-
-	entity['stats'] = _stats
+	entities.trigger_event(entity, 'set_respect', respect=respect)
 
 def kill(entity, **kwargs):
 	entities.delete_entity(entity)
 
 def log_kill(entity, **kwarg):
 	entity['stats']['kills'] += 1
+
+def set_respect(entity, respect):
+	entity['stats']['respect'] = respect
+	
+	if respect <= 3:
+		entities.trigger_event(entity, 'set_rank', rank='Newcomer')
+	
+	elif respect <= 10:
+		entities.trigger_event(entity, 'set_rank', rank='Rookie')
+
+def set_rank(entity, rank):
+	entity['stats']['rank'] = rank
+
+def add_respect(entity, target_id):
+	_target = entities.get_entity(target_id)
+	_respect = entity['stats']['respect']
+	_target_respect = _target['stats']['respect']
+	
+	if _respect >= _target_respect:
+		_target_respect *= 1 - numbers.clip((_respect - _target_respect) / 10.0, 0, 1)
+	
+	entities.trigger_event(entity, 'set_respect', respect = entity['stats']['respect'] + int(round(_target_respect)))
 
 def get_vision(entity):
 	entity['stats']['vision'] = entity['stats']['max_vision']

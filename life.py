@@ -191,6 +191,10 @@ def human(x, y, name):
 				'broadcast',
 				lambda e, message: effects.message(message))
 	
+	entities.register_event(_entity,
+				'set_rank',
+				lambda e, rank: effects.message('New Rank: %s' % rank))
+	
 	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])

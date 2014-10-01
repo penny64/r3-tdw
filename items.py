@@ -251,7 +251,7 @@ def check_for_collisions(entity):
 		
 		return
 	
-	if (_x, _y) in zones.get_active_solids():
+	if (_x, _y) in zones.get_active_solids(entity):
 		entities.delete_entity(entity)
 		
 		return

@@ -37,7 +37,7 @@ def create_limb(entity, name, parent_limbs, critical, accuracy, stat_mod={}, can
 		entity['skeleton'][limb]['child_limbs'].append(name)
 
 def hit(entity, projectile):
-	_accuracy = random.uniform(.1, 1)
+	_accuracy = random.uniform(.4, 1)
 	_hit_map = []
 	
 	for limb_name in entity['skeleton']:

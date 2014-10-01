@@ -1,4 +1,4 @@
-from framework import entities, movement, numbers, tile
+from framework import entities, movement, numbers, tile, timers
 
 
 def register(entity):
@@ -38,8 +38,10 @@ def create_context(x, y, text, callback):
 	_entity['callback'] = callback
 	
 	tile.register(_entity, surface='effects', char='!', fore_color=(0, 200, 0))
+	timers.register(_entity, use_system_event='logic')
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'animate', animation=['!', ' '], repeat=-1)
+	entities.trigger_event(_entity, 'create_timer', time=120, exit_callback=entities.delete_entity)
 	
 	return _entity
