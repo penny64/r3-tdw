@@ -100,12 +100,6 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	flags.register(_entity)
 	noise.register(_entity)
 	skeleton.register(_entity)
-	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25)
-	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=65, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'left arm', ['torso'], False, 0.3, health=65, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'right arm', ['torso'], False, 0.3, health=65, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, health=65, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, health=65, stat_mod={'speed': .4})
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -218,7 +212,12 @@ def human_bandit(x, y, name):
 def wild_dog(x, y, name):
 	_entity = _create_animal(x, y, 100, 4, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
 	
-	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25, stat_mod={'vision': .75})
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=45, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'front left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'front right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'back left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	
 	return _entity
 

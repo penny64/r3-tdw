@@ -6,6 +6,8 @@ import camera
 import items
 import life
 
+import time
+
 PLAYER = None
 
 
@@ -52,6 +54,45 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))
+
+def draw_long_range_life():
+	_camera_x, _camera_y = camera.X, camera.Y
+	_width = display.get_surface('life')['width']
+	_height = display.get_surface('life')['height']
+	
+	if settings.OBSERVER_MODE:
+		_draw_life = entities.get_entity_group('life')
+	else:
+		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		
+		if PLAYER['_id'] in entities.ENTITIES:
+			_draw_life.append(PLAYER['_id'])
+	
+	for entity_id in _draw_life:
+		_entity = entities.get_entity(entity_id)
+		_x, _y = movement.get_position(_entity)
+		_x -= _camera_x
+		_y -= _camera_y
+		
+		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
+			_x = numbers.clip(_x, 0, _width-1)
+			_y = numbers.clip(_y, 0, _height-1)
+		else:
+			continue
+		
+		if time.time() % 1 >= .5:
+			_char = 'X'
+		else:
+			_char = 'O'
+		
+		if entity_id in PLAYER['ai']['life_memory'] and PLAYER['ai']['life_memory'][entity_id]['is_target']:
+			_fore_color = (255, 0, 0)
+			_back_color = (100, 0, 0)
+		else:
+			_fore_color = (255, 255, 255)
+			_back_color = (100, 100, 100)
+		
+		display.write_string('ui', _x, _y, _char, fore_color=_fore_color, back_color=_back_color)
 
 def draw_life_labels():
 	_camera_x, _camera_y = camera.X, camera.Y

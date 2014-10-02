@@ -146,7 +146,8 @@ def draw():
 	if settings.TICK_MODE == 'strategy':
 		ui_draw.draw_life_labels()
 		ui_draw.draw_item_labels()
-
+	
+	ui_draw.draw_long_range_life()
 	ui_draw.draw_node_path(PLAYER)
 
 	if '--fps' in sys.argv:

@@ -1,3 +1,18 @@
+#Thu Oct 2  2014
+
+So many changes recently that I've lost count, but Trello reveals that I've gone
+a long way in a week. Unfortunate that I can't always keep this pace, but what's
+been happening lately is a lot of planning sessions followed by a sprint of
+programming to implement it all. Currently work has been shifting to adding more
+features rather than polishing old ones, which is hugely appreciated since
+working on one thing for such a long period of time (mostly AI) can have
+negative effects on productivity.
+
+I'm looking for a way to announce this project. On more than one occasion I've
+written a post only to delete it - no one way feels appropriate right now and I
+might just as well keep it to myself until I can put out a video or demo showing
+what I have to offer.
+
 #Thu Sep 25 2014
 
 A font change has changed the feeling of the game almost entirely, and new code
