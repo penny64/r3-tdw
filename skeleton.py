@@ -65,6 +65,7 @@ def hit(entity, projectile):
 				entities.trigger_event(entities.get_entity(projectile['owner']), 'log_kill', target_id=entity['_id'])
 				entities.trigger_event(entity, 'killed_by', target_id=projectile['owner'])
 			
+			#entity['stats']['grave'] = {'':}
 			entities.delete_entity(entity)
 	else:
 		if projectile['owner'] in entities.ENTITIES:

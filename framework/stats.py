@@ -17,6 +17,7 @@ def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unkno
 	          'last_engaged': None,
 	          'respect': 0,
 	          'rank': 'Unknown',
+	          'last_rank': 'Unknown',
 	          'kills': 0}
 	
 	entity['stats'] = _stats
@@ -55,6 +56,7 @@ def set_respect(entity, respect):
 		entities.trigger_event(entity, 'set_rank', rank='Rookie')
 
 def set_rank(entity, rank):
+	entity['stats']['last_rank'] = entity['stats']['rank']
 	entity['stats']['rank'] = rank
 
 def add_respect(entity, target_id):

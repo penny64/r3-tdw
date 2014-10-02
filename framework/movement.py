@@ -187,7 +187,7 @@ def walk_to_position(entity, x, y, astar_map, weight_map, avoid=[], smp=-1):
 		if not numbers.distance(entity['movement']['path']['destination'], _target_position):
 			return False
 	
-	if smp:
+	if smp == True:
 		pathfinding.astar_mp(_start_position, _target_position, astar_map, weight_map,
 		                     lambda path: set_path(entity, path), avoid=avoid)
 	else:

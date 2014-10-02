@@ -193,7 +193,7 @@ def human(x, y, name):
 	
 	entities.register_event(_entity,
 				'set_rank',
-				lambda e, rank: effects.message('New Rank: %s' % rank))
+				lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
 	
 	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
 	

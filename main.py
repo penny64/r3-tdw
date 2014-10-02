@@ -1,4 +1,4 @@
-from framework import entities, controls, display, events, worlds, movement, pathfinding, numbers, stats
+from framework import entities, controls, display, events, worlds, movement, pathfinding, numbers, stats, timers
 
 import framework
 
@@ -182,6 +182,8 @@ def loop():
 	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
 		if PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
+		elif timers.has_timer_with_name(PLAYER, 'Shoot'):
+			_ticks_per_tick = 1
 		else:
 			_ticks_per_tick = 1
 

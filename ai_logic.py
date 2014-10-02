@@ -93,7 +93,7 @@ def find_cover(entity):
 		_distance = numbers.distance((_x, _y), (node_x, node_y))
 		
 		#TODO: Replace with sight distance
-		if _distance >= 30:
+		if _distance >= 30 or (node_x, node_y) in _solids:
 			continue
 		
 		if _closest_node['node'] and _distance >= _closest_node['distance']:
