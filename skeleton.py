@@ -11,20 +11,24 @@ def _limb():
 	return {'critical': False, 'stat_mod': {}, 'accuracy': .2}
 
 def register(entity):
-	entity['skeleton'] = {}
+	entity['skeleton'] = {'limbs': {},
+	                      'motions': {},
+	                      'motion': None}
 	
 	entities.create_event(entity, 'hit')
+	entities.create_event(entity, 'set_motion')
 	entities.register_event(entity, 'hit', hit)
 	entities.register_event(entity, 'get_speed', get_speed_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
 	entities.register_event(entity, 'get_vision', get_vision_mod)
+	entities.register_event(entity, 'set_motion', set_motion)
 	entities.register_event(entity, 'damage', handle_pain)
 	entities.register_event(entity, 'tick', tick)
 	
 	return entity
 
 def create_limb(entity, name, parent_limbs, critical, accuracy, stat_mod={}, can_sever=False, health=100):
-	entity['skeleton'][name] = {'critical': critical,
+	entity['skeleton']['limbs'][name] = {'critical': critical,
 	                            'stat_mod': stat_mod,
 	                            'accuracy': accuracy,
 	                            'parent_limbs': parent_limbs,
@@ -34,20 +38,26 @@ def create_limb(entity, name, parent_limbs, critical, accuracy, stat_mod={}, can
 	                            'can_sever': can_sever}
 	
 	for limb in parent_limbs:
-		entity['skeleton'][limb]['child_limbs'].append(name)
+		entity['skeleton']['limbs'][limb]['child_limbs'].append(name)
+
+def create_motion(entity, name, stat_mod={}):
+	entity['skeleton']['motions'][name] = {'stat_mod': stat_mod}
+	
+	if not entity['skeleton']['motion']:
+		entity['skeleton']['motion'] = name
 
 def hit(entity, projectile):
 	_accuracy = random.uniform(.4, 1)
 	_hit_map = []
 	
-	for limb_name in entity['skeleton']:
-		_limb = entity['skeleton'][limb_name]
+	for limb_name in entity['skeleton']['limbs']:
+		_limb = entity['skeleton']['limbs'][limb_name]
 		
 		for i in range(int(round(_limb['health']*_limb['accuracy']))):
 			_hit_map.append(limb_name)
 	
 	_limb_name = random.choice(_hit_map)
-	_limb = entity['skeleton'][_limb_name]
+	_limb = entity['skeleton']['limbs'][_limb_name]
 	_damage = int(round(70 * _accuracy))
 	_limb['health'] -= _damage
 	_x, _y = movement.get_position(entity)
@@ -92,9 +102,24 @@ def tick(entity):
 #Operations#
 ############
 
+def _set_motion(entity, motion):
+	entity['skeleton']['motion'] = motion
+	
+	print motion
+
+def set_motion(entity, motion):
+	if not motion in entity['skeleton']['motions']:
+		raise Exception('Invalid motion: %s' % motion)
+	
+	_last_motion = entity['skeleton']['motion']
+	
+	print _last_motion, motion
+	
+	entities.trigger_event(entity, 'create_timer', time=25, exit_callback=lambda e: _set_motion(e, motion))
+
 def get_stat_mod(entity, stat):
-	for limb_name in entity['skeleton']:
-		_limb = entity['skeleton'][limb_name]
+	for limb_name in entity['skeleton']['limbs']:
+		_limb = entity['skeleton']['limbs'][limb_name]
 		
 		if stat in _limb['stat_mod']:
 			_mod = _limb['health'] / float(_limb['max_health'])
@@ -105,6 +130,9 @@ def get_stat_mod(entity, stat):
 
 def get_speed_mod(entity):
 	entity['stats']['speed'] = get_stat_mod(entity, 'speed')
+	
+	if 'speed' in entity['skeleton']['motions'][entity['skeleton']['motion']]['stat_mod']:
+		entity['stats']['speed'] *= entity['skeleton']['motions'][entity['skeleton']['motion']]['stat_mod']['speed']
 
 def get_accuracy_mod(entity):
 	entity['stats']['accuracy'] = get_stat_mod(entity, 'accuracy')
@@ -113,8 +141,8 @@ def get_vision_mod(entity):
 	entity['stats']['vision'] = get_stat_mod(entity, 'vision')
 
 def has_critical_injury(entity):
-	for limb_name in entity['skeleton']:
-		_limb = entity['skeleton'][limb_name]
+	for limb_name in entity['skeleton']['limbs']:
+		_limb = entity['skeleton']['limbs'][limb_name]
 		
 		if _limb['health'] / float(_limb['max_health']) <= .25:
 			return True

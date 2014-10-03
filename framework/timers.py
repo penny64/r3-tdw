@@ -16,7 +16,7 @@ def register(entity, use_system_event=None):
 
 def create_timer(entity, time, name='', repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):
 	entity['timers'].append({'callback': callback,
-	                         'name': name,
+	                         'name': name.lower(),
 	                         'enter_callback': enter_callback,
 	                         'exit_callback': exit_callback,
 	                         'repeat_callback': repeat_callback,
@@ -36,7 +36,7 @@ def get_nearest_timer(entity):
 	for timer in entity['timers']:
 		_time = timer['time'] + (timer['time_max'] * timer['repeat'])
 		
-		if not _nearest_timer['time' or _time < _nearest_timer['time']]:
+		if not _nearest_timer['time'] or _time < _nearest_timer['time']:
 			_nearest_timer['time'] = _time
 			_nearest_timer['timer'] = timer
 	
@@ -47,10 +47,10 @@ def has_timer_with_name(entity, name, next_only=False, fuzzy=False):
 		if timer['stop']:
 			continue
 		
-		if fuzzy and timer['name'].lower().count(name):
+		if fuzzy and timer['name'].count(name.lower()):
 			return True
 		
-		if timer['name'] == name:
+		if timer['name'] == name.lower():
 			return True
 		
 		if next_only:
@@ -63,7 +63,7 @@ def delete_timer(entity, name):
 		if timer['stop']:
 			continue
 		
-		if timer['name'].lower().count(name):
+		if timer['name'].count(name.lower()):
 			entity['timers'].remove(timer)
 			
 			break

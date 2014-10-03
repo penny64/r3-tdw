@@ -8,7 +8,7 @@
 #mind when adding additional code.
 
 
-from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats
+from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats, timers
 
 import ai_factions
 import constants
@@ -67,6 +67,9 @@ def handle_mouse_pressed(entity, x, y, button):
 	global DRAGGING_NODE, LAST_CLICKED_POS, SELECTING_TARGET_CALLBACK
 	
 	if ui_menu.get_active_menu() or ui_menu.DELAY:
+		return
+	
+	if timers.has_timer_with_name(entity, 'passout'):
 		return
 	
 	_x = x+camera.X
@@ -311,8 +314,15 @@ def create_action_menu(entity, x, y, on_path=False):
 	                                                                   x,
 	                                                                   y,
 	                                                                   30,
-	                                                                   lambda: entities.trigger_event(entity, 'crouch'),
+	                                                                   lambda: entities.trigger_event(entity, 'set_motion', motion='crouch'),
 	                                                                   name='Crouch',
+	                                                                   on_path=on_path))
+	ui_menu.add_selectable(_menu, 'Crawl', lambda: create_action_node(entity,
+	                                                                   x,
+	                                                                   y,
+	                                                                   30,
+	                                                                   lambda: entities.trigger_event(entity, 'set_motion', motion='crawl'),
+	                                                                   name='Prone',
 	                                                                   on_path=on_path))
 
 def create_life_interact_menu(entity, target_id):

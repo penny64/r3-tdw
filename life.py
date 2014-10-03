@@ -36,7 +36,10 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	flags.register(_entity)
 	noise.register(_entity)
 	skeleton.register(_entity)
-	skeleton.create_limb(_entity, 'head', [], True, 0.1)
+	skeleton.create_motion(_entity, 'stand')
+	skeleton.create_motion(_entity, 'crouch', stat_mod={'speed': 1.55})
+	skeleton.create_motion(_entity, 'crawl', stat_mod={'speed': 2.3})
+	skeleton.create_limb(_entity, 'head', [], True, 0.1, stat_mod={'vision': .75})
 	skeleton.create_limb(_entity, 'chest', ['head'], True, 0.88)
 	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.75)
 	skeleton.create_limb(_entity, 'left arm', ['chest'], False, 0.3, can_sever=True, stat_mod={'accuracy': .22})
@@ -212,6 +215,7 @@ def human_bandit(x, y, name):
 def wild_dog(x, y, name):
 	_entity = _create_animal(x, y, 100, 4, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
 	
+	skeleton.create_motion(_entity, 'stand')
 	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25, stat_mod={'vision': .75})
 	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=45, stat_mod={'speed': .4})
 	skeleton.create_limb(_entity, 'front left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
