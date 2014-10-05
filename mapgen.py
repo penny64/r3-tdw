@@ -338,6 +338,8 @@ def swamp(width, height):
 			_walker_y = _n_y
 	
 	#Bushes around outside wall
+	
+	#Campfires
 
 	"""for room in _rooms:
 		_build_doors = []

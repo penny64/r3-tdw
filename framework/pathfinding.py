@@ -124,23 +124,23 @@ def walk_path(path):
 			if abs(node[0]-adj[0])+abs(node[1]-adj[1]) == 1:
 				_cost = _gmap[node[1], node[0]] + 10
 			else:
-				_cost = _gmap[node[1], node[0]] + 14			
+				_cost = _gmap[node[1], node[0]] + 14
 			
-			_not_in = 0
-			if adj in _olist and _cost < _gmap[adj[1], adj[0]]:
-				_olist.remove(adj)
-			
-			if adj in _clist and _cost < _gmap[adj[1], adj[0]]:
-				_clist.remove(adj)
+			if _cost < _gmap[adj[1], adj[0]]:
+				if adj in _olist:
+					_olist.remove(adj)
+				
+				if adj in _clist:
+					_clist.remove(adj)
 			
 			if not adj in _olist and not adj in _clist:
-				xDistance = abs(adj[0]-path['end'][0])
-				yDistance = abs(adj[1]-path['end'][1])
+				_x_distance = abs(adj[0]-path['end'][0])
+				_y_distance = abs(adj[1]-path['end'][1])
 				
-				if xDistance > yDistance:
-					_hmap[adj[1],adj[0]] = 14*yDistance + 10*(xDistance-yDistance)
+				if _x_distance > _y_distance:
+					_hmap[adj[1],adj[0]] = 14*_y_distance + 10*(_x_distance-_y_distance)
 				else:
-					_hmap[adj[1],adj[0]] = 14*xDistance + 10*(yDistance-xDistance)
+					_hmap[adj[1],adj[0]] = 14*_x_distance + 10*(_y_distance-_x_distance)
 				
 				if _fmap[adj[1],adj[0]] in _o_scores:
 					if adj in _o_scores[_fmap[adj[1],adj[0]]]:

@@ -41,7 +41,7 @@ def grass(x, y):
 	                           constants.FOREST_GREEN_3],
 	                          2)
 	
-	return _tile(x, y, random.choice(['.', ',', '\'']), 3, _c_1, _c_2)
+	return _tile(x, y, random.choice(['.', ',', '\'']), 8, _c_1, _c_2)
 
 def tall_grass(x, y):
 	_c_1, _c_2 = random.sample([constants.DARK_FOREST_GREEN_1,
@@ -49,7 +49,7 @@ def tall_grass(x, y):
 	                           constants.DARK_FOREST_GREEN_3],
 	                          2)
 	
-	return _tile(x, y, random.choice(['.', ',', '\'', '^']), 3, _c_1, _c_2)
+	return _tile(x, y, random.choice(['.', ',', '\'', '^']), 15, _c_1, _c_2)
 
 def water(x, y):
 	_c_1, _c_2 = random.sample([constants.WATER_1,
@@ -73,7 +73,7 @@ def concrete(x, y):
 	                            constants.DARK_GRAY_3],
 	                           2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 3, _c_1, _c_2)
 
 def concrete_striped(x, y):
 	if random.randint(0, 1):
@@ -90,7 +90,7 @@ def concrete_striped(x, y):
 			                        constants.DARKER_GRAY_3],
 			                       2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 3, _c_1, _c_2)
 
 def wood_floor(x, y):
 	if random.randint(0, 1):
@@ -107,7 +107,7 @@ def wood_floor(x, y):
 			                        constants.WOOD_3],
 			                       2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 2, _c_1, _c_2)
 
 def tile_checkered(x, y):
 	if not x % 2 or not y % 2:
@@ -117,7 +117,7 @@ def tile_checkered(x, y):
 		_c_1 = (80, 80, 80)
 		_c_2 = (80, 80, 80)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 2, _c_1, _c_2)
 
 def carpet_burgandy(x, y):
 	_c_1, _c_2 = random.sample([constants.BURGANDY_1,
@@ -125,7 +125,7 @@ def carpet_burgandy(x, y):
 	                            constants.BURGANDY_3],
 	                           2)
 	
-	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 100, _c_1, _c_2)
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
 
 def trade_window(x, y):
 	_c_1 = (10, 10, 10)

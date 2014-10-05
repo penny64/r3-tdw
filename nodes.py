@@ -36,15 +36,49 @@ def register(entity):
 	entities.register_event(entity, 'position_changed', _redraw_first_node)
 
 def handle_keyboard_input(entity):
-	if LAST_CLICKED_POS:
-		if controls.get_input_char_pressed('f'):
-			create_action_node(entity,
-			                   LAST_CLICKED_POS[0],
-			                   LAST_CLICKED_POS[1],
-			                   40,
-			                   lambda: entities.trigger_event(entity, 'shoot'), icon='+')
-			
-			redraw_path(entity)
+	#TODO: Check for multiple movement changes at this location
+	_x, _y = movement.get_position(entity)
+	
+	if controls.get_input_char_pressed('z'):
+		create_action_node(entity,
+	                       _x,
+	                       _y,
+	                       15,
+	                       lambda: create_action_node(entity,
+		                                              _x,
+		                                              _y,
+		                                              30,
+		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='crawl'),
+		                                              name='Crawl'))
+		redraw_path(entity)
+	
+	elif controls.get_input_char_pressed('x'):
+		create_action_node(entity,
+	                       _x,
+	                       _y,
+	                       15,
+	                       lambda: create_action_node(entity,
+		                                              _x,
+		                                              _y,
+		                                              30,
+		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='crouch'),
+		                                              name='Crouch',
+		                                              on_path=False))
+		redraw_path(entity)
+	
+	elif controls.get_input_char_pressed('c'):
+		create_action_node(entity,
+	                       _x,
+	                       _y,
+	                       15,
+	                       lambda: create_action_node(entity,
+		                                              _x,
+		                                              _y,
+		                                              30,
+		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='stand'),
+		                                              name='Stand',
+		                                              on_path=False))
+		redraw_path(entity)
 
 def handle_mouse_movement(entity, x, y, vx, vy):
 	if not DRAGGING_NODE:
@@ -234,19 +268,20 @@ def create_walk_node(entity, x, y, clear=False):
 	                                                                                        weight_map=zones.get_active_weight_map())
 
 def create_action_node(entity, x, y, time, callback, on_path=False, icon='X', name='Action'):
-	_will_move = on_path
+	#_will_move = on_path
 	
-	for node_id in entity['node_grid']['path']:
-		_node = entity['node_grid']['nodes'][node_id]['node']
+	#if not no_move:
+	#	for node_id in entity['node_grid']['path']:
+	#		_node = entity['node_grid']['nodes'][node_id]['node']
+	#		
+	#		if not (_node['x'], _node['y']) == (x, y):
+	#			continue
+	#		
+	#		if _node['name'] == chr(31):
+	#			_will_move = True
 		
-		if not (_node['x'], _node['y']) == (x, y):
-			continue
-		
-		if _node['name'] == chr(31):
-			_will_move = True
-	
-	if not _will_move:
-		create_walk_node(entity, x, y)
+	#if not _will_move:
+	#	create_walk_node(entity, x, y)
 	
 	_node = _create_node(entity, x, y, passive=False, action_time=time, callback_on_touch=True, name=name)
 	
@@ -323,6 +358,13 @@ def create_action_menu(entity, x, y, on_path=False):
 	                                                                   30,
 	                                                                   lambda: entities.trigger_event(entity, 'set_motion', motion='crawl'),
 	                                                                   name='Prone',
+	                                                                   on_path=on_path))
+	ui_menu.add_selectable(_menu, 'Stand', lambda: create_action_node(entity,
+	                                                                   x,
+	                                                                   y,
+	                                                                   30,
+	                                                                   lambda: entities.trigger_event(entity, 'set_motion', motion='stand'),
+	                                                                   name='Stand',
 	                                                                   on_path=on_path))
 
 def create_life_interact_menu(entity, target_id):

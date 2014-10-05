@@ -104,16 +104,12 @@ def tick(entity):
 
 def _set_motion(entity, motion):
 	entity['skeleton']['motion'] = motion
-	
-	print motion
 
 def set_motion(entity, motion):
 	if not motion in entity['skeleton']['motions']:
 		raise Exception('Invalid motion: %s' % motion)
 	
 	_last_motion = entity['skeleton']['motion']
-	
-	print _last_motion, motion
 	
 	entities.trigger_event(entity, 'create_timer', time=25, exit_callback=lambda e: _set_motion(e, motion))
 

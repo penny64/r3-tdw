@@ -30,6 +30,7 @@ import sys
 
 MOVIE_TIME = 0
 MOVIE_TIME_MAX = 30
+PLAYER_HAS_SHOOT_TIMER = False
 
 
 def handle_input():
@@ -178,17 +179,33 @@ def draw():
 	#	MOVIE_TIME = 0
 
 def loop():
+	global PLAYER_HAS_SHOOT_TIMER
+	
 	events.trigger_event('input')
 
 	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
-		if PLAYER['node_grid']['path']:
-			_ticks_per_tick = settings.PLAN_TICK_RATE
-		elif timers.has_timer_with_name(PLAYER, 'Shoot'):
+		if timers.has_timer_with_name(PLAYER, 'shoot'):
 			_ticks_per_tick = 1
+		
+		elif PLAYER['node_grid']['path']:
+			_ticks_per_tick = settings.PLAN_TICK_RATE
+		
 		else:
 			_ticks_per_tick = 1
 
 		for _ in range(_ticks_per_tick):
+			if timers.has_timer_with_name(PLAYER, 'shoot'):
+				PLAYER_HAS_SHOOT_TIMER = True
+			
+			elif PLAYER_HAS_SHOOT_TIMER:
+				settings.set_tick_mode('strategy')
+				PLAYER_HAS_SHOOT_TIMER = False
+				
+				break
+			
+			if settings.TICK_MODE == 'strategy':
+				break
+			
 			events.trigger_event('logic')
 			tick()
 

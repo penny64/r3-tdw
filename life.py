@@ -4,6 +4,7 @@ import ai_factions
 import ai_visuals
 import ui_dialog
 import skeleton
+import settings
 import effects
 import mapgen
 import camera
@@ -139,6 +140,10 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 
 	return _entity
 
+def _handle_new_target(entity, target_id):
+	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
+		settings.set_tick_mode('strategy')
+
 def human(x, y, name):
 	_entity = _create_human(x, y, 100, 10, name, has_ai=True)
 	
@@ -185,9 +190,11 @@ def human(x, y, name):
 									moving=True,
 									center=True))
 	entities.register_event(_entity,
+				'new_target_spotted',
+				_handle_new_target)
+	entities.register_event(_entity,
 				'broadcast',
 				lambda e, message: effects.message(message))
-	
 	entities.register_event(_entity,
 				'set_rank',
 				lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
@@ -368,7 +375,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy)
 
 def shoot_weapon(entity, target_id):
-	if timers.has_timer_with_name(entity, 'Shoot'):
+	if timers.has_timer_with_name(entity, 'shoot'):
 		return
 
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]
@@ -381,5 +388,5 @@ def shoot_weapon(entity, target_id):
 		                   'create_timer',
 		                   time=10,
 	                       repeat=3,
-		                   name='Shoot',
+		                   name='shoot',
 		                   repeat_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))
