@@ -78,13 +78,15 @@ def post_process_clouds(width, height, passes, noise, inside):
 	                        lambda e: display.shade_surface_fore('tiles',
 	                                                             _clouds,
 	                                                             constants.MAP_VIEW_WIDTH,
-	                                                             constants.MAP_VIEW_HEIGHT))
+	                                                             constants.MAP_VIEW_HEIGHT,
+	                                                             g=.9, b=.8))
 	entities.register_event(_worker,
 	                        'finish',
 	                        lambda e: display.shade_surface_back('tiles',
 	                                                             _clouds,
 	                                                             constants.MAP_VIEW_WIDTH,
-	                                                             constants.MAP_VIEW_HEIGHT))
+	                                                             constants.MAP_VIEW_HEIGHT,
+	                                                             g=.9, b=.8))
 
 def tick_sun():
 	global SUNLIGHT
