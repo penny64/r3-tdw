@@ -160,13 +160,42 @@ def fill_surface(surface_name, color):
 	_surface['c'] = numpy.zeros((_surface['height'], _surface['width']), dtype=numpy.int32)
 	_surface['r'].append((0, 0, _surface['width'], _surface['height']+1))
 
-def shade_surface_fore(surface_name, shader, width, height):
+def shade_surface_fore(surface_name, shader, width, height, r=1.0, g=1.0, b=1.0):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']
 	_start_y = _surface['start_y']
 	_surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width]
 	_surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width]
 	_surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['fo'][2][_start_y:_start_y+height, _start_x:_start_x+width]
+
+	_f0 = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader * r
+	_f1 = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader * g
+	_f2 = _surface['fo'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader * b
+
+	SCREEN['f'][0][0:height, 0:width] = _f0
+	SCREEN['f'][1][0:height, 0:width] = _f1
+	SCREEN['f'][2][0:height, 0:width] = _f2
+
+def shade_surface_back(surface_name, shader, width, height, r=1.0, g=1.0, b=1.):
+	_surface = SURFACES[surface_name]
+	_start_x = _surface['start_x']
+	_start_y = _surface['start_y']
+	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width]
+	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width]
+
+	_f0 = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader * r
+	_f1 = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader * g
+	_f2 = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader * b
+
+	SCREEN['b'][0][0:height, 0:width] = _f0
+	SCREEN['b'][1][0:height, 0:width] = _f1
+	SCREEN['b'][2][0:height, 0:width] = _f2
+
+def shade_surface_fore_ext(surface_name, shader, width, height):
+	_surface = SURFACES[surface_name]
+	_start_x = _surface['start_x']
+	_start_y = _surface['start_y']
 
 	_f0 = _surface['fo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	_f1 = _surface['fo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader
@@ -176,13 +205,10 @@ def shade_surface_fore(surface_name, shader, width, height):
 	SCREEN['f'][1][0:height, 0:width] = _f1
 	SCREEN['f'][2][0:height, 0:width] = _f2
 
-def shade_surface_back(surface_name, shader, width, height):
+def shade_surface_back_ext(surface_name, shader, width, height):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']
 	_start_y = _surface['start_y']
-	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width]
-	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width]
-	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _surface['bo'][2][_start_y:_start_y+height, _start_x:_start_x+width]
 
 	_f0 = _surface['bo'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader
 	_f1 = _surface['bo'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader

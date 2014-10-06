@@ -186,8 +186,10 @@ def loop():
 
 	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
 		_has_action = False
+		_check_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		_check_life.append(PLAYER['_id'])
 		
-		for entity_id in [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]:
+		for entity_id in _check_life:
 			if timers.has_timer_with_name(entities.get_entity(entity_id), 'shoot'):
 				_has_action = True
 				
@@ -196,11 +198,11 @@ def loop():
 		if _has_action:
 			_ticks_per_tick = 1
 		
-		elif PLAYER['node_grid']['path']:
+		else:#elif PLAYER['node_grid']['path']:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		
-		else:
-			_ticks_per_tick = 1
+		#else:
+		#	_ticks_per_tick = 1
 
 		for _ in range(_ticks_per_tick):
 			if timers.has_timer_with_name(PLAYER, 'shoot'):

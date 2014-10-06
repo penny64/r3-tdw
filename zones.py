@@ -1,4 +1,4 @@
-from framework import pathfinding, display, shapes, movement, entities
+from framework import pathfinding, display, shapes, movement, entities, events
 
 import libtcodpy as tcod
 
@@ -50,6 +50,7 @@ def activate(zone_id):
 	
 	display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
 	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
+	events.register_event('logic', post_processing.tick_sun)
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
@@ -63,10 +64,16 @@ def activate(zone_id):
 	post_processing.run(time=0,
 	                    repeat=-1,
 	                    repeat_callback=lambda _: post_processing.post_process_lights())
+	#post_processing.run(time=0,
+	#                    repeat=-1,
+	#                    repeat_callback=lambda _: post_processing.sunlight())
 	
 	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)	
 	
 	logging.info('Zone \'%s\' is online' % _zone['name'])
+
+def deactivate(zone_id):
+	events.unregister_event('logic', post_processing.tick_sun)
 
 def is_zone_active():
 	return not ACTIVE_ZONE == None
