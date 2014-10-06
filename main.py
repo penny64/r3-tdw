@@ -149,6 +149,7 @@ def draw():
 		ui_draw.draw_item_labels()
 	
 	ui_draw.draw_long_range_life()
+	ui_draw.draw_life_memory()
 	ui_draw.draw_node_path(PLAYER)
 
 	if '--fps' in sys.argv:
@@ -184,7 +185,15 @@ def loop():
 	events.trigger_event('input')
 
 	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
-		if timers.has_timer_with_name(PLAYER, 'shoot'):
+		_has_action = False
+		
+		for entity_id in [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]:
+			if timers.has_timer_with_name(entities.get_entity(entity_id), 'shoot'):
+				_has_action = True
+				
+				break
+		
+		if _has_action:
 			_ticks_per_tick = 1
 		
 		elif PLAYER['node_grid']['path']:
@@ -197,11 +206,12 @@ def loop():
 			if timers.has_timer_with_name(PLAYER, 'shoot'):
 				PLAYER_HAS_SHOOT_TIMER = True
 			
-			elif PLAYER_HAS_SHOOT_TIMER:
-				settings.set_tick_mode('strategy')
-				PLAYER_HAS_SHOOT_TIMER = False
-				
-				break
+			else:
+				if PLAYER_HAS_SHOOT_TIMER:
+					settings.set_tick_mode('strategy')
+					PLAYER_HAS_SHOOT_TIMER = False
+					
+					break
 			
 			if settings.TICK_MODE == 'strategy':
 				break

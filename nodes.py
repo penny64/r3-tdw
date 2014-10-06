@@ -13,6 +13,7 @@ from framework import entities, display, movement, numbers, pathfinding, tile, c
 import ai_factions
 import constants
 import ui_cursor
+import ui_dialog
 import ui_menu
 import mapgen
 import camera
@@ -174,7 +175,16 @@ def handle_mouse_pressed(entity, x, y, button):
 							break
 					
 					else:
-						create_walk_node(entity, _x, _y, clear=True)
+						for entity_id in list(entity['ai']['targets'] - entity['ai']['visible_life']):
+							_tx, _ty = entity['ai']['life_memory'][entity_id]['last_seen_at']
+							
+							if (_tx, _ty-2) == (_x, _y):
+								ui_dialog.create(x + 2, y - 3, '%s - Last seen <time>' % entities.get_entity(entity_id)['stats']['name'])
+								
+								break
+							
+						else:
+							create_walk_node(entity, _x, _y, clear=True)
 	
 	elif button == 2:
 		if DRAGGING_NODE:

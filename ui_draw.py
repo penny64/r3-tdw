@@ -55,6 +55,36 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))
 
+def draw_life_memory():
+	_camera_x, _camera_y = camera.X, camera.Y
+	_width = display.get_surface('life')['width']
+	_height = display.get_surface('life')['height']
+	_draw_life = list(PLAYER['ai']['targets'] - PLAYER['ai']['visible_life'])
+
+	for entity_id in _draw_life:
+		_entity = entities.get_entity(entity_id)
+		_x, _y = PLAYER['ai']['life_memory'][entity_id]['last_seen_at']
+		_x -= _camera_x
+		_y -= _camera_y
+		
+		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
+			continue
+		
+		if time.time() % 1 >= .5:
+			_char = _entity['tile']['char']
+			_fore_color = _entity['tile']['fore_color']
+		else:
+			_char = '!'
+			_fore_color = (255, 0, 0)
+		
+		_render_x = numbers.clip(_x - len(_char)/2, 0, _width - len(_char))
+		_render_y = numbers.clip(_y - 2, 0, _height)
+		
+		if _render_y == _y:
+			_render_y += 2
+		
+		display.write_string('ui', _render_x, _render_y, _char, fore_color=_fore_color)
+
 def draw_long_range_life():
 	_camera_x, _camera_y = camera.X, camera.Y
 	_width = display.get_surface('life')['width']
