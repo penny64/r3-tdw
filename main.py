@@ -14,6 +14,7 @@ import ui_panel
 import ui_input
 import ui_menu
 import ui_draw
+import missions
 import worldgen
 import mapgen
 import camera
@@ -247,15 +248,6 @@ def main():
 	PLAYER = life.human(210, 210, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 
-	#life.human_bandit(195, 135, 'Test NPC 3')
-	#items.ammo_9x19mm(170, 176)
-	#items.leather_backpack(176, 171)
-	#items.ammo_9x19mm(180, 175)
-	#items.leather_backpack(186, 170)
-	#items.glock(175, 176)
-	#items.glock(165, 166, ammo=17)
-	#life._get_and_hold_item(PLAYER, items.glock(20, 20, ammo=17)['_id'])
-
 	ui_cursor.boot()
 	ai.boot()
 	ui_input.boot(PLAYER)
@@ -268,6 +260,16 @@ def main():
 	events.register_event('camera', camera.update)
 
 	worldgen.generate()
+	
+	for entity_id in entities.get_entity('life'):
+		_entity = entities.get_entity(entity_id)
+		
+		if _entity['ai']['faction'] == 'Wild Dog':
+			_m = missions.create()
+			missions.add_goal_kill_npc(_m, entity_id)
+			missions.join(PLAYER)
+			
+			break
 
 	camera.set_pos(120, 120)
 
@@ -290,6 +292,7 @@ if __name__ == '__main__':
 	entities.create_entity_group('node_grid', static=True)
 	entities.create_entity_group('squads', static=True)
 	entities.create_entity_group('factions', static=True)
+	entities.create_entity_group('missions', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')
