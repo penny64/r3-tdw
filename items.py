@@ -42,6 +42,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	entities.create_event(_entity, 'get_interactions')
 	entities.create_event(_entity, 'get_actions')
 	entities.create_event(_entity, 'get_display_name')
+	entities.create_event(_entity, 'seen')
 	entities.register_event(_entity, 'get_display_name', get_display_name)
 	
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
@@ -195,9 +196,17 @@ def hold_item(entity, item_id, holder_name=None):
 #Items#
 #######
 
-def corpse(x, y, char):
-	_entity = _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))
+def _corpse_seen(entity, target_id):
+	_target = entities.get_entity(target_id)
 	
+	if entity['owner_id'] in _target['life_memory']:
+		_target['life_memory'][entity['owner_id']]['is_dead'] = True
+
+def corpse(x, y, char, owner_id):
+	_entity = _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))
+	_entity['owner_id'] = owner_id
+	
+	entities.register_event(_entity, 'seen', _corpse_seen)
 	entities.register_event(_entity, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
 	                                                                                            'Examine',
 	                                                                                            lambda: ui_dialog.create(x-camera.X,

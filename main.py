@@ -222,9 +222,6 @@ def loop():
 			events.trigger_event('logic')
 			tick()
 
-	ai_factions.logic()
-	ai_squads.logic()
-
 	if pathfinding.wait_for_astar():
 		pass
 
@@ -244,6 +241,8 @@ def main():
 	global PLAYER
 
 	ai_factions.boot()
+	ai_squads.boot()
+	missions.boot()
 
 	PLAYER = life.human(210, 210, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
@@ -261,13 +260,13 @@ def main():
 
 	worldgen.generate()
 	
-	for entity_id in entities.get_entity('life'):
+	for entity_id in entities.get_entity_group('life'):
 		_entity = entities.get_entity(entity_id)
 		
-		if _entity['ai']['faction'] == 'Wild Dog':
+		if _entity['ai']['faction'] == 'Wild Dogs':
 			_m = missions.create()
 			missions.add_goal_kill_npc(_m, entity_id)
-			missions.join(PLAYER)
+			entities.trigger_event(PLAYER, 'add_mission', mission_id=_m['_id'])
 			
 			break
 

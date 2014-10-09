@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement
+from framework import entities, numbers, movement, events
 
 from ai_factions import FACTIONS
 
@@ -7,6 +7,9 @@ import constants
 
 import logging
 
+
+def boot():
+	events.register_event('logic', logic)
 
 def create_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]

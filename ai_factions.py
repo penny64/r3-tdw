@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement, flags
+from framework import entities, numbers, movement, flags, events
 
 FACTIONS = {}
 
@@ -18,6 +18,8 @@ def boot():
 	create_human_faction('Runners', (3, 5), (2, 3), ['Bandits', 'Wild Dogs'])
 	create_human_faction('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
 	create_dog_faction('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
+	
+	events.register_event('logic', logic)
 
 def _create(name, squad_size_range, base_size_range, enemy_factions):
 	_entity = entities.create_entity(group='factions')

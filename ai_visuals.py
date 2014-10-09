@@ -44,6 +44,8 @@ def build_item_list(entity):
 				break
 		else:
 			entity['ai']['visible_items'][_item['stats']['type']].append(entity_id)
+			
+			entities.trigger_event(_item, 'seen', target_id=entity['_id'])
 
 def build_life_list(entity):
 	entity['ai']['visible_targets'] = []
@@ -63,7 +65,8 @@ def build_life_list(entity):
 				                                      'is_armed': False,
 			                                          'can_see': False,
 			                                          'last_seen_at': None,
-			                                          'last_seen_velocity': None}
+			                                          'last_seen_velocity': None,
+			                                          'is_dead': False}
 		
 		if not ai_factions.is_enemy(entity, entity_id):
 			_visible = True

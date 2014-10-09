@@ -5,6 +5,7 @@ import ai_visuals
 import ui_dialog
 import skeleton
 import settings
+import missions
 import effects
 import mapgen
 import camera
@@ -36,6 +37,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	items.register(_entity)
 	flags.register(_entity)
 	noise.register(_entity)
+	missions.register(_entity)
 	skeleton.register(_entity)
 	skeleton.create_motion(_entity, 'stand')
 	skeleton.create_motion(_entity, 'crouch', stat_mod={'speed': 1.55})
@@ -195,6 +197,12 @@ def human(x, y, name):
 	entities.register_event(_entity,
 				'broadcast',
 				lambda e, message: effects.message(message))
+	entities.register_event(_entity,
+	            'add_mission',
+	            lambda e, mission_id: effects.message('New mission.'))
+	entities.register_event(_entity,
+	                        'complete_mission',
+	                        lambda e, mission_id: effects.message('Mission complete.'))
 	entities.register_event(_entity,
 				'set_rank',
 				lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))

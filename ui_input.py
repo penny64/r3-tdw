@@ -64,6 +64,7 @@ def handle_keyboard_input(entity):
 				_x, _y = ui_cursor.get_screen_position()
 				_menu = ui_menu.create(_x, _y, title='Debug')
 				ui_menu.add_selectable(_menu, 'Show Metas', lambda: _show_metas(_entity))
+				ui_menu.add_selectable(_menu, 'Kill', lambda: entities.trigger_event(_entity, 'kill'))
 				ui_menu.add_selectable(_menu, 'Overwatch', lambda: ai_debugger.register(_entity))
 				
 				break
