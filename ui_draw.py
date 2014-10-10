@@ -52,6 +52,20 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 		
 		_x += len(_weapon_string)+1
 
+def draw_mission_details():
+	for mission_id in PLAYER['missions']['active']:
+		_mission = entities.get_entity(mission_id)
+		_y_mod = constants.MAP_VIEW_HEIGHT - len(_mission['goals']) - 1
+		
+		for goal_id in _mission['goals']:
+			_goal = entities.get_entity(goal_id)
+			
+			entities.trigger_event(_goal, 'get_message', member_id=PLAYER['_id'])
+				
+			display.write_string('ui', 1, _y_mod, _goal['message'], fore_color=(255, 255, 255))
+			
+			_y_mod += 1
+
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))
 

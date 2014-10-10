@@ -66,7 +66,7 @@ def post_process_clouds(width, height, passes, noise, inside):
 	_sunlight = SUNLIGHT
 	
 	if settings.TICK_MODE == 'normal':
-		CLOUD_X -= numbers.clip(.003 * (settings.PLAN_TICK_RATE / 2), .003, 1)
+		CLOUD_X -= numbers.clip(.003 * (settings.PLAN_TICK_RATE * .75), .003, 1)
 	
 	_worker = workers.counter_2d(width,
 	                             height,

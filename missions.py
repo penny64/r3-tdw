@@ -59,18 +59,38 @@ def create():
 	
 	return _mission
 
-def create_goal(mission, intent, **kwargs):
+def create_goal(mission, intent, message, logic_callback, message_callback, **kwargs):
 	_goal = entities.create_entity()
 	
 	_goal['intent'] = intent
 	_goal['mission_id'] = mission['_id']
+	_goal['message'] = message
 	_goal.update(kwargs)
+	
+	entities.create_event(_goal, 'get_message')
+	entities.register_event(_goal, 'logic', logic_callback)
+	entities.register_event(_goal, 'get_message', message_callback)
 	
 	mission['goals'].append(_goal['_id'])
 	
 	logging.info('Creating goal for mission %s: %s' % (mission['_id'], kwargs))
 	
 	return _goal
+
+def _locate_npc_logic(goal):
+	pass
+
+def _locate_npc_message(goal, member_id):
+	_target_id = goal['target_id']
+	_member = entities.get_entity(member_id)
+	_mission = entities.get_entity(goal['mission_id'])
+		
+	if not _target_id in _member['ai']['life_memory'] or _member['ai']['life_memory'][_target_id]['distance'] == -1:
+		goal['message'] = 'Gather location info on target.'
+		
+		return
+	
+	goal['message'] = 'You can see them!!'
 
 def _kill_npc_logic(goal):
 	_target_id = goal['target_id']
@@ -92,11 +112,23 @@ def _kill_npc_logic(goal):
 		if _memory['is_dead']:
 			entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
 
+def _kill_npc_message(goal, member_id):
+	goal['message'] = 'Kill the target.'
+
 def add_goal_kill_npc(mission, target_id):
 	#TODO: Register
-	_goal = create_goal(mission, 'kill', target_id=target_id)
+	_target = entities.get_entity(target_id)
 	
-	entities.register_event(_goal, 'logic', _kill_npc_logic)
+	create_goal(mission, 'locate',
+	            'Locate %s' % _target['stats']['name'],
+	            _locate_npc_logic,
+	            _locate_npc_message,
+	            target_id=target_id)
+	create_goal(mission, 'kill',
+	            'Kill %s' % _target['stats']['name'],
+	            _kill_npc_logic,
+	            _kill_npc_message,
+	            target_id=target_id)
 
 def logic(mission):
 	for goal_id in mission['goals']:

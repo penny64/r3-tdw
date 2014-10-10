@@ -152,6 +152,7 @@ def draw():
 	ui_draw.draw_long_range_life()
 	ui_draw.draw_life_memory()
 	ui_draw.draw_node_path(PLAYER)
+	ui_draw.draw_mission_details()
 
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()
