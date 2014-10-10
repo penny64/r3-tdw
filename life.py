@@ -245,6 +245,20 @@ def wild_dog(x, y, name):
 #Operations#
 ############
 
+def create_life_memory(entity, target_id):
+	if target_id in entity['ai']['life_memory']:
+		logging.warn('Trying to overwrite life memory.')
+		
+		return
+		
+	entity['ai']['life_memory'][target_id] = {'distance': -1,
+	                                             'is_target': False,
+	                                             'is_armed': False,
+	                                             'can_see': False,
+	                                             'last_seen_at': None,
+	                                             'last_seen_velocity': None,
+	                                             'is_dead': False}
+
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return

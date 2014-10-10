@@ -6,6 +6,7 @@ import ui_menu
 import effects
 import camera
 import zones
+import life
 
 import logging
 import random
@@ -199,8 +200,10 @@ def hold_item(entity, item_id, holder_name=None):
 def _corpse_seen(entity, target_id):
 	_target = entities.get_entity(target_id)
 	
-	if entity['owner_id'] in _target['life_memory']:
-		_target['life_memory'][entity['owner_id']]['is_dead'] = True
+	if not entity['owner_id'] in _target['ai']['life_memory']:
+		life.create_life_memory(_target, entity['owner_id'])
+	
+	_target['ai']['life_memory'][entity['owner_id']]['is_dead'] = True
 
 def corpse(x, y, char, owner_id):
 	_entity = _create(x, y, '', char, 4, 'corpse', fore_color=(130, 110, 110))

@@ -13,20 +13,23 @@ def boot():
 	events.register_event('logic', all_logic)
 
 def register(entity):
-	entity['missions'] = {'id': 0,
-	                      'active': {},
+	entity['missions'] = {'active': [],
 	                      'complete': []}
 	
 	entities.create_event(entity, 'add_mission')
 	entities.create_event(entity, 'complete_mission')
 	entities.register_event(entity, 'add_mission', add_mission)
 	entities.register_event(entity, 'complete_mission', complete_mission)
+	entities.register_event(entity,
+	                        'complete_mission',
+	                        lambda e, mission_id: entities.trigger_event(entities.get_entity(mission_id),
+	                                                                     'remove_member',
+	                                                                     target_id=e['_id']))
 
 def add_mission(entity, mission_id):
 	_mission = entities.get_entity(mission_id)
 	
-	entity['missions']['id'] += 1
-	entity['missions']['active'][entity['missions']['id']] = mission_id
+	entity['missions']['active'].append(mission_id)
 	
 	_mission['members'].append(entity['_id'])
 	
@@ -38,11 +41,18 @@ def complete_mission(entity, mission_id):
 	entity['missions']['active'].remove(mission_id)
 	entity['missions']['complete'].append(mission_id)
 
+def remove_member(mission, target_id):
+	mission['members'].remove(target_id)
+	
+	logging.info('Removed %s from mission %s.' % (target_id, mission['_id']))
+
 def create():
 	_mission = entities.create_entity(group='missions')
 	_mission.update({'goals': [],
 	                 'members': []})
 	
+	entities.create_event(_mission, 'remove_member')
+	entities.register_event(_mission, 'remove_member', remove_member)
 	entities.register_event(_mission, 'logic', logic)
 	
 	logging.info('Creating mission: %s' % _mission['_id'])
@@ -67,7 +77,7 @@ def _kill_npc_logic(goal):
 	_mission = entities.get_entity(goal['mission_id'])
 	
 	if not _target_id in entities.ENTITIES:
-		print 'MISSION INVALIDATED'
+		print 'IF THIS IS A BOUNTY MISSION: MISSION INVALIDATED'
 		
 		#TODO: Loop through members - do any of them think this mission is active? Else, delete.
 	
