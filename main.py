@@ -265,7 +265,7 @@ def main():
 		_entity = entities.get_entity(entity_id)
 		
 		if _entity['ai']['faction'] == 'Wild Dogs':
-			_m = missions.create()
+			_m = missions.create('Kill the Wild Dog')
 			missions.add_goal_kill_npc(_m, entity_id)
 			entities.trigger_event(PLAYER, 'add_mission', mission_id=_m['_id'])
 			

@@ -4,6 +4,7 @@ import ai_factions
 import mapgen
 import zones
 import items
+import life
 
 LIFE_MOVED = set()
 
@@ -60,13 +61,7 @@ def build_life_list(entity):
 		_target = entities.get_entity(entity_id)
 		
 		if not entity_id in entity['ai']['life_memory']:
-			entity['ai']['life_memory'][entity_id] = {'distance': -1,
-				                                      'is_target': False,
-				                                      'is_armed': False,
-			                                          'can_see': False,
-			                                          'last_seen_at': None,
-			                                          'last_seen_velocity': None,
-			                                          'is_dead': False}
+			life.create_life_memory(entity, entity_id)
 		
 		if not ai_factions.is_enemy(entity, entity_id):
 			_visible = True

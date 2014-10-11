@@ -13,6 +13,13 @@ def register_human(entity):
 	
 	return entity
 
+def register_wild_dog(entity):
+	entity['brain'] = goapy.World()
+	
+	entities.register_event(entity, 'logic', _wild_dog_logic)
+	
+	return entity
+
 def _handle_goap(entity, brain='brain'):
 	for planner in entity[brain].planners:
 		_start_state = {}
@@ -36,6 +43,23 @@ def _handle_goap(entity, brain='brain'):
 #######
 
 def _human_logic(entity):
+	if not entity['leader']:
+		return
+	
+	entity['meta']['has_camp'] = entity['camp_id'] > 0
+	
+	if entities.get_entity(entity['leader'])['ai']['is_player']:
+		return
+	
+	_goap = _handle_goap(entity)
+	
+	if not _goap:
+		return	
+	
+	_plan = _goap[0]
+	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
+
+def _wild_dog_logic(entity):
 	if not entity['leader']:
 		return
 	

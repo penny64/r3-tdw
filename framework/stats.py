@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unknown'):
+def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unknown', kind='unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
@@ -14,6 +14,7 @@ def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unkno
 	          'vision': vision,
 	          'max_vision': vision,
 	          'name': name,
+	          'kind': kind,
 	          'last_engaged': None,
 	          'respect': 0,
 	          'rank': 'Unknown',

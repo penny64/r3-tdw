@@ -55,21 +55,27 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 def draw_mission_details():
 	for mission_id in PLAYER['missions']['active']:
 		_mission = entities.get_entity(mission_id)
-		_y_mod = constants.MAP_VIEW_HEIGHT - len(_mission['goals']) - 1
+		_valid_goals = [g for g in _mission['goals'] if entities.get_entity(g)['draw']]
+		_y_mod = constants.MAP_VIEW_HEIGHT - len(_valid_goals) - 1
 		
-		for goal_id in _mission['goals']:
+		display.write_string('ui', 1, _y_mod - 2, _mission['title'], fore_color=(200, 200, 200), back_color=(10, 10, 10))
+		
+		for goal_id in _valid_goals:
 			_goal = entities.get_entity(goal_id)
+			
+			if not _goal['draw']:
+				continue
 			
 			entities.trigger_event(_goal, 'get_message', member_id=PLAYER['_id'])
 			
 			if _goal['complete']:
 				_fore_color = (200, 200, 200)
-				_text = '[X] %s' % _goal['message']
+				_text = '- %s' % _goal['message']
 			else:
 				_fore_color = (255, 255, 255)
-				_text = '[ ] %s' % _goal['message']
+				_text = '+ %s' % _goal['message']
 				
-			display.write_string('ui', 1, _y_mod, _text, fore_color=_fore_color)
+			display.write_string('ui', 1, _y_mod, _text, fore_color=_fore_color, back_color=(30, 30, 30))
 			
 			_y_mod += 1
 
@@ -167,10 +173,15 @@ def draw_life_labels():
 		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
 			continue
 		
+		_back_color = None
+		
 		if settings.OBSERVER_MODE:
 			_label = _entity['ai']['current_action']
 		else:
 			_label = life.get_status_string(_entity)
+			
+			if not PLAYER['_id'] == entity_id and PLAYER['ai']['life_memory'][entity_id]['mission_related'] and time.time() % 1 >= .5:
+				_back_color = (200, 0, 0)
 		
 		_render_x = numbers.clip(_x - len(_label)/2, 0, _width - len(_label))
 		_render_y = numbers.clip(_y - 2, 0, _height)
@@ -178,7 +189,7 @@ def draw_life_labels():
 		if _render_y == _y:
 			_render_y += 2
 		
-		display.write_string('ui', _render_x, _render_y, _label)
+		display.write_string('ui', _render_x, _render_y, _label, back_color=_back_color)
 
 def draw_item_labels():
 	_camera_x, _camera_y = camera.X, camera.Y

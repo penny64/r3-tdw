@@ -32,7 +32,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
 	timers.register(_entity)
-	stats.register(_entity, health, speed, vision, name=name)
+	stats.register(_entity, health, speed, vision, name=name, kind='human')
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
@@ -100,7 +100,7 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
 	timers.register(_entity)
-	stats.register(_entity, health, speed, vision, name=name)
+	stats.register(_entity, health, speed, vision, name=name, kind='animal')
 	nodes.register(_entity)
 	items.register(_entity)
 	flags.register(_entity)
@@ -252,12 +252,13 @@ def create_life_memory(entity, target_id):
 		return
 		
 	entity['ai']['life_memory'][target_id] = {'distance': -1,
-	                                             'is_target': False,
-	                                             'is_armed': False,
-	                                             'can_see': False,
-	                                             'last_seen_at': None,
-	                                             'last_seen_velocity': None,
-	                                             'is_dead': False}
+	                                          'is_target': False,
+	                                          'is_armed': False,
+	                                          'can_see': False,
+	                                          'last_seen_at': None,
+	                                          'last_seen_velocity': None,
+	                                          'is_dead': False,
+	                                          'mission_related': False}
 
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):

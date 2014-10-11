@@ -115,34 +115,6 @@ def handle_mouse_pressed(entity, x, y, button):
 			DRAGGING_NODE = None
 		
 		elif not (_x, _y) in zones.get_active_solids(entity):
-			for entity_id in entities.get_entity_group('items'):
-				_item = entities.get_entity(entity_id)
-				
-				if _item['stats']['owner']:
-					continue
-				
-				if (_x, _y) == movement.get_position(_item):
-					create_item_menu(entity, _item, _x, _y)
-					return
-			
-			for node in entity['node_grid']['nodes'].values():
-				if (_x, _y) == (node['node']['x'], node['node']['y']):
-					DRAGGING_NODE = node
-					entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 0))
-					
-					break
-				
-				if (_x, _y) in node['node']['path']:
-					if not (_x, _y) in node['node']['busy_pos']:
-						LAST_CLICKED_POS = (_x, _y)
-						
-						create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1], on_path=True)
-					
-					else:
-						LAST_CLICKED_POS = None
-					
-					return
-			
 			if not DRAGGING_NODE:
 				for entity_id in [t for t in entity['ai']['visible_life'] if entity['ai']['life_memory'][t]['can_see']]:
 					if entity['_id'] == entity_id:
@@ -172,7 +144,7 @@ def handle_mouse_pressed(entity, x, y, button):
 						if (_entity['tile']['x'], _entity['tile']['y']) == (_x, _y):
 							_entity['callback'](x+2, y-3)
 							
-							break
+							return
 					
 					else:
 						for entity_id in list(entity['ai']['targets'] - entity['ai']['visible_life']):
@@ -181,10 +153,40 @@ def handle_mouse_pressed(entity, x, y, button):
 							if (_tx, _ty-2) == (_x, _y):
 								ui_dialog.create(x + 2, y - 3, '%s - Last seen <time>' % entities.get_entity(entity_id)['stats']['name'])
 								
-								break
+								return
 							
 						else:
 							create_walk_node(entity, _x, _y, clear=True)
+							
+							return
+			
+			for entity_id in entities.get_entity_group('items'):
+				_item = entities.get_entity(entity_id)
+				
+				if _item['stats']['owner']:
+					continue
+				
+				if (_x, _y) == movement.get_position(_item):
+					create_item_menu(entity, _item, _x, _y)
+					return
+			
+			for node in entity['node_grid']['nodes'].values():
+				if (_x, _y) == (node['node']['x'], node['node']['y']):
+					DRAGGING_NODE = node
+					entities.trigger_event(DRAGGING_NODE['node'], 'set_fore_color', color=(255, 255, 0))
+					
+					break
+				
+				if (_x, _y) in node['node']['path']:
+					if not (_x, _y) in node['node']['busy_pos']:
+						LAST_CLICKED_POS = (_x, _y)
+						
+						create_action_menu(entity, LAST_CLICKED_POS[0], LAST_CLICKED_POS[1], on_path=True)
+					
+					else:
+						LAST_CLICKED_POS = None
+					
+					return
 	
 	elif button == 2:
 		if DRAGGING_NODE:
@@ -385,11 +387,24 @@ def create_life_interact_menu(entity, target_id):
 	_is_enemy = ai_factions.is_enemy(entity, target_id)
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-4, title='Context')
 	
+	if not _is_enemy:
+		ui_menu.add_selectable(_menu, 'Missions', lambda: create_mission_menu(entity, target_id))
+		ui_menu.add_selectable(_menu, 'Trade', lambda: create_mission_menu(entity, target_id))
+	
 	ui_menu.add_selectable(_menu, 'Shoot%s' % (' (Friendly fire)' * (not _is_enemy)), lambda: create_shoot_menu(entity, target_id))
+
+def create_mission_menu(entity, target_id):
+	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Missions')
+	
+	for mission_id in entity['missions']['active']:
+		_mission = entities.get_entity(mission_id)
+		
+		ui_menu.add_title(_menu, _mission['title'])
+		entities.trigger_event(_mission, 'get_details', menu=_menu)
 
 def create_shoot_menu(entity, target_id):
 	_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
-	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Context')
+	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Shoot')
 	_accuracy = stats.get_accuracy(entity, _weapon['_id'])
 	_x, _y = movement.get_position(entity)
 	_tx, _ty = movement.get_position_via_id(target_id)

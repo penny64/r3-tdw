@@ -44,11 +44,20 @@ KEY_9 = 57
 KEY_ENTER = 13
 
 
+#######
+#Units#
+#######
+
+YARDS = 0.5
+METERS = 0.4572
+
+
 ####
 #AI#
 ####
 
 MAX_SQUAD_LEADER_DISTANCE = 60
+
 
 ##########
 #Graphics#

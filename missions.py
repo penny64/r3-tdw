@@ -1,4 +1,7 @@
-from framework import entities, events
+from framework import entities, events, numbers, movement
+
+import conversions
+import ui_menu
 
 import logging
 
@@ -41,31 +44,39 @@ def complete_mission(entity, mission_id):
 	entity['missions']['active'].remove(mission_id)
 	entity['missions']['complete'].append(mission_id)
 
+def get_mission_details(entity, menu):
+	ui_menu.add_selectable(menu, 'Details', lambda _: 1==1)
+
 def remove_member(mission, target_id):
 	mission['members'].remove(target_id)
 	
 	logging.info('Removed %s from mission %s.' % (target_id, mission['_id']))
 
-def create():
+def create(title):
 	_mission = entities.create_entity(group='missions')
-	_mission.update({'goals': [],
-	                 'members': []})
+	_mission.update({'title': title,
+	                 'goals': [],
+	                 'members': [],
+	                 'member_memory': {}}) #Unused
 	
 	entities.create_event(_mission, 'remove_member')
+	entities.create_event(_mission, 'get_details')
 	entities.register_event(_mission, 'remove_member', remove_member)
 	entities.register_event(_mission, 'logic', logic)
+	entities.register_event(_mission, 'get_details', get_mission_details)
 	
 	logging.info('Creating mission: %s' % _mission['_id'])
 	
 	return _mission
 
-def create_goal(mission, intent, message, logic_callback, message_callback, **kwargs):
+def create_goal(mission, intent, message, logic_callback, message_callback, draw=True, **kwargs):
 	_goal = entities.create_entity()
 	
 	_goal['intent'] = intent
 	_goal['mission_id'] = mission['_id']
 	_goal['message'] = message
 	_goal['complete'] = False
+	_goal['draw'] = draw
 	_goal.update(kwargs)
 	
 	entities.create_event(_goal, 'get_message')
@@ -74,7 +85,7 @@ def create_goal(mission, intent, message, logic_callback, message_callback, **kw
 	
 	mission['goals'].append(_goal['_id'])
 	
-	logging.info('Creating goal for mission %s: %s' % (mission['_id'], kwargs))
+	logging.info('Creating goal \'%s\' for mission %s: %s' % (intent, mission['_id'], kwargs))
 	
 	return _goal
 
@@ -86,14 +97,26 @@ def _locate_npc_message(goal, member_id):
 	_member = entities.get_entity(member_id)
 	_mission = entities.get_entity(goal['mission_id'])
 		
-	if not _target_id in _member['ai']['life_memory'] or _member['ai']['life_memory'][_target_id]['distance'] == -1:
+	if not _target_id in _member['ai']['life_memory'] or not _member['ai']['life_memory'][_target_id]['last_seen_at']:
 		goal['message'] = 'Gather location info on target.'
 		goal['complete'] = False
 		
 		return
+		
+	if _member['ai']['life_memory'][_target_id]['last_seen_at']:
+		_direction = numbers.direction_to(movement.get_position(_member), _member['ai']['life_memory'][_target_id]['last_seen_at'])
+		_distance = numbers.distance(movement.get_position(_member), _member['ai']['life_memory'][_target_id]['last_seen_at'])
+		_real_direction = conversions.get_real_direction(_direction)
+		_real_distance = conversions.get_real_distance(_distance)
+		
+		goal['message'] = 'Target last seen %s meters to the %s' % (_real_distance, _real_direction)
+		goal['complete'] = False
 	
-	goal['message'] = 'You can see them!!'
-	goal['complete'] = True
+	else:
+		goal['message'] = 'You can see them!!'
+		goal['complete'] = True
+	
+	_member['ai']['life_memory'][_target_id]['mission_related'] = True
 
 def _kill_npc_logic(goal):
 	_target_id = goal['target_id']
@@ -132,6 +155,7 @@ def add_goal_kill_npc(mission, target_id):
 	            'Kill %s' % _target['stats']['name'],
 	            _kill_npc_logic,
 	            _kill_npc_message,
+	            draw=False,
 	            target_id=target_id)
 
 def logic(mission):

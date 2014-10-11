@@ -11,7 +11,7 @@ import logging
 def boot():
 	events.register_event('logic', logic)
 
-def create_squad(entity):
+def _create_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
 	_squad = entities.create_entity(group='squads')
 	_squad.update({'members': set([entity['_id']]),
@@ -33,8 +33,6 @@ def create_squad(entity):
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')
 	entities.register_event(_squad, 'raid', handle_raid)
-	
-	ai_squad_logic.register_human(_squad)
 	
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['meta']['is_squad_leader'] = True
@@ -66,6 +64,22 @@ def create_squad(entity):
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
 	                                                                    entity['stats']['name']))
+	
+	return _squad
+
+def create_human_squad(entity):
+	_squad = _create_squad(entity)
+	
+	ai_squad_logic.register_human(_squad)
+	
+	return _squad
+
+def create_wild_dog_squad(entity):
+	_squad = _create_squad(entity)
+	
+	ai_squad_logic.register_wild_dog(_squad)
+	
+	return _squad
 
 def logic():
 	for faction in FACTIONS.values():
@@ -130,7 +144,11 @@ def assign_to_squad(entity):
 		                                                              entity['stats']['name']))
 	
 	else:
-		create_squad(entity)
+		if entity['stats']['kind'] == 'human':
+			create_human_squad(entity)
+		
+		elif entity['stats']['kind'] == 'animal':
+			create_wild_dog_squad(entity)
 
 def update_squad_member_snapshot(entity, target_id):
 	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
