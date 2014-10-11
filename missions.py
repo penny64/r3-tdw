@@ -65,6 +65,7 @@ def create_goal(mission, intent, message, logic_callback, message_callback, **kw
 	_goal['intent'] = intent
 	_goal['mission_id'] = mission['_id']
 	_goal['message'] = message
+	_goal['complete'] = False
 	_goal.update(kwargs)
 	
 	entities.create_event(_goal, 'get_message')
@@ -87,10 +88,12 @@ def _locate_npc_message(goal, member_id):
 		
 	if not _target_id in _member['ai']['life_memory'] or _member['ai']['life_memory'][_target_id]['distance'] == -1:
 		goal['message'] = 'Gather location info on target.'
+		goal['complete'] = False
 		
 		return
 	
 	goal['message'] = 'You can see them!!'
+	goal['complete'] = True
 
 def _kill_npc_logic(goal):
 	_target_id = goal['target_id']
@@ -100,6 +103,7 @@ def _kill_npc_logic(goal):
 		print 'IF THIS IS A BOUNTY MISSION: MISSION INVALIDATED'
 		
 		#TODO: Loop through members - do any of them think this mission is active? Else, delete.
+		#TOOD: We can't do that if the person who assigned the mission hasn't gotten then news the target is dead
 	
 	for member_id in _mission['members']:
 		_member = entities.get_entity(member_id)

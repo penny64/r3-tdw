@@ -61,8 +61,15 @@ def draw_mission_details():
 			_goal = entities.get_entity(goal_id)
 			
 			entities.trigger_event(_goal, 'get_message', member_id=PLAYER['_id'])
+			
+			if _goal['complete']:
+				_fore_color = (200, 200, 200)
+				_text = '[X] %s' % _goal['message']
+			else:
+				_fore_color = (255, 255, 255)
+				_text = '[ ] %s' % _goal['message']
 				
-			display.write_string('ui', 1, _y_mod, _goal['message'], fore_color=(255, 255, 255))
+			display.write_string('ui', 1, _y_mod, _text, fore_color=_fore_color)
 			
 			_y_mod += 1
 
