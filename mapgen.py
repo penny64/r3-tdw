@@ -4,6 +4,7 @@ import libtcodpy as tcod
 
 import buildinggen
 import constants
+import missions
 import tiles
 import life
 
@@ -249,8 +250,6 @@ def swamp(width, height):
 		_trade_room_y = int(round(_height * _mod))
 		_trade_window_x = _width / 2
 		_trade_window_y = _trade_room_y
-	
-	_placed_trade_window = False
 	
 	for y in range(_height+1):
 		_y = _s_y+y
@@ -515,7 +514,7 @@ def swamp(width, height):
 	build_node_grid(_solids)
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
 	
-	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'type': life.human_runner},
-	        'Wild Dogs': {'bases': 0, 'squads': 1, 'type': life.wild_dog}}
+	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'trader': True, 'type': life.human_runner},
+	        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	
 	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _building_space - _walls

@@ -1,3 +1,19 @@
+#Sat Oct 11 2014
+
+Spent a few hours working on mission details and how to best fit them into the
+UI. So far so good... I'm seeing patterns when it comes to adding new features
+and they're all highly positive. It's still early, but I'm thinking that if I
+can keep this up it should all boil down to a few more critical systems (offline
+AI, more zones, etc) and then content creation. A 2015 release of some kind
+seems realistic.
+
+I'm going to keep brainstorming on how to best flesh out missions to make them
+more layered and detailed. Everything releated to them feels very modular... for
+example I can work on dialog and sharing mission info, then move to UI work but
+still be doing mission-related things. I like that- in order to move the whole
+feature along I have to work on each part of it first, and they're all rapidly
+different.
+
 #Thu Oct 2  2014
 
 So many changes recently that I've lost count, but Trello reveals that I've gone

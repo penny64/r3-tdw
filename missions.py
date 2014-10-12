@@ -1,6 +1,7 @@
 from framework import entities, events, numbers, movement
 
 import conversions
+import ui_dialog
 import ui_menu
 
 import logging
@@ -17,6 +18,7 @@ def boot():
 
 def register(entity):
 	entity['missions'] = {'active': [],
+	                      'inactive': [],
 	                      'complete': []}
 	
 	entities.create_event(entity, 'add_mission')
@@ -29,10 +31,10 @@ def register(entity):
 	                                                                     'remove_member',
 	                                                                     target_id=e['_id']))
 
-def add_mission(entity, mission_id):
+def add_mission(entity, mission_id, make_active):
 	_mission = entities.get_entity(mission_id)
 	
-	entity['missions']['active'].append(mission_id)
+	entity['missions'][('in' * (not make_active)) + 'active'].append(mission_id)
 	
 	_mission['members'].append(entity['_id'])
 	
@@ -47,23 +49,29 @@ def complete_mission(entity, mission_id):
 def get_mission_details(entity, menu):
 	ui_menu.add_selectable(menu, 'Details', lambda _: 1==1)
 
+def get_mission_briefing(mission):
+	ui_dialog.create(5, 5, mission['briefing'])
+
 def remove_member(mission, target_id):
 	mission['members'].remove(target_id)
 	
 	logging.info('Removed %s from mission %s.' % (target_id, mission['_id']))
 
-def create(title):
+def create(title, briefing=''):
 	_mission = entities.create_entity(group='missions')
 	_mission.update({'title': title,
 	                 'goals': [],
 	                 'members': [],
-	                 'member_memory': {}}) #Unused
+	                 'member_memory': {},  #Unused
+	                 'briefing': briefing})
 	
 	entities.create_event(_mission, 'remove_member')
 	entities.create_event(_mission, 'get_details')
+	entities.create_event(_mission, 'get_briefing')
 	entities.register_event(_mission, 'remove_member', remove_member)
 	entities.register_event(_mission, 'logic', logic)
 	entities.register_event(_mission, 'get_details', get_mission_details)
+	entities.register_event(_mission, 'get_briefing', get_mission_briefing)
 	
 	logging.info('Creating mission: %s' % _mission['_id'])
 	
@@ -113,7 +121,7 @@ def _locate_npc_message(goal, member_id):
 		goal['complete'] = False
 	
 	else:
-		goal['message'] = 'You can see them!!'
+		goal['message'] = 'Target in line of sight.'
 		goal['complete'] = True
 	
 	_member['ai']['life_memory'][_target_id]['mission_related'] = True

@@ -156,6 +156,11 @@ def populate_life(zone_id):
 							_squad['camp_id'] = node_set_id
 							_node_set['owner'] = {'faction': faction_name,
 							                      'squad': _e['ai']['squad']}
+			
+					if _spawn_profile['trader']:
+						_x, _y = _spawn_pos.pop(random.randint(0, len(_spawn_pos)-1))
+						_e = _spawn_profile['type'](_x, _y, 'Trader')
+						
 		
 		else:
 			for b in range(_spawn_profile['squads']):

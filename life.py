@@ -213,6 +213,13 @@ def human(x, y, name):
 
 	return _entity
 
+def human_rogue(x, y, name):
+	_entity = _create_human(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
+	
+	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	
+	return _entity
+
 def human_runner(x, y, name):
 	_entity = _create_human(x, y, 100, 10, name, faction='Runners', fore_color=(200, 140, 190), has_ai=True)
 	

@@ -58,23 +58,29 @@ def handle_mouse_pressed(x, y, button):
 
 def draw(dialog, surface):
 	_y_mod = 0
-	_yy_mod = 0
-	_text = '  %s  ' %dialog['text']
+	_text = dialog['text'].split('\n')
+	_widest = max([len(l) for l in _text]) + 2
 	
 	for i in range(-3, 3):
 		if i == -3:
 			display.write_string(surface,
 			                     dialog['x'],
-			                     dialog['y']+_y_mod+_yy_mod,
-			                     ' %s ' % dialog['title'] + ' ' * ((len(_text) - len(dialog['title']))-2),
+			                     dialog['y']+_y_mod,
+			                     ' %s ' % dialog['title'] + ' ' * ((_widest - len(dialog['title']))-2),
 			                     fore_color=(250, 250, 250),
 			                     back_color=(60, 60, 60))
+			_y_mod += 1
+			
 		elif i:
-			display.write_string(surface, dialog['x'], dialog['y']+_y_mod+_yy_mod, ' ' * len(_text), back_color=(10, 10, 10))
-		else:
-			display.write_string(surface, dialog['x'], dialog['y']+_y_mod+_yy_mod, _text, back_color=(10, 10, 10))
+			display.write_string(surface, dialog['x'], dialog['y']+_y_mod, ' ' * _widest, back_color=(10, 10, 10))
+			
+			_y_mod += 1
 		
-		_yy_mod += 1
+		else:
+			for line in _text:
+				display.write_string(surface, dialog['x'], dialog['y']+_y_mod, ' %s ' % (line + ' ' * (_widest-len(line)-2)), back_color=(10, 10, 10))
+				
+				_y_mod += 1
 
 def draw_all(surface):
 	for dialog_id in entities.get_entity_group('ui_dialogs'):

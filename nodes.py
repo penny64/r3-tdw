@@ -388,19 +388,31 @@ def create_life_interact_menu(entity, target_id):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-4, title='Context')
 	
 	if not _is_enemy:
-		ui_menu.add_selectable(_menu, 'Missions', lambda: create_mission_menu(entity, target_id))
+		if _target['missions']['inactive']:
+			ui_menu.add_selectable(_menu, 'Talk', lambda: create_talk_menu(entity, target_id))
+		
+		ui_menu.add_selectable(_menu, 'Inquire', lambda: create_mission_menu(entity, target_id))
 		ui_menu.add_selectable(_menu, 'Trade', lambda: create_mission_menu(entity, target_id))
 	
 	ui_menu.add_selectable(_menu, 'Shoot%s' % (' (Friendly fire)' * (not _is_enemy)), lambda: create_shoot_menu(entity, target_id))
 
 def create_mission_menu(entity, target_id):
-	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Missions')
+	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Inquire')
 	
 	for mission_id in entity['missions']['active']:
 		_mission = entities.get_entity(mission_id)
 		
 		ui_menu.add_title(_menu, _mission['title'])
 		entities.trigger_event(_mission, 'get_details', menu=_menu)
+
+def create_talk_menu(entity, target_id):
+	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Talk')
+	_target = entities.get_entity(target_id)
+	
+	for mission_id in _target['missions']['inactive']:
+		_mission = entities.get_entity(mission_id)
+		
+		ui_menu.add_selectable(_menu, _mission['title'], lambda: entities.trigger_event(_mission, 'get_briefing'))
 
 def create_shoot_menu(entity, target_id):
 	_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
