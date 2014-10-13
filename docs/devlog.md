@@ -1,3 +1,14 @@
+#Mon Oct 13 2014
+
+Productive weekend with a lot of mission-related details implemented. I had a
+moment yesterday where I needed a way for the player to accept or decline a
+mission from a dialog box- something I'd been avoiding since I first wrote them-
+only to realize that I could just spawn a menu and wire it up to close the
+dialog box. Really an insignificant detail, but it represents exactly what I've
+been experiencing with this framework; a lot of good things are just "clicking"
+with very little work on my end, which does a lot for the game as a whole. I
+feel confident in this idea for once.
+
 #Sat Oct 11 2014
 
 Spent a few hours working on mission details and how to best fit them into the

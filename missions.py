@@ -1,6 +1,7 @@
 from framework import entities, events, numbers, movement
 
 import conversions
+import ai_dialog
 import ui_dialog
 import ui_menu
 
@@ -46,8 +47,14 @@ def complete_mission(entity, mission_id):
 	entity['missions']['active'].remove(mission_id)
 	entity['missions']['complete'].append(mission_id)
 
-def get_mission_details(entity, menu):
-	ui_menu.add_selectable(menu, 'Details', lambda _: 1==1)
+def get_mission_details(mission, menu, member_id, target_id):
+	_target = entities.get_entity(target_id)
+	
+	for goal_id in mission['goals']:
+		_goal = entities.get_entity(goal_id)
+		
+		for detail in _goal['details']:
+			ui_menu.add_selectable(menu, detail['message'], lambda: ai_dialog.share_life_memory_location(_target, member_id, target_id))
 
 def get_mission_briefing(mission):
 	ui_dialog.create(5, 5, mission['briefing'], title='Mission: %s' % mission['title'])
@@ -77,7 +84,7 @@ def create(title, briefing=''):
 	
 	return _mission
 
-def create_goal(mission, intent, message, logic_callback, message_callback, draw=True, **kwargs):
+def create_goal(mission, intent, message, logic_callback, message_callback, draw=True, details=[], **kwargs):
 	_goal = entities.create_entity()
 	
 	_goal['intent'] = intent
@@ -85,6 +92,7 @@ def create_goal(mission, intent, message, logic_callback, message_callback, draw
 	_goal['message'] = message
 	_goal['complete'] = False
 	_goal['draw'] = draw
+	_goal['details'] = details
 	_goal.update(kwargs)
 	
 	entities.create_event(_goal, 'get_message')
@@ -158,7 +166,9 @@ def add_goal_kill_npc(mission, target_id):
 	            'Locate %s' % _target['stats']['name'],
 	            _locate_npc_logic,
 	            _locate_npc_message,
-	            target_id=target_id)
+	            target_id=target_id,
+	            details=[{'intent': 'last_seen_at',
+	                     'message': 'Ask for location'}])
 	create_goal(mission, 'kill',
 	            'Kill %s' % _target['stats']['name'],
 	            _kill_npc_logic,

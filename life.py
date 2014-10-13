@@ -3,6 +3,7 @@ from framework import entities, tile, timers, movement, stats, flags, numbers, s
 import ai_factions
 import ai_visuals
 import ui_dialog
+import ui_menu
 import skeleton
 import settings
 import missions
@@ -28,6 +29,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	entities.create_event(_entity, 'shoot')
 	entities.create_event(_entity, 'damage')
 	entities.create_event(_entity, 'did_damage')
+	entities.create_event(_entity, 'receive_memory')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -95,7 +97,8 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	_entity = entities.create_entity(group='life')
 	
 	entities.create_event(_entity, 'damage')
-	entities.create_event(_entity, 'did_damage')	
+	entities.create_event(_entity, 'did_damage')
+	entities.create_event(_entity, 'receive_memory')
 
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -141,10 +144,6 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	ai_factions.register(_entity, faction)
 
 	return _entity
-
-def _handle_new_target(entity, target_id):
-	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
-		settings.set_tick_mode('strategy')
 
 def human(x, y, name):
 	_entity = _create_human(x, y, 100, 10, name, has_ai=True)
@@ -192,22 +191,24 @@ def human(x, y, name):
 									moving=True,
 									center=True))
 	entities.register_event(_entity,
-				'new_target_spotted',
-				_handle_new_target)
+	                        'new_target_spotted',
+	                        _handle_new_target)
 	entities.register_event(_entity,
-				'broadcast',
-				lambda e, message: effects.message(message))
+	                        'broadcast',
+	                        lambda e, message: effects.message(message))
 	entities.register_event(_entity,
-	            'add_mission',
-	            lambda e, mission_id: effects.message('New mission.'))
+	                        'add_mission',
+	                        lambda e, mission_id: effects.message('New mission.'))
 	entities.register_event(_entity,
 	                        'complete_mission',
 	                        lambda e, mission_id: effects.message('Mission complete.'))
 	entities.register_event(_entity,
-				'set_rank',
-				lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
+	                        'set_rank',
+	                        lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
 	
 	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
+	
+	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
@@ -267,6 +268,10 @@ def create_life_memory(entity, target_id):
 	                                          'is_dead': False,
 	                                          'mission_related': False}
 
+def _handle_new_target(entity, target_id):
+	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
+		settings.set_tick_mode('strategy')
+
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
 		return
@@ -285,6 +290,16 @@ def handle_player_heard_noise(entity, x, y, text, direction, accuracy, show_on_s
 	_x, _y = flags.get_flag(_entity, 'text_orig_pos')
 	
 	entities.register_event(_entity, 'delete', lambda e: noise.create_context(_x, _y, text, context_callback))
+
+def handle_player_received_memory(entity, memory, message, member_id):
+	_member = entities.get_entity(member_id)
+	
+	ui_dialog.create(5, 5, message, title='Dialog with %s' % _member['stats']['name'])
+	
+	_m = ui_menu.create(5, 15, title='Respond')
+	
+	ui_menu.add_selectable(_m, 'Bribe', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
+	ui_menu.add_selectable(_m, 'Leave', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
 
 def can_see_position(entity, position):
 	_solids = zones.get_active_solids(entity)

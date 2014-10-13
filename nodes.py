@@ -403,7 +403,7 @@ def create_mission_menu(entity, target_id):
 		_mission = entities.get_entity(mission_id)
 		
 		ui_menu.add_title(_menu, _mission['title'])
-		entities.trigger_event(_mission, 'get_details', menu=_menu)
+		entities.trigger_event(_mission, 'get_details', menu=_menu, member_id=entity['_id'], target_id=target_id)
 
 def create_talk_menu(entity, target_id):
 	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Talk')
