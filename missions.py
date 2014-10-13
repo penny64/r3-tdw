@@ -50,7 +50,7 @@ def get_mission_details(entity, menu):
 	ui_menu.add_selectable(menu, 'Details', lambda _: 1==1)
 
 def get_mission_briefing(mission):
-	ui_dialog.create(5, 5, mission['briefing'])
+	ui_dialog.create(5, 5, mission['briefing'], title='Mission: %s' % mission['title'])
 
 def remove_member(mission, target_id):
 	mission['members'].remove(target_id)
