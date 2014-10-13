@@ -282,6 +282,10 @@ then put a round in it, cut off its tail, and bring it back here.''')
 			missions.add_goal_kill_npc(_m, entity_id)
 			entities.trigger_event(_trader, 'add_mission', mission_id=_m['_id'], make_active=False)
 			
+			life.create_life_memory(_trader, entity_id)
+			_trader['ai']['life_memory'][entity_id]['last_seen_at'] = movement.get_position_via_id(entity_id)
+			print _trader['ai']['life_memory'][entity_id]
+			
 			break
 
 	camera.set_pos(150, 150)

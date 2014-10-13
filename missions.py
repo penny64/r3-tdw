@@ -54,7 +54,8 @@ def get_mission_details(mission, menu, member_id, target_id):
 		_goal = entities.get_entity(goal_id)
 		
 		for detail in _goal['details']:
-			ui_menu.add_selectable(menu, detail['message'], lambda: ai_dialog.share_life_memory_location(_target, member_id, target_id))
+			#TODO: Temp. hack
+			ui_menu.add_selectable(menu, detail['message'], lambda: ai_dialog.share_life_memory_location(_target, member_id, _goal['target_id']))
 
 def get_mission_briefing(mission):
 	ui_dialog.create(5, 5, mission['briefing'], title='Mission: %s' % mission['title'])
