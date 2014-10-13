@@ -39,7 +39,11 @@ def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unkno
 	entities.register_event(entity, 'set_rank', set_rank)
 	entities.register_event(entity, 'log_kill', add_respect)
 	entities.register_event(entity, 'log_kill', log_kill)
+	entities.register_event(entity, 'save', save)
 	entities.trigger_event(entity, 'set_respect', respect=respect)
+
+def save(entity, snapshot):
+	snapshot['stats'] = entity['stats']
 
 def kill(entity, **kwargs):
 	entities.delete_entity(entity)

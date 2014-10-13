@@ -6,6 +6,9 @@
 #MESSY files may be hard to read or are trending towards an unmaintainable
 #state. This file will be refactored heavily in the future - keep this in
 #mind when adding additional code.
+#
+#10/13/14 - Starting to look a bit better. Most issues are with some of the node path
+#interactions.
 
 
 from framework import entities, display, movement, numbers, pathfinding, tile, controls, stats, timers

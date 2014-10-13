@@ -32,6 +32,7 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	entities.create_event(entity, 'recovering')
 	entities.create_event(entity, 'move_to_position')
 	entities.create_event(entity, 'stop')
+	entities.register_event(entity, 'save', save)
 	entities.register_event(entity, 'tick', _walk_path)
 	entities.register_event(entity, 'push', _push)
 	entities.register_event(entity, 'dodge', _dodge)
@@ -43,6 +44,8 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	entities.register_event(entity, 'push_tank', _push_tank)
 	entities.register_event(entity, 'move_to_position', walk_to_position)
 
+def save(entity, snapshot):
+	snapshot['movement'] = entity['movement']
 
 def set_position(entity, x, y):
 	_old_x = entity['movement']['x']

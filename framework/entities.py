@@ -19,8 +19,6 @@ CLEANING = False
 TICKS_PER_SECOND = 0
 CURRENT_TICKS_PER_SECOND = 0
 LAST_TICK_TIME = time.time()
-REINT_MAP = {'set': set,
-             'ndarray': numpy.array}
 
 
 def boot():
@@ -36,104 +34,42 @@ def shutdown():
 	#events.trigger_event('cleanup')
 
 def save():
-	_save_string = []
-	_banned_keys = ['_events', 'image', 'sprite']
-
+	logging.info('Offloading entities...')
+	
+	_snapshots = {}
+	
 	for entity_id in ENTITIES.keys():
-		if not ENTITIES[entity_id]['_etype']:
-			continue
+		_entity = ENTITIES[entity_id]
+		_snapshots[entity_id] = {}
+		
+		trigger_event(_entity, 'save', snapshot=_snapshots[entity_id])
 
-		_entity = ENTITIES[entity_id].copy()
-		_entity['reint'] = {}
-
-		print 'Dumping entity #%s' % entity_id
-
-		for key in _entity.keys():
-			if key in _banned_keys:
-				del _entity[key]
-
-				continue
-
-			_value = _entity[key]
-
-			#TODO: We need to reint these to their proper type on load
-			if isinstance(_value, numpy.ndarray):
-				_entity['reint'][key] = 'ndarray'
-				_entity[key] = list(_value)
-			elif isinstance(_value, set):
-				_entity['reint'][key] = 'set'
-				_entity[key] = list(_value)
-
-		_save_string.append(json.dumps(_entity))
-
-	with open(os.path.join('data', 'save_file.dat'), 'w') as save_file:
-		save_file.write('\n'.join(_save_string))
+	with open(os.path.join('data', 'entities.dat'), 'w') as save_file:
+		save_file.write(json.dumps(_snapshots, indent=2))
+	
+	logging.info('Done!')
 
 def load():
 	global NEXT_ENTITY_ID
 
-	_entities = {}
-
 	logging.debug('Loading entities from disk...')
 
-	with open(os.path.join('data', 'save_file.dat'), 'r') as save_file:
-		for line in save_file.readlines():
-			_entity = json.loads(line.rstrip())
-			_entities[int(_entity['_id'])] = _entity
+	with open(os.path.join('data', 'entities.dat'), 'r') as save_file:
+		_entities = json.loads(''.join(save_file.readlines()))
+		
+		for entity_id in _entities:
+			#TODO: Create an entity here
+			_entity = _entities[entity_id]
+			
+			#This won't work until we remap the entity to its systems
+			trigger_event(_entity, 'load')
+			
+			ENTITIES[entity_id] = _entity
 
-			for reint_key in _entity['reint']:
-				_entity[reint_key] = REINT_MAP[_entity['reint'][reint_key]](_entity[reint_key])
-
-			if int(_entity['_id']) >= NEXT_ENTITY_ID:
-				NEXT_ENTITY_ID = int(_entity['_id'])+1
-
-	_create_order = _entities.keys()
-	_create_order.sort()
-	_player = None
-
-	#TODO: Move to event system
-	for entity in [_entities[_id] for _id in _create_order]:
-		REVOKED_ENTITY_IDS.add(entity['_id'])
-
-		if entity['_etype'] == 'item':
-			_item = items.spawn(entity['name'], entity['position'][0], entity['position'][1])
-			_item.update(entity)
-
-			if _item['owned'] and 'hide' in _item['_events']:
-				framework.entities.trigger_event(_item, 'hide')
-
-		elif entity['_etype'] == 'soldier':
-			_soldier = soldiers.create_soldier(entity['position'][0], entity['position'][1], entity['team'], no_inventory=True)
-			_soldier.update(entity)
-
-			if _soldier['team'] == 'player':
-				_player = _soldier
-
-		elif entity['_etype'] == 'weapon':
-			_weapon = weapons.create(entity['name'],
-			                         ENTITIES[entity['parent_id']],
-			                         entity['max_rounds'],
-			                         entity['recoil_time'],
-			                         entity['reload_time'],
-			                         skill_type=entity['skill_type'],
-			                         damage=entity['damage'],
-			                         spread=entity['spread'],
-			                         burst_rounds=entity['burst_rounds'],
-			                         can_auto=entity['can_auto'])
-			_weapon.update(entity)
-
-		elif entity['_etype'] == 'overwatch':
-			_overwatch = overwatch.create(_player)
-			_overwatch.update(entity)
-
-			overwatch.show_objectives(_overwatch)
-
-		else:
-			print 'Unknown e_type', entity['_etype']
+			if int(entity_id) >= NEXT_ENTITY_ID:
+				NEXT_ENTITY_ID = int(entity_id) + 1
 
 	logging.debug('Loaded entities from disk')
-	print 'Remaining revoked IDs', REVOKED_ENTITY_IDS
-	player.register_entity(_player)
 
 def create_entity(group=None, etype='', force_id=None):
 	global NEXT_ENTITY_ID
@@ -166,6 +102,8 @@ def create_entity(group=None, etype='', force_id=None):
 
 	ENTITIES[_entity['_id']] = _entity
 
+	create_event(_entity, 'save')
+	create_event(_entity, 'load')
 	create_event(_entity, 'delete')
 	create_event(_entity, 'logic')
 	create_event(_entity, 'tick')

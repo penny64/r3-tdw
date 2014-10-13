@@ -13,6 +13,10 @@ def register(entity):
 	entities.register_event(entity, 'delete_flag', delete_flag)
 	entities.register_event(entity, 'flag_add', flag_add)
 	entities.register_event(entity, 'flag_sub', flag_sub)
+	entities.register_event(entity, 'save', save)
+
+def save(entity, snapshot):
+	snapshot['flags'] = entity['flags']
 
 def set_flag(entity, flag, value):
 	if flag in entity['flags']:

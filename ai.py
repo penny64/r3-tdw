@@ -86,6 +86,7 @@ def _register(entity, player=False):
 	entities.create_event(entity, 'squad_inform_lost_target')
 	entities.create_event(entity, 'squad_inform_found_target')
 	entities.create_event(entity, 'squad_inform_failed_search')
+	entities.register_event(entity, 'save', save)
 	entities.register_event(entity, 'delete', _cleanup)
 	entities.register_event(entity, 'set_meta', set_meta)
 	entities.register_event(entity, 'update_target_memory', update_target_memory)
@@ -95,6 +96,19 @@ def _register(entity, player=False):
 	entities.register_event(entity, 'squad_inform_lost_target', ai_squad_logic.member_learn_lost_target)
 	entities.register_event(entity, 'squad_inform_found_target', ai_squad_logic.member_learn_found_target)
 	entities.register_event(entity, 'squad_inform_failed_search', ai_squad_logic.member_learn_failed_target_search)
+
+def save(entity, snapshot):
+	snapshot['ai'] = entity['ai'].copy()
+	
+	del snapshot['ai']['brain']
+	del snapshot['ai']['brain_offline']
+	
+	snapshot['ai']['visible_life'] = list(entity['ai']['visible_life'])
+	snapshot['ai']['targets'] = list(entity['ai']['targets'])
+
+def load(entity):
+	entity['ai']['visible_life'] = set(entity['ai']['visible_life'])
+	entity['ai']['targets'] = set(entity['ai']['targets'])
 
 def _cleanup(entity):
 	if entity['_id'] in ONLINE_ENTITIES:

@@ -284,7 +284,8 @@ then put a round in it, cut off its tail, and bring it back here.''')
 			
 			break
 
-	camera.set_pos(120, 120)
+	camera.set_pos(150, 150)
+	#entities.save()
 
 	while loop():
 		events.trigger_event('cleanup')
