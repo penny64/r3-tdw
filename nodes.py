@@ -412,7 +412,20 @@ def create_talk_menu(entity, target_id):
 	for mission_id in _target['missions']['inactive']:
 		_mission = entities.get_entity(mission_id)
 		
-		ui_menu.add_selectable(_menu, _mission['title'], lambda: entities.trigger_event(_mission, 'get_briefing'))
+		ui_menu.add_selectable(_menu, _mission['title'], lambda: show_mission_details(entity, _mission))
+
+def show_mission_details(entity, mission):
+	entities.trigger_event(mission, 'get_briefing')
+	
+	_menu = ui_menu.create((constants.MAP_VIEW_WIDTH/2) - 10, (constants.MAP_VIEW_HEIGHT/2) - 10, title='Mission')
+	
+	ui_menu.add_selectable(_menu, 'Accept', lambda: accept_mission(entity, mission['_id']))
+	ui_menu.add_selectable(_menu, 'Decline', lambda: ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
+
+def accept_mission(entity, mission_id):
+	entities.trigger_event(entity, 'add_mission', mission_id=mission_id)
+	
+	ui_dialog.delete(ui_dialog.ACTIVE_DIALOG)
 
 def create_shoot_menu(entity, target_id):
 	_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])

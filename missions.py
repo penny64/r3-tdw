@@ -31,7 +31,7 @@ def register(entity):
 	                                                                     'remove_member',
 	                                                                     target_id=e['_id']))
 
-def add_mission(entity, mission_id, make_active):
+def add_mission(entity, mission_id, make_active=True):
 	_mission = entities.get_entity(mission_id)
 	
 	entity['missions'][('in' * (not make_active)) + 'active'].append(mission_id)
