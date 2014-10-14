@@ -75,8 +75,8 @@ def handle_keyboard_input(entity):
 		_weight = zones.get_active_weight_map()[_my, _mx]
 		_menu = ui_menu.create(_x, _y, title='Tile Info')
 		
+		ui_menu.add_selectable(_menu, 'Warp', lambda: entities.trigger_event(entity, 'set_position', x=_mx, y=_my))
 		ui_menu.add_selectable(_menu, 'Weight: %s' % _weight, lambda: _)
-		#ui_menu.add_selectable(_menu, 'Overwatch', lambda: _)
 				
 def _show_metas(entity):
 	_menu = ui_menu.create(0, 0, title='Metas')

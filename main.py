@@ -146,7 +146,7 @@ def draw():
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
-	                        executing=True,
+	                        executing=not settings.TICK_MODE == 'strategy',
 	                        execute_speed=settings.PLAN_TICK_RATE_STRING,
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 
