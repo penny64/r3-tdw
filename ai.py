@@ -35,7 +35,7 @@ def _register(entity, player=False):
 	                'brain_offline': goapy.World(),
 	                'current_action': 'idle',
 	                'last_action': 'idle',
-	                'visible_items': [],
+	                'visible_items': {},
 	                'visible_life': set(),
 	                'visible_targets': [],
 	                'targets': set(),

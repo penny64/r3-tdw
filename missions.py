@@ -54,8 +54,7 @@ def get_mission_details(mission, menu, member_id, target_id):
 		_goal = entities.get_entity(goal_id)
 		
 		for detail in _goal['details']:
-			#TODO: Temp. hack
-			ui_menu.add_selectable(menu, detail['message'], lambda: ai_dialog.share_life_memory_location(_target, member_id, _goal['target_id']))
+			ui_menu.add_selectable(menu, detail['message'], lambda: detail['callback'](member_id, target_id))
 
 def get_mission_briefing(mission):
 	ui_dialog.create(5, 5, mission['briefing'], title='Mission: %s' % mission['title'])
@@ -169,7 +168,8 @@ def add_goal_kill_npc(mission, target_id):
 	            _locate_npc_message,
 	            target_id=target_id,
 	            details=[{'intent': 'last_seen_at',
-	                     'message': 'Ask for location'}])
+	                     'message': 'Ask for location',
+	                     'callback': lambda member_id, life_id: ai_dialog.share_life_memory_location(entities.get_entity(life_id), member_id, target_id)}])
 	create_goal(mission, 'kill',
 	            'Kill %s' % _target['stats']['name'],
 	            _kill_npc_logic,

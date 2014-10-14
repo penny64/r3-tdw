@@ -9,6 +9,8 @@ been experiencing with this framework; a lot of good things are just "clicking"
 with very little work on my end, which does a lot for the game as a whole. I
 feel confident in this idea for once.
 
+Had an impromptu Twitch stream that got a dozen or so viewers. Interesting...
+
 #Sat Oct 11 2014
 
 Spent a few hours working on mission details and how to best fit them into the

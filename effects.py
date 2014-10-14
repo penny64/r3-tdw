@@ -98,7 +98,7 @@ def muzzle_flash(x, y, direction, surface='effects', group='effects', start_alph
 	return _blood
 
 def _vapor_fade(entity):
-	entity['alpha'] -= 0.095
+	entity['alpha'] -= entity['fade_rate']
 	
 	if entity['alpha'] <= 0:
 		entities.delete_entity(entity)
@@ -118,9 +118,10 @@ def _vapor_fade(entity):
 	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
 
-def vapor(x, y, surface='effects', group='effects', start_alpha=0.9):
-	_vapor = _create(x, y)
+def vapor(x, y, surface='effects', group='effects', start_alpha=0.9, fade_rate=0.095):
+	_vapor = _create(x, y, surface=surface, group=group)
 	_x, _y = (int(round(x)), int(round(y)))
+	_vapor['fade_rate'] = fade_rate
 	
 	entities.trigger_event(_vapor, 'set_char', char=' ')
 	_vapor['alpha'] = start_alpha

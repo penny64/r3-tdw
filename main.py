@@ -8,6 +8,7 @@ import ai_visuals
 import ai_squads
 import constants
 import settings
+import ui_director
 import ui_dialog
 import ui_cursor
 import ui_panel
@@ -91,6 +92,10 @@ def tick():
 
 	ai_visuals.reset_moved_entities()
 
+def free_tick():
+	for entity_id in entities.get_entity_group('effects_freetick'):
+		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+
 def post_tick():
 	for entity_id in entities.get_entity_group('life'):
 		entities.trigger_event(entities.get_entity(entity_id), 'post_tick')
@@ -158,6 +163,10 @@ def draw():
 		ui_draw.draw_fps()
 
 	events.trigger_event('post_process')
+	
+	if ui_director.HAS_FOCUS:
+		ui_director.draw()
+	
 	display.blit_surface('effects')
 	display.blit_surface('nodes')
 	display.blit_surface('items')
@@ -186,7 +195,7 @@ def loop():
 	
 	events.trigger_event('input')
 
-	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU):
+	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU or ui_director.HAS_FOCUS):
 		_has_action = False
 		_check_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
 		_check_life.append(PLAYER['_id'])
@@ -222,6 +231,10 @@ def loop():
 			
 			events.trigger_event('logic')
 			tick()
+			free_tick()
+	
+	else:
+		free_tick()
 
 	if pathfinding.wait_for_astar():
 		pass
@@ -254,6 +267,7 @@ def main():
 	ui_draw.boot(PLAYER)
 	ui_menu.boot()
 	ui_dialog.boot()
+	ui_director.boot()
 
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
@@ -284,10 +298,9 @@ then put a round in it, cut off its tail, and bring it back here.''')
 			
 			life.create_life_memory(_trader, entity_id)
 			_trader['ai']['life_memory'][entity_id]['last_seen_at'] = movement.get_position_via_id(entity_id)
-			print _trader['ai']['life_memory'][entity_id]
 			
 			break
-
+	
 	camera.set_pos(150, 150)
 	#entities.save()
 

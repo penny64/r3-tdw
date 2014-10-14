@@ -2,6 +2,7 @@ from framework import entities, tile, timers, movement, stats, flags, numbers, s
 
 import ai_factions
 import ai_visuals
+import ui_director
 import ui_dialog
 import ui_menu
 import skeleton
@@ -14,6 +15,7 @@ import nodes
 import items
 import noise
 import zones
+import life
 import ai
 
 import logging
@@ -271,6 +273,7 @@ def create_life_memory(entity, target_id):
 def _handle_new_target(entity, target_id):
 	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
 		settings.set_tick_mode('strategy')
+		ui_director.focus_on_entity(entity, target_id)
 
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
@@ -297,6 +300,12 @@ def handle_player_received_memory(entity, memory, message, member_id):
 	ui_dialog.create(5, 5, message, title='Dialog with %s' % _member['stats']['name'])
 	
 	_m = ui_menu.create(5, 15, title='Respond')
+	
+	for life_id in memory:
+		if not life_id in entity['ai']['life_memory']:
+			life.create_life_memory(entity, life_id)
+		
+		entity['ai']['life_memory'][life_id].update(memory[life_id])
 	
 	ui_menu.add_selectable(_m, 'Bribe', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
 	ui_menu.add_selectable(_m, 'Leave', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))

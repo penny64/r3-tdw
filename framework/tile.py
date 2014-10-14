@@ -107,7 +107,7 @@ def tick(entity):
 			else:
 				entity['tile']['animation'] = {}
 
-def draw(entity, x=-1, y=-1, x_mod=0, y_mod=0, direct=False):
+def get_char(entity):
 	_char = entity['tile']['char']
 
 	if entity['tile']['animation']:
@@ -125,7 +125,12 @@ def draw(entity, x=-1, y=-1, x_mod=0, y_mod=0, direct=False):
 
 			if _animation['index'] == len(_animation['tiles']):
 				_animation['index'] = 0
+	
+	return _char
 
+def draw(entity, x=-1, y=-1, x_mod=0, y_mod=0, direct=False):
+	_char = get_char(entity)
+	
 	if x > -1:
 		_x = x-x_mod
 	else:
