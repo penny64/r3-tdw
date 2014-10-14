@@ -282,24 +282,20 @@ def main():
 			_trader = _entity
 			
 			break
-	
-	for entity_id in entities.get_entity_group('life'):
-		_entity = entities.get_entity(entity_id)
 		
-		if _entity['ai']['faction'] == 'Wild Dogs':
-			_m = missions.create('Kill the Wild Dog', '''   I\'ve got one last thing I want you to do before I set you loose:
+	_mutated_wild_dog = life.mutated_wild_dog(10, 10, 'Mutated Wild Dog')
+	
+	_m = missions.create('Kill the Wild Dog', '''   I\'ve got one last thing I want you to do before I set you loose:
 We\'re always seeing Wild Dogs running around the swamps, so now\'s a good time
 to see what kind of shooter you are.
 
    Take this pistol and wander around the swamps until one of those beasts shows up,
 then put a round in it, cut off its tail, and bring it back here.''')
-			missions.add_goal_kill_npc(_m, entity_id)
-			entities.trigger_event(_trader, 'add_mission', mission_id=_m['_id'], make_active=False)
-			
-			life.create_life_memory(_trader, entity_id)
-			_trader['ai']['life_memory'][entity_id]['last_seen_at'] = movement.get_position_via_id(entity_id)
-			
-			break
+	missions.add_goal_kill_npc(_m, _mutated_wild_dog['_id'])
+	entities.trigger_event(_trader, 'add_mission', mission_id=_m['_id'], make_active=False)
+	
+	life.create_life_memory(_trader, _mutated_wild_dog['_id'])
+	_trader['ai']['life_memory'][_mutated_wild_dog['_id']]['last_seen_at'] = movement.get_position_via_id(_mutated_wild_dog['_id'])
 	
 	camera.set_pos(150, 150)
 	#entities.save()

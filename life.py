@@ -239,7 +239,7 @@ def human_bandit(x, y, name):
 	
 	return _entity
 
-def _handle_wild_dog_corpse(entity, corpse_id):
+def _handle_mutated_wild_dog_corpse(entity, corpse_id):
 	_corpse = entities.get_entity(corpse_id)
 	
 	entities.register_event(_corpse, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
@@ -257,10 +257,15 @@ def wild_dog(x, y, name):
 	skeleton.create_limb(_entity, 'back left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	
-	entities.register_event(_entity, 'handle_corpse', _handle_wild_dog_corpse)
-	
 	return _entity
 
+def mutated_wild_dog(x, y, name):
+	_entity = wild_dog(x, y, name)
+	
+	entities.trigger_event(_entity, 'set_char', char='D')
+	entities.register_event(_entity, 'handle_corpse', _handle_mutated_wild_dog_corpse)
+	
+	return _entity
 
 ############
 #Operations#

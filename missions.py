@@ -18,8 +18,8 @@ def boot():
 	events.register_event('logic', all_logic)
 
 def register(entity):
-	entity['missions'] = {'active': [],
-	                      'inactive': [],
+	entity['missions'] = {'active': {},
+	                      'inactive': {},
 	                      'complete': []}
 	
 	entities.create_event(entity, 'add_mission')
@@ -35,7 +35,7 @@ def register(entity):
 def add_mission(entity, mission_id, make_active=True):
 	_mission = entities.get_entity(mission_id)
 	
-	entity['missions'][('in' * (not make_active)) + 'active'].append(mission_id)
+	entity['missions'][('in' * (not make_active)) + 'active'][mission_id] = {'goals': {k: False for k in _mission['goals']}}
 	
 	_mission['members'].append(entity['_id'])
 	
@@ -44,7 +44,8 @@ def add_mission(entity, mission_id, make_active=True):
 def complete_mission(entity, mission_id):
 	_mission = entities.get_entity(mission_id)
 	
-	entity['missions']['active'].remove(mission_id)
+	del entity['missions']['active'][mission_id]
+	
 	entity['missions']['complete'].append(mission_id)
 
 def get_mission_details(mission, menu, member_id, target_id):
@@ -90,7 +91,6 @@ def create_goal(mission, intent, message, logic_callback, message_callback, draw
 	_goal['intent'] = intent
 	_goal['mission_id'] = mission['_id']
 	_goal['message'] = message
-	_goal['complete'] = False
 	_goal['draw'] = draw
 	_goal['details'] = details
 	_goal.update(kwargs)
@@ -115,7 +115,6 @@ def _locate_npc_message(goal, member_id):
 		
 	if not _target_id in _member['ai']['life_memory'] or not _member['ai']['life_memory'][_target_id]['last_seen_at']:
 		goal['message'] = 'Gather location info on target.'
-		goal['complete'] = False
 		
 		return
 		
@@ -126,11 +125,9 @@ def _locate_npc_message(goal, member_id):
 		_real_distance = conversions.get_real_distance(_distance)
 		
 		goal['message'] = 'Target last seen %s meters to the %s' % (_real_distance, _real_direction)
-		goal['complete'] = False
 	
 	else:
 		goal['message'] = 'Target in line of sight.'
-		goal['complete'] = True
 	
 	_member['ai']['life_memory'][_target_id]['mission_related'] = True
 
@@ -147,13 +144,22 @@ def _kill_npc_logic(goal):
 	for member_id in _mission['members']:
 		_member = entities.get_entity(member_id)
 		
+		if not goal['mission_id'] in _member['missions']['active']:
+			continue
+		
+		_member_goal = _member['missions']['active'][_mission['_id']]['goals'][goal['_id']]
+		
 		if not _target_id in _member['ai']['life_memory']:
 			continue
 		
 		_memory = _member['ai']['life_memory'][_target_id]
 		
-		if _memory['is_dead']:
-			entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
+		print _member_goal
+		#if _memory['is_dead']:
+		#	_goal['complete'] = True
+		#else:
+		#	_goal['complete'] = False
+		#	#entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
 
 def _kill_npc_message(goal, member_id):
 	goal['message'] = 'Kill the target.'
