@@ -32,6 +32,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	entities.create_event(_entity, 'damage')
 	entities.create_event(_entity, 'did_damage')
 	entities.create_event(_entity, 'receive_memory')
+	entities.create_event(_entity, 'handle_corpse')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -101,6 +102,7 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	entities.create_event(_entity, 'damage')
 	entities.create_event(_entity, 'did_damage')
 	entities.create_event(_entity, 'receive_memory')
+	entities.create_event(_entity, 'handle_corpse')
 
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -237,6 +239,13 @@ def human_bandit(x, y, name):
 	
 	return _entity
 
+def _handle_wild_dog_corpse(entity, corpse_id):
+	_corpse = entities.get_entity(corpse_id)
+	
+	entities.register_event(_corpse, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
+	                                                                                            'Cut off tail',
+	                                                                                            lambda: 1==1))
+
 def wild_dog(x, y, name):
 	_entity = _create_animal(x, y, 100, 4, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
 	
@@ -247,6 +256,8 @@ def wild_dog(x, y, name):
 	skeleton.create_limb(_entity, 'front right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	skeleton.create_limb(_entity, 'back left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
+	
+	entities.register_event(_entity, 'handle_corpse', _handle_wild_dog_corpse)
 	
 	return _entity
 

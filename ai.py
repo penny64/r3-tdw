@@ -126,7 +126,9 @@ def _cleanup(entity):
 		entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
 		flags.delete_flag(entity, 'fire_data')
 	
-	items.corpse(_x, _y, entity['tile']['char'], entity['_id'])
+	_item_id = items.corpse(_x, _y, entity['tile']['char'], entity['_id'])['_id']
+	
+	entities.trigger_event(entity, 'handle_corpse', corpse_id=_item_id)
 
 def _register_animal(entity, player=False):
 	ONLINE_ENTITIES.append(entity['_id'])
