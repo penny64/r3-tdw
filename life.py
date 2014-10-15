@@ -239,13 +239,6 @@ def human_bandit(x, y, name):
 	
 	return _entity
 
-def _handle_mutated_wild_dog_corpse(entity, corpse_id):
-	_corpse = entities.get_entity(corpse_id)
-	
-	entities.register_event(_corpse, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
-	                                                                                            'Cut off tail',
-	                                                                                            lambda: 1==1))
-
 def wild_dog(x, y, name):
 	_entity = _create_animal(x, y, 100, 4, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
 	
@@ -258,6 +251,19 @@ def wild_dog(x, y, name):
 	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
 	
 	return _entity
+
+def _handle_cut_tail(entity, target_id):
+	_target = entities.get_entity(target_id)
+	_tail = items.mutated_wild_dog_tail(0, 0, entity['_id'])
+	
+	entities.trigger_event(_target, 'store_item', item_id=_tail['_id'])
+
+def _handle_mutated_wild_dog_corpse(entity, corpse_id):
+	_corpse = entities.get_entity(corpse_id)
+	
+	entities.register_event(_corpse, 'get_interactions', lambda e, menu, target_id: ui_menu.add_selectable(menu,
+	                                                                                            'Cut off tail',
+	                                                                                            lambda: _handle_cut_tail(e, target_id)))
 
 def mutated_wild_dog(x, y, name):
 	_entity = wild_dog(x, y, name)

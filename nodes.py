@@ -472,7 +472,7 @@ def create_item_menu(entity, item, x, y, on_path=False):
 		                                                                  name='Store %s' % item['stats']['name'],
 		                                                                  on_path=on_path))
 	
-	entities.trigger_event(item, 'get_interactions', menu=_menu)
+	entities.trigger_event(item, 'get_interactions', menu=_menu, target_id=entity['_id'])
 
 def select_target(x, y, on_path):
 	global SELECTING_TARGET_CALLBACK

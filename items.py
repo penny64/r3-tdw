@@ -210,11 +210,17 @@ def corpse(x, y, char, owner_id):
 	_entity['owner_id'] = owner_id
 	
 	entities.register_event(_entity, 'seen', _corpse_seen)
-	entities.register_event(_entity, 'get_interactions', lambda e, menu: ui_menu.add_selectable(menu,
+	entities.register_event(_entity, 'get_interactions', lambda e, menu, target_id: ui_menu.add_selectable(menu,
 	                                                                                            'Examine',
 	                                                                                            lambda: ui_dialog.create(x-camera.X,
 	                                                                                                                     y-camera.Y,
 	                                                                                                                     'Dead?')))
+	
+	return _entity
+
+def mutated_wild_dog_tail(x, y, owner_id):
+	_entity = _create(x, y, 'Mutated Wild Dog Tail', '`', 4, 'corpse', fore_color=(250, 110, 110))
+	_entity['owner_id'] = owner_id
 	
 	return _entity
 

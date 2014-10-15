@@ -4,6 +4,7 @@ import conversions
 import ai_dialog
 import ui_dialog
 import ui_menu
+import items
 
 import logging
 
@@ -131,6 +132,29 @@ def _locate_npc_message(goal, member_id):
 	
 	_member['ai']['life_memory'][_target_id]['mission_related'] = True
 
+def _locate_item_logic(goal):
+	pass
+
+def _locate_item_message(goal, member_id):
+	_item_name = goal['item_name']
+	_member = entities.get_entity(member_id)
+	_mission = entities.get_entity(goal['mission_id'])
+	
+	#TODO: Check if item visible and show something different
+	if not items.get_items_matching(_member, {'name': _item_name}):
+		goal['message'] = 'Find item.'
+		
+	else:
+		goal['message'] = 'Item found.'
+
+def _return_item_logic(goal):
+	pass
+
+def _return_item_message(goal, member_id):
+	_item_name = goal['item_name']
+	_member = entities.get_entity(member_id)
+	_mission = entities.get_entity(goal['mission_id'])
+
 def _kill_npc_logic(goal):
 	_target_id = goal['target_id']
 	_mission = entities.get_entity(goal['mission_id'])
@@ -154,12 +178,12 @@ def _kill_npc_logic(goal):
 		
 		_memory = _member['ai']['life_memory'][_target_id]
 		
-		print _member_goal
-		#if _memory['is_dead']:
-		#	_goal['complete'] = True
-		#else:
-		#	_goal['complete'] = False
-		#	#entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
+		if _memory['is_dead']:
+			_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = True
+		else:
+			_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = False
+		
+		#entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
 
 def _kill_npc_message(goal, member_id):
 	goal['message'] = 'Kill the target.'
@@ -182,6 +206,20 @@ def add_goal_kill_npc(mission, target_id):
 	            _kill_npc_message,
 	            draw=False,
 	            target_id=target_id)
+
+def add_goal_get_item(mission, item_name):
+	create_goal(mission, 'locate_item',
+	            'Locate item: %s' % item_name,
+	            _locate_item_logic,
+	            _locate_item_message,
+	            item_name=item_name,
+	            details=[])
+	create_goal(mission, 'return_item',
+	            'Return item: %s' % item_name,
+	            _return_item_logic,
+	            _return_item_message,
+	            draw=False,
+	            item_name=item_name)
 
 def logic(mission):
 	for goal_id in mission['goals']:
