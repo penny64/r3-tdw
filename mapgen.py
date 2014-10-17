@@ -515,6 +515,6 @@ def swamp(width, height):
 	add_plot_pole(_plot_pole_x, _plot_pole_y, 40, _solids)
 	
 	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'trader': True, 'type': life.human_runner},
-	        'Wild Dogs': {'bases': 0, 'squads': 3, 'trader': False, 'type': life.wild_dog}}
+	        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	
 	return width, height, NODE_GRID.copy(), NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _building_space - _walls

@@ -91,6 +91,7 @@ def build_life_list(entity):
 			
 			if movement.get_position(_target) == _previous_last_seen_at:
 				_new_last_seen_at = _previous_last_seen_at
+			
 			else:
 				_new_last_seen_at = _target_position
 			
@@ -160,7 +161,7 @@ def build_life_list(entity):
 def cleanup(entity):
 	for entity_id in entity['ai']['life_memory'].keys():
 		if not entity_id in entities.ENTITIES:
-			del entity['ai']['life_memory'][entity_id]
+			entity['ai']['life_memory'][entity_id]['can_see'] = False
 	
 	for target_id in list(entity['ai']['targets']):
 		if not target_id in entities.ENTITIES:

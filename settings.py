@@ -1,6 +1,6 @@
 import sys
 
-PLAN_TICK_RATE = 2
+PLAN_TICK_RATE = 12
 PLAN_TICK_RATE_STRING = ''
 TICK_MODE = 'normal'
 SHOW_NODE_GRID = False

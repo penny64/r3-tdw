@@ -118,17 +118,20 @@ def _locate_npc_message(goal, member_id):
 		goal['message'] = 'Gather location info on target.'
 		
 		return
-		
-	if _member['ai']['life_memory'][_target_id]['last_seen_at']:
+	
+	if _member['ai']['life_memory'][_target_id]['is_dead']:
+		goal['message'] = 'Confirmed: Target is dead.'
+	
+	elif _member['ai']['life_memory'][_target_id]['can_see']:
+		goal['message'] = 'Target in line of sight.'
+	
+	elif _member['ai']['life_memory'][_target_id]['last_seen_at']:
 		_direction = numbers.direction_to(movement.get_position(_member), _member['ai']['life_memory'][_target_id]['last_seen_at'])
 		_distance = numbers.distance(movement.get_position(_member), _member['ai']['life_memory'][_target_id]['last_seen_at'])
 		_real_direction = conversions.get_real_direction(_direction)
 		_real_distance = conversions.get_real_distance(_distance)
 		
 		goal['message'] = 'Target last seen %s meters to the %s' % (_real_distance, _real_direction)
-	
-	else:
-		goal['message'] = 'Target in line of sight.'
 	
 	_member['ai']['life_memory'][_target_id]['mission_related'] = True
 
