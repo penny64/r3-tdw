@@ -55,7 +55,7 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 def draw_mission_details():
 	for mission_id in PLAYER['missions']['active']:
 		_mission = entities.get_entity(mission_id)
-		_valid_goals = [g for g in _mission['goals'] if entities.get_entity(g)['draw']]
+		_valid_goals = [g for g in _mission['goals']]
 		_y_mod = constants.MAP_VIEW_HEIGHT - len(_valid_goals) - 1
 		
 		display.write_string('ui', 1, _y_mod - 2, _mission['title'], fore_color=(200, 200, 200), back_color=(10, 10, 10))
@@ -63,10 +63,10 @@ def draw_mission_details():
 		for goal_id in _valid_goals:
 			_goal = entities.get_entity(goal_id)
 			
+			entities.trigger_event(_goal, 'get_message', member_id=PLAYER['_id'])
+			
 			if not _goal['draw']:
 				continue
-			
-			entities.trigger_event(_goal, 'get_message', member_id=PLAYER['_id'])
 			
 			if PLAYER['missions']['active'][mission_id]['goals'][goal_id]:
 				_fore_color = (200, 200, 200)

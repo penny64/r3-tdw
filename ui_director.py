@@ -1,4 +1,4 @@
-from framework import display, movement, entities, tile, timers, shapes
+from framework import display, movement, entities, tile, timers, shapes, events, controls
 
 import ui_dialog
 import effects
@@ -13,7 +13,16 @@ def boot():
 	_entity = entities.create_entity(group='systems')
 	DIRECTOR = _entity
 	
+	events.register_event('input', handle_keyboard_input)
+	
 	timers.register(_entity)
+
+def handle_keyboard_input():
+	pass
+	#if not HAS_FOCUS or not controls.get_input_char_pressed(' '):
+	#	return False
+	
+	#lose_focus()
 
 def focus_on_entity(entity, target_id):
 	global HAS_FOCUS

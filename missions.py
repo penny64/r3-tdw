@@ -144,6 +144,7 @@ def _locate_item_message(goal, member_id):
 	_mission = entities.get_entity(goal['mission_id'])
 	
 	#TODO: Check if item visible and show something different
+	
 	if not items.get_items_matching(_member, {'name': _item_name}):
 		goal['message'] = 'Find item.'
 		
@@ -157,6 +158,13 @@ def _return_item_message(goal, member_id):
 	_item_name = goal['item_name']
 	_member = entities.get_entity(member_id)
 	_mission = entities.get_entity(goal['mission_id'])
+	
+	if not items.get_items_matching(_member, {'name': _item_name}):
+		goal['draw'] = False
+		
+	else:
+		goal['draw'] = True
+		goal['message'] = 'Return the item.' #TODO: To who?
 
 def _kill_npc_logic(goal):
 	_target_id = goal['target_id']
@@ -221,7 +229,7 @@ def add_goal_get_item(mission, item_name):
 	            'Return item: %s' % item_name,
 	            _return_item_logic,
 	            _return_item_message,
-	            draw=False,
+	            draw=True,
 	            item_name=item_name)
 
 def logic(mission):

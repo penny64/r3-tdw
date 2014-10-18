@@ -54,6 +54,8 @@ def create_container(x, y, name, char, weight, max_weight, equip_to=None):
 	_item = _create(x, y, name, char, weight, 'container', equip_to=equip_to)
 	
 	_item['stats']['max_weight'] = max_weight
+	
+	return _item
 
 def get_list_of_free_containers(entity, item_id):
 	_containers = []

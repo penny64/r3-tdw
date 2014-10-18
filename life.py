@@ -215,6 +215,7 @@ def human(x, y, name):
 	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
 
 	return _entity
 

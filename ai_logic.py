@@ -219,6 +219,9 @@ def find_firing_position(entity):
 			if _target_distance <= _danger_distance:
 				continue
 			
+			if _target_distance > _engage_range:
+				continue
+			
 			_score = (_target_distance-_danger_distance) + _engage_range + _distance - (10 * _caller_can_see)
 			_targets_that_can_see_this = 0
 			
