@@ -26,9 +26,11 @@ def register(entity):
 	entities.create_event(entity, 'add_mission')
 	entities.create_event(entity, 'complete_mission')
 	entities.create_event(entity, 'complete_goal')
+	entities.create_event(entity, 'uncomplete_goal')
 	entities.register_event(entity, 'complete_goal', complete_goal)
+	entities.register_event(entity, 'uncomplete_goal', uncomplete_goal)
 	entities.register_event(entity, 'add_mission', add_mission)
-	entities.register_event(entity, 'complete_mission', complete_mission)
+	entities.register_event(entity, 'complete_mission', member_complete_mission)
 	entities.register_event(entity,
 	                        'complete_mission',
 	                        lambda e, mission_id: entities.trigger_event(entities.get_entity(mission_id),
@@ -38,29 +40,58 @@ def register(entity):
 def add_mission(entity, mission_id, make_active=True):
 	_mission = entities.get_entity(mission_id)
 	
-	entity['missions'][('in' * (not make_active)) + 'active'][mission_id] = {'goals': {k: False for k in _mission['goals']}}
+	entity['missions'][('in' * (not make_active)) + 'active'][mission_id] = {'goals': {k: {'complete': False, 'cleanup_events': []} for k in _mission['goals']}}
 	
 	_mission['members'].append(entity['_id'])
 	
-	entities.trigger_event(_mission, 'member_added', member_id=entity['_id'])
+	if make_active:
+		entities.trigger_event(_mission, 'member_added', member_id=entity['_id'])
 	
 	logging.info('Adding entity %s to mission %s' % (entity['_id'], mission_id))
 
-def complete_mission(entity, mission_id):
+def complete_mission(mission):
+	logging.info('STUB: Mission complete.')
+
+def member_complete_mission(entity, mission_id):
 	_mission = entities.get_entity(mission_id)
+	
+	for goal_id in entity['missions']['active'][mission_id]['goals']:
+		for event_name, event_id in entity['missions']['active'][mission_id]['goals'][goal_id]['cleanup_events']:
+			entities.unregister_event_via_id(entity, event_name, event_id)
 	
 	del entity['missions']['active'][mission_id]
 	
 	entity['missions']['complete'].append(mission_id)
+	
+	for member_id in _mission['members']:
+		_member = entities.get_entity(member_id)
+		
+		if mission_id in _member['missions']['active']:
+			break
+	else:
+		entities.trigger_event(_mission, 'complete')
 
 def complete_goal(entity, mission_id, goal_id):
-	entity['missions']['active'][mission_id]['goals'][goal_id] = True
+	if entity['missions']['active'][mission_id]['goals'][goal_id]['complete']:
+		return
+	
+	entity['missions']['active'][mission_id]['goals'][goal_id]['complete'] = True
 	
 	for goal_id in entity['missions']['active'][mission_id]['goals']:
-		if not entity['missions']['active'][mission_id]['goals'][goal_id]:
+		if not entity['missions']['active'][mission_id]['goals'][goal_id]['complete']:
 			break
 	else:
 		entities.trigger_event(entity, 'complete_mission', mission_id=mission_id)
+
+def uncomplete_goal(entity, mission_id, goal_id):
+	if not entity['missions']['active'][mission_id]['goals'][goal_id]['complete']:
+		return
+	
+	entity['missions']['active'][mission_id]['goals'][goal_id]['complete'] = False
+
+def add_goal_cleanup_event(goal, member_id, event_pair):
+	_member = entities.get_entity(member_id)
+	_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']]['cleanup_events'].append(event_pair)
 
 def get_mission_details(mission, menu, member_id, target_id):
 	_target = entities.get_entity(target_id)
@@ -99,11 +130,13 @@ def create(title, briefing=''):
 	entities.create_event(_mission, 'remove_member')
 	entities.create_event(_mission, 'get_details')
 	entities.create_event(_mission, 'get_briefing')
+	entities.create_event(_mission, 'complete')
 	entities.register_event(_mission, 'member_added', member_added)
 	entities.register_event(_mission, 'remove_member', remove_member)
 	entities.register_event(_mission, 'logic', logic)
 	entities.register_event(_mission, 'get_details', get_mission_details)
 	entities.register_event(_mission, 'get_briefing', get_mission_briefing)
+	entities.register_event(_mission, 'complete', complete_mission)
 	
 	logging.info('Creating mission: %s' % _mission['_id'])
 	
@@ -121,8 +154,10 @@ def create_goal(mission, intent, message, logic_callback, message_callback, draw
 	
 	entities.create_event(_goal, 'get_message')
 	entities.create_event(_goal, 'member_added')
+	entities.create_event(_goal, 'add_goal_cleanup_event')
 	entities.register_event(_goal, 'logic', logic_callback)
 	entities.register_event(_goal, 'get_message', message_callback)
+	entities.register_event(_goal, 'add_goal_cleanup_event', add_goal_cleanup_event)
 	
 	mission['goals'].append(_goal['_id'])
 	
@@ -146,13 +181,11 @@ def _locate_npc_message(goal, member_id):
 	if _member['ai']['life_memory'][_target_id]['is_dead']:
 		goal['message'] = 'Confirmed: Target is dead.'
 		
-		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
 		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 	
 	elif _member['ai']['life_memory'][_target_id]['can_see']:
 		goal['message'] = 'Target in line of sight.'
 		
-		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
 		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 	
 	elif _member['ai']['life_memory'][_target_id]['last_seen_at']:
@@ -178,12 +211,11 @@ def _locate_item_message(goal, member_id):
 	if not items.get_items_matching(_member, {'name': _item_name}):
 		goal['message'] = 'Find item.'
 		
-		_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = False
+		entities.trigger_event(_member, 'uncomplete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 		
 	else:
 		goal['message'] = 'Item found.'
 		
-		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
 		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 
 def _handle_return_item_item_given(goal, member_id, item_id, target_id):
@@ -193,13 +225,13 @@ def _handle_return_item_item_given(goal, member_id, item_id, target_id):
 	_item_given = entities.get_entity(item_id)
 	
 	if _item_name == _item_given['stats']['name']:
-		_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = True
 		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 
 def _handle_return_item_member_added(goal, member_id):
 	_member = entities.get_entity(member_id)
+	_event_id = entities.register_event(_member, 'give_item', lambda entity, item_id, target_id: _handle_return_item_item_given(goal, member_id, item_id, target_id))
 	
-	entities.register_event(_member, 'give_item', lambda entity, item_id, target_id: _handle_return_item_item_given(goal, member_id, item_id, target_id))
+	entities.trigger_event(goal, 'add_goal_cleanup_event', member_id=member_id, event_pair=('give_item', _event_id))
 
 def _return_item_logic(goal):
 	pass
@@ -241,9 +273,9 @@ def _kill_npc_logic(goal):
 		_memory = _member['ai']['life_memory'][_target_id]
 		
 		if _memory['is_dead']:
-			_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = True
+			entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 		else:
-			_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = False
+			entities.trigger_event(_member, 'uncomplete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 		
 		#entities.trigger_event(_member, 'complete_mission', mission_id=goal['mission_id'])
 
@@ -287,7 +319,7 @@ def add_goal_get_item(mission, item_name, return_to_life_id):
 	                              'message': 'Return item',
 	                              'callback': lambda member_id, life_id: ai_dialog.give_item(entities.get_entity(member_id), life_id, {'name': 'Mutated Wild Dog Tail'})}])
 	
-	entities.register_event(_goal, 'member_added', _handle_return_item_member_added)
+	_event_id = entities.register_event(_goal, 'member_added', _handle_return_item_member_added)
 
 def logic(mission):
 	for goal_id in mission['goals']:

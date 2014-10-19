@@ -240,6 +240,8 @@ def register_event(entity, event_name, callback):
 	          'id': str(_event_structure['id'])}
 	_event_structure['events'][str(_event_structure['id'])] = _event
 	_event_structure['id'] += 1
+	
+	return str(_event_structure['id'] - 1)
 
 def unregister_event(entity, event_name, callback):
 	_event_structure = entity['_events'][event_name]
@@ -252,6 +254,13 @@ def unregister_event(entity, event_name, callback):
 			return True
 
 	logging.warning('Trying to unregister unregistered event: %s' % event_name)
+
+def unregister_event_via_id(entity, event_name, event_id):
+	#TODO: Error handling
+	_event_structure = entity['_events'][event_name]
+	_event_structure['banned'].add(event_id)
+	
+	del _event_structure['events'][event_id]
 
 def trigger_event(entity, event_name, _ban_events=[], **kwargs):
 	_event_structure = entity['_events'][event_name]

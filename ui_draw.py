@@ -60,8 +60,6 @@ def draw_mission_details():
 		
 		display.write_string('ui', 1, _y_mod - 2, _mission['title'], fore_color=(200, 200, 200), back_color=(10, 10, 10))
 		
-		print PLAYER['missions']['active'][mission_id]
-		
 		for goal_id in _valid_goals:
 			_goal = entities.get_entity(goal_id)
 			
@@ -70,12 +68,12 @@ def draw_mission_details():
 			if not _goal['draw']:
 				continue
 			
-			if PLAYER['missions']['active'][mission_id]['goals'][goal_id]:
+			if PLAYER['missions']['active'][mission_id]['goals'][goal_id]['complete']:
 				_fore_color = (200, 200, 200)
-				_text = '- %s' % _goal['message']
+				_text = '+ %s' % _goal['message']
 			else:
 				_fore_color = (255, 255, 255)
-				_text = '+ %s' % _goal['message']
+				_text = '- %s' % _goal['message']
 				
 			display.write_string('ui', 1, _y_mod, _text, fore_color=_fore_color, back_color=(30, 30, 30))
 			
