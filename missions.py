@@ -25,6 +25,8 @@ def register(entity):
 	
 	entities.create_event(entity, 'add_mission')
 	entities.create_event(entity, 'complete_mission')
+	entities.create_event(entity, 'complete_goal')
+	entities.register_event(entity, 'complete_goal', complete_goal)
 	entities.register_event(entity, 'add_mission', add_mission)
 	entities.register_event(entity, 'complete_mission', complete_mission)
 	entities.register_event(entity,
@@ -50,6 +52,15 @@ def complete_mission(entity, mission_id):
 	del entity['missions']['active'][mission_id]
 	
 	entity['missions']['complete'].append(mission_id)
+
+def complete_goal(entity, mission_id, goal_id):
+	entity['missions']['active'][mission_id]['goals'][goal_id] = True
+	
+	for goal_id in entity['missions']['active'][mission_id]['goals']:
+		if not entity['missions']['active'][mission_id]['goals'][goal_id]:
+			break
+	else:
+		entities.trigger_event(entity, 'complete_mission', mission_id=mission_id)
 
 def get_mission_details(mission, menu, member_id, target_id):
 	_target = entities.get_entity(target_id)
@@ -134,9 +145,15 @@ def _locate_npc_message(goal, member_id):
 	
 	if _member['ai']['life_memory'][_target_id]['is_dead']:
 		goal['message'] = 'Confirmed: Target is dead.'
+		
+		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
+		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 	
 	elif _member['ai']['life_memory'][_target_id]['can_see']:
 		goal['message'] = 'Target in line of sight.'
+		
+		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
+		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 	
 	elif _member['ai']['life_memory'][_target_id]['last_seen_at']:
 		_direction = numbers.direction_to(movement.get_position(_member), _member['ai']['life_memory'][_target_id]['last_seen_at'])
@@ -161,16 +178,23 @@ def _locate_item_message(goal, member_id):
 	if not items.get_items_matching(_member, {'name': _item_name}):
 		goal['message'] = 'Find item.'
 		
+		_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = False
+		
 	else:
 		goal['message'] = 'Item found.'
+		
+		#_member['missions']['active'][goal['mission_id']]['goals'][goal['_id']] = True
+		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 
 def _handle_return_item_item_given(goal, member_id, item_id, target_id):
+	_mission = entities.get_entity(goal['mission_id'])
 	_item_name = goal['item_name']
 	_member = entities.get_entity(member_id)
 	_item_given = entities.get_entity(item_id)
 	
 	if _item_name == _item_given['stats']['name']:
-		print 'MISSON DONE!'
+		_member['missions']['active'][_mission['_id']]['goals'][goal['_id']] = True
+		entities.trigger_event(_member, 'complete_goal', mission_id=goal['mission_id'], goal_id=goal['_id'])
 
 def _handle_return_item_member_added(goal, member_id):
 	_member = entities.get_entity(member_id)
