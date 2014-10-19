@@ -93,6 +93,8 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
 	
 	ai_factions.register(_entity, faction)
+	
+	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
 
 	return _entity
 
@@ -215,7 +217,6 @@ def human(x, y, name):
 	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
-	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
 
 	return _entity
 

@@ -292,7 +292,7 @@ to see what kind of shooter you are.
    Take this pistol and wander around the swamps until one of those beasts shows up,
 then put a round in it, cut off its tail, and bring it back here.''')
 	missions.add_goal_kill_npc(_m, _mutated_wild_dog['_id'])
-	missions.add_goal_get_item(_m, 'Mutated Wild Dog Tail')
+	missions.add_goal_get_item(_m, 'Mutated Wild Dog Tail', _trader['_id'])
 	entities.trigger_event(_trader, 'add_mission', mission_id=_m['_id'], make_active=False)
 	
 	life.create_life_memory(_trader, _mutated_wild_dog['_id'])

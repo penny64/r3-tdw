@@ -1,6 +1,7 @@
 from framework import entities
 
 import ai_factions
+import items
 
 
 def share_life_memory_location(entity, target_id, life_id):
@@ -20,3 +21,15 @@ def share_life_memory_location(entity, target_id, life_id):
 		                       member_id=entity['_id'],
 		                       memory={life_id: {'last_seen_at': _memory['last_seen_at'][:]}},
 		                       message='Oh yeah, I saw them recently.')
+
+def give_item(entity, target_id, item_match):
+	_items = items.get_items_matching(entity, item_match)
+	
+	if not _items:
+		entities.trigger_event(entity, 'receive_memory',
+		                       member_id=entity['_id'],
+		                       memory={},
+		                       message='You got the item yet?')
+		return None
+	
+	entities.trigger_event(entity, 'give_item', item_id=_items[0], target_id=target_id)

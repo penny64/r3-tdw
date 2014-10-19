@@ -40,6 +40,8 @@ def add_mission(entity, mission_id, make_active=True):
 	
 	_mission['members'].append(entity['_id'])
 	
+	entities.trigger_event(_mission, 'member_added', member_id=entity['_id'])
+	
 	logging.info('Adding entity %s to mission %s' % (entity['_id'], mission_id))
 
 def complete_mission(entity, mission_id):
@@ -61,6 +63,14 @@ def get_mission_details(mission, menu, member_id, target_id):
 def get_mission_briefing(mission):
 	ui_dialog.create(5, 5, mission['briefing'], title='Mission: %s' % mission['title'])
 
+def member_added(mission, member_id):
+	_member = entities.get_entity(member_id)
+	
+	for goal_id in mission['goals']:
+		_goal = entities.get_entity(goal_id)
+		
+		entities.trigger_event(_goal, 'member_added', member_id=member_id)
+
 def remove_member(mission, target_id):
 	mission['members'].remove(target_id)
 	
@@ -74,9 +84,11 @@ def create(title, briefing=''):
 	                 'member_memory': {},  #Unused
 	                 'briefing': briefing})
 	
+	entities.create_event(_mission, 'member_added')
 	entities.create_event(_mission, 'remove_member')
 	entities.create_event(_mission, 'get_details')
 	entities.create_event(_mission, 'get_briefing')
+	entities.register_event(_mission, 'member_added', member_added)
 	entities.register_event(_mission, 'remove_member', remove_member)
 	entities.register_event(_mission, 'logic', logic)
 	entities.register_event(_mission, 'get_details', get_mission_details)
@@ -97,6 +109,7 @@ def create_goal(mission, intent, message, logic_callback, message_callback, draw
 	_goal.update(kwargs)
 	
 	entities.create_event(_goal, 'get_message')
+	entities.create_event(_goal, 'member_added')
 	entities.register_event(_goal, 'logic', logic_callback)
 	entities.register_event(_goal, 'get_message', message_callback)
 	
@@ -151,11 +164,25 @@ def _locate_item_message(goal, member_id):
 	else:
 		goal['message'] = 'Item found.'
 
+def _handle_return_item_item_given(goal, member_id, item_id, target_id):
+	_item_name = goal['item_name']
+	_member = entities.get_entity(member_id)
+	_item_given = entities.get_entity(item_id)
+	
+	if _item_name == _item_given['stats']['name']:
+		print 'MISSON DONE!'
+
+def _handle_return_item_member_added(goal, member_id):
+	_member = entities.get_entity(member_id)
+	
+	entities.register_event(_member, 'give_item', lambda entity, item_id, target_id: _handle_return_item_item_given(goal, member_id, item_id, target_id))
+
 def _return_item_logic(goal):
 	pass
 
 def _return_item_message(goal, member_id):
 	_item_name = goal['item_name']
+	_target_id = goal['target_id']
 	_member = entities.get_entity(member_id)
 	_mission = entities.get_entity(goal['mission_id'])
 	
@@ -218,19 +245,25 @@ def add_goal_kill_npc(mission, target_id):
 	            draw=False,
 	            target_id=target_id)
 
-def add_goal_get_item(mission, item_name):
+def add_goal_get_item(mission, item_name, return_to_life_id):
 	create_goal(mission, 'locate_item',
 	            'Locate item: %s' % item_name,
 	            _locate_item_logic,
 	            _locate_item_message,
 	            item_name=item_name,
 	            details=[])
-	create_goal(mission, 'return_item',
-	            'Return item: %s' % item_name,
-	            _return_item_logic,
-	            _return_item_message,
-	            draw=True,
-	            item_name=item_name)
+	_goal = create_goal(mission, 'return_item',
+	                    'Return item: %s' % item_name,
+	                    _return_item_logic,
+	                    _return_item_message,
+	                    draw=True,
+	                    item_name=item_name,
+	                    target_id=return_to_life_id,
+	                    details=[{'intent': 'return_item',
+	                              'message': 'Return item',
+	                              'callback': lambda member_id, life_id: ai_dialog.give_item(entities.get_entity(member_id), life_id, {'name': 'Mutated Wild Dog Tail'})}])
+	
+	entities.register_event(_goal, 'member_added', _handle_return_item_member_added)
 
 def logic(mission):
 	for goal_id in mission['goals']:

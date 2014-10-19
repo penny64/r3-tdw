@@ -18,6 +18,10 @@ def register(entity):
 	                       'holders': {},
 	                       'containers': {}}
 	
+	entities.create_event(entity, 'give_item')
+	entities.register_event(entity, 'give_item', give_item)
+	entities.create_event(entity, 'disown_item')
+	entities.register_event(entity, 'disown_item', disown_item)
 	entities.create_event(entity, 'store_item')
 	entities.register_event(entity, 'store_item', store_item)
 	entities.create_event(entity, 'hold_item')
@@ -149,6 +153,10 @@ def disown(entity):
 		entity['stats']['in_container'] = None
 	
 	_owner['inventory']['items'].remove(entity['_id'])
+	entity['stats']['owner'] = None
+
+def disown_item(entity, item_id):
+	disown(entities.get_entity(item_id))
 
 def own_item(entity, item_id):
 	_item = entities.get_entity(item_id)
@@ -158,6 +166,12 @@ def own_item(entity, item_id):
 		entity['inventory']['containers'][item_id] = {'items': [], 'weight': 0, 'max_weight': _item['stats']['max_weight']}
 	
 	entity['inventory']['items'].append(item_id)
+
+def give_item(entity, item_id, target_id):
+	_target = entities.get_entity(target_id)
+	
+	entities.trigger_event(entity, 'disown_item', item_id=item_id)
+	entities.trigger_event(_target, 'store_item', item_id=item_id)
 
 def store_item(entity, item_id, container_id=None):
 	if not container_id:
@@ -169,6 +183,10 @@ def store_item(entity, item_id, container_id=None):
 		container_id = _containers[0]
 	
 	_item = entities.get_entity(item_id)
+	
+	if _item['stats']['owner']:
+		raise Exception('Item is already owned.')
+	
 	_item['stats']['in_container'] = container_id
 	
 	own_item(entity, item_id)
