@@ -35,7 +35,7 @@ def focus_on_entity(entity, target_id):
 	_entity = ui_dialog.create(18, 7, 'Enemy spotted!')
 	
 	entities.register_event(_entity, 'delete', lambda e: lose_focus())
-	entities.trigger_event(DIRECTOR, 'create_timer', time=150, exit_callback=lambda e: ui_dialog.delete(_entity))
+	entities.trigger_event(DIRECTOR, 'create_timer', time=120, exit_callback=lambda e: ui_dialog.delete(_entity))
 	
 	for x, y in shapes.line(movement.get_position(entity), movement.get_position_via_id(target_id)):
 		effects.vapor(x, y, group='effects_freetick', start_alpha=1.0, fade_rate=.01)

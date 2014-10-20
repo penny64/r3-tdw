@@ -50,6 +50,8 @@ def add_mission(entity, mission_id, make_active=True):
 	logging.info('Adding entity %s to mission %s' % (entity['_id'], mission_id))
 
 def complete_mission(mission):
+	entities.delete_entity(mission)
+	
 	logging.info('STUB: Mission complete.')
 
 def member_complete_mission(entity, mission_id):
@@ -62,14 +64,6 @@ def member_complete_mission(entity, mission_id):
 	del entity['missions']['active'][mission_id]
 	
 	entity['missions']['complete'].append(mission_id)
-	
-	for member_id in _mission['members']:
-		_member = entities.get_entity(member_id)
-		
-		if mission_id in _member['missions']['active']:
-			break
-	else:
-		entities.trigger_event(_mission, 'complete')
 
 def complete_goal(entity, mission_id, goal_id):
 	if entity['missions']['active'][mission_id]['goals'][goal_id]['complete']:
@@ -115,6 +109,14 @@ def member_added(mission, member_id):
 
 def remove_member(mission, target_id):
 	mission['members'].remove(target_id)
+	
+	for member_id in mission['members']:
+		_member = entities.get_entity(member_id)
+		
+		if mission['_id'] in _member['missions']['active']:
+			break
+	else:
+		entities.trigger_event(mission, 'complete')
 	
 	logging.info('Removed %s from mission %s.' % (target_id, mission['_id']))
 

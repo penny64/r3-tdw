@@ -91,7 +91,7 @@ def post_process_clouds(width, height, passes, noise, inside):
 def tick_sun():
 	global SUNLIGHT
 	
-	SUNLIGHT += .0005
+	SUNLIGHT += .0001
 
 #def sunlight():
 #	global SUN
