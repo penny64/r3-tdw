@@ -26,6 +26,7 @@ import maps
 import life
 import ai
 
+import cProfile
 import numpy
 import time
 import sys
@@ -344,4 +345,4 @@ if __name__ == '__main__':
 
 	post_processing.start()
 
-	framework.run(main)
+	cProfile.run('framework.run(main)', 'profile.dat')
