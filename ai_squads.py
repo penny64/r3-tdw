@@ -28,6 +28,7 @@ def _create_squad(entity):
 	               'known_targets': set(),
 	               'known_squads': set(),
 	               'update_position_maps': False,
+	               'position_map_scores': {},
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
 	                        'is_squad_overwhelmed': False,

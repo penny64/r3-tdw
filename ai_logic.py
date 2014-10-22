@@ -1,5 +1,7 @@
 from framework import entities, numbers, movement, timers, shapes, flags, pathfinding
 
+import ai_squad_director
+import ai_factions
 import ai_debugger
 import mapgen
 import zones
@@ -116,144 +118,16 @@ def find_cover(entity):
 	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
 
 def find_firing_position(entity):
-	_target = entities.get_entity(entity['ai']['nearest_target'])
-	_all_targets = list(entity['ai']['targets'])
-	_all_targets.remove(_target['_id'])
+	_squad = ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	#_all_targets = list(entity['ai']['targets'])
+	#_all_targets.remove(_target['_id'])
 	_x, _y = movement.get_position(entity)
-	_tx, _ty = entity['ai']['life_memory'][_target['_id']]['last_seen_at']
-	_closest_node = {'node': None, 'distance': 0}
-	_closest_node_target = {'node': None, 'distance': 0}
-	_solids = zones.get_active_solids(_target, ignore_entities=[entity['_id']])
-	_solids_no_life = zones.get_active_solids(_target, no_life=True)
-	_t = time.time()
-	_max_distance = 16
-	_engage_range = int(round(_max_distance * .75))
-	_danger_distance = 3
+	_fire_position = ai_squad_director.get_vantage_point(_squad, entity['_id'])
 	
-	if flags.has_flag(entity, 'fire_data'):
-		_fire_data = flags.get_flag(entity, 'fire_data')
-		
-		if _target['_id'] == _fire_data['target']:
-			_target_distance_to_node = numbers.distance((_tx, _ty), _fire_data['node'])
-			_distance_to_target = numbers.distance((_x, _y), (_tx, _ty))
-			
-			if _target_distance_to_node > _danger_distance and _distance_to_target > _danger_distance:
-				for pos in shapes.line((_tx, _ty), _fire_data['node']):
-					if pos in _solids_no_life:
-						print 'Target can\'t see dest node'
-						_fire_data['invalid_for'] += 1
-						break
-				else:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
-					_fire_data['invalid_for'] = 0
-					
-					return
-			else:
-				if _fire_data['invalid_for'] < 5:
-					movement.walk_to_position(entity, _fire_data['node'][0], _fire_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
-					
-					return
-				
-				print 'Distance violated', _target_distance_to_node > _danger_distance, _distance_to_target > _danger_distance
-				
-		_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
-		entities.trigger_event(_node, 'set_flag', flag='owner', value=None)
-		
-		flags.delete_flag(entity, 'fire_data')
-	
-	_node_grid = zones.get_active_node_grid()
-	_node_sets = zones.get_active_node_sets()
-	
-	#TODO: This is gonna break terribly once multiple node sets are introduced!
-	
-	for node_set_id in _node_sets.keys():
-		_node_set = _node_sets[node_set_id]
-		_weights = _node_set['weight_map'].copy()
-		
-		for node_x, node_y in _node_set['nodes']:
-			_distance = numbers.distance((_x, _y), (node_x, node_y))
-			_target_distance = numbers.distance((_tx, _ty), (node_x, node_y))
-			
-			if (node_x, node_y) in _solids:
-				continue
-			
-			if not _closest_node['node'] or _distance < _closest_node['distance']:
-				_closest_node['node'] = (node_x, node_y)
-				_closest_node['distance'] = _distance
-			
-			if not _closest_node_target['node'] or _target_distance < _closest_node_target['distance']:
-				_closest_node_target['node'] = (node_x, node_y)
-				_closest_node_target['distance'] = _target_distance
-			
-		_n_x, _n_y = _closest_node['node']
-		_t_n_x, _t_n_y = _closest_node_target['node']
-		_best_node = {'node': None, 'score': 0}
-		
-		for node_x, node_y in _node_set['nodes']:
-			_node = entities.get_entity(zones.get_active_node_grid()[(node_x, node_y)])
-			
-			if _node['flags']['owner']['value']:
-				continue
-			
-			_distance = numbers.distance((_x, _y), (node_x, node_y))
-			_target_distance = min(numbers.distance((_t_n_x, _t_n_y), (node_x, node_y)), numbers.distance((_tx, _ty), (node_x, node_y)))
-			_hit_solid = False
-			
-			for pos in shapes.line((_tx, _ty), (node_x, node_y)):
-				if pos in _solids_no_life:
-					_hit_solid = True
-					
-					break
-				
-			if _hit_solid:
-				continue
-			
-			_caller_can_see = True
-			
-			for pos in shapes.line((_x, _y), (node_x, node_y)):
-				if pos in _solids_no_life:
-					_caller_can_see = False
-					
-					break
-			
-			if _target_distance <= _danger_distance:
-				continue
-			
-			if _target_distance > _engage_range:
-				continue
-			
-			_score = (_target_distance-_danger_distance) + _engage_range + _distance - (10 * _caller_can_see)
-			_targets_that_can_see_this = 0
-			
-			for target_id in _all_targets:
-				_tt_x, _tt_y = entity['ai']['life_memory'][target_id]['last_seen_at']
-				
-				for pos in shapes.line((_tt_x, _tt_y), (node_x, node_y)):
-					if pos in _solids_no_life:
-						break
-				else:
-					_score += 10
-					_targets_that_can_see_this += 1
-			
-			if _targets_that_can_see_this >= 2:
-				continue
-			
-			if not _best_node['node'] or _score < _best_node['score']:
-				_best_node['node'] = (node_x, node_y)
-				_best_node['score'] = _score
-	
-	if not _best_node['node']:
-		entity['ai']['meta']['has_firing_position'] = False
-		print 'No path - camping'
-		
+	if not _fire_position:
 		return
 	
-	_node = entities.get_entity(zones.get_active_node_grid()[_best_node['node']])
-	
-	entities.trigger_event(entity, 'set_flag', flag='fire_data', value={'target': _target['_id'], 'node': _best_node['node'], 'invalid_for': 0})
-	entities.trigger_event(_node, 'set_flag', flag='owner', value=entity['_id'])
-	
-	movement.walk_to_position(entity, _best_node['node'][0], _best_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map())
+	movement.walk_to_position(entity, _fire_position[0], _fire_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')

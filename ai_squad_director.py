@@ -59,14 +59,13 @@ def update_position_maps(squad):
 	if not squad['update_position_maps']:
 		return
 	
-	_t = time.time()
 	squad['update_position_maps'] = False
 	
 	_coverage_positions = squad['coverage_positions']
 	_known_targets = squad['known_targets']
 	_known_squads = squad['known_squads']
 	_known_targets_left_to_check = _known_targets.copy()
-	_score_map = {pos: {'coverage': 100, 'vantage': 0, 'danger': 0} for pos in _coverage_positions}
+	_score_map = {pos: {'coverage': 100, 'vantage': 0, 'danger': 0, 'targets': [], 'owned': False} for pos in _coverage_positions}
 	
 	for faction_name, squad_id in _known_squads:
 		_squad = ai_factions.FACTIONS[faction_name]['squads'][squad_id]
@@ -86,15 +85,37 @@ def update_position_maps(squad):
 					_closest_member['distance'] = _distance
 					_closest_member['member_id'] = member_id
 			
-			#_target = entities.get_entity(target_id)
 			_target_coverage_map = _squad['member_position_maps'][target_id]
 			_overlap_positions = _coverage_positions & _target_coverage_map
 			_distance = _closest_member['distance']
-			#print _coverage_positions & _target_coverage_map
 			
 			for pos in _overlap_positions:
-				_score_map[pos]['coverage'] -= 60 - _distance
-				_score_map[pos]['vantage'] = _distance
-				_score_map[pos]['danger'] -= 60 - _distance
+				_score_map[pos]['coverage'] = _distance
+				#_score_map[pos]['vantage'] = 60 - _distance
+				_score_map[pos]['danger'] = 60 - _distance
+				_score_map[pos]['targets'].append(target_id)
 	
-	print time.time()-_t
+	squad['position_map_scores'] = _score_map
+
+def get_vantage_point(squad, member_id):
+	_member = entities.get_entity(member_id)
+	_best_vantage = {'position': None, 'score': 0}
+	_max_distance = 16
+	_engage_range = int(round(_max_distance * .75))
+	
+	for pos in squad['position_map_scores']:
+		_scores = squad['position_map_scores'][pos]
+		
+		if _scores['owned'] or _scores['coverage'] > _engage_range:
+			continue
+
+		if _scores['coverage'] > _best_vantage['score']:
+			_best_vantage['score'] = _scores['coverage']
+			_best_vantage['position'] = pos[:]
+	
+	if not _best_vantage['position']:
+		return
+	
+	squad['position_map_scores'][_best_vantage['position']]['owned'] = True
+	
+	return _best_vantage['position']

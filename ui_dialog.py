@@ -2,6 +2,8 @@ from framework import entities, display, events
 
 import ui_cursor
 
+import sys
+
 ACTIVE_DIALOG = None
 
 
@@ -12,6 +14,9 @@ def boot():
 
 def create(x, y, text, buttons=None, title='Dialog'):
 	global ACTIVE_DIALOG
+	
+	if '--no-fx' in sys.argv:
+		return
 	
 	_entity = entities.create_entity(group='ui_dialogs')
 	_entity.update({'text': text,
