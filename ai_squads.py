@@ -24,6 +24,10 @@ def _create_squad(entity):
 	               'brain': None,
 	               'position_map': {},
 	               'member_position_maps': {},
+	               'coverage_positions': set(),
+	               'known_targets': set(),
+	               'known_squads': set(),
+	               'update_position_maps': False,
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
 	                        'is_squad_overwhelmed': False,
@@ -35,10 +39,12 @@ def _create_squad(entity):
 	
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')
-	entities.create_event(_squad, 'create')
+	#entities.create_event(_squad, 'create')
+	entities.create_event(_squad, 'update_position_map')
 	entities.register_event(_squad, 'raid', handle_raid)
-	entities.register_event(_squad, 'create', ai_squad_director.create_position_maps)
+	#entities.register_event(_squad, 'create', ai_squad_director.create_position_maps)
 	entities.register_event(_squad, 'logic', ai_squad_director.update_position_maps)
+	entities.register_event(_squad, 'update_position_map', ai_squad_director.create_position_map)
 	
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['meta']['is_squad_leader'] = True
@@ -88,9 +94,9 @@ def create_wild_dog_squad(entity):
 	return _squad
 
 def logic():
-	for faction in FACTIONS.values():
-		for squad in faction['squads'].values():
-			entities.trigger_event(squad, 'create')
+	#for faction in FACTIONS.values():
+	#	for squad in faction['squads'].values():
+	#		entities.trigger_event(squad, 'create')
 	
 	for faction in FACTIONS.values():
 		for squad in faction['squads'].values():
@@ -101,7 +107,10 @@ def register_with_squad(entity, squad_id):
 	
 	_squad = get_assigned_squad(entity)
 	
+	_squad['member_position_maps'][entity['_id']] = set()
+	
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
+	entities.register_event(entity, 'position_changed', lambda e, **kwargs: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 
 def get_assigned_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
