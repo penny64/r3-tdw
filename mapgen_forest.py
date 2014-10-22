@@ -197,10 +197,10 @@ def generate(width, height):
 	
 	mapgen.build_node_grid(_node_grid, _solids)
 	
-	#for c_x, c_y in _camps:
-	#	mapgen.add_plot_pole(c_x, c_y, 40, _solids)
+	for c_x, c_y in _camps:
+		mapgen.add_plot_pole(c_x, c_y, 40, _solids)
 	
-	#_fsl = {'Runners': {'bases': 1, 'squads': 0, 'trader': False, 'type': life.human_runner}}
+	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'trader': False, 'type': life.human_runner}}
 	#        #'Bandits': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_bandit},
 	#        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	

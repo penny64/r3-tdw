@@ -15,6 +15,7 @@ def register_human(entity):
 
 def register_wild_dog(entity):
 	entity['brain'] = goapy.World()
+	entity['brain'].add_planner(brains.squad_capture_camp())
 	
 	entities.register_event(entity, 'logic', _wild_dog_logic)
 	

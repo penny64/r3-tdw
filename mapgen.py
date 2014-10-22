@@ -8,9 +8,10 @@ import missions
 import tiles
 import life
 
+import logging
 import random
-import time
 import numpy
+import time
 
 UNCLAIMED_NODES = set()
 NODE_SETS = {}
@@ -51,6 +52,8 @@ def _reset():
 
 def build_node_grid(node_grid, solids):
 	global UNCLAIMED_NODES
+	
+	logging.info('Building node grid...')
 
 	_ignore_positions = set()
 
@@ -67,6 +70,8 @@ def build_node_grid(node_grid, solids):
 
 				for _x, _y in [(_sx-1, _sy-1), (_sx, _sy-1), (_sx+1, _sy-1), (_sx-1, _sy), (_sx, _sy), (_sx-1, _sy+1), (_sx, _sy+1), (_sx+1, _sy+1)]:
 					_ignore_positions.add((_x, _y))
+	
+	logging.info('Done.')
 
 def add_plot_pole(x, y, radius, solids, cell_split=3.0, debug=False):
 	global NODE_SET_ID

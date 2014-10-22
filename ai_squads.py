@@ -2,6 +2,7 @@ from framework import entities, numbers, movement, events
 
 from ai_factions import FACTIONS
 
+import ai_squad_director
 import ai_squad_logic
 import constants
 
@@ -21,6 +22,8 @@ def _create_squad(entity):
 	               'camp_id': None,
 	               'task': None,
 	               'brain': None,
+	               'position_map': {},
+	               'member_position_maps': {},
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
 	                        'is_squad_overwhelmed': False,
@@ -32,7 +35,10 @@ def _create_squad(entity):
 	
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')
+	entities.create_event(_squad, 'create')
 	entities.register_event(_squad, 'raid', handle_raid)
+	entities.register_event(_squad, 'create', ai_squad_director.create_position_maps)
+	entities.register_event(_squad, 'logic', ai_squad_director.update_position_maps)
 	
 	_faction['squads'][_faction['squad_id']] = _squad
 	entity['ai']['meta']['is_squad_leader'] = True
@@ -82,6 +88,10 @@ def create_wild_dog_squad(entity):
 	return _squad
 
 def logic():
+	for faction in FACTIONS.values():
+		for squad in faction['squads'].values():
+			entities.trigger_event(squad, 'create')
+	
 	for faction in FACTIONS.values():
 		for squad in faction['squads'].values():
 			entities.trigger_event(squad, 'logic')

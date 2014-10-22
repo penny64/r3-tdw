@@ -90,10 +90,10 @@ def create_entity(group=None, etype='', force_id=None):
 			NEXT_ENTITY_ID += 1
 
 	#NOTE: If this happens, you're doing something you shouldn't.
-	if _entity_id in ENTITIES.keys():
-		logging.fatal('New entity overwriting existing. Dumping to disk...')
+	#if _entity_id in ENTITIES:
+	#	logging.fatal('New entity overwriting existing. Dumping to disk...')
 
-		crash_dump(ENTITIES[_entity_id], ['_id', '_groups', '_etype'])
+	#	crash_dump(ENTITIES[_entity_id], ['_id', '_groups', '_etype'])
 
 	_entity = {'_id': _entity_id,
 	           '_events': {},
