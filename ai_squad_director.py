@@ -76,7 +76,7 @@ def update_position_maps(squad):
 	_score_map = {pos: {'coverage': 0, 'vantage': 100, 'member_coverage': 0, 'danger': 0, 'targets': [], 'owned': False} for pos in _coverage_positions}
 	
 	for faction_name, squad_id in _known_squads:
-		_squad = ai_factions.FACTIONS[faction_name]['squads'][squad_id]
+		_squad = entities.get_entity(ai_factions.FACTIONS[faction_name]['squads'][squad_id])
 		_member_set = set(_squad['members'])
 		_check_members = _known_targets_left_to_check & _member_set
 		_known_targets_left_to_check = _known_targets_left_to_check - _member_set
@@ -118,7 +118,52 @@ def update_position_maps(squad):
 	
 	squad['position_map_scores'] = _score_map
 
+def build_push_map(squad):
+	for member_id in squad['members']:
+		_member = entities.get_entity(member_id)
+		_non_visible_targets = _member['ai']['targets'] - set(_member['ai']['visible_targets'])
+		
+		for target_id in _non_visible_targets:
+			_target = entities.get_entity(target_id)
+			_target_squad = entities.get_entity(ai_factions.FACTIONS[_target['ai']['faction']]['squads'][_target['ai']['squad']])
+
 def get_vantage_point(squad, member_id):
+	_member = entities.get_entity(member_id)
+	_best_vantage = {'position': None, 'score': 1000}
+	_vision = stats.get_vision(_member)
+	_engage_range = int(round(_vision * .75))
+	
+	for pos in squad['position_map_scores']:
+		_scores = squad['position_map_scores'][pos]
+		_score = _scores['vantage'] + _scores['member_coverage']
+		
+		if not _scores['targets'] or _score < 6 or _score > _engage_range:
+			continue
+
+		if _score < _best_vantage['score']:
+			_best_vantage['score'] = _score
+			_best_vantage['position'] = pos[:]
+	
+	if not _best_vantage['position']:
+		_member['ai']['meta']['has_firing_position'] = False
+		
+		return
+	
+	_x, _y = movement.get_position(_member)
+	
+	for coverage_pos in shapes.circle(_best_vantage['position'][0], _best_vantage['position'][1], 6):
+		if not coverage_pos in squad['position_map_scores']:
+			continue
+		
+		_c_dist = 15 * (1 - (numbers.distance(coverage_pos, (_x, _y)) / 6.0))
+		
+		squad['position_map_scores'][coverage_pos]['member_coverage'] += _c_dist
+	
+	squad['position_map_scores'][_best_vantage['position']]['member_coverage'] += 20
+	
+	return _best_vantage['position']
+
+def get_push_position(squad, member_id):
 	_member = entities.get_entity(member_id)
 	_best_vantage = {'position': None, 'score': 1000}
 	_vision = stats.get_vision(_member)

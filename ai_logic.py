@@ -73,7 +73,7 @@ def get_container(entity):
 	_get_item(entity, _nearest_weapon['_id'], weight='find_container', hold=True)
 
 def find_cover(entity):
-	_squad = ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_cover_position = ai_squad_director.get_cover_position(_squad, entity['_id'])
 	
 	if not _cover_position:
@@ -82,7 +82,7 @@ def find_cover(entity):
 	movement.walk_to_position(entity, _cover_position[0], _cover_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def find_firing_position(entity):
-	_squad = ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_x, _y = movement.get_position(entity)
 	_fire_position = ai_squad_director.get_vantage_point(_squad, entity['_id'])
 	
@@ -93,6 +93,19 @@ def find_firing_position(entity):
 		entity['ai']['meta']['is_target_lost'] = True
 	
 	movement.walk_to_position(entity, _fire_position[0], _fire_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
+
+def find_push_position(entity):
+	_squad = entities.get_entity(ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
+	_x, _y = movement.get_position(entity)
+	_push_position = ai_squad_director.get_push_position(_squad, entity['_id'])
+	
+	if not _push_position:
+		return
+	
+	if not numbers.distance((_x, _y), _push_position) and not entity['ai']['visible_targets']:
+		entity['ai']['meta']['is_target_lost'] = True
+	
+	movement.walk_to_position(entity, _push_position[0], _push_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')

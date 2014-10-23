@@ -170,7 +170,7 @@ def leader_handle_raid_camp(entity, camp):
 
 def member_learn_raid(entity, member_id, camp):
 	_faction = ai_factions.FACTIONS[camp['owner']['faction']]
-	_squad = _faction['squads'][camp['owner']['squad']]
+	_squad = entities.get_entity(_faction['squads'][camp['owner']['squad']])
 	
 	if not _squad['leader']:
 		return

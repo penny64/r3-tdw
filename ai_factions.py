@@ -173,7 +173,7 @@ def handle_new_target(entity, target_id):
 	
 	_target = entities.get_entity(target_id)
 	_target_faction = _target['ai']['faction']
-	_target_squad = FACTIONS[_target_faction]['squads'][_target['ai']['squad']]
+	_target_squad = entities.get_entity(FACTIONS[_target_faction]['squads'][_target['ai']['squad']])
 	
 	if _target['ai']['squad'] in entity['faction_memory'][_target_faction]['squads']:
 		_squad_memory = entity['faction_memory'][_target_faction]['squads'][_target['ai']['squad']]
@@ -198,6 +198,6 @@ def handle_new_target(entity, target_id):
 
 def handle_raid_incoming(entity, target_faction, target_squad):
 	_target_faction = FACTIONS[target_faction]
-	_target_squad = _target_faction['squads'][target_squad]
+	#_target_squad = _target_faction['squads'][target_squad]
 	
 	broadcast_to_friends(entity, '<CAMP_ID> is being raided by %s' % target_faction)

@@ -20,6 +20,7 @@ def _create_squad(entity):
 	               'leader': entity['_id'],
 	               'member_info': {},
 	               'camp_id': None,
+	               'squad_id': _faction['squad_id'],
 	               'task': None,
 	               'brain': None,
 	               'position_map': {},
@@ -46,7 +47,7 @@ def _create_squad(entity):
 	entities.register_event(_squad, 'logic', ai_squad_director.update_position_maps)
 	entities.register_event(_squad, 'update_position_map', ai_squad_director.create_position_map)
 	
-	_faction['squads'][_faction['squad_id']] = _squad
+	_faction['squads'][_faction['squad_id']] = _squad['_id']
 	entity['ai']['meta']['is_squad_leader'] = True
 	
 	register_with_squad(entity, _faction['squad_id'])
@@ -99,8 +100,10 @@ def logic():
 	#		entities.trigger_event(squad, 'create')
 	
 	for faction in FACTIONS.values():
-		for squad in faction['squads'].values():
-			entities.trigger_event(squad, 'logic')
+		for squad_id in faction['squads'].values():
+			_squad = entities.get_entity(squad_id)
+			
+			entities.trigger_event(_squad, 'logic')
 
 def register_with_squad(entity, squad_id):
 	entity['ai']['squad'] = squad_id
@@ -119,7 +122,7 @@ def get_assigned_squad(entity):
 	if _squad == -1:
 		raise Exception('Entity is not in a squad.')
 	
-	return _faction['squads'][_squad]
+	return entities.get_entity(_faction['squads'][_squad])
 
 def assign_to_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
@@ -128,7 +131,7 @@ def assign_to_squad(entity):
 	#Check for fitting squads (by squad leader)
 	
 	for squad_id in _faction['squads']:
-		_squad = _faction['squads'][squad_id]
+		_squad = entities.get_entity(_faction['squads'][squad_id])
 		
 		if len(_squad['members']) >= _faction['squad_size_range'][1]:
 			continue
@@ -144,7 +147,7 @@ def assign_to_squad(entity):
 			_nearest_squad['distance'] = _distance_to_leader
 	
 	if _nearest_squad['squad_id']:
-		_faction['squads'][_nearest_squad['squad_id']]['members'].add(entity['_id'])
+		entities.get_entity(_faction['squads'][_nearest_squad['squad_id']])['members'].add(entity['_id'])
 		_leader = entities.get_entity(_squad['leader'])
 		
 		register_with_squad(entity, _nearest_squad['squad_id'])
@@ -170,7 +173,7 @@ def assign_to_squad(entity):
 			create_wild_dog_squad(entity)
 
 def update_squad_member_snapshot(entity, target_id):
-	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_target = entities.get_entity(target_id)
 	
 	if 'has_weapon' in _target['ai']['meta']:
@@ -181,7 +184,7 @@ def update_squad_member_snapshot(entity, target_id):
 	_squad['member_info'].update({target_id: _snapshot})
 
 def set_squad_meta(entity, meta, value):
-	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_old_value = _squad['meta'][meta]
 	
 	if not value == _old_value:
@@ -190,7 +193,7 @@ def set_squad_meta(entity, meta, value):
 		_squad['meta'][meta] = value
 
 def update_group_status(entity):
-	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_members_combat_ready = 0
 	
 	if not 'has_weapon' in entity['ai']['meta']:
@@ -208,7 +211,7 @@ def update_group_status(entity):
 	set_squad_meta(entity, 'is_squad_mobile_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .65)
 
 def update_combat_risk(entity):
-	_squad = FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_squad = entities.get_entity(FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_squad_member_count = len(_squad['member_info'].keys())
 	_target_count = len(entity['ai']['targets'])
 	_armed_target_count = len([e for e in entity['ai']['targets'] if entity['ai']['life_memory'][e]['is_armed']])
