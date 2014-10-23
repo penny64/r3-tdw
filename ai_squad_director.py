@@ -108,7 +108,7 @@ def update_position_maps(squad):
 
 def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)
-	_best_vantage = {'position': None, 'score': 0}
+	_best_vantage = {'position': None, 'score': 1000}
 	_vision = stats.get_vision(_member)
 	_engage_range = int(round(_vision * .75))
 	
@@ -116,7 +116,7 @@ def get_vantage_point(squad, member_id):
 		_scores = squad['position_map_scores'][pos]
 		_score = _scores['vantage'] + _scores['coverage']
 		
-		if _danger_range < _score < _engage_range or not _scores['targets']:
+		if _score < 6 or _score > _engage_range or not _scores['targets']:
 			continue
 
 		if _score < _best_vantage['score']:
