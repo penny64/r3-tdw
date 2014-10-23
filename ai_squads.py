@@ -24,6 +24,7 @@ def _create_squad(entity):
 	               'brain': None,
 	               'position_map': {},
 	               'member_position_maps': {},
+	               'member_los_maps': {},
 	               'coverage_positions': set(),
 	               'known_targets': set(),
 	               'known_squads': set(),

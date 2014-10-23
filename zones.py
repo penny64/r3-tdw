@@ -8,6 +8,7 @@ import ai_squads
 import constants
 import missions
 import effects
+import mapgen
 import camera
 import life
 import maps
@@ -31,7 +32,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'faction_spawn_list': faction_spawn_list,
 	               'astar_map': None,
 	               'trees': trees,
-	               'inside': inside}
+	               'inside': inside,
+	               'los_map': None}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -48,6 +50,7 @@ def activate(zone_id):
 	logging.info('Bringing zone \'%s\' online...' % _zone['name'])
 	
 	_zone['astar_map'] = pathfinding.setup(_zone['width'], _zone['height'], _zone['solids'])
+	_zone['los_map'] = mapgen.generate_los_map(_zone['width'], _zone['height'], _zone['solids'])
 	
 	display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
 	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
@@ -69,7 +72,7 @@ def activate(zone_id):
 	#                    repeat=-1,
 	#                    repeat_callback=lambda _: post_processing.sunlight())
 	
-	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)	
+	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)
 	
 	logging.info('Zone \'%s\' is online' % _zone['name'])
 
@@ -125,6 +128,12 @@ def get_active_size():
 			raise Exception('No zone is active.')	
 	
 	return ZONES[ACTIVE_ZONE]['width'], ZONES[ACTIVE_ZONE]['height']
+
+def get_active_los_map():
+	if not ACTIVE_ZONE:
+			raise Exception('No zone is active.')	
+	
+	return ZONES[ACTIVE_ZONE]['los_map']
 
 def populate_life(zone_id):
 	_zone = ZONES[zone_id]

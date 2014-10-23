@@ -189,9 +189,10 @@ def combat():
 	
 	_combat_actions.add_condition('position',
 	                              weapon_loaded=True,
-	                              has_firing_position=True)
+	                              has_firing_position=True,
+	                              is_target_near=False)
 	_combat_actions.add_callback('position', ai_logic.find_firing_position)
-	_combat_actions.add_reaction('position', in_enemy_los=True)
+	_combat_actions.add_reaction('position', is_target_near=True, in_enemy_los=True)
 	
 	_combat_actions.add_condition('camp',
 	                              weapon_loaded=True,
@@ -202,6 +203,7 @@ def combat():
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
                                   in_enemy_los=True,
+	                              is_target_near=True,
 	                              is_target_lost=False,
 	                              is_squad_combat_ready=True,
 	                              is_squad_overwhelmed=False,
@@ -211,16 +213,17 @@ def combat():
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 	
-	_combat_actions.add_condition('panic_shoot',
-	                              weapon_loaded=True,
-	                              in_enemy_los=True,
-	                              is_target_lost=False,
-	                              is_squad_overwhelmed=False,
-	                              is_squad_forcing_surrender=False,
-	                              has_firing_position=False,
-	                              is_target_near=True)
-	_combat_actions.add_callback('panic_shoot', ai_logic.shoot_weapon)
-	_combat_actions.add_reaction('panic_shoot', in_engagement=False)
+	#TODO: This doesn't work because is_target_near was repurposed as more of a "in shooting range" value
+	#_combat_actions.add_condition('panic_shoot',
+	#                              weapon_loaded=True,
+	#                              in_enemy_los=True,
+	#                              is_target_lost=False,
+	#                              is_squad_overwhelmed=False,
+	#                              is_squad_forcing_surrender=False,
+	#                              has_firing_position=False,
+	#                              is_target_near=True)
+	#_combat_actions.add_callback('panic_shoot', ai_logic.shoot_weapon)
+	#_combat_actions.add_reaction('panic_shoot', in_engagement=False)
 	
 	#_combat_actions.set_weight('track', 20)
 	#_combat_actions.set_weight('make_surrender', 10)

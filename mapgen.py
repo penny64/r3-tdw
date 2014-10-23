@@ -73,6 +73,50 @@ def build_node_grid(node_grid, solids):
 	
 	logging.info('Done.')
 
+#TODO: Unused
+def generate_flood_map(width, height, solids):
+	_map = []
+	_unchecked_positions = []
+	
+	for y in range(height):
+		_y = []
+		
+		for x in range(width):
+			_y.append(0)
+			_unchecked_positions.append((x, y))
+		
+		_map.append(_y)
+	
+	while _unchecked_positions:
+		_x, _y = list(_unchecked_positions)[0]
+		_positions_to_check = set((_x, _y))
+		_checked_positions = set()
+		
+		while _positions_to_check:
+			_x, _y = random.choice(_positions_to_check)
+			
+			for x1, y1 in [(_x-1, _y-1), (_x, _y-1), (_x+1, _y-1), (_x-1, _y), (_x+1, _y), (_x-1, _y+1), (_x, _y+1), (_x+1, _y+1)]:
+				if (x1, y1) in solids:
+					_map[y1][x1] = -1
+					
+					continue
+				
+				if (x1, y1) in _checked_positions:
+					continue
+				
+				if (x1, y1) in _unchecked_positions:
+					_unchecked_positions.remove((x1, y1))
+
+def generate_los_map(width, height, solids):
+	_map = tcod.map_new(width, height)
+	
+	for x in range(width):
+		for y in range(height):
+			if not (x, y) in solids:
+				tcod.map_set_properties(_map, x, y, True, True)
+	
+	return _map
+
 def add_plot_pole(x, y, radius, solids, cell_split=3.0, debug=False):
 	global NODE_SET_ID
 

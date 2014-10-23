@@ -1,4 +1,4 @@
-from framework import entities, events, numbers, goapy, timers, flags, movement
+from framework import entities, events, numbers, goapy, timers, flags, movement, stats
 
 import ai_squad_logic
 import ai_factions
@@ -385,9 +385,10 @@ def _human_logic(entity):
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
+		_engage_distance = stats.get_vision(entity) * .75
 		
 		#NOTE: Mirror change in ai_logic!
-		entity['ai']['meta']['is_target_near'] = _target_distance <= 16
+		entity['ai']['meta']['is_target_near'] = _target_distance <= _engage_distance
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if not entity['ai']['meta']['is_target_lost']:
