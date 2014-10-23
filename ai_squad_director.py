@@ -95,9 +95,11 @@ def update_position_maps(squad):
 			
 			_target_coverage_map = _squad['member_position_maps'][target_id]
 			_overlap_positions = _coverage_positions & _target_coverage_map
-			_distance = _closest_member['distance']
+			_closest_member_pos = movement.get_position_via_id(_closest_member['member_id'])
 			
 			for pos in _overlap_positions:
+				_distance = numbers.distance(_closest_member_pos, pos)
+				
 				if _distance < _score_map[pos]['vantage']:
 					_score_map[pos]['vantage'] = _distance
 				
@@ -125,6 +127,13 @@ def get_vantage_point(squad, member_id):
 	
 	if not _best_vantage['position']:
 		print 'No good firing position.'
+		
+		for pos_score in squad['position_map_scores'].values():
+			if not pos_score['targets'] or not pos_score['vantage']:
+				continue
+			
+			print pos_score
+		
 		#_member['ai']['meta']['has_firing_position'] = False
 		return
 	
