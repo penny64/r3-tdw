@@ -31,7 +31,7 @@ def create_position_map(squad, member_id):
 	tcod.map_copy(zones.get_active_los_map(), squad['member_los_maps'][member_id])
 	
 	_t = time.time()
-	tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_1)
+	tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_2)
 	
 	for pos in shapes.circle(_x, _y, _sight):
 		if not tcod.map_is_walkable(squad['member_los_maps'][member_id], pos[0], pos[1]):
@@ -118,7 +118,7 @@ def get_vantage_point(squad, member_id):
 		_scores = squad['position_map_scores'][pos]
 		_score = _scores['vantage'] + _scores['coverage']
 		
-		if _score < 6 or _score > _engage_range or not _scores['targets']:
+		if not _scores['targets'] or _score < 6 or _score > _engage_range:
 			continue
 
 		if _score < _best_vantage['score']:
@@ -126,27 +126,19 @@ def get_vantage_point(squad, member_id):
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:
-		print 'No good firing position.'
+		_member['ai']['meta']['has_firing_position'] = False
 		
-		for pos_score in squad['position_map_scores'].values():
-			if not pos_score['targets'] or not pos_score['vantage']:
-				continue
-			
-			print pos_score
-		
-		#_member['ai']['meta']['has_firing_position'] = False
 		return
 	
-	print 'Has firing position'
 	_x, _y = movement.get_position(_member)
 	
-	#for coverage_pos in shapes.circle(_best_vantage['position'][0], _best_vantage['position'][1], 3):
-	#	if not coverage_pos in squad['position_map_scores']:
-	#		continue
-	#	
-	#	_c_dist = 10 * (1 - (numbers.distance(coverage_pos, (_x, _y)) / 3.0))
-	#	
-	#	squad['position_map_scores'][coverage_pos]['coverage'] += _c_dist
+	for coverage_pos in shapes.circle(_best_vantage['position'][0], _best_vantage['position'][1], 6):
+		if not coverage_pos in squad['position_map_scores']:
+			continue
+		
+		_c_dist = 15 * (1 - (numbers.distance(coverage_pos, (_x, _y)) / 6.0))
+		
+		squad['position_map_scores'][coverage_pos]['coverage'] += _c_dist
 	
 	squad['position_map_scores'][_best_vantage['position']]['coverage'] += 20
 	

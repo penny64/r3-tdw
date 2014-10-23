@@ -80,7 +80,7 @@ def find_cover(entity):
 	_closest_node = {'node': None, 'distance': 0}
 	_solids = zones.get_active_life_positions(entity)
 	
-	if flags.has_flag(entity, 'cover_data'):
+	if flags.has_flag(entity, 'cover_data') and not flags.get_flag(entity, 'cover_data')['node'] in _solids:
 		_cover_data = flags.get_flag(entity, 'cover_data')
 		
 		if _target['_id'] == _cover_data['target']:
@@ -126,6 +126,9 @@ def find_firing_position(entity):
 	
 	if not _fire_position:
 		return
+	
+	if not numbers.distance((_x, _y), _fire_position) and not entity['ai']['visible_targets']:
+		entity['ai']['meta']['is_target_lost'] = True
 	
 	movement.walk_to_position(entity, _fire_position[0], _fire_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 

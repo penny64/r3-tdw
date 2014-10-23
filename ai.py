@@ -61,6 +61,7 @@ def _register(entity, player=False):
 	                         'is_target_lost': False,
 	                         'in_cover': False,
 	                         'in_enemy_los': False,
+	                         'in_firing_range': False,
 	                         'is_hungry': False,
 	                         'has_food': False,
 	                         'sees_item_type_weapon': False,
@@ -385,10 +386,10 @@ def _human_logic(entity):
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
-		_engage_distance = stats.get_vision(entity) * .75
+		_engage_distance = stats.get_vision(entity) * .6
 		
 		#NOTE: Mirror change in ai_logic!
-		entity['ai']['meta']['is_target_near'] = _target_distance <= _engage_distance
+		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
 			if not entity['ai']['meta']['is_target_lost']:
@@ -404,13 +405,14 @@ def _human_logic(entity):
 	else:
 		entity['ai']['meta']['is_target_near'] = False
 		entity['ai']['meta']['is_target_lost'] = False
+		entity['ai']['meta']['in_firing_range'] = False
 		
-		if flags.has_flag(entity, 'fire_data'):
-			_fire_data = flags.get_flag(entity, 'fire_data')
-			_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
-			
-			entities.trigger_event(_node, 'set_flag', flag='owner', value=None)	
-			flags.delete_flag(entity, 'fire_data')
+		#if flags.has_flag(entity, 'fire_data'):
+		#	_fire_data = flags.get_flag(entity, 'fire_data')
+		#	_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
+		#	
+		#	entities.trigger_event(_node, 'set_flag', flag='owner', value=None)	
+		#	flags.delete_flag(entity, 'fire_data')
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)
