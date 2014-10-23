@@ -73,54 +73,16 @@ def get_container(entity):
 	_get_item(entity, _nearest_weapon['_id'], weight='find_container', hold=True)
 
 def find_cover(entity):
-	#TODO: Sort when building visible AI list
-	_target = entities.get_entity(entity['ai']['nearest_target'])
-	_x, _y = movement.get_position(entity)
-	_tx, _ty = movement.get_position(_target)
-	_closest_node = {'node': None, 'distance': 0}
-	_solids = zones.get_active_life_positions(entity)
+	_squad = ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
+	_cover_position = ai_squad_director.get_cover_position(_squad, entity['_id'])
 	
-	if flags.has_flag(entity, 'cover_data') and not flags.get_flag(entity, 'cover_data')['node'] in _solids:
-		_cover_data = flags.get_flag(entity, 'cover_data')
-		
-		if _target['_id'] == _cover_data['target']:
-			if not life.can_see_position(_target, _cover_data['node']):
-				movement.walk_to_position(entity, _cover_data['node'][0], _cover_data['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
-				
-				return
-			
-			flags.delete_flag(entity, 'cover_data')
-	
-	for node_x, node_y in zones.get_active_node_grid():
-		_distance = numbers.distance((_x, _y), (node_x, node_y))
-		
-		#TODO: Replace with sight distance
-		if _distance >= 30 or (node_x, node_y) in _solids:
-			continue
-		
-		if _closest_node['node'] and _distance >= _closest_node['distance']:
-			continue
-		
-		if life.can_see_position(_target, (node_x, node_y)):
-			continue
-		
-		if not _closest_node['node'] or _distance < _closest_node['distance']:
-			_closest_node['node'] = (node_x, node_y)
-			_closest_node['distance'] = _distance
-	
-	if not _closest_node['node']:
-		#print 'No cover.'
-		
+	if not _cover_position:
 		return
 	
-	entities.trigger_event(entity, 'set_flag', flag='cover_data', value={'target': _target['_id'], 'node': _closest_node['node'][:]})
-	
-	movement.walk_to_position(entity, _closest_node['node'][0], _closest_node['node'][1], zones.get_active_astar_map(), zones.get_active_weight_map(), avoid=_solids)
+	movement.walk_to_position(entity, _cover_position[0], _cover_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def find_firing_position(entity):
 	_squad = ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']]
-	#_all_targets = list(entity['ai']['targets'])
-	#_all_targets.remove(_target['_id'])
 	_x, _y = movement.get_position(entity)
 	_fire_position = ai_squad_director.get_vantage_point(_squad, entity['_id'])
 	

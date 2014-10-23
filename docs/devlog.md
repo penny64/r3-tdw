@@ -8,6 +8,11 @@ of potential detail I could squeeze out of this if done right. The Trello board
 is filling up with ideas for neat ways to influence squads now, and once I sort
 through them and pick out the best, I'll begin working them in.
 
+Looks like the OS X version is broken completely. I never planned to support
+the platform, so no less there, but I did do testing on it from time to time.
+Come to think of it, I've yet to test on Windows, so I should probably do that
+soon to make sure everything is OK.
+
 #Mon Oct 13 2014
 
 Productive weekend with a lot of mission-related details implemented. I had a

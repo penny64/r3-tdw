@@ -73,7 +73,7 @@ def update_position_maps(squad):
 	_known_targets = squad['known_targets']
 	_known_squads = squad['known_squads']
 	_known_targets_left_to_check = _known_targets.copy()
-	_score_map = {pos: {'coverage': 0, 'vantage': 100, 'danger': 0, 'targets': [], 'owned': False} for pos in _coverage_positions}
+	_score_map = {pos: {'coverage': 0, 'vantage': 100, 'member_coverage': 0, 'danger': 0, 'targets': [], 'owned': False} for pos in _coverage_positions}
 	
 	for faction_name, squad_id in _known_squads:
 		_squad = ai_factions.FACTIONS[faction_name]['squads'][squad_id]
@@ -95,6 +95,7 @@ def update_position_maps(squad):
 			
 			_target_coverage_map = _squad['member_position_maps'][target_id]
 			_overlap_positions = _coverage_positions & _target_coverage_map
+			_cover_positions = _coverage_positions - _target_coverage_map
 			_closest_member_pos = movement.get_position_via_id(_closest_member['member_id'])
 			
 			for pos in _overlap_positions:
@@ -102,6 +103,15 @@ def update_position_maps(squad):
 				
 				if _distance < _score_map[pos]['vantage']:
 					_score_map[pos]['vantage'] = _distance
+				
+				#_score_map[pos]['danger'] = 60 - _distance
+				_score_map[pos]['targets'].append(target_id)
+			
+			for pos in _cover_positions:
+				_distance = numbers.distance(_closest_member_pos, pos)
+								
+				if _distance < _score_map[pos]['coverage']:
+					_score_map[pos]['coverage'] = _distance
 				
 				_score_map[pos]['danger'] = 60 - _distance
 				_score_map[pos]['targets'].append(target_id)
@@ -116,7 +126,7 @@ def get_vantage_point(squad, member_id):
 	
 	for pos in squad['position_map_scores']:
 		_scores = squad['position_map_scores'][pos]
-		_score = _scores['vantage'] + _scores['coverage']
+		_score = _scores['vantage'] + _scores['member_coverage']
 		
 		if not _scores['targets'] or _score < 6 or _score > _engage_range:
 			continue
@@ -138,8 +148,40 @@ def get_vantage_point(squad, member_id):
 		
 		_c_dist = 15 * (1 - (numbers.distance(coverage_pos, (_x, _y)) / 6.0))
 		
-		squad['position_map_scores'][coverage_pos]['coverage'] += _c_dist
+		squad['position_map_scores'][coverage_pos]['member_coverage'] += _c_dist
 	
-	squad['position_map_scores'][_best_vantage['position']]['coverage'] += 20
+	squad['position_map_scores'][_best_vantage['position']]['member_coverage'] += 20
 	
 	return _best_vantage['position']
+
+def get_cover_position(squad, member_id):
+	_member = entities.get_entity(member_id)
+	_best_coverage = {'position': None, 'score': 0}
+	
+	for pos in squad['position_map_scores']:
+		_scores = squad['position_map_scores'][pos]
+		_score = _scores['coverage'] - _scores['member_coverage']
+		
+		if _scores['targets'] or _score <= 0:
+			continue
+
+		if _score > _best_coverage['score']:
+			_best_coverage['score'] = _score
+			_best_coverage['position'] = pos[:]
+	
+	if not _best_coverage['position']:
+		return
+	
+	_x, _y = movement.get_position(_member)
+	
+	for coverage_pos in shapes.circle(_best_coverage['position'][0], _best_coverage['position'][1], 6):
+		if not coverage_pos in squad['position_map_scores']:
+			continue
+		
+		_c_dist = 10 * (1 - (numbers.distance(coverage_pos, (_x, _y)) / 3.0))
+		
+		squad['position_map_scores'][coverage_pos]['member_coverage'] += _c_dist
+	
+	squad['position_map_scores'][_best_coverage['position']]['member_coverage'] += 15
+	
+	return _best_coverage['position']

@@ -41,10 +41,8 @@ def _create_squad(entity):
 	
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')
-	#entities.create_event(_squad, 'create')
 	entities.create_event(_squad, 'update_position_map')
 	entities.register_event(_squad, 'raid', handle_raid)
-	#entities.register_event(_squad, 'create', ai_squad_director.create_position_maps)
 	entities.register_event(_squad, 'logic', ai_squad_director.update_position_maps)
 	entities.register_event(_squad, 'update_position_map', ai_squad_director.create_position_map)
 	
