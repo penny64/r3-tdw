@@ -1,3 +1,13 @@
+#Thu Oct 23 2014
+
+After working on a map generator that spat out more solids than the Swamps, I
+found that the "node graph" wasn't exactly scaling as well as I'd hoped, so
+there's now a much smarter implementation in place. This is one of those things
+that has come along and demanded all of my attention, mostly due to the amount
+of potential detail I could squeeze out of this if done right. The Trello board
+is filling up with ideas for neat ways to influence squads now, and once I sort
+through them and pick out the best, I'll begin working them in.
+
 #Mon Oct 13 2014
 
 Productive weekend with a lot of mission-related details implemented. I had a
