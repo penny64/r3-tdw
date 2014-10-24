@@ -1,3 +1,11 @@
+#Fri Oct 24 2014
+
+I've worked out most of the old node graph logic, and once the search algos are
+replaced it'll be gone for good! An optimization pass was made to speed things
+up too, although it's going to need a few more sanity checks to make sure NPCs
+aren't operating on invalid data. The next logic step is to keep running tests
+and figure out how to get the most out of this new logic.
+
 #Thu Oct 23 2014
 
 After working on a map generator that spat out more solids than the Swamps, I
