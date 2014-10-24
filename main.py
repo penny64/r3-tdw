@@ -259,7 +259,8 @@ def main():
 	ai_squads.boot()
 	missions.boot()
 
-	PLAYER = life.human(210, 210, 'Tester Toaster')
+	#PLAYER = life.human(210, 210, 'Tester Toaster')
+	PLAYER = life.human(1, 1, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
 
 	ui_cursor.boot()

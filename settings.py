@@ -4,7 +4,7 @@ PLAN_TICK_RATE = 4
 PLAN_TICK_RATE_STRING = ''
 TICK_MODE = 'normal'
 SHOW_NODE_GRID = False
-OBSERVER_MODE = False
+OBSERVER_MODE = '--test' in sys.argv
 ALLOW_SMP = not '--no-smp' in sys.argv
 SMP_MIN_PATH_DISTANCE = 40
 

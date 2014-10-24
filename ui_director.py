@@ -3,6 +3,8 @@ from framework import display, movement, entities, tile, timers, shapes, events,
 import ui_dialog
 import effects
 
+import sys
+
 DIRECTOR = False
 HAS_FOCUS = None
 
@@ -27,7 +29,7 @@ def handle_keyboard_input():
 def focus_on_entity(entity, target_id):
 	global HAS_FOCUS
 	
-	if HAS_FOCUS:
+	if HAS_FOCUS or '--no-fx' in sys.argv:
 		return
 	
 	HAS_FOCUS = target_id

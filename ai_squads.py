@@ -114,6 +114,8 @@ def register_with_squad(entity, squad_id):
 	
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
 	entities.register_event(entity, 'position_changed', lambda e, **kwargs: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
+	
+	entities.trigger_event(entity, 'create_timer', time=1, exit_callback=lambda e: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 
 def get_assigned_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
@@ -205,7 +207,14 @@ def update_group_status(entity):
 		if _member['ai']['meta']['has_needs'] and not _member['ai']['meta']['weapon_loaded']:
 			continue
 		
+		if _member['ai']['meta']['is_injured']:
+			print '2 injured'
+			continue
+		
 		_members_combat_ready += _squad['member_info'][member_id]['armed']
+	
+	print 'Squad is combat ready:', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5
+	print 'Squad is mobile ready:', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .65
 	
 	set_squad_meta(entity, 'is_squad_combat_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5)
 	set_squad_meta(entity, 'is_squad_mobile_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .65)

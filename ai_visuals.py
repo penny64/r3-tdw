@@ -138,7 +138,11 @@ def build_life_list(entity):
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
 	
 	if _nearest_target['target_id']:
+		if not entity['ai']['nearest_target'] == _nearest_target['target_id']:
+			entity['ai']['meta']['has_firing_position'] = True
+		
 		entity['ai']['nearest_target'] = _nearest_target['target_id']
+	
 	elif entity['ai']['targets']:
 		for target_id in list(entity['ai']['targets']):
 			if not target_id in entities.ENTITIES:

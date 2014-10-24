@@ -6,6 +6,11 @@ up too, although it's going to need a few more sanity checks to make sure NPCs
 aren't operating on invalid data. The next logic step is to keep running tests
 and figure out how to get the most out of this new logic.
 
+Created a small arena for NPCs to fight in to test out the new logic. Next is
+debug output for the position maps, then tweaking existing values to get the
+best results. Once I make them more aware of themselves and their squad as a
+whole, they can only get better.
+
 #Thu Oct 23 2014
 
 After working on a map generator that spat out more solids than the Swamps, I

@@ -44,6 +44,9 @@ def create_position_map(squad, member_id):
 	tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_2)
 	
 	for pos in shapes.circle(_x, _y, _sight):
+		if pos[0] < 0 or pos[0] >= _map_size[0] or pos[1] < 0 or pos[1] >= _map_size[1]:
+			continue
+		
 		if not tcod.map_is_walkable(squad['member_los_maps'][member_id], pos[0], pos[1]):
 			continue
 	
@@ -70,6 +73,10 @@ def create_position_map(squad, member_id):
 	
 	if squad['known_targets']:
 		squad['update_position_maps'] = True
+		
+		logging.debug('Updated local position map - requesting squad update')
+	else:
+		logging.debug('Updated local position map.')
 	
 	#print time.time()-_t
 
@@ -146,9 +153,7 @@ def build_push_map(squad):
 			_target_squad = entities.get_entity(ai_factions.FACTIONS[_target['ai']['faction']]['squads'][_target['ai']['squad']])
 
 def _reset_fire_position(entity):
-	entity['ai']['meta']['has_firing_position']
-	
-	print 'Reset fire position'
+	entity['ai']['meta']['has_firing_position'] = True
 
 def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)

@@ -8,6 +8,7 @@ import zones
 import life
 
 import random
+import sys
 
 MESSAGES_ACTIVE = 0
 
@@ -70,6 +71,9 @@ def _muzzle_delete(entity):
 	entities.delete_entity(entity)
 
 def muzzle_flash(x, y, direction, surface='effects', group='effects', start_alpha=0.4, no_move=False):
+	if '--no-fx' in sys.argv:
+		return
+	
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	
@@ -119,6 +123,9 @@ def _vapor_fade(entity):
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
 
 def vapor(x, y, surface='effects', group='effects', start_alpha=0.9, fade_rate=0.095):
+	if '--no-fx' in sys.argv:
+		return
+	
 	_vapor = _create(x, y, surface=surface, group=group)
 	_x, _y = (int(round(x)), int(round(y)))
 	_vapor['fade_rate'] = fade_rate
@@ -179,6 +186,9 @@ def _printer_exit(entity):
 	entities.delete_entity(entity)
 
 def printer(x, y, text, center=True, fore_color=(255, 255, 255), moving=True, move_direction=90, back_color=(10, 10, 10), speed_mod=1.0, show_mod=1.0, free_tick=True):
+	if '--no-fx' in sys.argv:
+		return
+	
 	_entity = entities.create_entity(group='ui_effects' + ('_freetick' * free_tick))
 	
 	timers.register(_entity)
@@ -241,6 +251,9 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 	return printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=True)
 
 def light(x, y, brightness):
+	if '--no-fx' in sys.argv:
+		return
+	
 	_light_map = post_processing.get_light_map()
 	
 	for _x, _y in shapes.circle(x, y, brightness):
