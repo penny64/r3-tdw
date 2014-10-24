@@ -180,7 +180,7 @@ def combat():
 	                              'is_squad_overwhelmed',
 	                              'is_squad_forcing_surrender',
 	                              'is_squad_mobile_ready',
-	                              'is_squad_pushing',
+	                              #'is_squad_pushing',
 	                              'is_target_armed',
 	                              'has_firing_position',
 	                              'in_firing_range',
@@ -200,16 +200,16 @@ def combat():
 	_combat_actions.add_reaction('fire_position', in_firing_range=True, in_enemy_los=True)
 	
 	_combat_actions.add_condition('camp',
-	                              has_firing_position=False,
-	                              is_squad_pushing=False)
+	                              has_firing_position=False,)
+	                              #is_squad_pushing=False)
 	_combat_actions.add_callback('camp', ai_logic.find_cover)
 	_combat_actions.add_reaction('camp', has_firing_position=True, in_firing_range=True, in_enemy_los=True)
 	
-	_combat_actions.add_condition('push',
-		                          has_firing_position=False,
-		                          is_squad_pushing=True)
-	_combat_actions.add_callback('push', ai_logic.find_push_position)
-	_combat_actions.add_reaction('push', has_firing_position=True, in_firing_range=True, in_enemy_los=True)
+	#_combat_actions.add_condition('push',
+	#	                          has_firing_position=False,
+	#	                          is_squad_pushing=True)
+	#_combat_actions.add_callback('push', ai_logic.find_push_position)
+	#_combat_actions.add_reaction('push', has_firing_position=True, in_firing_range=True, in_enemy_los=True)
 	
 	_combat_actions.add_condition('shoot',
                                   weapon_loaded=True,
