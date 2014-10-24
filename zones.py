@@ -58,7 +58,7 @@ def activate(zone_id):
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
-	post_processing.run(time=8,
+	'''post_processing.run(time=8,
                         repeat=-1,
                         repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
                                                                                       constants.MAP_VIEW_HEIGHT,
@@ -67,7 +67,7 @@ def activate(zone_id):
 	                                                                                  _zone['inside']))
 	post_processing.run(time=0,
 	                    repeat=-1,
-	                    repeat_callback=lambda _: post_processing.post_process_lights())
+	                    repeat_callback=lambda _: post_processing.post_process_lights())'''
 	#post_processing.run(time=0,
 	#                    repeat=-1,
 	#                    repeat_callback=lambda _: post_processing.sunlight())
