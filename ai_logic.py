@@ -133,6 +133,8 @@ def _search_for_target(entity, target_id):
 		movement.walk_to_position(entity, _node_x, _node_y, zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def search_for_target(entity):
+	print 'Check for nearest LOST target'
+	
 	_target = entities.get_entity(entity['ai']['nearest_target'])
 	_solids = zones.get_active_solids(entity)
 	

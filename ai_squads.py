@@ -208,13 +208,9 @@ def update_group_status(entity):
 			continue
 		
 		if _member['ai']['meta']['is_injured']:
-			print '2 injured'
 			continue
 		
 		_members_combat_ready += _squad['member_info'][member_id]['armed']
-	
-	print 'Squad is combat ready:', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5
-	print 'Squad is mobile ready:', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .65
 	
 	set_squad_meta(entity, 'is_squad_combat_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .5)
 	set_squad_meta(entity, 'is_squad_mobile_ready', _members_combat_ready / float(len(_squad['member_info'].keys())) >= .65)

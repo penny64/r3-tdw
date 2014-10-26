@@ -336,7 +336,9 @@ def _animal_logic(entity):
 		entity['ai']['meta']['is_target_lost'] = False
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
-	entity['ai']['meta']['is_panicked'] = skeleton.has_critical_injury(entity)
+	#entity['ai']['meta']['is_panicked'] = skeleton.has_critical_injury(entity)
+	entity['ai']['meta']['is_injured'] = skeleton.has_critical_injury(entity)
+	entity['ai']['meta']['is_panicked'] = entity['ai']['meta']['is_injured']
 	
 	if entity['ai']['is_player']:
 		return
@@ -376,7 +378,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_ammo'] = len(items.get_items_matching(entity, {'type': 'ammo'})) > 0
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
-	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
+	entity['ai']['meta']['in_engagement'] = len([t for t in entity['ai']['targets'] if not entity['ai']['life_memory'][t]['is_lost']]) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
 	entity['ai']['meta']['is_injured'] = skeleton.has_critical_injury(entity)
@@ -392,11 +394,12 @@ def _human_logic(entity):
 		#NOTE: Mirror change in ai_logic!
 		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance
 		
-		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
-			if not entity['ai']['meta']['is_target_lost']:
+		if not entity['ai']['meta']['in_enemy_los']:
+			if life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']) or _target_distance >= stats.get_vision(entity):
 				entity['ai']['meta']['is_target_lost'] = True
+				entity['ai']['life_memory'][_target]['is_lost'] = True
 		
-		elif entity['ai']['meta']['in_enemy_los']:
+		else:
 			if flags.has_flag(entity, 'search_nodes'):
 				flags.delete_flag(entity, 'search_nodes')
 			
@@ -416,7 +419,7 @@ def _human_logic(entity):
 		#	flags.delete_flag(entity, 'fire_data')
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
-	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed']) or skeleton.has_critical_injury(entity)
+	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed'])
 	
 	if entity['ai']['is_player']:
 		return

@@ -25,6 +25,7 @@ def register(entity, surface=None, animated=True, char='X', fore_color=(255, 255
 	entities.create_event(entity, 'flag')
 	entities.create_event(entity, 'unflag')
 	entities.create_event(entity, 'animate')
+	entities.create_event(entity, 'stop_animation')
 	entities.register_event(entity, 'set_char', set_char)
 	entities.register_event(entity, 'set_position', set_tile_position)
 	entities.register_event(entity, 'set_fore_color', set_fore_color)
@@ -41,6 +42,7 @@ def register(entity, surface=None, animated=True, char='X', fore_color=(255, 255
 	entities.register_event(entity, 'flag', flag_tile)
 	entities.register_event(entity, 'unflag', unflag_tile)
 	entities.register_event(entity, 'animate', animate)
+	entities.register_event(entity, 'stop_animation', cancel_animation)
 
 def save(entity, snapshot):
 	snapshot['tile'] = entity['tile']

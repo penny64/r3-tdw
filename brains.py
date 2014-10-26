@@ -113,15 +113,19 @@ def search_for_target():
 	return _brain
 
 def panic():
-	_brain = goapy.Planner('is_panicked', 'in_engagement', 'is_target_near')
+	_brain = goapy.Planner('is_panicked', 'is_injured', 'in_engagement', 'is_target_near', 'in_enemy_los')
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(is_panicked=False)
 
-	_actions.add_condition('flee', is_panicked=True, in_engagement=True)
+	_actions.add_condition('flee', is_panicked=True, in_engagement=True, in_enemy_los=True)
 	_actions.add_callback('flee', lambda entity: ai_logic.find_cover(entity))
-	_actions.add_reaction('flee', is_panicked=False)
+	_actions.add_reaction('flee', is_panicked=False, in_enemy_los=False)
+	
+	_actions.add_condition('flee_injury', is_injured=True, in_engagement=True, in_enemy_los=True)
+	_actions.add_callback('flee_injury', lambda entity: ai_logic.find_cover(entity))
+	_actions.add_reaction('flee_injury', is_injured=False, in_enemy_los=False)
 
 	return _brain
 
@@ -184,7 +188,8 @@ def combat():
 		                          'is_target_armed',
 		                          'has_firing_position',
 		                          'in_firing_range',
-		                          'is_panicked')
+		                          'is_panicked',
+	                              'is_injured')
 	_combat_brain.set_goal_state(in_engagement=False)
 
 	_combat_actions = goapy.Action_List()
@@ -202,7 +207,7 @@ def combat():
 	_combat_actions.add_condition('camp',
 		                          has_firing_position=False)
 	_combat_actions.add_callback('camp', ai_logic.find_cover)
-	_combat_actions.add_reaction('camp', has_firing_position=True, in_firing_range=True, in_enemy_los=True)
+	_combat_actions.add_reaction('camp', has_firing_position=True)#, in_firing_range=True, in_enemy_los=True)
 
 	#_combat_actions.add_condition('push',
 	#	                          has_firing_position=False,
@@ -215,7 +220,8 @@ def combat():
 		                          in_firing_range=True,
 		                          in_enemy_los=True,
 		                          is_panicked=False,
-		                          is_target_lost=False,
+	                              is_injured=False,
+	                              has_firing_position=True,
 	                              is_squad_combat_ready=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)

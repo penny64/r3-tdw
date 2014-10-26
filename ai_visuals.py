@@ -53,6 +53,7 @@ def build_life_list(entity):
 	_nearest_target = {'target_id': None, 'distance': 0}
 	_solids = zones.get_active_solids(entity)
 	_visible_life = set()
+	_vision = stats.get_vision(entity)
 	
 	for entity_id in entities.get_entity_group('life'):
 		if entity['_id'] == entity_id:
@@ -66,8 +67,11 @@ def build_life_list(entity):
 		if not ai_factions.is_enemy(entity, entity_id):
 			_visible = True
 		else:
-			if numbers.distance(movement.get_position(entity), movement.get_position(_target)) > stats.get_vision(entity):
+			if numbers.distance(movement.get_position(entity), movement.get_position(_target)) > _vision:
+				entity['ai']['life_memory'][entity_id]['can_see'] = False
+				
 				_visible = False
+				
 			else:
 				for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
 					if pos in _solids:
@@ -89,6 +93,8 @@ def build_life_list(entity):
 			_previous_last_seen_at = entity['ai']['life_memory'][entity_id]['last_seen_at']
 			_target_position = movement.get_position(_target)[:]
 			
+			entity['ai']['life_memory'][entity_id]['is_lost'] = False
+			
 			if movement.get_position(_target) == _previous_last_seen_at:
 				_new_last_seen_at = _previous_last_seen_at
 			
@@ -99,6 +105,7 @@ def build_life_list(entity):
 			_profile = {'distance': numbers.distance(movement.get_position(entity), movement.get_position(_target)),
 				        'is_target': _is_target,
 				        'is_armed': items.get_items_in_holder(_target, 'weapon'),
+			            'is_lost': False,
 			            'can_see': True,
 			            'last_seen_at': _new_last_seen_at,
 			            'last_seen_velocity': None}
@@ -145,12 +152,13 @@ def build_life_list(entity):
 	
 	elif entity['ai']['targets']:
 		for target_id in list(entity['ai']['targets']):
-			if not target_id in entities.ENTITIES:
+			_target = entity['ai']['life_memory'][target_id]
+			
+			if not target_id in entities.ENTITIES or _target['is_lost']:
 				entity['ai']['targets'].remove(target_id)
 				
 				continue
 			
-			_target = entity['ai']['life_memory'][target_id]
 			_distance = numbers.distance(movement.get_position(entity), _target['last_seen_at'])
 			
 			if not _nearest_target['target_id'] or _distance < _nearest_target['distance']:

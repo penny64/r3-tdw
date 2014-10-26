@@ -277,12 +277,17 @@ def get_cover_position(squad, member_id):
 	_best_coverage = {'position': None, 'score': 0}
 	
 	if _member['movement']['path']['destination']:
-		if _member['movement']['path']['destination'] in squad['position_map_scores']:
-			_scores = squad['position_map_scores'][_member['movement']['path']['destination']]
-			_score = _scores['coverage'] + _scores['member_coverage']
-			
-			if not _scores['targets'] and _score > 0:
-				return _member['movement']['path']['destination']
+		_hide_pos = _member['movement']['path']['destination']
+	
+	else:
+		_hide_pos = movement.get_position(_member)
+	
+	if _hide_pos in squad['position_map_scores']:
+		_scores = squad['position_map_scores'][_hide_pos]
+		_score = _scores['coverage'] + _scores['member_coverage']
+		
+		if not _scores['targets'] and _score > 0:
+			return _hide_pos
 	
 	for pos in squad['position_map_scores']:
 		_scores = squad['position_map_scores'][pos]

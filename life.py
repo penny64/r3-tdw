@@ -288,6 +288,7 @@ def create_life_memory(entity, target_id):
 	entity['ai']['life_memory'][target_id] = {'distance': -1,
 	                                          'is_target': False,
 	                                          'is_armed': False,
+	                                          'is_lost': False,
 	                                          'can_see': False,
 	                                          'last_seen_at': None,
 	                                          'last_seen_velocity': None,

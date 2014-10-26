@@ -262,6 +262,8 @@ def main():
 	#PLAYER = life.human(210, 210, 'Tester Toaster')
 	PLAYER = life.human(1, 1, 'Tester Toaster')
 	PLAYER['ai']['is_player'] = True
+	
+	items.ammo_9x19mm(50, 50)
 
 	ui_cursor.boot()
 	ai.boot()

@@ -79,6 +79,12 @@ def handle_keyboard_input(entity):
 		ui_menu.add_selectable(_menu, 'Weight: %s' % _weight, lambda: _)
 				
 def _show_metas(entity):
+	_keys = entity['ai']['meta'].keys()
+	_keys.sort()
+	
+	for meta_key in _keys:
+		print meta_key, entity['ai']['meta'][meta_key]
+	return
 	_menu = ui_menu.create(0, 0, title='Metas')
 	_keys = entity['ai']['meta'].keys()
 	_keys.sort()
