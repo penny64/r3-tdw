@@ -122,7 +122,7 @@ def _vapor_fade(entity):
 	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])		
 
-def vapor(x, y, surface='effects', group='effects', start_alpha=0.9, fade_rate=0.095):
+def vapor(x, y, surface='effects', group='effects', start_alpha=0.6, fade_rate=0.095):
 	if '--no-fx' in sys.argv:
 		return
 	

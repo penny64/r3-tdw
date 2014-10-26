@@ -68,6 +68,9 @@ def build_life_list(entity):
 			_visible = True
 		else:
 			if numbers.distance(movement.get_position(entity), movement.get_position(_target)) > _vision:
+				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
+					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
+				
 				entity['ai']['life_memory'][entity_id]['can_see'] = False
 				
 				_visible = False
@@ -142,7 +145,12 @@ def build_life_list(entity):
 			if _could_not_see_target_before:
 				entities.trigger_event(entity, 'target_found', target_id=entity_id)
 	
+	for t in entity['ai']['life_memory']:
+		if not 'is_lost' in entity['ai']['life_memory'][t]:
+			print entity['ai']['life_memory'][t]
+	
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
+	entity['ai']['targets_to_search'] = [t for t in entity['ai']['life_memory'].keys() if entity['ai']['life_memory'][t]['is_lost'] and not entity['ai']['life_memory'][t]['searched_for']]
 	
 	if _nearest_target['target_id']:
 		if not entity['ai']['nearest_target'] == _nearest_target['target_id']:

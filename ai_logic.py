@@ -89,8 +89,8 @@ def find_firing_position(entity):
 	if not _fire_position:
 		return
 	
-	if not numbers.distance((_x, _y), _fire_position) and not entity['ai']['visible_targets']:
-		entity['ai']['meta']['is_target_lost'] = True
+	#if not numbers.distance((_x, _y), _fire_position) and not entity['ai']['visible_targets']:
+	#	entity['ai']['meta']['has_lost_target'] = True
 	
 	movement.walk_to_position(entity, _fire_position[0], _fire_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
@@ -102,8 +102,8 @@ def find_push_position(entity):
 	if not _push_position:
 		return
 	
-	if not numbers.distance((_x, _y), _push_position) and not entity['ai']['visible_targets']:
-		entity['ai']['meta']['is_target_lost'] = True
+	#if not numbers.distance((_x, _y), _push_position) and not entity['ai']['visible_targets']:
+	#	entity['ai']['meta']['has_lost_target'] = True
 	
 	movement.walk_to_position(entity, _push_position[0], _push_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 
@@ -111,9 +111,7 @@ def _search_for_target(entity, target_id):
 	_nodes = flags.get_flag(entity, 'search_nodes')
 	
 	if not _nodes:
-		entity['ai']['targets'].remove(target_id)
 		flags.delete_flag(entity, 'search_nodes')
-		print 'removed target'
 		
 		entities.trigger_event(entity, 'target_search_failed', target_id=target_id)
 		
@@ -133,9 +131,24 @@ def _search_for_target(entity, target_id):
 		movement.walk_to_position(entity, _node_x, _node_y, zones.get_active_astar_map(), zones.get_active_weight_map())
 
 def search_for_target(entity):
-	print 'Check for nearest LOST target'
+	_lost_targets = entity['ai']['targets_to_search']
 	
-	_target = entities.get_entity(entity['ai']['nearest_target'])
+	if not _lost_targets:
+		print 'Trying to search with no lost targets'
+		
+		return
+	
+	_closest_target = {'distance': 0, 'target_id': None}
+	
+	for target_id in _lost_targets:
+		_memory = entity['ai']['life_memory'][target_id]
+		_distance = numbers.distance(movement.get_position(entity), _memory['last_seen_at'])
+		
+		if not _closest_target['target_id'] or _distance < _closest_target['distance']:
+			_closest_target['target_id'] = target_id
+			_closest_target['distance'] = _distance
+	
+	_target = entities.get_entity(_closest_target['target_id'])
 	_solids = zones.get_active_solids(entity)
 	
 	if flags.has_flag(entity, 'search_nodes'):
@@ -153,8 +166,6 @@ def search_for_target(entity):
 		_ty + _vy*6
 	
 	entities.trigger_event(entity, 'set_flag', flag='search_nodes', value=_nodes_to_search)
-	
-	_t = time.time()
 	
 	for node_x, node_y in zones.get_active_node_grid():
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))

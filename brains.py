@@ -8,14 +8,14 @@ import logging
 
 
 def heal():
-	_heal_brain = goapy.Planner('is_injured', 'has_bandage')
+	_heal_brain = goapy.Planner('is_injured', 'has_bandage', 'in_engagement')
 	_heal_actions = goapy.Action_List()
 
 	_heal_actions.add_condition('apply_bandage', has_bandage=True)
 	#_heal_actions.add_callback('apply_bandage', lambda entity: ai.set_meta(entity, 'is_injured', False))
 	_heal_actions.add_reaction('apply_bandage', is_injured=False)
 
-	_heal_actions.add_condition('find_bandage', has_bandage=False)
+	_heal_actions.add_condition('find_bandage', has_bandage=False, in_engagement=False)
 	#_heal_actions.add_callback('find_bandage', lambda entity: ai.set_meta(entity, 'has_bandage', True))
 	_heal_actions.add_reaction('find_bandage', has_bandage=True)
 
@@ -95,18 +95,18 @@ def search_for_container():
 
 def search_for_target():
 	_brain = goapy.Planner('weapon_loaded',
-		                   'is_target_lost',
+		                   'has_lost_target',
 		                   'is_squad_mobile_ready')
 
-	_brain.set_goal_state(is_target_lost=False)
+	_brain.set_goal_state(has_lost_target=False)
 
 	_actions = goapy.Action_List()
 	_actions.add_condition('search',
-		                   is_target_lost=True,
+		                   has_lost_target=True,
 		                   weapon_loaded=True,
 		                   is_squad_mobile_ready=True)
 	_actions.add_callback('search', ai_logic.search_for_target)
-	_actions.add_reaction('search', is_target_lost=False)
+	_actions.add_reaction('search', has_lost_target=False)
 
 	_brain.set_action_list(_actions)
 
@@ -147,13 +147,13 @@ def reload():
 	return _brain
 
 def squad_leader_regroup():
-	_brain = goapy.Planner('is_squad_mobile_ready', 'in_engagement', 'is_target_lost', 'is_squad_leader')
+	_brain = goapy.Planner('is_squad_mobile_ready', 'in_engagement', 'has_lost_target', 'is_squad_leader')
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
 	_brain.set_goal_state(is_squad_mobile_ready=True)
 
-	_actions.add_condition('regroup', is_squad_mobile_ready=False, in_engagement=False, is_target_lost=False)
+	_actions.add_condition('regroup', is_squad_mobile_ready=False, in_engagement=False, has_lost_target=False)
 	_actions.add_callback('regroup', ai_squad_logic.leader_order_regroup)
 	_actions.add_reaction('regroup', is_squad_mobile_ready=True)
 
@@ -175,11 +175,11 @@ def squad_capture_camp():
 def combat():
 	_combat_brain = goapy.Planner('has_ammo',
 		                          'has_weapon',
+	                              'has_lost_target',
 		                          'weapon_loaded',
 		                          'in_engagement',
 		                          'in_enemy_los',
 		                          'is_target_near',
-		                          'is_target_lost',
 		                          'is_squad_combat_ready',
 		                          'is_squad_overwhelmed',
 		                          'is_squad_forcing_surrender',

@@ -289,6 +289,7 @@ def create_life_memory(entity, target_id):
 	                                          'is_target': False,
 	                                          'is_armed': False,
 	                                          'is_lost': False,
+	                                          'searched_for': False,
 	                                          'can_see': False,
 	                                          'last_seen_at': None,
 	                                          'last_seen_velocity': None,

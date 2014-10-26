@@ -4,6 +4,7 @@ import ai_factions
 import ai_squads
 import brains
 import zones
+import life
 
 def register_human(entity):
 	entity['brain'] = goapy.World()
@@ -95,9 +96,15 @@ def member_handle_lost_target(entity, target_id):
 		_member = entities.get_entity(member_id)
 		
 		entities.trigger_event(_member, 'squad_inform_lost_target', member_id=entity['_id'], target_id=target_id)
+	
+	entity['ai']['life_memory'][target_id]['is_lost'] = True
+	entity['ai']['life_memory'][target_id]['searched_for'] = False
 
 def member_learn_lost_target(entity, member_id, target_id):
 	if not target_id in entity['ai']['visible_life']:
+		entity['ai']['life_memory'][target_id]['is_lost'] = True
+		entity['ai']['life_memory'][target_id]['searched_for'] = False
+		
 		return
 	
 	_sender = entities.get_entity(member_id)
@@ -149,8 +156,12 @@ def member_handle_failed_target_search(entity, target_id):
 		_member = entities.get_entity(member_id)
 		
 		entities.trigger_event(_member, 'squad_inform_failed_search', member_id=entity['_id'], target_id=target_id)
+	
+	entity['ai']['life_memory'][target_id]['searched_for'] = True
 
 def member_learn_failed_target_search(entity, member_id, target_id):
+	entity['ai']['life_memory'][target_id]['searched_for'] = True
+	
 	print 'Learned about failed search'
 
 
@@ -178,13 +189,15 @@ def member_learn_raid(entity, member_id, camp):
 	_camp_leader = entities.get_entity(_squad['leader'])
 	
 	#TODO: Don't do this
-	entity['ai']['life_memory'][_camp_leader['_id']] = {'distance': -1,
-	                                                    'is_target': True,
-	                                                    'is_armed': False,
-	                                                    'can_see': False,
-	                                                    'last_seen_at': movement.get_position(_camp_leader),
-	                                                    'last_seen_velocity': None}
-	entity['ai']['targets'].add(_camp_leader['_id'])
+	if not _camp_leader['_id'] in entity['ai']['life_memory']:
+		life.create_life_memory(entity, _camp_leader['_id'])
+	
+	entity['ai']['life_memory'][_camp_leader['_id']].update({'is_lost': True,
+	                                                         'searched_for': False,
+	                                                         'can_see': False,
+	                                                         'last_seen_at': movement.get_position(_camp_leader),
+	                                                         'last_seen_velocity': None})
+	#entity['ai']['targets'].add(_camp_leader['_id'])
 
 
 ##################

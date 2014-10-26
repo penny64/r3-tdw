@@ -38,6 +38,7 @@ def _register(entity, player=False):
 	                'visible_items': {},
 	                'visible_life': set(),
 	                'visible_targets': [],
+	                'targets_to_search': [],
 	                'targets': set(),
 	                'nearest_target': None,
 	                'life_memory': {},
@@ -54,11 +55,11 @@ def _register(entity, player=False):
 	                         'has_weapon': False,
 	                         'has_container': False,
 	                         'has_firing_position': False,
+	                         'has_lost_target': False,
 	                         'weapon_loaded': False,
 	                         'in_engagement': False,
 	                         'is_target_near': False,
 	                         'is_target_armed': False,
-	                         'is_target_lost': False,
 	                         'in_cover': False,
 	                         'in_enemy_los': False,
 	                         'in_firing_range': False,
@@ -322,18 +323,16 @@ def _animal_logic(entity):
 		entity['ai']['meta']['is_target_near'] = _target_distance <= 25
 		
 		if not entity['ai']['meta']['in_enemy_los'] and life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']):
-			if not entity['ai']['meta']['is_target_lost']:
-				entity['ai']['meta']['is_target_lost'] = entity['ai']['meta']['is_target_near']
+			entity['ai']['meta']['has_lost_target'] = entity['ai']['meta']['is_target_near']
+		
 		elif entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
 				flags.delete_flag(entity, 'search_nodes')
 			
 			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
-			entity['ai']['meta']['is_target_lost'] = False
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False
-		entity['ai']['meta']['is_target_lost'] = False
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	#entity['ai']['meta']['is_panicked'] = skeleton.has_critical_injury(entity)
@@ -379,6 +378,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['has_container'] = len(items.get_items_matching(entity, {'type': 'container'})) > 0
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len([t for t in entity['ai']['targets'] if not entity['ai']['life_memory'][t]['is_lost']]) > 0
+	entity['ai']['meta']['has_lost_target'] = len(entity['ai']['targets_to_search']) > 0
 	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
 	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
 	entity['ai']['meta']['is_injured'] = skeleton.has_critical_injury(entity)
@@ -394,29 +394,15 @@ def _human_logic(entity):
 		#NOTE: Mirror change in ai_logic!
 		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance
 		
-		if not entity['ai']['meta']['in_enemy_los']:
-			if life.can_see_position(entity, entity['ai']['life_memory'][_target]['last_seen_at']) or _target_distance >= stats.get_vision(entity):
-				entity['ai']['meta']['is_target_lost'] = True
-				entity['ai']['life_memory'][_target]['is_lost'] = True
-		
-		else:
+		if entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
 				flags.delete_flag(entity, 'search_nodes')
 			
 			entity['ai']['meta']['is_in_melee_range'] = _target_distance == 1
-			entity['ai']['meta']['is_target_lost'] = False
 				
 	else:
 		entity['ai']['meta']['is_target_near'] = False
-		entity['ai']['meta']['is_target_lost'] = False
 		entity['ai']['meta']['in_firing_range'] = False
-		
-		#if flags.has_flag(entity, 'fire_data'):
-		#	_fire_data = flags.get_flag(entity, 'fire_data')
-		#	_node = entities.get_entity(zones.get_active_node_grid()[_fire_data['node']])
-		#	
-		#	entities.trigger_event(_node, 'set_flag', flag='owner', value=None)	
-		#	flags.delete_flag(entity, 'fire_data')
 	
 	entity['ai']['meta']['is_target_armed'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['is_armed']]) > 0
 	entity['ai']['meta']['is_panicked'] = (not entity['ai']['meta']['weapon_loaded'] and entity['ai']['meta']['is_target_armed'])
