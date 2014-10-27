@@ -1,7 +1,7 @@
 import entities, events
 
 
-def register(entity, use_system_event=None):
+def register(entity, use_system_event=None, use_entity_event='tick'):
 	entity['timers'] = []
 	
 	entities.create_event(entity, 'create_timer')
@@ -12,7 +12,7 @@ def register(entity, use_system_event=None):
 	if use_system_event:
 		events.register_event(use_system_event, lambda: tick(entity))
 	else:
-		entities.register_event(entity, 'tick', tick)
+		entities.register_event(entity, use_entity_event, tick)
 
 def create_timer(entity, time, name='', repeat=0, callback=None, enter_callback=None, exit_callback=None, delete_callback=None, repeat_callback=None):
 	entity['timers'].append({'callback': callback,

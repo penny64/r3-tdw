@@ -83,8 +83,6 @@ def register(entity, faction):
 	if not faction in FACTIONS:
 		raise Exception('Invalid faction: %s' % faction)
 	
-	entities.create_event(entity, 'new_squad_member')
-	
 	#TODO: Move this to ai_squads at some point
 	entities.register_event(entity, 'delete', cleanup)
 	
