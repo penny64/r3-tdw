@@ -274,6 +274,7 @@ def update_target_memory(entity, target_id, key, value):
 		if key == 'last_seen_at' and not target_id in entity['ai']['targets']:
 			if ai_factions.is_enemy(entity, target_id):
 				entity['ai']['targets'].add(target_id)
+				entity['ai']['life_memory'][target_id]['searched_for'] = False
 
 def set_meta(entity, meta, value):
 	if not meta in entity['ai']['meta']:

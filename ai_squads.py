@@ -29,7 +29,6 @@ def _create_squad(entity):
 	               'coverage_positions': set(),
 	               'known_targets': set(),
 	               'known_squads': set(),
-	               'update_position_maps': False,
 	               'position_map_scores': {},
 	               'meta': {'is_squad_combat_ready': False,
 	                        'is_squad_mobile_ready': False,
@@ -47,9 +46,7 @@ def _create_squad(entity):
 	entities.create_event(_squad, 'update_position_map')
 	entities.create_event(_squad, 'new_squad_member')
 	entities.register_event(_squad, 'raid', handle_raid)
-	entities.register_event(_squad, 'logic', ai_squad_director.update_position_maps)
 	entities.register_event(_squad, 'update_position_map', ai_squad_director.create_position_map)
-	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
 	
 	_faction['squads'][_faction['squad_id']] = _squad['_id']
 	entity['ai']['meta']['is_squad_leader'] = True
@@ -58,15 +55,8 @@ def _create_squad(entity):
 	
 	_faction['squad_id'] += 1
 	
-	entities.create_event(entity, 'squad_inform_raid')
-	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(_squad, target_id=e['_id']))
-	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_group_status(_squad)) #TODO: Needs to be moved to a general area. Are squad members registering this?
 	entities.register_event(_squad, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(_squad, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
-	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
-	entities.register_event(entity, 'target_lost', lambda e, **kwargs: update_combat_risk)
-	entities.register_event(entity, 'target_found', lambda e, **kwargs: update_combat_risk)
-	entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
 	
 	entities.trigger_event(_squad, 'create_timer',
 	                       time=60,
@@ -116,9 +106,17 @@ def register_with_squad(entity, squad_id):
 	
 	_squad['member_position_maps'][entity['_id']] = set()
 	
+	entities.create_event(entity, 'squad_inform_raid')
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
 	entities.register_event(entity, 'position_changed', lambda e, **kwargs: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
+	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(_squad, target_id=e['_id']))
+	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_group_status(_squad)) #TODO: Needs to be moved to a general area. Are squad members registering this?
+	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
+	entities.register_event(entity, 'target_lost', lambda e, **kwargs: update_combat_risk)
+	entities.register_event(entity, 'target_found', lambda e, **kwargs: update_combat_risk)
+	entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
 	
+	entities.trigger_event(_squad, 'new_squad_member', target_id=entity['_id'])
 	entities.trigger_event(entity, 'create_timer', time=1, exit_callback=lambda e: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 
 def get_assigned_squad(entity):
@@ -159,13 +157,6 @@ def assign_to_squad(entity):
 		
 		register_with_squad(entity, _nearest_squad['squad_id'])
 		
-		entities.trigger_event(_squad, 'new_squad_member', target_id=entity['_id'])
-		entities.trigger_event(entity, 'create_timer',
-		                       time=60,
-		                       repeat=-1,
-		                       repeat_callback=lambda e: update_squad_member_snapshot(_squad, target_id=entity['_id']))
-		
-		print 'Let the squad do this?'
 		entities.create_event(entity, 'squad_inform_raid')
 		entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
 		
@@ -200,8 +191,6 @@ def set_squad_meta(entity, meta, value):
 
 def update_group_status(entity):
 	_members_combat_ready = 0
-	
-	print entity
 	
 	for member_id in entity['member_info']:
 		_member = entities.get_entity(member_id)

@@ -150,7 +150,7 @@ def build_life_list(entity):
 			print entity['ai']['life_memory'][t]
 	
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
-	entity['ai']['targets_to_search'] = [t for t in entity['ai']['life_memory'].keys() if entity['ai']['life_memory'][t]['is_lost'] and not entity['ai']['life_memory'][t]['searched_for']]
+	entity['ai']['targets_to_search'] = [t for t in entity['ai']['life_memory'].keys() if entity['ai']['life_memory'][t]['is_lost'] and not entity['ai']['life_memory'][t]['searched_for'] and t in entities.ENTITIES]
 	
 	if _nearest_target['target_id']:
 		if not entity['ai']['nearest_target'] == _nearest_target['target_id']:

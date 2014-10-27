@@ -1,4 +1,4 @@
-from framework import entities, movement, shapes, stats, numbers
+from framework import entities, movement, shapes, stats, numbers, timers
 
 import libtcodpy as tcod
 
@@ -10,7 +10,7 @@ import logging
 import time
 
 
-def create_position_map(squad, member_id):
+def _create_position_map(squad, member_id):
 	_member = entities.get_entity(member_id)
 	_coverage_positions = set()
 	#_solids = zones.get_active_solids({}, no_life=True)
@@ -32,14 +32,6 @@ def create_position_map(squad, member_id):
 	tcod.map_copy(zones.get_active_los_map(), squad['member_los_maps'][member_id])
 	
 	_t = time.time()
-	
-	#for squad_member_id in squad['members']:
-	#	if squad_member_id == member_id:
-	#		continue
-	#	
-	#	_m_x, _m_y = movement.get_position_via_id(squad_member_id)
-	#	
-	#	tcod.map_set_properties(squad['member_los_maps'][member_id], _m_x, _m_y, False, False)
 	
 	tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_2)
 	
@@ -72,20 +64,26 @@ def create_position_map(squad, member_id):
 	squad['coverage_positions'] = squad['coverage_positions'] - _positions_to_remove
 	
 	if squad['known_targets']:
-		squad['update_position_maps'] = True
+		if not timers.has_timer_with_name(squad, 'update_position_maps'):
+			entities.trigger_event(squad, 'create_timer', time=30, exit_callback=update_position_maps, name='update_position_maps')
 		
 		logging.debug('Updated local position map - requesting squad update')
+	
 	else:
 		logging.debug('Updated local position map.')
 	
 	#print time.time()-_t
 
-def update_position_maps(squad):
-	if not squad['update_position_maps']:
+def create_position_map(squad, member_id):
+	_member = entities.get_entity(member_id)
+	
+	if timers.has_timer_with_name(_member, 'create_position_maps'):
 		return
 	
+	entities.trigger_event(_member, 'create_timer', time=30, exit_callback=lambda e: _create_position_map(squad, member_id), name='create_position_maps')
+
+def update_position_maps(squad):
 	_t = time.time()
-	squad['update_position_maps'] = False
 	
 	_coverage_positions = squad['coverage_positions']
 	_known_targets = squad['known_targets']
@@ -140,8 +138,6 @@ def update_position_maps(squad):
 				_score_map[pos]['danger'] = 60 - _distance
 	
 	squad['position_map_scores'] = _score_map
-	
-	#print time.time()-_t
 
 def build_push_map(squad):
 	for member_id in squad['members']:
