@@ -111,6 +111,9 @@ def cleanup(entity):
 	
 	if entity['_id'] in _squad['member_info']:
 		del _squad['member_info'][entity['_id']]
+	
+	if not _squad['members']:
+		entities.delete_entity(_squad)
 
 def _faction_is_enemy(entity, target_id):
 	return entities.get_entity(target_id)['ai']['faction'] in entity['enemies']

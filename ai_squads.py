@@ -108,7 +108,7 @@ def register_with_squad(entity, squad_id):
 	
 	entities.create_event(entity, 'squad_inform_raid')
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
-	entities.register_event(entity, 'position_changed', lambda e, **kwargs: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
+	entities.register_event(entity, 'position_changed', lambda e, **kwargs: _squad['_id'] in entities.ENTITIES and entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(_squad, target_id=e['_id']))
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_group_status(_squad)) #TODO: Needs to be moved to a general area. Are squad members registering this?
 	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
@@ -123,11 +123,13 @@ def register_with_squad(entity, squad_id):
 	entities.trigger_event(entity, 'create_timer', time=1, exit_callback=lambda e: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 
 def remove_member(squad, member_id):
-	if member_id in squad['members']:
-		squad['members'].remove(member_id)
+	pass
+	#TODO: This is done elsewhere
+	#if member_id in squad['members']:
+	#	squad['members'].remove(member_id)
 	
-	if not squad['members']:
-		entities.delete_entity(squad)
+	#if not squad['members']:
+	#	entities.delete_entity(squad)
 
 def get_assigned_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]
