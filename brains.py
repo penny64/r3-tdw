@@ -117,7 +117,7 @@ def panic():
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
-	_brain.set_goal_state(is_panicked=False)
+	_brain.set_goal_state(in_enemy_los=False)
 
 	_actions.add_condition('flee', is_panicked=True, in_engagement=True, in_enemy_los=True)
 	_actions.add_callback('flee', lambda entity: ai_logic.find_cover(entity))
