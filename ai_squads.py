@@ -210,12 +210,15 @@ def update_group_status(entity):
 		if _member['ai']['meta']['has_needs'] and not _member['ai']['meta']['weapon_loaded']:
 			continue
 		
-		if _member['ai']['meta']['is_injured']:
+		if _member['ai']['meta']['is_injured'] or _member['ai']['meta']['is_panicked']:
+			continue
+		
+		if timers.has_timer_with_name(_member, 'passout'):
 			continue
 		
 		_members_combat_ready += entity['member_info'][member_id]['armed']
 	
-	set_squad_meta(entity, 'is_squad_combat_ready', _members_combat_ready / float(len(entity['member_info'].keys())) >= .5)
+	set_squad_meta(entity, 'is_squad_combat_ready', _members_combat_ready / float(len(entity['member_info'].keys())) >= .65)
 	set_squad_meta(entity, 'is_squad_mobile_ready', _members_combat_ready / float(len(entity['member_info'].keys())) >= .65)
 
 def update_combat_risk(entity):

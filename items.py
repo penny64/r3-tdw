@@ -252,7 +252,7 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
-	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=3)
 	entities.register_event(_entity, 'get_display_name', _handle_weapon_display_name)
 	
 	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,

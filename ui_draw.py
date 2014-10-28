@@ -89,6 +89,9 @@ def draw_life_memory():
 	_draw_life = list(PLAYER['ai']['targets'] - PLAYER['ai']['visible_life'])
 
 	for entity_id in _draw_life:
+		if PLAYER['ai']['life_memory'][entity_id]['can_see']:
+			continue
+		
 		_entity = entities.get_entity(entity_id)
 		_x, _y = PLAYER['ai']['life_memory'][entity_id]['last_seen_at']
 		_x -= _camera_x

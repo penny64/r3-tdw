@@ -113,7 +113,7 @@ def search_for_target():
 	return _brain
 
 def panic():
-	_brain = goapy.Planner('is_panicked', 'is_injured', 'in_engagement', 'is_target_near', 'in_enemy_los')
+	_brain = goapy.Planner('is_panicked', 'is_injured', 'in_engagement', 'is_target_near', 'in_enemy_los', 'is_squad_combat_ready')
 	_actions = goapy.Action_List()
 
 	_brain.set_action_list(_actions)
@@ -126,6 +126,10 @@ def panic():
 	_actions.add_condition('flee_injury', is_injured=True, in_engagement=True, in_enemy_los=True)
 	_actions.add_callback('flee_injury', lambda entity: ai_logic.find_cover(entity))
 	_actions.add_reaction('flee_injury', is_injured=False, in_enemy_los=False)
+	
+	_actions.add_condition('retreat', is_squad_combat_ready=False, in_engagement=True, in_enemy_los=True)
+	_actions.add_callback('retreat', lambda entity: ai_logic.find_cover(entity))
+	_actions.add_reaction('retreat', in_enemy_los=False)
 
 	return _brain
 
