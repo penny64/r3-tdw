@@ -115,9 +115,19 @@ def register_with_squad(entity, squad_id):
 	entities.register_event(entity, 'target_lost', lambda e, **kwargs: update_combat_risk)
 	entities.register_event(entity, 'target_found', lambda e, **kwargs: update_combat_risk)
 	entities.register_event(entity, 'squad_inform_raid', ai_squad_logic.member_learn_raid)
+	entities.register_event(entity,
+	                        'killed_by',
+	                        lambda e, target_id, **kwargs: remove_member(_squad, entity['_id']))
 	
 	entities.trigger_event(_squad, 'new_squad_member', target_id=entity['_id'])
 	entities.trigger_event(entity, 'create_timer', time=1, exit_callback=lambda e: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
+
+def remove_member(squad, member_id):
+	if member_id in squad['members']:
+		squad['members'].remove(member_id)
+	
+	if not squad['members']:
+		entities.delete_entity(squad)
 
 def get_assigned_squad(entity):
 	_faction = FACTIONS[entity['ai']['faction']]

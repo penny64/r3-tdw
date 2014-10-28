@@ -312,7 +312,7 @@ def _animal_logic(entity):
 	_old_meta = entity['ai']['meta'].copy()
 	
 	entity['ai']['meta']['in_engagement'] = len(entity['ai']['targets']) > 0
-	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['in_los']]) > 0
 	
 	if not entity['ai']['meta'] == _old_meta:
 		entities.trigger_event(entity, 'meta_change')
@@ -380,7 +380,7 @@ def _human_logic(entity):
 	entity['ai']['meta']['weapon_loaded'] = len([w for w in items.get_items_in_holder(entity, 'weapon') if entities.get_entity(w)['flags']['ammo']['value'] > 0]) > 0
 	entity['ai']['meta']['in_engagement'] = len([t for t in entity['ai']['targets'] if not entity['ai']['life_memory'][t]['is_lost']]) > 0
 	entity['ai']['meta']['has_lost_target'] = len(entity['ai']['targets_to_search']) > 0
-	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['can_see']]) > 0
+	entity['ai']['meta']['in_enemy_los'] = len([t for t in entity['ai']['targets'] if entity['ai']['life_memory'][t]['in_los']]) > 0
 	entity['ai']['meta']['has_needs'] = not entity['ai']['meta']['has_weapon'] or not entity['ai']['meta']['has_container'] or not entity['ai']['meta']['weapon_loaded']
 	entity['ai']['meta']['is_injured'] = skeleton.has_critical_injury(entity)
 	

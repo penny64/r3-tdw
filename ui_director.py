@@ -7,6 +7,7 @@ import sys
 
 DIRECTOR = False
 HAS_FOCUS = None
+PAUSE = False
 
 
 def boot():
@@ -26,26 +27,29 @@ def handle_keyboard_input():
 	
 	#lose_focus()
 
-def focus_on_entity(entity, target_id):
-	global HAS_FOCUS
+def focus_on_entity(entity, target_id, show_line=False, pause=False):
+	global HAS_FOCUS, PAUSE
 	
 	if HAS_FOCUS or '--no-fx' in sys.argv:
 		return
 	
 	HAS_FOCUS = target_id
+	PAUSE = pause
 	
 	_entity = ui_dialog.create(18, 7, 'Enemy spotted!')
 	
 	entities.register_event(_entity, 'delete', lambda e: lose_focus())
 	entities.trigger_event(DIRECTOR, 'create_timer', time=120, exit_callback=lambda e: ui_dialog.delete(_entity))
 	
-	for x, y in shapes.line(movement.get_position(entity), movement.get_position_via_id(target_id)):
-		effects.vapor(x, y, group='effects_freetick', start_alpha=1.0, fade_rate=.01)
+	if show_line:
+		for x, y in shapes.line(movement.get_position(entity), movement.get_position_via_id(target_id)):
+			effects.vapor(x, y, group='effects_freetick', start_alpha=1.0, fade_rate=.01)
 
 def lose_focus():
-	global HAS_FOCUS
+	global HAS_FOCUS, PAUSE
 	
 	HAS_FOCUS = None
+	PAUSE = False
 
 def draw():
 	_entity = entities.get_entity(HAS_FOCUS)

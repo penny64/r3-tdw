@@ -104,8 +104,11 @@ def draw_life_memory():
 			_char = '!'
 			_fore_color = (255, 0, 0)
 		
-		_render_x = numbers.clip(_x - len(_char)/2, 0, _width - len(_char))
-		_render_y = numbers.clip(_y - 2, 0, _height)
+		_render_x = numbers.clip(_x - len(_char)/2, 0, _width - len(_char) - 1)
+		_render_y = numbers.clip(_y, 0, _height)
+		
+		#if _x - len(_char)/2 < 0 or _x + len(_char)/2 >= _width:
+		#	continue
 		
 		if _render_y == _y:
 			_render_y += 2

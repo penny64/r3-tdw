@@ -289,17 +289,24 @@ def create_life_memory(entity, target_id):
 	                                          'is_target': False,
 	                                          'is_armed': False,
 	                                          'is_lost': False,
+	                                          'in_los': False,
 	                                          'searched_for': False,
 	                                          'can_see': False,
 	                                          'last_seen_at': None,
 	                                          'last_seen_velocity': None,
 	                                          'is_dead': False,
+	                                          'seen_time': 0,
 	                                          'mission_related': False}
 
 def _handle_new_target(entity, target_id):
 	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
-		settings.set_tick_mode('strategy')
-		ui_director.focus_on_entity(entity, target_id)
+		_can_see = target_id in [e for e in entity['ai']['life_memory'] if entity['ai']['life_memory'][e]['in_los']]
+		
+		if _can_see:
+			settings.set_tick_mode('strategy')
+		
+		if entity['ai']['life_memory'][target_id]['seen_time'] == 1:
+			ui_director.focus_on_entity(entity, target_id, show_line=_can_see, pause=_can_see)
 
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):

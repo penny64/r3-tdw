@@ -54,6 +54,10 @@ def build_life_list(entity):
 	_solids = zones.get_active_solids(entity)
 	_visible_life = set()
 	_vision = stats.get_vision(entity)
+	_visible_by_friendlies = [entities.get_entity(e)['ai']['visible_targets'] for e in entity['ai']['life_memory'] if not entity['ai']['life_memory'][e]['is_target'] and e in entities.ENTITIES]
+	
+	#Warning: Makes AI super smart
+	_visible_by_friendlies = [item for sublist in _visible_by_friendlies for item in sublist]
 	
 	for entity_id in entities.get_entity_group('life'):
 		if entity['_id'] == entity_id:
@@ -66,14 +70,25 @@ def build_life_list(entity):
 		
 		if not ai_factions.is_enemy(entity, entity_id):
 			_visible = True
+		
 		else:
 			if numbers.distance(movement.get_position(entity), movement.get_position(_target)) > _vision:
 				if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
 					entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 				
-				entity['ai']['life_memory'][entity_id]['can_see'] = False
-				
-				_visible = False
+				if entity_id in _visible_by_friendlies:
+					entity['ai']['life_memory'][entity_id]['in_los'] = False
+					entity['ai']['life_memory'][entity_id]['can_see'] = True
+					
+					_visible = True
+				else:
+					entity['ai']['life_memory'][entity_id]['can_see'] = False
+					entity['ai']['life_memory'][entity_id]['in_los'] = False
+					
+					if entity_id in entity['ai']['visible_life']:
+						entity['ai']['visible_life'].remove(entity_id)
+					
+					_visible = False
 				
 			else:
 				for pos in shapes.line(movement.get_position(entity), movement.get_position(_target)):
@@ -81,22 +96,56 @@ def build_life_list(entity):
 						if entity['ai']['life_memory'][entity_id]['can_see'] and ai_factions.is_enemy(entity, _target['_id']):
 							entities.trigger_event(entity, 'target_lost', target_id=entity_id)
 						
-						entity['ai']['life_memory'][entity_id]['can_see'] = False
+						if entity_id in _visible_by_friendlies:
+							entity['ai']['life_memory'][entity_id]['in_los'] = False
+							entity['ai']['life_memory'][entity_id]['can_see'] = True
+							
+							_visible = True
 						
-						if entity_id in entity['ai']['visible_life']:
-							entity['ai']['visible_life'].remove(entity_id)
-						
-						_visible = False
+						else:
+							entity['ai']['life_memory'][entity_id]['can_see'] = False
+							entity['ai']['life_memory'][entity_id]['in_los'] = False
+							
+							if entity_id in entity['ai']['visible_life']:
+								entity['ai']['visible_life'].remove(entity_id)
+							
+							_visible = False
 						
 						break
 				else:
+					entity['ai']['life_memory'][entity_id]['in_los'] = True
 					_visible = True
+		
+		if not _visible and entity['ai']['life_memory'][entity_id]['seen_time'] > 0:
+			_visible = True
+			
+			entity['ai']['life_memory'][entity_id]['in_los'] = False
+			entity['ai']['life_memory'][entity_id]['can_see'] = True
+			
+			entity['ai']['life_memory'][entity_id]['seen_time'] -= 1
+			
+			if entity_id in entity['ai']['visible_life']:
+				entity['ai']['visible_life'].remove(entity_id)
+		
+		elif not _visible and entity_id in entity['ai']['visible_life']:
+			entity['ai']['visible_life'].remove(entity_id)
 		
 		if _visible:
 			_previous_last_seen_at = entity['ai']['life_memory'][entity_id]['last_seen_at']
 			_target_position = movement.get_position(_target)[:]
 			
 			entity['ai']['life_memory'][entity_id]['is_lost'] = False
+			
+			if entity['ai']['life_memory'][entity_id]['in_los']:
+				if entity['ai']['life_memory'][entity_id]['seen_time'] < 30:
+					entity['ai']['life_memory'][entity_id]['seen_time'] += 1
+			
+			else:
+				entity['ai']['life_memory'][entity_id]['seen_time'] -= 1
+				
+				if entity['ai']['life_memory'][entity_id]['seen_time'] < 0 and entity_id in entity['ai']['visible_life']:
+					entity['ai']['visible_life'].remove(entity_id)
+					entity['ai']['life_memory'][entity_id]['in_los'] = False
 			
 			if movement.get_position(_target) == _previous_last_seen_at:
 				_new_last_seen_at = _previous_last_seen_at
@@ -116,7 +165,8 @@ def build_life_list(entity):
 			if not entity_id in entity['ai']['visible_life']:
 				entities.trigger_event(entity, 'new_target_spotted', target_id=entity_id)
 			
-			entity['ai']['visible_life'].add(entity_id)
+			if entity['ai']['life_memory'][entity_id]['in_los']:
+				entity['ai']['visible_life'].add(entity_id)
 			
 			if _is_target:
 				entity['ai']['targets'].add(entity_id)

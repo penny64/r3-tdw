@@ -196,7 +196,7 @@ def loop():
 	
 	events.trigger_event('input')
 
-	if not settings.TICK_MODE == 'strategy' and not (ui_dialog.ACTIVE_DIALOG or ui_menu.ACTIVE_MENU or ui_director.HAS_FOCUS):
+	if not settings.TICK_MODE == 'strategy' and not ((ui_dialog.ACTIVE_DIALOG and ui_director.PAUSE) or ui_menu.ACTIVE_MENU or ui_director.PAUSE):
 		_has_action = False
 		_check_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
 		_check_life.append(PLAYER['_id'])
