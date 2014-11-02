@@ -4,6 +4,8 @@ import ai_squad_logic
 import ai_factions
 import ai_debugger
 import ai_visuals
+import ai_squads
+import ai_flow
 import skeleton
 import settings
 import brains
@@ -368,6 +370,12 @@ def _human_logic(entity):
 	_t = time.time()
 	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
+	
+	if ai_flow.is_flow_active() and not ai_flow.can_act(entity):
+		return
+	
+	#if not ai_squads.is_active(ai_squads.get_assigned_squad(entity)) or entity['stats']['action_points'] <= 0:
+	#	return
 	
 	_old_meta = entity['ai']['meta'].copy()
 	

@@ -1,6 +1,9 @@
 from framework import movement, entities, numbers, shapes, stats
 
 import ai_factions
+import ai_squads
+import ai_flow
+import settings
 import mapgen
 import zones
 import items
@@ -167,6 +170,9 @@ def build_life_list(entity):
 			
 			if entity['ai']['life_memory'][entity_id]['in_los']:
 				entity['ai']['visible_life'].add(entity_id)
+				
+				if _is_target:
+					ai_flow.register_combat(entity, entity_id)
 			
 			if _is_target:
 				entity['ai']['targets'].add(entity_id)
@@ -195,9 +201,10 @@ def build_life_list(entity):
 			if _could_not_see_target_before:
 				entities.trigger_event(entity, 'target_found', target_id=entity_id)
 	
-	for t in entity['ai']['life_memory']:
-		if not 'is_lost' in entity['ai']['life_memory'][t]:
-			print entity['ai']['life_memory'][t]
+	#TODO: What?
+	#for t in entity['ai']['life_memory']:
+	#	if not 'is_lost' in entity['ai']['life_memory'][t]:
+	#		print entity['ai']['life_memory'][t]
 	
 	entity['ai']['visible_targets'] = list(entity['ai']['visible_life'] & entity['ai']['targets'])
 	entity['ai']['targets_to_search'] = [t for t in entity['ai']['life_memory'].keys() if entity['ai']['life_memory'][t]['is_lost'] and not entity['ai']['life_memory'][t]['searched_for'] and t in entities.ENTITIES]

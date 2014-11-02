@@ -5,6 +5,7 @@ from ai_factions import FACTIONS
 import ai_squad_director
 import ai_squad_logic
 import constants
+import settings
 
 import logging
 

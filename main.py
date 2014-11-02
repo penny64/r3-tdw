@@ -6,6 +6,7 @@ import post_processing
 import ai_factions
 import ai_visuals
 import ai_squads
+import ai_flow
 import constants
 import settings
 import ui_director
@@ -78,8 +79,16 @@ def handle_mouse_pressed(x, y, button):
 			camera.set_pos(_c_x, _c_y)
 
 def tick():
+	print settings.TURN_QUEUE
+	ai_flow.logic()
+	
 	for entity_id in entities.get_entity_group('life'):
-		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+		_entity = entities.get_entity(entity_id)
+		
+		if not ai_flow.is_flow_active() or ai_flow.can_act(_entity):
+			entities.trigger_event(_entity, 'tick')
+			
+			_entity['stats']['action_points'] -= 1#stats.get_speed(_entity)
 
 	for i in range(16):
 		for entity_id in entities.get_entity_group('bullets'):
@@ -257,6 +266,7 @@ def main():
 
 	ai_factions.boot()
 	ai_squads.boot()
+	ai_flow.boot()
 	missions.boot()
 
 	#PLAYER = life.human(210, 210, 'Tester Toaster')

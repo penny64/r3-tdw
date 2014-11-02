@@ -275,10 +275,16 @@ def _message_delete(entity):
 	
 	MESSAGES_ACTIVE -= 1
 
-def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10)):
+def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10), time=-1):
 	global MESSAGES_ACTIVE
 	
 	_entity = entities.create_entity(group='ui_effects_freetick')
+	
+	if time == -1:
+		_time = 30 * constants.SHOW_MESSAGES_FOR
+	
+	else:
+		_time = time
 	
 	timers.register(_entity, use_system_event='draw')
 	flags.register(_entity)
@@ -286,7 +292,7 @@ def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10)):
 	entities.create_event(_entity, 'draw')
 	entities.register_event(_entity, 'draw', _message_draw)
 	entities.register_event(_entity, 'delete', _message_delete)
-	entities.trigger_event(_entity, 'create_timer', time=30 * constants.SHOW_MESSAGES_FOR, exit_callback=entities.delete_entity)
+	entities.trigger_event(_entity, 'create_timer', time=_time, exit_callback=entities.delete_entity)
 	entities.trigger_event(_entity, 'set_flag', flag='text', value=text)
 	entities.trigger_event(_entity, 'set_flag', flag='index', value=MESSAGES_ACTIVE)
 	

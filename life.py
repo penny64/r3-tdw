@@ -2,6 +2,8 @@ from framework import entities, tile, timers, movement, stats, flags, numbers, s
 
 import ai_factions
 import ai_visuals
+import ai_squads
+import ai_flow
 import ui_director
 import ui_dialog
 import ui_menu
@@ -216,6 +218,8 @@ def human(x, y, name):
 	
 	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
 	
+	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_player_start_of_turn(_entity, squad_id))
+	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
 	return _entity
@@ -342,6 +346,30 @@ def handle_player_received_memory(entity, memory, message, member_id):
 	
 	ui_menu.add_selectable(_m, 'Bribe', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
 	ui_menu.add_selectable(_m, 'Leave', lambda: 1==1 and ui_dialog.delete(ui_dialog.ACTIVE_DIALOG))
+
+def handle_player_start_of_turn(entity, squad_id):
+	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
+		settings.set_tick_mode('strategy')
+		
+		print 'Start of turn'
+		
+		return False
+	
+	_squad = entities.get_entity(squad_id)
+	
+	if not ai_factions.is_enemy(entity, _squad['leader']):
+		if _squad['meta']['is_squad_combat_ready']:
+			_message = random.choice(['Locked and loaded.',
+			                          'Nuke \'em!',
+			                          'No mercy, boys...'])
+		
+		elif _squad['meta']['is_squad_overwhelmed']:
+			_message = random.choice(['We\'re outnumbered!'])
+			
+		else:
+			return
+		
+		effects.message(_message, time=70)
 
 def can_see_position(entity, position):
 	_solids = zones.get_active_solids(entity)

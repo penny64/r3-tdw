@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unknown', kind='unknown'):
+def register(entity, health, speed, vision, respect=1, accuracy=1.0, action_points=100, name='Unknown', kind='unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
@@ -13,6 +13,8 @@ def register(entity, health, speed, vision, respect=1, accuracy=1.0, name='Unkno
 	          'max_accuracy': accuracy,
 	          'vision': vision,
 	          'max_vision': vision,
+	          'action_points': action_points,
+	          'action_points_max': action_points,
 	          'name': name,
 	          'kind': kind,
 	          'last_engaged': None,
@@ -73,6 +75,9 @@ def add_respect(entity, target_id):
 		_target_respect *= 1 - numbers.clip((_respect - _target_respect) / 10.0, 0, 1)
 	
 	entities.trigger_event(entity, 'set_respect', respect = entity['stats']['respect'] + int(round(_target_respect)))
+
+def get_action_points(entity):
+	return entity['stats']['action_points']
 
 def get_vision(entity):
 	entity['stats']['vision'] = entity['stats']['max_vision']
