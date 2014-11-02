@@ -88,7 +88,7 @@ def tick():
 		if not ai_flow.is_flow_active() or ai_flow.can_act(_entity):
 			entities.trigger_event(_entity, 'tick')
 			
-			_entity['stats']['action_points'] -= 1#stats.get_speed(_entity)
+			_entity['stats']['action_points'] -= .5#stats.get_speed(_entity)
 
 	for i in range(16):
 		for entity_id in entities.get_entity_group('bullets'):
@@ -168,6 +168,7 @@ def draw():
 	ui_draw.draw_life_memory()
 	ui_draw.draw_node_path(PLAYER)
 	ui_draw.draw_mission_details()
+	ui_draw.draw_turn_bar()
 
 	if '--fps' in sys.argv:
 		ui_draw.draw_fps()

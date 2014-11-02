@@ -1,5 +1,8 @@
 from framework import display, entities, movement, numbers, flags
 
+import ai_factions
+import ai_squads
+import ai_flow
 import constants
 import settings
 import camera
@@ -78,6 +81,36 @@ def draw_mission_details():
 			display.write_string('ui', 1, _y_mod, _text, fore_color=_fore_color, back_color=(30, 30, 30))
 			
 			_y_mod += 1
+
+def draw_turn_bar():
+	if not ai_flow.is_flow_active():
+		return
+	
+	_squad = entities.get_entity(ai_flow.get_active_squad())
+	_current_action_points = sum([entities.get_entity(m)['stats']['action_points'] for m in _squad['members']])
+	_max_action_points = sum([entities.get_entity(m)['stats']['action_points_max'] for m in _squad['members']])
+	_mod = _current_action_points / float(_max_action_points)
+	_filled_value = int(round(constants.MAP_VIEW_WIDTH * _mod))
+	
+	if ai_squads.get_assigned_squad(PLAYER)['_id'] == _squad['_id']:
+		_message = ' Your Turn'
+		_fore_color = (0, 200, 0)
+		_back_color = (0, 50, 0)
+	
+	elif ai_factions.is_enemy(PLAYER, _squad['leader']):
+		_message = ' Enemy Turn'
+		_fore_color = (200, 0, 0)
+		_back_color = (50, 0, 0)
+	
+	else:
+		_message = ' Friendly Turn'
+		_fore_color = (0, 200, 200)
+		_back_color = (0, 50, 50)
+	
+	_n = len(_message)
+	_string = _message + ('=' * (_filled_value-_n)) + (' ' * ((constants.MAP_VIEW_WIDTH-_filled_value-1)))
+	
+	display.write_string('ui', 0, 0, _string[:constants.MAP_VIEW_WIDTH], fore_color=_fore_color, back_color=_back_color)
 
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))

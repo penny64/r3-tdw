@@ -364,7 +364,8 @@ def handle_player_start_of_turn(entity, squad_id):
 			                          'No mercy, boys...'])
 		
 		elif _squad['meta']['is_squad_overwhelmed']:
-			_message = random.choice(['We\'re outnumbered!'])
+			_message = random.choice(['We\'re outnumbered!',
+			                          'Fall back!'])
 			
 		else:
 			return
