@@ -1,3 +1,22 @@
+#Mon Nov  3 2014
+
+Took a decent break after I wrapped up the big squad changes last week and came
+back highly aware of how weird the game felt in real-time. I'd dismissed the
+concern that it wasn't panning out (i.e., a design flaw) and placed blame on
+performance and a few visual problems, but I finally determined it was time to
+give turn-based gameplay a shot; I took inspiration directly from JA2, and now
+squads move one at a time. A few UI changes brought the new system into place
+and it quickly became apparent this was how the game was meant to be
+experienced. I have noticed that some of the features meant to help describe
+what's going on to the player are a bit out of place now, so I'll need to
+repurpose some in order to be useful again.
+
+So now there will be a bit of a hiatus while I return to the design again and
+see how I can best utilize the new "flow" of gameplay. There's some amazing
+performance-related changes I can make that will practically eliminate all the
+bottlenecks I was working around before, some of which I'll work out in the
+morning.
+
 #Fri Oct 24 2014
 
 I've worked out most of the old node graph logic, and once the search algos are
@@ -55,7 +74,7 @@ still be doing mission-related things. I like that- in order to move the whole
 feature along I have to work on each part of it first, and they're all rapidly
 different.
 
-#Thu Oct 2  2014
+#Thu Oct  2 2014
 
 So many changes recently that I've lost count, but Trello reveals that I've gone
 a long way in a week. Unfortunate that I can't always keep this pace, but what's
