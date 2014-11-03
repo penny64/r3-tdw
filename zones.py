@@ -58,7 +58,7 @@ def activate(zone_id):
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
-	post_processing.run(time=8,
+	'''post_processing.run(time=8,
                         repeat=-1,
                         repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
                                                                                       constants.MAP_VIEW_HEIGHT,
@@ -70,7 +70,7 @@ def activate(zone_id):
 	                    repeat_callback=lambda _: post_processing.post_process_lights())
 	#post_processing.run(time=0,
 	#                    repeat=-1,
-	#                    repeat_callback=lambda _: post_processing.sunlight())
+	#                    repeat_callback=lambda _: post_processing.sunlight())'''
 	
 	camera.set_limits(0, 0, _zone['width']-constants.MAP_VIEW_WIDTH, _zone['height']-constants.MAP_VIEW_HEIGHT)
 	

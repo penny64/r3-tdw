@@ -29,7 +29,7 @@ def register(entity):
 	entities.create_event(entity, 'create_holder')
 	entities.register_event(entity, 'create_holder', add_holder)
 
-def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255, 255, 255)):
+def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255, 255, 255), kind=None):
 	_entity = entities.create_entity(group='items')
 	
 	_entity['stats'] = {'name': name,
@@ -37,6 +37,7 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	                    'type': item_type,
 	                    'weight': weight,
 	                    'owner': None,
+	                    'kind': kind,
 	                    'equip_to': equip_to,
 	                    'in_container': None}
 	
@@ -248,7 +249,7 @@ def leather_backpack(x, y):
 	return create_container(x, y, 'Leather Backpack', 'H', 4, 14, equip_to='backpack')
 
 def glock(x, y, ammo=0):
-	_entity = _create(x, y, 'Glock', 'P', 4, 'weapon', equip_to='weapon')
+	_entity = _create(x, y, 'Glock', 'P', 4, 'weapon', equip_to='weapon', kind='pistol')
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)

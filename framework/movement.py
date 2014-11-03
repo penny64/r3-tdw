@@ -237,4 +237,4 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		entity['movement']['path']['destination'] = None
 
-	push(entity, x=_d_x, y=_d_y, name='Move', time=2)
+	push(entity, x=_d_x, y=_d_y, name='Move', time=int(round(1.75 * (2-(entity['stats']['mobility']/100.0)))))
