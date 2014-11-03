@@ -79,7 +79,6 @@ def handle_mouse_pressed(x, y, button):
 			camera.set_pos(_c_x, _c_y)
 
 def tick():
-	print settings.TURN_QUEUE
 	ai_flow.logic()
 	
 	for entity_id in entities.get_entity_group('life'):
@@ -88,7 +87,7 @@ def tick():
 		if not ai_flow.is_flow_active() or ai_flow.can_act(_entity):
 			entities.trigger_event(_entity, 'tick')
 			
-			_entity['stats']['action_points'] -= .5#stats.get_speed(_entity)
+			_entity['stats']['action_points'] -= 1.25
 
 	for i in range(16):
 		for entity_id in entities.get_entity_group('bullets'):
