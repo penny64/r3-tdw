@@ -227,7 +227,7 @@ def loop():
 		#	_ticks_per_tick = 1
 
 		for _ in range(_ticks_per_tick):
-			if timers.has_timer_with_name(PLAYER, 'shoot'):
+			if PLAYER['timers']:
 				PLAYER_HAS_SHOOT_TIMER = True
 			
 			else:

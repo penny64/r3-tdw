@@ -306,8 +306,8 @@ def _handle_new_target(entity, target_id):
 	if ai_factions.is_enemy(entity, target_id) and not len(entity['ai']['targets'] & entity['ai']['visible_life']):
 		_can_see = target_id in [e for e in entity['ai']['life_memory'] if entity['ai']['life_memory'][e]['in_los']]
 		
-		if _can_see:
-			settings.set_tick_mode('strategy')
+		#if _can_see:
+		#	settings.set_tick_mode('strategy')
 		
 		if entity['ai']['life_memory'][target_id]['seen_time'] == 1:
 			ui_director.focus_on_entity(entity, target_id, show_line=_can_see, pause=_can_see)
@@ -483,6 +483,8 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                key='last_seen_at',
 	                                                                value=[x, y]),
 	                       context_callback=lambda x, y: ui_dialog.create(x, y, 'Gunshot (Unknown)', title='Noise'))
+
+	entity['stats']['action_points'] -= 25
 
 	entities.trigger_event(entity, 'get_accuracy')
 	_accuracy = stats.get_accuracy(entity, weapon_id)

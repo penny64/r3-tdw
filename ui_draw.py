@@ -93,17 +93,17 @@ def draw_turn_bar():
 	_filled_value = int(round(constants.MAP_VIEW_WIDTH * _mod))
 	
 	if ai_squads.get_assigned_squad(PLAYER)['_id'] == _squad['_id']:
-		_message = ' Your Turn'
+		_message = 'Action points: %s' % _current_action_points
 		_fore_color = (0, 200, 0)
 		_back_color = (0, 50, 0)
 	
 	elif ai_factions.is_enemy(PLAYER, _squad['leader']):
-		_message = ' Enemy Turn'
+		_message = 'Enemy'
 		_fore_color = (200, 0, 0)
 		_back_color = (50, 0, 0)
 	
 	else:
-		_message = ' Friendly Turn'
+		_message = 'Friendly'
 		_fore_color = (0, 200, 200)
 		_back_color = (0, 50, 50)
 	

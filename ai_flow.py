@@ -28,6 +28,9 @@ def get_active_squad():
 def can_act(entity):
 	_squad = ai_squads.get_assigned_squad(entity)['_id']
 	
+	if not _squad in FIGHTING_SQUADS:
+		return True
+	
 	if _squad in settings.TURN_QUEUE:
 		return _squad == get_active_squad() and entity['stats']['action_points'] > 0
 	

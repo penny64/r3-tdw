@@ -88,10 +88,10 @@ def handle_pain(entity, limb, damage):
 	
 	entity['stats']['pain'] += _pain
 	
-	if _pain > 40 and not timers.has_timer_with_name(entity, 'passout'):
+	if _pain > 65 and not timers.has_timer_with_name(entity, 'passout'):
 		entities.trigger_event(entity, 'stop')
 		entities.trigger_event(entity, 'clear_timers')
-		entities.trigger_event(entity, 'create_timer', time=(_pain-30) * 45, exit_callback=lambda e: entities.trigger_event(e, 'stop_animation'), name='passout')
+		entities.trigger_event(entity, 'create_timer', time=(_pain-65) * 6, exit_callback=lambda e: entities.trigger_event(e, 'stop_animation'), name='passout')
 		entities.trigger_event(entity, 'animate', animation=['s', '@@'], repeat=-1)
 
 def tick(entity):
