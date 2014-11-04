@@ -3,6 +3,7 @@ from framework import display, entities, movement, numbers, flags
 import ai_factions
 import ai_squads
 import ai_flow
+import ui_squad_control
 import constants
 import settings
 import camera
@@ -265,35 +266,32 @@ def draw_item_labels():
 		
 		display.write_string('ui', _render_x, _render_y, _label)
 
-def draw_node_path(entity):
-	_labels = {}
-	_camera_x, _camera_y = camera.X, camera.Y
+def draw_walk_path():
+	_walk_path = ui_squad_control.WALK_PATH
+	
+	if not _walk_path:
+		return
+	
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
+	_entity = ui_squad_control.get_selected_squad_member()
+	_action_points = _entity['stats']['action_points']
 	
-	for node in entity['node_grid']['nodes'].values():
-		_node = node['node']
-		
-		_x, _y = _node['x'], _node['y']
-		_x -= _camera_x
-		_y -= _camera_y
+	for x, y in _walk_path:
+		_x = x - camera.X
+		_y = y - camera.Y
 		
 		if _x < 0 or _y < 0 or _x >= _width or _y >= _height:
 			continue
 		
-		_label = _node['name']
+		if _action_points < 0:
+			_fore_color = (200, 0, 0)
+			_char = chr(176)
 		
-		if (_x, _y) in _labels:
-			_labels[(_x, _y)] += ' -> '+_label
 		else:
-			_labels[(_x, _y)] = _label
-	
-	for x, y in _labels:
-		_label = _labels[(x, y)]
-		_render_x = numbers.clip(x - len(_label)/2, 0, _width - len(_label))
-		_render_y = numbers.clip(y - 1, 0, _height)
+			_fore_color = (200, 200, 200)
+			_char = chr(177)
 		
-		if _render_y == y:
-			_render_y += 2
-		
-		display.write_string('ui', _render_x, _render_y, _label)
+		display.write_char('nodes', _x, _y, _char, fore_color=_fore_color)
+		_action_points -= constants.IDLE_COST
+		_action_points -= movement.get_move_cost(_entity)

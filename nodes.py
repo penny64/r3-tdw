@@ -39,51 +39,6 @@ def register(entity):
 	entities.register_event(entity, 'draw', draw_path)
 	entities.register_event(entity, 'position_changed', _redraw_first_node)
 
-def handle_keyboard_input(entity):
-	#TODO: Check for multiple movement changes at this location
-	_x, _y = movement.get_position(entity)
-	
-	if controls.get_input_char_pressed('z'):
-		create_action_node(entity,
-	                       _x,
-	                       _y,
-	                       15,
-	                       lambda: create_action_node(entity,
-		                                              _x,
-		                                              _y,
-		                                              30,
-		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='crawl'),
-		                                              name='Crawl'))
-		redraw_path(entity)
-	
-	elif controls.get_input_char_pressed('x'):
-		create_action_node(entity,
-	                       _x,
-	                       _y,
-	                       15,
-	                       lambda: create_action_node(entity,
-		                                              _x,
-		                                              _y,
-		                                              30,
-		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='crouch'),
-		                                              name='Crouch',
-		                                              on_path=False))
-		redraw_path(entity)
-	
-	elif controls.get_input_char_pressed('c'):
-		create_action_node(entity,
-	                       _x,
-	                       _y,
-	                       15,
-	                       lambda: create_action_node(entity,
-		                                              _x,
-		                                              _y,
-		                                              30,
-		                                              lambda: entities.trigger_event(entity, 'set_motion', motion='stand'),
-		                                              name='Stand',
-		                                              on_path=False))
-		redraw_path(entity)
-
 def handle_mouse_movement(entity, x, y, vx, vy):
 	if not DRAGGING_NODE:
 		return
@@ -383,23 +338,6 @@ def create_action_menu(entity, x, y, on_path=False):
 	                                                                   name='Stand',
 	                                                                   on_path=on_path))
 
-def create_life_interact_menu(entity, target_id):
-	if not items.get_items_in_holder(entity, 'weapon'):
-		return
-	
-	_target = entities.get_entity(target_id)
-	_is_enemy = ai_factions.is_enemy(entity, target_id)
-	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-4, title='Context')
-	
-	if not _is_enemy:
-		if _target['missions']['inactive']:
-			ui_menu.add_selectable(_menu, 'Talk', lambda: create_talk_menu(entity, target_id))
-		
-		ui_menu.add_selectable(_menu, 'Inquire', lambda: create_mission_menu(entity, target_id))
-		ui_menu.add_selectable(_menu, 'Trade', lambda: create_mission_menu(entity, target_id))
-	
-	ui_menu.add_selectable(_menu, 'Shoot%s' % (' (Friendly fire)' * (not _is_enemy)), lambda: create_shoot_menu(entity, target_id))
-
 def create_mission_menu(entity, target_id):
 	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Inquire')
 	
@@ -430,26 +368,6 @@ def accept_mission(entity, mission_id):
 	entities.trigger_event(entity, 'add_mission', mission_id=mission_id)
 	
 	ui_dialog.delete(ui_dialog.ACTIVE_DIALOG)
-
-def create_shoot_menu(entity, target_id):
-	_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
-	_menu = ui_menu.create(LAST_CLICKED_POS[0]-camera.X+2, LAST_CLICKED_POS[1]-camera.Y-4, title='Shoot')
-	_accuracy = stats.get_accuracy(entity, _weapon['_id'])
-	_x, _y = movement.get_position(entity)
-	_tx, _ty = movement.get_position_via_id(target_id)
-	_direction = numbers.direction_to((_x, _y), (_tx, _ty))
-	_final_direction = _direction + (_accuracy * numbers.distance((_x, _y), (_tx, _ty)))
-	_spray_accuracy = (100 * (_direction / float(_final_direction)))
-	
-	entities.trigger_event(_weapon, 'get_actions', menu=_menu)
-	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % _spray_accuracy, lambda: create_action_node(entity,
-	                                                                                                _x,
-	                                                                                                _y,
-	                                                                                                5,
-	                                                                                                lambda: entities.trigger_event(entity, 'shoot', target_id=target_id),
-	                                                                                                name='Shoot',
-	                                                                                                on_path=True))
-	ui_menu.add_selectable(_menu, 'Snipe (Acc: %s)' % _accuracy, lambda: _)
 
 def create_item_menu(entity, item, x, y, on_path=False):
 	_menu = ui_menu.create(ui_cursor.CURSOR['tile']['x']+2, ui_cursor.CURSOR['tile']['y']-1, title='Context')

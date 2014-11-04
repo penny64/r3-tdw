@@ -64,14 +64,12 @@ def set_position(entity, x, y):
 def get_position(entity):
 	return int(round(entity['movement']['x'])), int(round(entity['movement']['y']))
 
-def get_exact_position(entity):
-	return entity['movement']['x'], entity['movement']['y']
 
 def get_position_via_id(entity_id):
 	return get_position(entities.get_entity(entity_id))
 
-def get_exact_position_via_id(entity_id):
-	return get_exact_position(entities.get_entity(entity_id))
+def get_move_cost(entity):
+	return int(round(1.75 * (2-(entity['stats']['mobility']/100.0))))
 
 def set_turn_speed(entity, speed):
 	entity['movement']['turn_speed'] = speed
@@ -123,7 +121,12 @@ def push(entity, x, y, time=-1, name='move'):
 	                       'create_timer',
 	                       time=time,
 	                       exit_callback=lambda e: entities.trigger_event(e, 'push', x=x, y=y),
+	                       callback=lambda e: sub_move_cost(e),
 	                       name=name)
+
+def sub_move_cost(entity):
+	if 'stats' in entity:
+		entity['stats']['action_points'] -= get_move_cost(entity)
 
 def _throw(entity, direction, force):
 	entities.trigger_event(entity, 'thrown', force=force)
@@ -237,4 +240,4 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		entity['movement']['path']['destination'] = None
 
-	push(entity, x=_d_x, y=_d_y, name='Move', time=int(round(1.75 * (2-(entity['stats']['mobility']/100.0)))))
+	push(entity, x=_d_x, y=_d_y, name='Move', time=get_move_cost(entity))

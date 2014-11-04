@@ -16,7 +16,7 @@ import logging
 def boot():
 	create_human_faction('Bandits', (4, 4), (4, 6), ['Runners', 'Rogues', 'Wild Dogs'])
 	create_human_faction('Runners', (4, 4), (2, 3), ['Bandits', 'Wild Dogs'])
-	create_human_faction('Rogues', (1, 1), (1, 1), ['Bandits', 'Wild Dogs'])
+	create_human_faction('Rogues', (4, 4), (1, 1), ['Bandits', 'Wild Dogs'])
 	create_dog_faction('Wild Dogs', (2, 4), (0, 0), ['Bandits', 'Runners', 'Rogues'])
 	
 	events.register_event('logic', logic)

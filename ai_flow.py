@@ -1,6 +1,8 @@
-from framework import entities
+from framework import entities, timers
 
+import ui_squad_control
 import ai_squads
+import constants
 
 import settings
 
@@ -83,3 +85,35 @@ def logic():
 					_entity = entities.get_entity(entity_id)
 					
 					_entity['stats']['action_points'] = _entity['stats']['action_points_max']
+	
+	if not settings.TURN_QUEUE:
+		return
+	
+	for entity_id in entities.get_entity(settings.TURN_QUEUE[0])['members']:
+		_entity = entities.get_entity(entity_id)
+		
+		if _entity['stats']['action_points'] <= 0:
+			continue
+		
+		_had_action = False
+		
+		if timers.has_timer_with_name(_entity, 'shoot') or _entity['movement']['path']['positions']:
+			_had_action = True
+		
+		elif _entity['ai']['is_player']:
+			continue
+		
+		entities.trigger_event(_entity, 'tick')
+		
+		if _had_action and not timers.has_timer_with_name(_entity, 'shoot') and not _entity['movement']['path']['positions'] and _entity['stats']['action_points'] > 0:
+			if _entity['ai']['is_player'] and (ui_squad_control.is_squad_member_selected() and _entity == ui_squad_control.get_selected_squad_member()):
+				settings.set_tick_mode('strategy')
+				
+				break
+		
+		if not _entity['movement']['path']['positions'] and not timers.has_timer_with_name(_entity, 'shoot'):
+			_entity['stats']['action_points'] -= constants.IDLE_COST
+		
+		print _entity['stats']['name'], _entity['stats']['action_points']
+		
+		break

@@ -9,6 +9,7 @@ import ai_squads
 import ai_flow
 import constants
 import settings
+import ui_squad_control
 import ui_director
 import ui_dialog
 import ui_cursor
@@ -42,6 +43,7 @@ def handle_input():
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
 			if ui_dialog.get_active_dialog():
 				ui_dialog.delete(ui_dialog.get_active_dialog())
+				
 			elif ui_menu.get_active_menu():
 				_menu = ui_menu.get_active_menu()
 
@@ -52,24 +54,20 @@ def handle_input():
 			else:
 				return False
 
-		if controls.get_input_char_pressed(' '):
-			if settings.TICK_MODE == 'strategy':
-				settings.TICK_MODE = 'normal'
-			else:
-				settings.TICK_MODE = 'strategy'
-
 		if settings.TICK_MODE == 'strategy':
-			nodes.handle_keyboard_input(PLAYER)
+			ui_squad_control.handle_keyboard_input()
 
 	return True
 
 def handle_mouse_movement(x, y, **kwargs):
 	if settings.TICK_MODE == 'strategy':
-		nodes.handle_mouse_movement(PLAYER, x, y, x+camera.X, y+camera.Y)
+		#nodes.handle_mouse_movement(PLAYER, x, y, x+camera.X, y+camera.Y)
+		ui_squad_control.handle_mouse_movement(x, y)
 
 def handle_mouse_pressed(x, y, button):
 	if settings.TICK_MODE == 'strategy':
-		nodes.handle_mouse_pressed(PLAYER, x, y, button)
+		#nodes.handle_mouse_pressed(PLAYER, x, y, button)
+		ui_squad_control.handle_mouse_pressed(x, y, button)
 
 	elif settings.TICK_MODE == 'normal':
 		_c_x = (camera.X+x) - (constants.MAP_VIEW_WIDTH/2)
@@ -80,14 +78,6 @@ def handle_mouse_pressed(x, y, button):
 
 def tick():
 	ai_flow.logic()
-	
-	for entity_id in entities.get_entity_group('life'):
-		_entity = entities.get_entity(entity_id)
-		
-		if not ai_flow.is_flow_active() or ai_flow.can_act(_entity):
-			entities.trigger_event(_entity, 'tick')
-			
-			_entity['stats']['action_points'] -= 1.25
 
 	for i in range(16):
 		for entity_id in entities.get_entity_group('bullets'):
@@ -160,12 +150,12 @@ def draw():
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 
 	if settings.TICK_MODE == 'strategy':
-		ui_draw.draw_life_labels()
+		#ui_draw.draw_life_labels()
 		ui_draw.draw_item_labels()
 	
 	ui_draw.draw_long_range_life()
 	ui_draw.draw_life_memory()
-	ui_draw.draw_node_path(PLAYER)
+	ui_draw.draw_walk_path()
 	ui_draw.draw_mission_details()
 	ui_draw.draw_turn_bar()
 
@@ -226,15 +216,15 @@ def loop():
 		#	_ticks_per_tick = 1
 
 		for _ in range(_ticks_per_tick):
-			if PLAYER['timers']:
-				PLAYER_HAS_SHOOT_TIMER = True
-			
-			else:
-				if PLAYER_HAS_SHOOT_TIMER:
-					settings.set_tick_mode('strategy')
-					PLAYER_HAS_SHOOT_TIMER = False
-					
-					break
+			#if timers.has_timer_with_name(PLAYER, 'shoot'):
+			#	PLAYER_HAS_SHOOT_TIMER = True
+			#
+			#else:
+			#	if PLAYER_HAS_SHOOT_TIMER:
+			#		settings.set_tick_mode('strategy')
+			#		PLAYER_HAS_SHOOT_TIMER = False
+			#		
+			#		break
 			
 			if settings.TICK_MODE == 'strategy':
 				break
@@ -270,8 +260,12 @@ def main():
 	missions.boot()
 
 	#PLAYER = life.human(210, 210, 'Tester Toaster')
-	PLAYER = life.human(1, 1, 'Tester Toaster')
+	PLAYER = life.human(15, 15, 'Tester Toaster')
+	SECOND_PLAYER = life.human(20, 20, 'Tester Toaster 2')
 	PLAYER['ai']['is_player'] = True
+	SECOND_PLAYER['ai']['is_player'] = True
+	
+	ui_squad_control.register_squad(ai_squads.get_assigned_squad(PLAYER)['_id'])
 	
 	items.ammo_9x19mm(50, 50)
 

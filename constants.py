@@ -50,6 +50,7 @@ KEY_ENTER = 13
 
 YARDS = 0.5
 METERS = 0.4572
+IDLE_COST = 1.25
 
 
 ####
