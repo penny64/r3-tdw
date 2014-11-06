@@ -108,7 +108,7 @@ def _push(entity, x, y):
 		if (_nx, _ny) in _solids:
 			entity['movement']['path']['refresh'] = True
 			
-			return	
+			return
 	
 	set_position(entity, _nx, _ny)
 
@@ -121,7 +121,6 @@ def push(entity, x, y, time=-1, name='move'):
 	                       'create_timer',
 	                       time=time,
 	                       exit_callback=lambda e: entities.trigger_event(e, 'push', x=x, y=y),
-	                       callback=lambda e: sub_move_cost(e),
 	                       name=name)
 
 def sub_move_cost(entity):
@@ -240,4 +239,4 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		entity['movement']['path']['destination'] = None
 
-	push(entity, x=_d_x, y=_d_y, name='Move', time=get_move_cost(entity))
+	push(entity, x=_d_x, y=_d_y, name='move', time=2)

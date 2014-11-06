@@ -27,8 +27,8 @@ def boot():
 
 	timers.register(_entity, use_system_event='logic')
 
-	entities.trigger_event(_entity, 'create_timer', time=0, repeat=-1, repeat_callback=_tick_online_entities)
-	entities.trigger_event(_entity, 'create_timer', time=numbers.seconds_as_ticks(3), repeat=-1, repeat_callback=_tick_offline_entities)
+	#entities.trigger_event(_entity, 'create_timer', time=0, repeat=-1, repeat_callback=_tick_online_entities)
+	#entities.trigger_event(_entity, 'create_timer', time=numbers.seconds_as_ticks(3), repeat=-1, repeat_callback=_tick_offline_entities)
 
 def _register(entity, player=False):
 	ONLINE_ENTITIES.append(entity['_id'])
@@ -76,7 +76,6 @@ def _register(entity, player=False):
 	                            'find_container': 14,
 	                            'track': 20}}
 	
-	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
 	entities.create_event(entity, 'meta_change')
@@ -164,7 +163,6 @@ def _register_animal(entity, player=False):
 	                         'has_needs': False},
 	                'weights': {'track': 20}}
 	
-	entities.create_event(entity, 'logic')
 	entities.create_event(entity, 'logic_offline')
 	entities.create_event(entity, 'update_target_memory')
 	entities.create_event(entity, 'meta_change')
@@ -245,6 +243,8 @@ def register_animal(entity, player=False):
 ###################
 #System Operations#
 ###################
+
+#DISABLED
 
 def _tick_online_entities(entity):
 	global ONLINE_ENTITIES
@@ -420,14 +420,21 @@ def _human_logic(entity):
 		return
 	
 	#TODO: Experimental!
-	#if entity['ai']['meta'] == _old_meta:
-	#	return
+	if entity['ai']['meta'] == _old_meta:
+		print 'Something changed...'
+		
+		#return
+	
+	if timers.has_timer_with_name(entity, 'shoot') or entity['movement']['path']['positions'] or timers.has_timer_with_name(entity, 'move'):
+		print 'Clearing existing action...'
+		return
 	
 	_goap = _handle_goap(entity)
 	
 	if not _goap:
 		entity['ai']['current_action'] = 'idle'
 		
+		entities.trigger_event(entity, 'finish_turn')
 		entities.trigger_event(entity, 'stop')
 		
 		return	

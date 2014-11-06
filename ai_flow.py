@@ -46,6 +46,9 @@ def register_combat(entity, target_id):
 	FIGHTING_SQUADS.add(_squad_1)
 	FIGHTING_SQUADS.add(_squad_2)
 	
+	if not settings.TURN_QUEUE and _squad_1 == ui_squad_control.SQUAD['_id']:
+		entities.trigger_event(FLOW, 'start_of_turn', squad_id=_squad_1)
+	
 	if not _squad_1 in settings.TURN_QUEUE:
 		settings.TURN_QUEUE.append(_squad_1)
 	
@@ -55,6 +58,14 @@ def register_combat(entity, target_id):
 	#print 'Registered for combat:', _squad_1, _squad_2
 
 def logic():
+	for squad_id in entities.get_entity_group('squads'):
+		_squad = entities.get_entity(squad_id)
+				
+		for entity_id in _squad['members']:
+			_entity = entities.get_entity(entity_id)
+			
+			entities.trigger_event(_entity, 'logic')
+	
 	for squad_id in settings.TURN_QUEUE:
 		_squad = entities.get_entity(squad_id)
 		
@@ -85,10 +96,12 @@ def logic():
 					_entity = entities.get_entity(entity_id)
 					
 					_entity['stats']['action_points'] = _entity['stats']['action_points_max']
-	
+
+def tick():
 	if not settings.TURN_QUEUE:
 		return
 	
+	_waiting = False
 	for entity_id in entities.get_entity(settings.TURN_QUEUE[0])['members']:
 		_entity = entities.get_entity(entity_id)
 		
@@ -97,23 +110,34 @@ def logic():
 		
 		_had_action = False
 		
-		if timers.has_timer_with_name(_entity, 'shoot') or _entity['movement']['path']['positions']:
+		if timers.has_timer_with_name(_entity, 'shoot') or _entity['movement']['path']['positions'] or timers.has_timer_with_name(_entity, 'move'):
 			_had_action = True
 		
 		elif _entity['ai']['is_player']:
+			_waiting = True
+			
 			continue
 		
 		entities.trigger_event(_entity, 'tick')
 		
-		if _had_action and not timers.has_timer_with_name(_entity, 'shoot') and not _entity['movement']['path']['positions'] and _entity['stats']['action_points'] > 0:
+		if _had_action and not timers.has_timer_with_name(_entity, 'shoot') and not _entity['movement']['path']['positions'] and not timers.has_timer_with_name(_entity, 'move') and _entity['stats']['action_points'] > 0:
 			if _entity['ai']['is_player'] and (ui_squad_control.is_squad_member_selected() and _entity == ui_squad_control.get_selected_squad_member()):
 				settings.set_tick_mode('strategy')
 				
 				break
 		
-		if not _entity['movement']['path']['positions'] and not timers.has_timer_with_name(_entity, 'shoot'):
+		if _entity['ai']['is_player'] and _entity['stats']['action_points'] <= 0:
+			ui_squad_control.reset_selected_squad_member()
+			settings.set_tick_mode('strategy')
+		
+		if not _entity['movement']['path']['positions'] and not timers.has_timer_with_name(_entity, 'shoot') and not timers.has_timer_with_name(_entity, 'move'):
 			_entity['stats']['action_points'] -= constants.IDLE_COST
 		
 		print _entity['stats']['name'], _entity['stats']['action_points']
 		
 		break
+	
+	else:
+		if _entity['ai']['is_player'] and not _waiting:
+			settings.set_tick_mode('normal')
+			print 'normal222'

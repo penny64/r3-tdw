@@ -76,7 +76,9 @@ def find_cover(entity):
 	_squad = entities.get_entity(ai_factions.FACTIONS[entity['ai']['faction']]['squads'][entity['ai']['squad']])
 	_cover_position = ai_squad_director.get_cover_position(_squad, entity['_id'])
 	
-	if not _cover_position:
+	if not _cover_position or not numbers.distance(movement.get_position(entity), _cover_position):
+		entities.trigger_event(entity, 'finish_turn')
+	
 		return
 	
 	movement.walk_to_position(entity, _cover_position[0], _cover_position[1], zones.get_active_astar_map(), zones.get_active_weight_map())

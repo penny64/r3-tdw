@@ -47,7 +47,7 @@ def create_motion(entity, name, stat_mod={}):
 		entity['skeleton']['motion'] = name
 
 def hit(entity, projectile):
-	_accuracy = random.uniform(.4, 1)
+	_accuracy = random.uniform(.7, 1)
 	_hit_map = []
 	
 	for limb_name in entity['skeleton']['limbs']:

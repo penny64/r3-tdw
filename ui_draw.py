@@ -111,7 +111,7 @@ def draw_turn_bar():
 	_n = len(_message)
 	_string = _message + ('=' * (_filled_value-_n)) + (' ' * ((constants.MAP_VIEW_WIDTH-_filled_value-1)))
 	
-	display.write_string('ui', 0, 0, _string[:constants.MAP_VIEW_WIDTH], fore_color=_fore_color, back_color=_back_color)
+	display.write_string('nodes', 0, 0, _string[:constants.MAP_VIEW_WIDTH], fore_color=_fore_color, back_color=_back_color)
 
 def draw_fps():
 	display.write_string('ui', 0, 0, '%s fps' % display.get_fps(), fore_color=(255, 255, 255))

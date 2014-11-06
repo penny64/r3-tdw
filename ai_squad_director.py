@@ -10,62 +10,61 @@ import logging
 import time
 
 
-def _create_position_map(squad, member_id):
-	_member = entities.get_entity(member_id)
+def create_position_map(squad):
 	_coverage_positions = set()
-	#_solids = zones.get_active_solids({}, no_life=True)
 	_known_targets = set()
 	_known_squads = set()
-	_x, _y = movement.get_position(_member)
-	_sight = stats.get_vision(_member)
-	
-	if member_id in squad['member_position_maps']:
-		_old_coverage_positions = squad['member_position_maps'][member_id].copy()
-	
-	else:
-		_old_coverage_positions = set()
-	
-	_map_size = zones.get_active_size()
-	squad['member_position_maps'][member_id] = set()
-	squad['member_los_maps'][member_id] = tcod.map_new(_map_size[0], _map_size[1])
-	
-	tcod.map_copy(zones.get_active_los_map(), squad['member_los_maps'][member_id])
-	
-	_t = time.time()
-	
-	tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_2)
-	
-	for pos in shapes.circle(_x, _y, _sight):
-		if pos[0] < 0 or pos[0] >= _map_size[0] or pos[1] < 0 or pos[1] >= _map_size[1]:
-			continue
-		
-		if not tcod.map_is_walkable(squad['member_los_maps'][member_id], pos[0], pos[1]):
-			continue
-	
-		_coverage_positions.add(pos)
-		squad['member_position_maps'][member_id].add(pos)
 
-	#TODO: Do this elsewhere
-	for target_id in _member['ai']['visible_targets']:
-		if not target_id in entities.ENTITIES:
-			continue
+	for member_id in squad['members']:
+		_member = entities.get_entity(member_id)
+		_x, _y = movement.get_position(_member)
+		_sight = stats.get_vision(_member)
 		
-		_target = entities.get_entity(target_id)
-		_known_squads.add((_target['ai']['faction'], _target['ai']['squad']))
+		if member_id in squad['member_position_maps']:
+			_old_coverage_positions = squad['member_position_maps'][member_id].copy()
+		
+		else:
+			_old_coverage_positions = set()
+		
+		_map_size = zones.get_active_size()
+		squad['member_position_maps'][member_id] = set()
+		squad['member_los_maps'][member_id] = tcod.map_new(_map_size[0], _map_size[1])
+		
+		tcod.map_copy(zones.get_active_los_map(), squad['member_los_maps'][member_id])
+		
+		_t = time.time()
+		
+		tcod.map_compute_fov(squad['member_los_maps'][member_id], _x, _y, radius=_sight, light_walls=False, algo=tcod.FOV_PERMISSIVE_2)
+		
+		for pos in shapes.circle(_x, _y, _sight):
+			if pos[0] < 0 or pos[0] >= _map_size[0] or pos[1] < 0 or pos[1] >= _map_size[1]:
+				continue
+			
+			if not tcod.map_is_walkable(squad['member_los_maps'][member_id], pos[0], pos[1]):
+				continue
+		
+			_coverage_positions.add(pos)
+			squad['member_position_maps'][member_id].add(pos)
 	
-	#TODO: Is this right?
-	_known_targets.update(_member['ai']['visible_targets'])
+		#TODO: Do this elsewhere
+		for target_id in _member['ai']['visible_targets']:
+			if not target_id in entities.ENTITIES:
+				continue
+			
+			_target = entities.get_entity(target_id)
+			_known_squads.add((_target['ai']['faction'], _target['ai']['squad']))
+		
+		#TODO: Is this right?
+		_known_targets.update(_member['ai']['visible_targets'])
+		_positions_to_remove = _old_coverage_positions - _coverage_positions
 	
-	_positions_to_remove = _old_coverage_positions - _coverage_positions
-	
-	squad['known_targets'].update(_known_targets)
-	squad['known_squads'].update(_known_squads)
-	squad['coverage_positions'].update(_coverage_positions)
-	squad['coverage_positions'] = squad['coverage_positions'] - _positions_to_remove
+		squad['known_targets'].update(_known_targets)
+		squad['known_squads'].update(_known_squads)
+		squad['coverage_positions'].update(_coverage_positions)
+		squad['coverage_positions'] = squad['coverage_positions'] - _positions_to_remove
 	
 	if squad['known_targets']:
-		if not timers.has_timer_with_name(squad, 'update_position_maps'):
-			entities.trigger_event(squad, 'create_timer', time=30, exit_callback=update_position_maps, name='update_position_maps')
+		update_position_maps(squad)
 		
 		logging.debug('Updated local position map - requesting squad update')
 	
@@ -73,14 +72,6 @@ def _create_position_map(squad, member_id):
 		logging.debug('Updated local position map.')
 	
 	#print time.time()-_t
-
-def create_position_map(squad, member_id):
-	_member = entities.get_entity(member_id)
-	
-	if timers.has_timer_with_name(_member, 'create_position_maps'):
-		return
-	
-	entities.trigger_event(_member, 'create_timer', time=30, exit_callback=lambda e: _create_position_map(squad, member_id), name='create_position_maps')
 
 def update_position_maps(squad):
 	_t = time.time()

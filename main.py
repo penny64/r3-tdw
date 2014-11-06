@@ -61,12 +61,10 @@ def handle_input():
 
 def handle_mouse_movement(x, y, **kwargs):
 	if settings.TICK_MODE == 'strategy':
-		#nodes.handle_mouse_movement(PLAYER, x, y, x+camera.X, y+camera.Y)
 		ui_squad_control.handle_mouse_movement(x, y)
 
 def handle_mouse_pressed(x, y, button):
 	if settings.TICK_MODE == 'strategy':
-		#nodes.handle_mouse_pressed(PLAYER, x, y, button)
 		ui_squad_control.handle_mouse_pressed(x, y, button)
 
 	elif settings.TICK_MODE == 'normal':
@@ -77,11 +75,13 @@ def handle_mouse_pressed(x, y, button):
 			camera.set_pos(_c_x, _c_y)
 
 def tick():
-	ai_flow.logic()
-
-	for i in range(16):
-		for entity_id in entities.get_entity_group('bullets'):
-			entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	if entities.get_entity_group('bullets'):
+		for i in range(4):
+			for entity_id in entities.get_entity_group('bullets'):
+				entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	
+	else:
+		ai_flow.tick()
 
 	for entity_id in entities.get_entity_group('effects'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
@@ -150,8 +150,10 @@ def draw():
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 
 	if settings.TICK_MODE == 'strategy':
-		#ui_draw.draw_life_labels()
 		ui_draw.draw_item_labels()
+	
+	if '--labels' in sys.argv:
+		ui_draw.draw_life_labels()
 	
 	ui_draw.draw_long_range_life()
 	ui_draw.draw_life_memory()
@@ -209,31 +211,20 @@ def loop():
 		if _has_action:
 			_ticks_per_tick = 1
 		
-		else:#elif PLAYER['node_grid']['path']:
+		else:
 			_ticks_per_tick = settings.PLAN_TICK_RATE
 		
-		#else:
-		#	_ticks_per_tick = 1
-
 		for _ in range(_ticks_per_tick):
-			#if timers.has_timer_with_name(PLAYER, 'shoot'):
-			#	PLAYER_HAS_SHOOT_TIMER = True
-			#
-			#else:
-			#	if PLAYER_HAS_SHOOT_TIMER:
-			#		settings.set_tick_mode('strategy')
-			#		PLAYER_HAS_SHOOT_TIMER = False
-			#		
-			#		break
-			
 			if settings.TICK_MODE == 'strategy':
 				break
 			
+			ai_flow.logic()
 			events.trigger_event('logic')
 			tick()
 			free_tick()
 	
 	else:
+		ai_flow.logic()
 		free_tick()
 
 	if pathfinding.wait_for_astar():

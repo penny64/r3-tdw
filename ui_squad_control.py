@@ -179,6 +179,13 @@ def create_shoot_menu(entity, target_id):
 	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % _spray_accuracy, lambda: entities.trigger_event(entity, 'shoot', target_id=target_id) and settings.set_tick_mode('normal'))
 	ui_menu.add_selectable(_menu, 'Snipe (Acc: %s)' % _accuracy, lambda: _)
 
+def reset_selected_squad_member():
+	global SELECTED_SQUAD_MEMBER, WALK_PATH, WALK_DEST
+	
+	SELECTED_SQUAD_MEMBER = None
+	WALK_PATH = None
+	WALK_DEST = None
+
 def is_squad_member_selected():
 	return not SELECTED_SQUAD_MEMBER == None
 

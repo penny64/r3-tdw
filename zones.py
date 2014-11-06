@@ -15,6 +15,7 @@ import maps
 
 import logging
 import random
+import sys
 
 ZONES = {}
 ACTIVE_ZONE = None
@@ -58,16 +59,18 @@ def activate(zone_id):
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
-	post_processing.run(time=8,
-                        repeat=-1,
-                        repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
-                                                                                      constants.MAP_VIEW_HEIGHT,
-                                                                                      8,
-                                                                                      _noise,
-	                                                                                  _zone['inside']))
-	post_processing.run(time=0,
-	                    repeat=-1,
-	                    repeat_callback=lambda _: post_processing.post_process_lights())
+	
+	if not '--no-fx' in sys.argv:
+		post_processing.run(time=8,
+			                repeat=-1,
+			                repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
+			                                                                              constants.MAP_VIEW_HEIGHT,
+			                                                                              8,
+			                                                                              _noise,
+			                                                                              _zone['inside']))
+		post_processing.run(time=0,
+			                repeat=-1,
+			                repeat_callback=lambda _: post_processing.post_process_lights())
 	#post_processing.run(time=0,
 	#                    repeat=-1,
 	#                    repeat_callback=lambda _: post_processing.sunlight())

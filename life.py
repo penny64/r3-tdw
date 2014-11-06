@@ -35,6 +35,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	entities.create_event(_entity, 'did_damage')
 	entities.create_event(_entity, 'receive_memory')
 	entities.create_event(_entity, 'handle_corpse')
+	entities.create_event(_entity, 'finish_turn')
 
 	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -60,6 +61,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	if has_ai:
 		ai.register_human(_entity)
 
+	entities.register_event(_entity, 'finish_turn', finish_turn)
 	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
 	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
@@ -88,7 +90,8 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
 	                                                                                                            value=[x, y])))
-	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	#entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	entities.register_event(_entity, 'push', lambda e, **kwargs: movement.sub_move_cost(e))
 	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
@@ -107,6 +110,7 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	entities.create_event(_entity, 'did_damage')
 	entities.create_event(_entity, 'receive_memory')
 	entities.create_event(_entity, 'handle_corpse')
+	entities.create_event(_entity, 'finish_turn')
 
 	tile.register(_entity, surface='life', char=char, fore_color=fore_color)
 	movement.register(_entity, collisions=True)
@@ -121,6 +125,7 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	if has_ai:
 		ai.register_animal(_entity)
 
+	entities.register_event(_entity, 'finish_turn', finish_turn)
 	entities.create_event(_entity, 'get_and_store_item')
 	entities.create_event(_entity, 'get_and_hold_item')
 	entities.create_event(_entity, 'reload')
@@ -143,7 +148,8 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
 	                                                                                                            value=[x, y])))
-	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	#entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
+	entities.register_event(_entity, 'push', lambda e, **kwargs: movement.sub_move_cost(e))
 	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
@@ -219,6 +225,7 @@ def human(x, y, name):
 	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
 	
 	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_player_start_of_turn(_entity, squad_id))
+	entities.register_event(ai_flow.FLOW, 'end_of_turn', lambda e, squad_id: handle_player_end_of_turn(_entity, squad_id))
 	
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
@@ -282,6 +289,9 @@ def mutated_wild_dog(x, y, name):
 ############
 #Operations#
 ############
+
+def finish_turn(entity):
+	entity['stats']['action_points'] = 0
 
 def create_life_memory(entity, target_id):
 	if target_id in entity['ai']['life_memory']:
@@ -371,6 +381,14 @@ def handle_player_start_of_turn(entity, squad_id):
 			return
 		
 		effects.message(_message, time=70)
+
+def handle_player_end_of_turn(entity, squad_id):
+	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
+		settings.set_tick_mode('normal')
+		
+		print 'End of turn'
+		
+		return False
 
 def can_see_position(entity, position):
 	_solids = zones.get_active_solids(entity)

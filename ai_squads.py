@@ -4,6 +4,7 @@ from ai_factions import FACTIONS
 
 import ai_squad_director
 import ai_squad_logic
+import ai_flow
 import constants
 import settings
 
@@ -59,15 +60,16 @@ def _create_squad(entity):
 	entities.register_event(_squad, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(_squad, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
 	
-	entities.trigger_event(_squad, 'create_timer',
-	                       time=60,
-	                       repeat=-1,
-	                       repeat_callback=update_group_status)
+	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: squad_id == _squad['_id'] and handle_start_of_turn(_squad))
+	#entities.trigger_event(_squad, 'create_timer',
+	#                       time=60,
+	#                       repeat=-1,
+	#                       repeat_callback=update_group_status)
 	
-	entities.trigger_event(_squad, 'create_timer',
-	                       time=60,
-	                       repeat=-1,
-	                       repeat_callback=update_combat_risk)
+	#entities.trigger_event(_squad, 'create_timer',
+	#                       time=60,
+	#                       repeat=-1,
+	#                       repeat_callback=update_combat_risk)
 	
 	logging.info('Faction \'%s\' created new squad: %s (leader: %s)' % (entity['ai']['faction'],
 	                                                                    _faction['squad_id']-1,
@@ -109,7 +111,7 @@ def register_with_squad(entity, squad_id):
 	
 	entities.create_event(entity, 'squad_inform_raid')
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
-	entities.register_event(entity, 'position_changed', lambda e, **kwargs: _squad['_id'] in entities.ENTITIES and entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
+	#entities.register_event(entity, 'position_changed', lambda e, **kwargs: _squad['_id'] in entities.ENTITIES and entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_squad_member_snapshot(_squad, target_id=e['_id']))
 	entities.register_event(entity, 'meta_change', lambda e, **kwargs: update_group_status(_squad)) #TODO: Needs to be moved to a general area. Are squad members registering this?
 	entities.register_event(entity, 'target_lost', ai_squad_logic.leader_handle_lost_target)
@@ -121,7 +123,6 @@ def register_with_squad(entity, squad_id):
 	                        lambda e, target_id, **kwargs: remove_member(_squad, entity['_id']))
 	
 	entities.trigger_event(_squad, 'new_squad_member', target_id=entity['_id'])
-	entities.trigger_event(entity, 'create_timer', time=1, exit_callback=lambda e: entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id']))
 
 def remove_member(squad, member_id):
 	pass
@@ -242,6 +243,12 @@ def update_combat_risk(entity):
 	
 	else:
 		set_squad_meta(entity, 'is_squad_overwhelmed', _armed_target_count > _squad_member_count)
+
+def handle_start_of_turn(entity):
+	update_combat_risk(entity)
+	update_group_status(entity)
+	ai_squad_director.create_position_map(entity)
+	#entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id'])
 
 def handle_raid(entity, camp):
 	_leader = entities.get_entity(entity['leader'])
