@@ -57,7 +57,7 @@ def handle_fire_order(x, y):
 def handle_movement_order(x, y):
 	global WALK_PATH, WALK_DEST
 	
-	if not is_squad_member_selected():
+	if not is_squad_member_selected() or (x, y) in zones.get_active_solids({}, ignore_calling_entity=True):
 		return False
 	
 	_entity = get_selected_squad_member()

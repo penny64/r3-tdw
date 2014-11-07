@@ -247,8 +247,7 @@ def update_combat_risk(entity):
 def handle_start_of_turn(entity):
 	update_combat_risk(entity)
 	update_group_status(entity)
-	ai_squad_director.create_position_map(entity)
-	#entities.trigger_event(_squad, 'update_position_map', member_id=entity['_id'])
+	entities.trigger_event(entity, 'update_position_map')
 
 def handle_raid(entity, camp):
 	_leader = entities.get_entity(entity['leader'])

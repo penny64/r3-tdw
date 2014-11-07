@@ -106,7 +106,7 @@ def draw():
 		_draw_life = entities.get_entity_group('life')
 		_draw_items = entities.get_entity_group('items')
 	else:
-		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES]
 
 		if PLAYER['_id'] in entities.ENTITIES:
 			_draw_life.append(PLAYER['_id'])

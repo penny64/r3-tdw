@@ -14,8 +14,6 @@ def set_tick_mode(mode):
 	global TICK_MODE
 	
 	TICK_MODE = mode
-	
-	print mode
 
 def set_plan_tick_rate(rate):
 	global PLAN_TICK_RATE

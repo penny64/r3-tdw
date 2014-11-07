@@ -108,7 +108,7 @@ def cleanup(entity):
 		logging.warning('Leader of squad died. Handle this.')
 		
 		if _squad['members']:
-			_squad['leader'] = _squad['members'][0]
+			_squad['leader'] = list(_squad['members'])[0]
 		
 		else:
 			_squad['leader'] = None

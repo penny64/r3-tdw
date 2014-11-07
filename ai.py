@@ -420,13 +420,13 @@ def _human_logic(entity):
 		return
 	
 	#TODO: Experimental!
-	if entity['ai']['meta'] == _old_meta:
-		print 'Something changed...'
+	#if entity['ai']['meta'] == _old_meta:
+		#print 'Something changed...'
 		
 		#return
 	
 	if timers.has_timer_with_name(entity, 'shoot') or entity['movement']['path']['positions'] or timers.has_timer_with_name(entity, 'move'):
-		print 'Clearing existing action...'
+		#print 'Clearing existing action...'
 		return
 	
 	_goap = _handle_goap(entity)
