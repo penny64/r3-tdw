@@ -102,12 +102,16 @@ def logic():
 def cleanup(entity):
 	_squad = ai_squads.get_assigned_squad(entity)
 	
+	_squad['members'].remove(entity['_id'])
+	
 	if _squad['leader'] == entity['_id']:
 		logging.warning('Leader of squad died. Handle this.')
 		
-		_squad['leader'] = None
-	
-	_squad['members'].remove(entity['_id'])
+		if _squad['members']:
+			_squad['leader'] = _squad['members'][0]
+		
+		else:
+			_squad['leader'] = None
 	
 	if entity['_id'] in _squad['member_info']:
 		del _squad['member_info'][entity['_id']]

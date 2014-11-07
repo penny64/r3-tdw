@@ -253,7 +253,7 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
-	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=3)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=2.35)
 	entities.register_event(_entity, 'get_display_name', _handle_weapon_display_name)
 	
 	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
@@ -319,7 +319,7 @@ def bullet(entity, x, y, tx, ty, speed, accuracy):
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)
 	
-	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.randint(-accuracy, accuracy))
+	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.uniform(-accuracy, accuracy))
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
 	
