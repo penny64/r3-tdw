@@ -160,7 +160,7 @@ def draw_long_range_life():
 	if settings.OBSERVER_MODE:
 		_draw_life = entities.get_entity_group('life')
 	else:
-		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
+		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES]
 		
 		if PLAYER['_id'] in entities.ENTITIES:
 			_draw_life.append(PLAYER['_id'])

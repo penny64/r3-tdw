@@ -2,7 +2,7 @@ import sys
 
 PLAN_TICK_RATE = 1
 PLAN_TICK_RATE_STRING = ''
-TICK_MODE = 'normal'
+TICK_MODE = 'strategy'
 SHOW_NODE_GRID = False
 OBSERVER_MODE = '--labels' in sys.argv
 ALLOW_SMP = not '--no-smp' in sys.argv
