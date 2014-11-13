@@ -22,6 +22,8 @@ def boot():
 	events.create_event('mouse_moved')
 	events.create_event('mouse_pressed')
 	events.create_event('mouse_held')
+	
+	print 'Created'
 
 def handle_input():
 	global MOUSE_POS, LAST_MOUSE_POS
