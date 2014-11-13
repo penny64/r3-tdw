@@ -2,6 +2,7 @@ from framework import entities, events
 
 import framework
 
+import world_strategy
 import world_action
 
 import cProfile
