@@ -9,12 +9,18 @@ import cProfile
 import time
 import sys
 
+ACTIVE_WORLD = None
+
 
 def main():
-	world_action.create()
+	global ACTIVE_WORLD
+	
+	#world_action.create()
 	world_strategy.create()
 	
-	while world_action.loop():
+	ACTIVE_WORLD = world_strategy
+	
+	while ACTIVE_WORLD.loop():
 		events.trigger_event('cleanup')
 
 		continue

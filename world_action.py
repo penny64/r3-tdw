@@ -41,7 +41,7 @@ PLAYER_HAS_SHOOT_TIMER = False
 def create():
 	global PLAYER
 	
-	worlds.create('strategy')
+	worlds.create('action')
 	
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('life', static=True)
