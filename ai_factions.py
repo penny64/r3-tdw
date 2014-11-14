@@ -92,8 +92,6 @@ def register(entity, faction):
 	FACTIONS[entity['ai']['faction']]['members'].add(entity['_id'])
 	
 	entities.trigger_event(FACTIONS[entity['ai']['faction']], 'add_member', member_id=entity['_id'] )
-	
-	ai_squads.assign_to_squad(entity)
 
 def logic():
 	for faction in FACTIONS.values():

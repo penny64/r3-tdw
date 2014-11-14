@@ -44,12 +44,8 @@ def create():
 	worlds.create('action')
 	
 	entities.create_entity_group('tiles', static=True)
-	entities.create_entity_group('life', static=True)
-	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
-	entities.create_entity_group('squads', static=True)
-	entities.create_entity_group('factions', static=True)
 	entities.create_entity_group('missions', static=True)
 	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
@@ -77,13 +73,9 @@ def create():
 	events.register_event('camera', camera.update)
 	
 	ai.boot()
-	ai_factions.boot()
-	ai_squads.boot()
 	ai_flow.boot()
-	missions.boot()
+	#missions.boot()
 	post_processing.start()
-
-	worldgen.generate()
 	
 	for entity_id in entities.get_entity_group('life'):
 		_entity = entities.get_entity(entity_id)
