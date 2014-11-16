@@ -3,6 +3,7 @@ from framework import entities, controls, display, events, worlds, movement, pat
 import framework
 
 import post_processing
+import mapgen_arena
 import ai_factions
 import ai_visuals
 import ai_squads
@@ -39,10 +40,6 @@ PLAYER_HAS_SHOOT_TIMER = False
 
 
 def create():
-	global PLAYER
-	
-	worlds.create('action')
-	
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
@@ -73,53 +70,33 @@ def create():
 	events.register_event('camera', camera.update)
 	
 	ai.boot()
-	ai_flow.boot()
-	#missions.boot()
 	post_processing.start()
 	
-	for entity_id in entities.get_entity_group('life'):
-		_entity = entities.get_entity(entity_id)
-		
-		if _entity['stats']['name'] == 'Trader':
-			_trader = _entity
-			
-			break
-		
-	#_mutated_wild_dog = life.mutated_wild_dog(10, 10, 'Mutated Wild Dog')
-	
-	_m = missions.create('Kill the Wild Dog', '''   I\'ve got one last thing I want you to do before I set you loose:
-We\'re always seeing Wild Dogs running around the swamps, so now\'s a good time
-to see what kind of shooter you are.
-
-   Take this pistol and wander around the swamps until one of those beasts shows up,
-then put a round in it, cut off its tail, and bring it back here.''')
-	#missions.add_goal_kill_npc(_m, _mutated_wild_dog['_id'])
-	#missions.add_goal_get_item(_m, 'Mutated Wild Dog Tail', _trader['_id'])
-	#entities.trigger_event(_trader, 'add_mission', mission_id=_m['_id'], make_active=False)
-	
-	#life.create_life_memory(_trader, _mutated_wild_dog['_id'])
-	#_trader['ai']['life_memory'][_mutated_wild_dog['_id']]['last_seen_at'] = movement.get_position_via_id(_mutated_wild_dog['_id'])
-	
 	camera.set_pos(150, 150)
-	#entities.save()
-
-	#PLAYER = life.human(210, 210, 'Tester Toaster')
-	PLAYER = life.human(15, 15, 'Tester Toaster')
-	SECOND_PLAYER = life.human(20, 20, 'Tester Toaster 2')
-	PLAYER['ai']['is_player'] = True
-	SECOND_PLAYER['ai']['is_player'] = True
 	
-	ui_squad_control.register_squad(ai_squads.get_assigned_squad(PLAYER)['_id'])
 	
-	items.ammo_9x19mm(50, 50)
+	#ui_squad_control.register_squad(ai_squads.get_assigned_squad(PLAYER)['_id'])
+	
+	#items.ammo_9x19mm(50, 50)
 	
 	ui_cursor.boot()
 	ai.boot()
-	ui_input.boot(PLAYER)
-	ui_draw.boot(PLAYER)
+	ui_input.boot()
+	ui_draw.boot()
 	ui_menu.boot()
 	ui_dialog.boot()
 	ui_director.boot()
+
+def start_battle(attacking_squads=[], defending_squads=[]):
+	create()
+	
+	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside = mapgen_arena.generate(100, 100)
+	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside)
+	
+	zones.activate(_zone)
+	
+	while loop():
+		events.trigger_event('cleanup')
 
 def handle_input():
 	if settings.TICK_MODE in ['normal', 'strategy']:
@@ -190,13 +167,21 @@ def draw():
 		_draw_life = entities.get_entity_group('life')
 		_draw_items = entities.get_entity_group('items')
 	else:
-		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES]
+		_draw_life = set()
+		_draw_items = set()
+		
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
+			
+			if not _squad['faction'] == 'Rogues':
+				continue
+			
+			for member_id in _squad['members']:
+				_member = entities.get_entity(member_id)
+				_draw_life.add(member_id)
+				_draw_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES])
 
-		if PLAYER['_id'] in entities.ENTITIES:
-			_draw_life.append(PLAYER['_id'])
-
-		_items = PLAYER['ai']['visible_items'].values()
-		_draw_items = [item for _items in PLAYER['ai']['visible_items'].values() for item in _items]
+		_draw_life = list(_draw_life)
 
 	for entity_id in _draw_life:
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
@@ -217,24 +202,24 @@ def draw():
 	for entity_id in entities.get_entity_group('contexts'):
 		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 
-	for entity_id in _draw_items:
-		if not entity_id in entities.ENTITIES:
-			continue
+	#for entity_id in _draw_items:
+	#	if not entity_id in entities.ENTITIES:
+	#		continue
 
-		_entity = entities.get_entity(entity_id)
+	#	_entity = entities.get_entity(entity_id)
 
-		if _entity['stats']['owner']:
-			continue
+	#	if _entity['stats']['owner']:
+	#		continue
 
-		entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
+	#	entities.trigger_event(entities.get_entity(entity_id), 'draw', x_mod=camera.X, y_mod=camera.Y)
 
 	ui_draw.draw_status_bar(planning=settings.TICK_MODE == 'strategy',
 	                        executing=not settings.TICK_MODE == 'strategy',
 	                        execute_speed=settings.PLAN_TICK_RATE_STRING,
 	                        selecting=nodes.SELECTING_TARGET_CALLBACK)
 
-	if settings.TICK_MODE == 'strategy':
-		ui_draw.draw_item_labels()
+	#if settings.TICK_MODE == 'strategy':
+	#	ui_draw.draw_item_labels()
 	
 	if '--labels' in sys.argv:
 		ui_draw.draw_life_labels()
@@ -242,7 +227,7 @@ def draw():
 	ui_draw.draw_long_range_life()
 	ui_draw.draw_life_memory()
 	ui_draw.draw_walk_path()
-	ui_draw.draw_mission_details()
+	#ui_draw.draw_mission_details()
 	ui_draw.draw_turn_bar()
 
 	if '--fps' in sys.argv:
@@ -283,8 +268,25 @@ def loop():
 
 	if not settings.TICK_MODE == 'strategy' and not ((ui_dialog.ACTIVE_DIALOG and ui_director.PAUSE) or ui_menu.ACTIVE_MENU or ui_director.PAUSE):
 		_has_action = False
-		_check_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see']]
-		_check_life.append(PLAYER['_id'])
+		
+		_check_life = set()
+		
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
+			
+			if not _squad['faction'] == 'Rogues':
+				continue
+			
+			for member_id in _squad['members']:
+				_member = entities.get_entity(member_id)
+				
+				_check_life.add(member_id)
+				_check_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see']])
+
+		_check_life = list(_check_life)
+		
+		#_check_life = 
+		#_check_life.append(PLAYER['_id'])
 		
 		for entity_id in _check_life:
 			if timers.has_timer_with_name(entities.get_entity(entity_id), 'shoot'):

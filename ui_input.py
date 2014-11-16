@@ -12,10 +12,10 @@ import zones
 import settings
 
 
-def boot(entity):
-	events.register_event('input', lambda: handle_keyboard_input(entity))
+def boot():
+	events.register_event('input', handle_keyboard_input)
 
-def handle_keyboard_input(entity):
+def handle_keyboard_input():
 	if controls.get_input_char_pressed('1'):
 		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .1)))
 		settings.set_plan_tick_rate_string('>')

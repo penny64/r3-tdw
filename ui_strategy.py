@@ -1,4 +1,4 @@
-from framework import display, controls, entities
+from framework import display, controls, entities, movement
 
 import world_strategy
 import constants
@@ -24,8 +24,17 @@ def draw_map_grid():
 					_back_color = None
 					
 					if _tile['is_ownable']:
-						_fore_color = (180, 180, 180)
-						_back_color = (100, 100, 100)
+						if _tile['owned_by'] == 'Terrorists':
+							_fore_color = (200, 0, 0)
+							_back_color = (125, 0, 0)
+						
+						elif _tile['owned_by'] == 'Rogues':
+							_fore_color = (0, 200, 0)
+							_back_color = (0, 125, 0)
+						
+						else:
+							_fore_color = (180, 180, 180)
+							_back_color = (100, 100, 100)
 						
 						if not _x + _y:
 							if _hover:
@@ -67,7 +76,6 @@ def draw_map_grid():
 						
 						else:
 							_char = '.'
-							_back_color = (120, 120, 120)
 						
 						display.write_char('map_markers',
 							               _d_x,
@@ -94,6 +102,7 @@ def draw_map_grid():
 								_char = ' '
 							
 							_color = display.get_color_at('map', _d_x, _d_y)[1]
+							
 							display.write_char('map_markers',
 								               _d_x,
 								               _d_y,
@@ -103,7 +112,11 @@ def draw_map_grid():
 def draw_squads():
 	for entity_id in entities.get_entity_group('squads'):
 		_squad = entities.get_entity(entity_id)
-		_x, _y = _squad['map_position']
+		
+		if _squad['faction'] == 'Terrorists':
+			continue
+		
+		_x, _y = movement.get_position(_squad)
 		_r_x = (_x * constants.MAP_CELL_SPACE) + constants.MAP_CELL_SPACE / 2
 		_r_y = (_y * constants.MAP_CELL_SPACE) + constants.MAP_CELL_SPACE / 2
 		

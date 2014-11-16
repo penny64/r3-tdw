@@ -10,25 +10,25 @@ import nodes
 import zones
 
 
-SQUAD = None
 SELECTED_SQUAD_MEMBER = None
 WALK_PATH = None
 WALK_DEST = None
 
 
-def register_squad(squad_id):
-	global SQUAD
-	
-	SQUAD = entities.get_entity(squad_id)
-
 def handle_squad_member_select(x, y):
 	global SELECTED_SQUAD_MEMBER
-	
-	for entity_id in SQUAD['members']:
-		if movement.get_position_via_id(entity_id) == (x, y):
-			SELECTED_SQUAD_MEMBER = entity_id
-			
-			return True
+
+	for squad_id in entities.get_entity_group('squads'):
+		_squad = entities.get_entity(squad_id)
+		
+		if not _squad['faction'] == 'Rogues':
+			continue
+		
+		for entity_id in _squad['members']:
+			if movement.get_position_via_id(entity_id) == (x, y):
+				SELECTED_SQUAD_MEMBER = entity_id
+				
+				return True
 
 def handle_fire_order(x, y):
 	global WALK_PATH, WALK_DEST
@@ -138,11 +138,22 @@ def handle_keyboard_input():
 		SELECTED_SQUAD_MEMBER = None
 		WALK_DEST = None
 		WALK_PATH = []
+		_broken = False
 		
-		for entity_id in SQUAD['members']:
-			_entity = entities.get_entity(entity_id)
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
 			
-			if _entity['stats']['action_points'] > 0:
+			if not _squad['faction'] == 'Rogues':
+				continue
+		
+			for entity_id in _squad['members']:
+				_entity = entities.get_entity(entity_id)
+				
+				if _entity['stats']['action_points'] > 0:
+					_broken = True
+					break
+			
+			if _broken:
 				break
 		
 		else:

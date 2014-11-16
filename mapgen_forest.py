@@ -200,8 +200,8 @@ def generate(width, height):
 	for c_x, c_y in _camps:
 		mapgen.add_plot_pole(c_x, c_y, 40, _solids)
 	
-	_fsl = {'Runners': {'bases': 1, 'squads': 0, 'trader': False, 'type': life.human_runner}}
-	#        #'Bandits': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_bandit},
+	_fsl = {'Terrorists': {'bases': 1, 'squads': 0, 'trader': False, 'type': life.human_runner}}
+	#        #'Militia': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_bandit},
 	#        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	
 	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, _fsl, _trees, _building_space - _walls

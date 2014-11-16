@@ -15,11 +15,8 @@ import time
 PLAYER = None
 
 
-def boot(entity):
-	global PLAYER
-	
-	PLAYER = entity
-
+def boot():
+	return
 
 def draw_status_bar(planning=False, executing=False, execute_speed='', selecting=False):
 	_x = 0
@@ -44,17 +41,17 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 		
 		_x += len('SELECTING TARGET')+1
 	
-	_weapons = items.get_items_in_holder(PLAYER, 'weapon')
+	#_weapons = items.get_items_in_holder(PLAYER, 'weapon')
 	
-	if _weapons:
-		_weapon = entities.get_entity(_weapons[0])
-		_ammo = flags.get_flag(_weapon, 'ammo')
-		_ammo_max = flags.get_flag(_weapon, 'ammo_max')
-		_weapon_string = '%s (%s/%s)' % (_weapon['stats']['name'], _ammo, _ammo_max)
-		
-		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, _weapon_string)
-		
-		_x += len(_weapon_string)+1
+	#if _weapons:
+	#	_weapon = entities.get_entity(_weapons[0])
+	#	_ammo = flags.get_flag(_weapon, 'ammo')
+	#	_ammo_max = flags.get_flag(_weapon, 'ammo_max')
+	#	_weapon_string = '%s (%s/%s)' % (_weapon['stats']['name'], _ammo, _ammo_max)
+	#	
+	#	display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, _weapon_string)
+	#	
+	#	_x += len(_weapon_string)+1
 
 def draw_mission_details():
 	for mission_id in PLAYER['missions']['active']:
@@ -93,12 +90,12 @@ def draw_turn_bar():
 	_mod = _current_action_points / float(_max_action_points)
 	_filled_value = int(round(constants.MAP_VIEW_WIDTH * _mod))
 	
-	if ai_squads.get_assigned_squad(PLAYER)['_id'] == _squad['_id']:
+	if _squad['faction'] == 'Rogues':
 		_message = 'Action points: %s' % _current_action_points
 		_fore_color = (0, 200, 0)
 		_back_color = (0, 50, 0)
 	
-	elif ai_factions.is_enemy(PLAYER, _squad['leader']):
+	elif entities.get_entity(_squad['leader'])['ai']['faction'] in ai_factions.FACTIONS['Rogues']['enemies']:
 		_message = 'Enemy'
 		_fore_color = (200, 0, 0)
 		_back_color = (50, 0, 0)
@@ -120,14 +117,33 @@ def draw_life_memory():
 	_camera_x, _camera_y = camera.X, camera.Y
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
-	_draw_life = list(PLAYER['ai']['targets'] - PLAYER['ai']['visible_life'])
+	_draw_life = set()
+	_can_see_life = set()
+	_last_seen_locations = {}
+		
+	for squad_id in entities.get_entity_group('squads'):
+		_squad = entities.get_entity(squad_id)
+		
+		if not _squad['faction'] == 'Rogues':
+			continue
+		
+		for member_id in _squad['members']:
+			_member = entities.get_entity(member_id)
+			_can_see_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES])
+			_draw_life.update(_member['ai']['targets'] - _member['ai']['visible_life'])
+			
+			for memory_id in _member['ai']['life_memory'].keys():
+				if not member_id in _last_seen_locations:
+					_last_seen_locations[memory_id] = _member['ai']['life_memory'][memory_id]['last_seen_at']
+	
+	_draw_life = list(_draw_life)
 
 	for entity_id in _draw_life:
-		if PLAYER['ai']['life_memory'][entity_id]['can_see']:
+		if entity_id in _can_see_life:
 			continue
 		
 		_entity = entities.get_entity(entity_id)
-		_x, _y = PLAYER['ai']['life_memory'][entity_id]['last_seen_at']
+		_x, _y = _last_seen_locations[entity_id]
 		_x -= _camera_x
 		_y -= _camera_y
 		
@@ -160,10 +176,22 @@ def draw_long_range_life():
 	if settings.OBSERVER_MODE:
 		_draw_life = entities.get_entity_group('life')
 	else:
-		_draw_life = [i for i in PLAYER['ai']['life_memory'] if PLAYER['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES]
+		_draw_life = set()
+		_draw_life_targets = set()
 		
-		if PLAYER['_id'] in entities.ENTITIES:
-			_draw_life.append(PLAYER['_id'])
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
+			
+			if not _squad['faction'] == 'Rogues':
+				continue
+			
+			for member_id in _squad['members']:
+				_member = entities.get_entity(member_id)
+				_draw_life.add(member_id)
+				_draw_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES])
+				_draw_life_targets.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see'] and _member['ai']['life_memory'][i]['is_target'] and i in entities.ENTITIES])
+		
+		_draw_life = list(_draw_life)
 	
 	for entity_id in _draw_life:
 		_entity = entities.get_entity(entity_id)
@@ -182,7 +210,7 @@ def draw_long_range_life():
 		else:
 			_char = 'O'
 		
-		if entity_id in PLAYER['ai']['life_memory'] and PLAYER['ai']['life_memory'][entity_id]['is_target']:
+		if entity_id in _draw_life_targets:
 			_fore_color = (255, 0, 0)
 			_back_color = (100, 0, 0)
 		else:

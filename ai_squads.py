@@ -1,4 +1,4 @@
-from framework import entities, numbers, movement, events, timers
+from framework import entities, numbers, movement, events, timers, tile
 
 from ai_factions import FACTIONS
 
@@ -14,13 +14,12 @@ import logging
 def boot():
 	events.register_event('logic', logic)
 
-def _create_squad(faction_name):
+def _create_squad(faction_name, x, y):
 	_faction = FACTIONS[faction_name]
 	_squad = entities.create_entity(group='squads')
 	_squad.update({'members': set(),
 	               'faction': faction_name,
 	               'leader': None,
-	               'map_position': [0, 0],
 	               'member_info': {},
 	               'camp_id': None,
 	               'squad_id': _faction['squad_id'],
@@ -43,6 +42,7 @@ def _create_squad(faction_name):
 	               'weights': {}})
 	
 	timers.register(_squad, use_entity_event='logic')
+	movement.register(_squad, x, y)
 	
 	entities.create_event(_squad, 'meta_change')
 	entities.create_event(_squad, 'raid')
@@ -61,7 +61,8 @@ def _create_squad(faction_name):
 	entities.register_event(_squad, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(_squad, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
 	
-	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: squad_id == _squad['_id'] and handle_start_of_turn(_squad))
+	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_start_of_turn(_squad, squad_id))
+	print 'Regged', faction_name
 	#entities.trigger_event(_squad, 'create_timer',
 	#                       time=60,
 	#                       repeat=-1,
@@ -76,8 +77,8 @@ def _create_squad(faction_name):
 	
 	return _squad
 
-def create_human_squad(faction_name):
-	_squad = _create_squad(faction_name)
+def create_human_squad(faction_name, x, y):
+	_squad = _create_squad(faction_name, x, y)
 	
 	ai_squad_logic.register_human(_squad)
 	
@@ -111,6 +112,8 @@ def register_with_squad(entity, squad_id):
 	
 	if not _squad['leader']:
 		_squad['leader'] = entity['_id']
+	
+	entity['ai']['meta']['is_squad_leader'] = _squad['leader'] == entity['_id']
 	
 	entities.create_event(entity, 'squad_inform_raid')
 	entities.register_event(_squad, 'meta_change', lambda e, **kwargs: entities.trigger_event(entity, 'set_meta', **kwargs))
@@ -247,10 +250,16 @@ def update_combat_risk(entity):
 	else:
 		set_squad_meta(entity, 'is_squad_overwhelmed', _armed_target_count > _squad_member_count)
 
-def handle_start_of_turn(entity):
+def handle_start_of_turn(entity, squad_id):
 	update_combat_risk(entity)
 	update_group_status(entity)
 	entities.trigger_event(entity, 'update_position_map')
+	
+	if entity['faction'] == 'Rogues':
+		settings.set_tick_mode('strategy')
+	
+	else:
+		settings.set_tick_mode('normal')
 
 def handle_raid(entity, camp):
 	_leader = entities.get_entity(entity['leader'])

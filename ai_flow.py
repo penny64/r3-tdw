@@ -40,17 +40,17 @@ def can_act(entity):
 
 def register_combat(entity, target_id):
 	_target = entities.get_entity(target_id)
-	_squad_1 = ai_squads.get_assigned_squad(entity)['_id']
+	_squad_1 = ai_squads.get_assigned_squad(entity)
 	_squad_2 = ai_squads.get_assigned_squad(_target)['_id']
 
-	FIGHTING_SQUADS.add(_squad_1)
+	FIGHTING_SQUADS.add(_squad_1['_id'])
 	FIGHTING_SQUADS.add(_squad_2)
 	
-	if not settings.TURN_QUEUE and _squad_1 == ui_squad_control.SQUAD['_id']:
-		entities.trigger_event(FLOW, 'start_of_turn', squad_id=_squad_1)
+	if not settings.TURN_QUEUE:
+		entities.trigger_event(FLOW, 'start_of_turn', squad_id=_squad_1['_id'])
 	
-	if not _squad_1 in settings.TURN_QUEUE:
-		settings.TURN_QUEUE.append(_squad_1)
+	if not _squad_1['_id'] in settings.TURN_QUEUE:
+		settings.TURN_QUEUE.append(_squad_1['_id'])
 	
 	if not _squad_2 in settings.TURN_QUEUE:
 		settings.TURN_QUEUE.append(_squad_2)
@@ -109,6 +109,9 @@ def tick():
 	for squad_id in _squads:
 		_squad = entities.get_entity(squad_id)
 		_waiting = False
+		
+		#if not _squad['faction'] == 'Rogues':
+		#	settings.set_tick_mode('normal')
 		
 		for entity_id in _squad['members']:
 			_entity = entities.get_entity(entity_id)

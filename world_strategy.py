@@ -1,13 +1,15 @@
 from framework import display, worlds, entities, events, controls
 
+import world_action
 import ui_strategy
 import constants
 import worldgen
+import main
 
 import random
 
 MAP = None
-_DEBUG_ORD = 177
+_DEBUG_ORD = 10
 
 
 def create():
@@ -20,13 +22,12 @@ def create():
 	display.create_surface('map_squads', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	
 	events.register_event('mouse_moved', handle_mouse_moved)
+	events.register_event('mouse_pressed', handle_mouse_pressed)
 	
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('factions', static=True)
 	entities.create_entity_group('squads', static=True)
-	
-	worldgen.generate()
 	
 	_grid = {}
 	_color_map = {}
@@ -43,10 +44,18 @@ def create():
 			                                  constants.FOREST_GREEN_2,
 			                                  constants.FOREST_GREEN_3])
 			
-			display._set_char('map', x, y, ' ', (0, 0, 0), _color_map[x, y])
+			if y % constants.MAP_CELL_SPACE == 2 and x % constants.MAP_CELL_SPACE == 2:
+				_char = chr(9)
+			
+			else:
+				_char = ' '
+			
+			display._set_char('map', x, y, _char, (0, 0, 0), _color_map[x, y])
 	
 	MAP = {'grid': _grid,
 	       'color_map': _color_map}
+	
+	worldgen.generate()
 
 def handle_input():
 	global _DEBUG_ORD
@@ -66,6 +75,15 @@ def handle_input():
 
 def handle_mouse_moved(x, y, dx, dy):
 	return
+
+def handle_mouse_pressed(x, y, button):
+	_s1, _s2 = entities.get_entity_group('squads')
+	
+	if button == 1:
+		events.unregister_event('mouse_moved', handle_mouse_moved)
+		events.unregister_event('mouse_pressed', handle_mouse_pressed)
+		
+		world_action.start_battle(attacking_squads=[_s1], defending_squads=[_s1])
 
 def draw():
 	ui_strategy.draw_map_grid()
