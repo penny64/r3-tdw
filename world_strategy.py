@@ -8,6 +8,8 @@ import main
 
 import random
 
+SELECTED_SQUAD = None
+DRAW_MODE = 'news'
 MAP = None
 _DEBUG_ORD = 10
 
@@ -20,6 +22,7 @@ def create():
 	display.create_surface('map', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_markers', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_squads', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
+	display.create_surface('ui_bar', width=constants.WINDOW_WIDTH, height=constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT)
 	
 	events.register_event('mouse_moved', handle_mouse_moved)
 	events.register_event('mouse_pressed', handle_mouse_pressed)
@@ -32,30 +35,23 @@ def create():
 	_grid = {}
 	_color_map = {}
 	
+	MAP = {'grid': _grid,
+	       'color_map': _color_map}	
+	
 	for x in range(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE):
 		for y in range(constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE):
 			_grid[x, y] = {'owned_by': None,
 			               'is_ownable': False,
 			               'squads': []}
 	
-	for x in range(constants.STRAT_MAP_WIDTH):
-		for y in range(constants.STRAT_MAP_HEIGHT):
-			_color_map[x, y] = random.choice([constants.FOREST_GREEN_1,
-			                                  constants.FOREST_GREEN_2,
-			                                  constants.FOREST_GREEN_3])
-			
-			if y % constants.MAP_CELL_SPACE == 2 and x % constants.MAP_CELL_SPACE == 2:
-				_char = chr(9)
-			
-			else:
-				_char = ' '
-			
-			display._set_char('map', x, y, _char, (0, 0, 0), _color_map[x, y])
-	
-	MAP = {'grid': _grid,
-	       'color_map': _color_map}
-	
 	worldgen.generate()
+
+def set_draw_mode(mode):
+	global DRAW_MODE
+	
+	DRAW_MODE = mode
+	
+	ui_strategy.clear_bar()
 
 def handle_input():
 	global _DEBUG_ORD
@@ -63,7 +59,11 @@ def handle_input():
 	events.trigger_event('input')
 	
 	if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
-		return False
+		if not DRAW_MODE == 'news':
+			set_draw_mode('news')
+		
+		else:
+			return False
 	
 	if controls.get_input_char_pressed('z'):
 		_DEBUG_ORD -= 1
@@ -77,20 +77,51 @@ def handle_mouse_moved(x, y, dx, dy):
 	return
 
 def handle_mouse_pressed(x, y, button):
+	global SELECTED_SQUAD
+	
 	_s1, _s2 = entities.get_entity_group('squads')
+	_m_x, _m_y = x / constants.MAP_CELL_SPACE, y / constants.MAP_CELL_SPACE
 	
 	if button == 1:
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
+			
+			if not _squad['faction'] == 'Rogues':
+				continue
+			
+			SELECTED_SQUAD = squad_id
+			
+			set_draw_mode('squad_info')
+			
+			break
+	
+	elif button == 2:
 		events.unregister_event('mouse_moved', handle_mouse_moved)
 		events.unregister_event('mouse_pressed', handle_mouse_pressed)
 		
 		world_action.start_battle(attacking_squads=[_s1], defending_squads=[_s1])
+		
+		set_draw_mode('news')
 
 def draw():
 	ui_strategy.draw_map_grid()
 	ui_strategy.draw_squads()
 	
+	if DRAW_MODE == 'squad_info':
+		ui_strategy.draw_squad_info(SELECTED_SQUAD)
+	
+	elif DRAW_MODE == 'news':
+		ui_strategy.draw_time()
+		ui_strategy.draw_news()
+	
 	display.blit_surface('map_markers')
 	display.blit_surface('map_squads')
+	display.blit_surface_viewport('ui_bar',
+	                              0,
+	                              0,
+	                              constants.WINDOW_WIDTH,
+	                              constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT,
+	                              dy=constants.STRAT_MAP_HEIGHT)
 	
 	events.trigger_event('draw')
 

@@ -60,18 +60,7 @@ def _create_squad(faction_name, x, y):
 	
 	entities.register_event(_squad, 'new_squad_member', update_squad_member_snapshot)
 	entities.register_event(_squad, 'new_squad_member', lambda e, **kwargs: update_group_status(e))
-	
 	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_start_of_turn(_squad, squad_id))
-	print 'Regged', faction_name
-	#entities.trigger_event(_squad, 'create_timer',
-	#                       time=60,
-	#                       repeat=-1,
-	#                       repeat_callback=update_group_status)
-	
-	#entities.trigger_event(_squad, 'create_timer',
-	#                       time=60,
-	#                       repeat=-1,
-	#                       repeat_callback=update_combat_risk)
 	
 	logging.info('Faction \'%s\' created new squad.' % faction_name)
 	

@@ -121,3 +121,53 @@ def draw_squads():
 		_r_y = (_y * constants.MAP_CELL_SPACE) + constants.MAP_CELL_SPACE / 2
 		
 		display.write_char('map_squads', _r_x, _r_y, 'S')
+
+def clear_bar():
+	for y in range(constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT):
+		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(0, 0, 0))
+
+def draw_time():
+	_minutes = 191
+	_time = '%s:%02d' % (_minutes / 60, _minutes - ((_minutes / 60) * 60))
+	
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(0, 0, 0))
+
+def draw_news():
+	_news = [('> Contact lost with camp C2.', (200, 200, 200), None),
+	         ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]
+	_chr = chr(65 + 1)
+	_text_y_mod = 0
+	
+	for text, fore_color, back_color in _news:
+		display.write_string('ui_bar', 1, 1 + _text_y_mod, text, fore_color=fore_color, back_color=back_color)
+		
+		_text_y_mod += 1
+
+def draw_squad_info(squad_id):
+	_text_y_mod = 0
+	_squad = entities.get_entity(squad_id)
+	
+	for member_id in _squad['members']:
+		_member = entities.get_entity(member_id)
+		_health_string = '[OK]'
+		_weapon_name = '<Glock>'
+		_rank = 'Shooter'
+		
+		display.write_string('ui_bar', 1, 1 + _text_y_mod,
+		                     _member['stats']['name'],
+		                     fore_color=(204, 200, 204))
+		
+		display.write_string('ui_bar', 2 + len(_member['stats']['name']), 1 + _text_y_mod,
+		                     _health_string,
+		                     fore_color=(200, 200, 34))		
+		
+		display.write_string('ui_bar', 3 + len(_member['stats']['name']) + len(_health_string), 1 + _text_y_mod,
+		                     _weapon_name,
+		                     fore_color=(0, 200, 34))
+		
+		display.write_string('ui_bar', 4 + len(_member['stats']['name']) + len(_health_string) + len(_weapon_name), 1 + _text_y_mod,
+		                     _rank,
+		                     fore_color=(200, 50, 200),
+		                     back_color=(50, 12, 50))
+		
+		_text_y_mod += 1

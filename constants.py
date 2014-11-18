@@ -2,7 +2,7 @@
 #Release#
 #########
 
-VERSION = 0.15
+VERSION = 0.3
 VERSION_INFO = 'This is a prototype. Do not distribute.'
 
 
@@ -10,7 +10,7 @@ VERSION_INFO = 'This is a prototype. Do not distribute.'
 #Display#
 #########
 
-WINDOW_TITLE = 'Reactor 3 - The Dead World'
+WINDOW_TITLE = 'Insurgence: Shadow Operation'
 WINDOW_WIDTH = 100
 WINDOW_HEIGHT = 70
 MAP_VIEW_WIDTH = WINDOW_WIDTH

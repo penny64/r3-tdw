@@ -24,7 +24,7 @@ import logging
 import random
 
 
-def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai=False, fore_color=(255, 255, 255)):
+def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_player=False, has_ai=False, fore_color=(255, 255, 255)):
 	_entity = entities.create_entity(group='life')
 	
 	entities.create_event(_entity, 'get_and_store_item')
@@ -60,6 +60,30 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', has_ai
 
 	if has_ai:
 		ai.register_human(_entity)
+	
+	_entity['ai']['is_player'] = is_player
+	
+	if is_player:
+		entities.register_event(_entity,
+		                        'did_damage',
+		                        lambda e, target_id, damage: effects.printer(entities.get_entity(target_id)['tile']['x'],
+		                                            entities.get_entity(target_id)['tile']['y']-1,
+		                                            '%s' % damage,
+		                                            fore_color=(200, 0, 0),
+		                                            speed_mod=0.3,
+		                                            show_mod=1.0,
+		                                            moving=True,
+		                                            center=True))
+		entities.register_event(_entity,
+		                        'log_kill',
+		                        lambda e, target_id: effects.printer(entities.get_entity(target_id)['tile']['x'],
+		                                            entities.get_entity(target_id)['tile']['y']-1,
+		                                            'KILL',
+		                                            fore_color=(255, 0, 0),
+		                                            speed_mod=0.3,
+		                                            show_mod=1.0,
+		                                            moving=True,
+		                                            center=True))
 
 	entities.register_event(_entity, 'finish_turn', finish_turn)
 	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
@@ -159,8 +183,8 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 
 	return _entity
 
-def human(x, y, name):
-	_entity = _create_human(x, y, 100, 10, name, has_ai=True)
+def _human(x, y, name, is_player):
+	_entity = _create_human(x, y, 100, 10, name, has_ai=True, is_player=is_player)
 	
 	entities.trigger_event(_entity, 'set_flag', flag='is_player', value=True)
 
@@ -184,26 +208,7 @@ def human(x, y, name):
 	#								show_mod=1.0,
 	#								moving=False,
 	#								center=True))
-	entities.register_event(_entity,
-				'did_damage',
-				lambda e, target_id, damage: effects.printer(entities.get_entity(target_id)['tile']['x'],
-									entities.get_entity(target_id)['tile']['y']-1,
-									'%s' % damage,
-									fore_color=(200, 0, 0),
-									speed_mod=0.3,
-									show_mod=1.0,
-									moving=True,
-									center=True))
-	entities.register_event(_entity,
-				'log_kill',
-				lambda e, target_id: effects.printer(entities.get_entity(target_id)['tile']['x'],
-									entities.get_entity(target_id)['tile']['y']-1,
-									'KILL',
-									fore_color=(255, 0, 0),
-									speed_mod=0.3,
-									show_mod=1.0,
-									moving=True,
-									center=True))
+	
 	entities.register_event(_entity,
 	                        'new_target_spotted',
 	                        _handle_new_target)
@@ -230,6 +235,9 @@ def human(x, y, name):
 	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
 
 	return _entity
+
+def sniper(x, y, name, is_player=False):
+	return _human(x, y, name, is_player)
 
 def human_terrorist(x, y, name):
 	_entity = _create_human(x, y, 100, 10, name, faction='Terrorists', fore_color=(200, 140, 190), has_ai=True)
