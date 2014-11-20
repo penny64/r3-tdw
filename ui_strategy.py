@@ -132,6 +132,14 @@ def draw_time():
 	
 	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(0, 0, 0))
 
+def draw_money():
+	_money = 4000
+	
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len('$ %i' %_money) - 1, 2,
+	                     '$ %i' % _money,
+	                     fore_color=(60, 200, 60),
+	                     back_color=(10, 80, 10))
+
 def draw_news():
 	_news = [('> Contact lost with camp C2.', (200, 200, 200), None),
 	         ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]

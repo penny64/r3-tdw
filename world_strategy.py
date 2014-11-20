@@ -112,6 +112,7 @@ def draw():
 	
 	elif DRAW_MODE == 'news':
 		ui_strategy.draw_time()
+		ui_strategy.draw_money()
 		ui_strategy.draw_news()
 	
 	display.blit_surface('map_markers')

@@ -72,9 +72,9 @@ def create_map():
 				_grid[_m_x, _m_y]['is_ownable'] = False
 				_banned_plots.add((_m_x, _m_y))
 				
-				_c_1 = int(round(_color_map[x, y][0] * (.8 + _height)))
-				_c_2 = int(round(_color_map[x, y][1] * (.8 + _height)))
-				_c_3 = int(round(_color_map[x, y][2] * (.8 + _height)))
+				_c_1 = int(round(_color_map[x, y][0] * (1.8 * _height)))
+				_c_2 = int(round(_color_map[x, y][1] * (1.8 * _height)))
+				_c_3 = int(round(_color_map[x, y][2] * (1.8 * _height)))
 			
 			else:
 				_color_map[x, y] = random.choice([constants.FOREST_GREEN_1,
