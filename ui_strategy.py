@@ -4,7 +4,7 @@ import world_strategy
 import constants
 
 
-def draw_map_grid():
+def draw_map_grid(selected_grid=None):
 	display.blit_surface_viewport('map', 0, 0, constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT)
 	
 	for x in range(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE):
@@ -36,8 +36,12 @@ def draw_map_grid():
 							_fore_color = (180, 180, 180)
 							_back_color = (100, 100, 100)
 						
+						if (x, y) == selected_grid:
+							_fore_color = int(round(_fore_color[0] * 1.2)), int(round(_fore_color[1] * 1.2)), int(round(_fore_color[2] * 1.2))
+							_back_color = int(round(_back_color[0] * 1.2)), int(round(_back_color[1] * 1.2)), int(round(_back_color[2] * 1.2))
+						
 						if not _x + _y:
-							if _hover:
+							if _hover or (x, y) == selected_grid:
 								_char = chr(201)
 								_fore_color = (255, 255, 255)
 							
@@ -45,7 +49,7 @@ def draw_map_grid():
 								_char = chr(218)
 						
 						elif _x == constants.MAP_CELL_SPACE-1 and not _y:
-							if _hover:
+							if _hover or (x, y) == selected_grid:
 								_char = chr(187)
 								_fore_color = (255, 255, 255)
 
@@ -53,7 +57,7 @@ def draw_map_grid():
 								_char = chr(191)
 							
 						elif not _x and _y == constants.MAP_CELL_SPACE-1:
-							if _hover:
+							if _hover or (x, y) == selected_grid:
 								_char = chr(200)
 								_fore_color = (255, 255, 255)
 
@@ -61,7 +65,7 @@ def draw_map_grid():
 								_char = chr(192)
 						
 						elif _x + _y == (constants.MAP_CELL_SPACE-1)*2:
-							if _hover:
+							if _hover or (x, y) == selected_grid:
 								_char = chr(188)
 								_fore_color = (255, 255, 255)
 
@@ -85,7 +89,7 @@ def draw_map_grid():
 						                   back_color=_back_color)
 					
 					else:
-						if _hover:
+						if _hover or (x, y) == selected_grid:
 							if not _x + _y:
 								_char = chr(201)
 							
@@ -135,7 +139,7 @@ def draw_time():
 def draw_money():
 	_money = 4000
 	
-	display.write_string('ui_bar', constants.WINDOW_WIDTH - len('$ %i' %_money) - 1, 2,
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len('$ %i' % _money) - 1, 2,
 	                     '$ %i' % _money,
 	                     fore_color=(60, 200, 60),
 	                     back_color=(10, 80, 10))
@@ -150,6 +154,20 @@ def draw_news():
 		display.write_string('ui_bar', 1, 1 + _text_y_mod, text, fore_color=fore_color, back_color=back_color)
 		
 		_text_y_mod += 1
+
+def draw_camp_info(camp_id):
+	_camp = world_strategy.MAP['grid'][camp_id]
+	_favor_text = [('Squads: ', '[1]', (55, 200, 55)),
+	               ('Condition: ', 'Bad', (200, 55, 55)),
+	               ('Favor: ', 'Good', (55, 200, 55)),
+	               ('Supplies: ', 'Low', (200, 55, 55))]
+	_y = 1
+	
+	for _favor_text in _favor_text:
+		display.write_string('ui_bar', 1, _y, _favor_text[0])
+		display.write_string('ui_bar', 1 + len(_favor_text[0]), _y, _favor_text[1], fore_color=_favor_text[2])
+		
+		_y += 1
 
 def draw_squad_info(squad_id):
 	_text_y_mod = 0

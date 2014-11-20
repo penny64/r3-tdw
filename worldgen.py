@@ -137,9 +137,9 @@ def create_factions():
 		
 		for i in range(3):
 			if faction_name == 'Rogues':
-				_e = life.sniper(17, 17, 'Tester Toaster %i' % i, is_player=True)
+				_e = life.sniper(17, 17 + i, 'Tester Toaster %i' % i, is_player=True)
 			
 			else:
-				_e = life.human_terrorist(30, 30, 'Bad Dude %i' % i)
+				_e = life.human_terrorist(30, 30 + i, 'Bad Dude %i' % i)
 	
 			ai_squads.register_with_squad(_e, _squad['squad_id'])

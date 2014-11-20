@@ -1,4 +1,4 @@
-from framework import display, worlds, entities, events, controls
+from framework import display, worlds, entities, events, controls, movement
 
 import world_action
 import ui_strategy
@@ -9,6 +9,7 @@ import main
 import random
 
 SELECTED_SQUAD = None
+SELECTED_CAMP = None
 DRAW_MODE = 'news'
 MAP = None
 _DEBUG_ORD = 10
@@ -77,23 +78,35 @@ def handle_mouse_moved(x, y, dx, dy):
 	return
 
 def handle_mouse_pressed(x, y, button):
-	global SELECTED_SQUAD
+	global SELECTED_SQUAD, SELECTED_CAMP
 	
-	_s1, _s2 = entities.get_entity_group('squads')
+	_s1, _s2 = entities.get_entity_group('squads')[:2]
 	_m_x, _m_y = x / constants.MAP_CELL_SPACE, y / constants.MAP_CELL_SPACE
 	
 	if button == 1:
-		for squad_id in entities.get_entity_group('squads'):
-			_squad = entities.get_entity(squad_id)
+		#for x, y in MAP['grid'].keys():
+		_camp = MAP['grid'][_m_x, _m_y]
+		
+		if _camp['owned_by'] == 'Rogues':
+			SELECTED_CAMP = (_m_x, _m_y)
 			
-			if not _squad['faction'] == 'Rogues':
-				continue
-			
-			SELECTED_SQUAD = squad_id
-			
-			set_draw_mode('squad_info')
-			
-			break
+			set_draw_mode('camp_info')
+		
+		else:
+			for squad_id in entities.get_entity_group('squads'):
+				_squad = entities.get_entity(squad_id)
+				
+				if not movement.get_position(_squad) == (_m_x, _m_y):
+					continue
+				
+				if not _squad['faction'] == 'Rogues':
+					continue
+				
+				SELECTED_SQUAD = squad_id
+				
+				set_draw_mode('squad_info')
+				
+				break
 	
 	elif button == 2:
 		events.unregister_event('mouse_moved', handle_mouse_moved)
@@ -104,11 +117,21 @@ def handle_mouse_pressed(x, y, button):
 		set_draw_mode('news')
 
 def draw():
-	ui_strategy.draw_map_grid()
+	if SELECTED_SQUAD:
+		_x, _y = movement.get_position(entities.get_entity(SELECTED_SQUAD))
+		_selected_grid = _x, _y
+	
+	else:
+		_selected_grid = None
+	
+	ui_strategy.draw_map_grid(selected_grid=_selected_grid)
 	ui_strategy.draw_squads()
 	
 	if DRAW_MODE == 'squad_info':
 		ui_strategy.draw_squad_info(SELECTED_SQUAD)
+	
+	elif DRAW_MODE == 'camp_info':
+		ui_strategy.draw_camp_info(SELECTED_CAMP)
 	
 	elif DRAW_MODE == 'news':
 		ui_strategy.draw_time()
