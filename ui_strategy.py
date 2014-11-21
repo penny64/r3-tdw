@@ -3,6 +3,8 @@ from framework import display, controls, entities, movement
 import world_strategy
 import constants
 
+import time
+
 
 def draw_map_grid(selected_grid=None):
 	display.blit_surface_viewport('map', 0, 0, constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT)
@@ -113,7 +115,7 @@ def draw_map_grid(selected_grid=None):
 								               _char,
 							                   back_color=(int(round(_color[0]*1.4)), int(round(_color[1]*1.4)), int(round(_color[2]*1.4))))
 
-def draw_squads():
+def draw_squads(selected_squad=None):
 	for entity_id in entities.get_entity_group('squads'):
 		_squad = entities.get_entity(entity_id)
 		
@@ -123,8 +125,13 @@ def draw_squads():
 		_x, _y = movement.get_position(_squad)
 		_r_x = (_x * constants.MAP_CELL_SPACE) + constants.MAP_CELL_SPACE / 2
 		_r_y = (_y * constants.MAP_CELL_SPACE) + constants.MAP_CELL_SPACE / 2
+		_fore_color = (200, 200, 200)
 		
-		display.write_char('map_squads', _r_x, _r_y, 'S')
+		if selected_squad == entity_id:
+			if time.time() % 1 >= .5:
+				_fore_color = (100, 150, 100)
+		
+		display.write_char('map_squads', _r_x, _r_y, 'S', fore_color=_fore_color)
 
 def clear_bar():
 	for y in range(constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT):
@@ -197,3 +204,12 @@ def draw_squad_info(squad_id):
 		                     back_color=(50, 12, 50))
 		
 		_text_y_mod += 1
+
+def draw_raid_info(squad_id, camp_id):
+	_camp = world_strategy.MAP['map_grid'][camp_id]
+	_squad = entities.get_entity(squad_id)
+	_text_y_mod = 0
+	
+	display.write_string('ui_bar', 1, 1 + _text_y_mod,
+	                     _member['stats']['name'],
+	                     fore_color=(204, 200, 204))

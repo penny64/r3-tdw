@@ -87,13 +87,27 @@ def handle_mouse_pressed(x, y, button):
 		#for x, y in MAP['grid'].keys():
 		_camp = MAP['grid'][_m_x, _m_y]
 		
-		if _camp['owned_by'] == 'Rogues':
+		if _camp['owned_by'] == 'Rogues' and not SELECTED_CAMP:
 			SELECTED_CAMP = (_m_x, _m_y)
 			
 			set_draw_mode('camp_info')
 		
+		elif not _camp['owned_by'] == 'Rogues':
+			if SELECTED_SQUAD:
+				if _camp['owned_by']:
+					set_draw_mode('raid')
+				
+				else:
+					set_draw_mode('occupy')
+				
+				SELECTED_CAMP = (_m_x, _m_y)
+			#set_draw_mode('camp_info')
+		
 		else:
 			for squad_id in entities.get_entity_group('squads'):
+				if squad_id == SELECTED_SQUAD:
+					continue
+				
 				_squad = entities.get_entity(squad_id)
 				
 				if not movement.get_position(_squad) == (_m_x, _m_y):
@@ -103,6 +117,7 @@ def handle_mouse_pressed(x, y, button):
 					continue
 				
 				SELECTED_SQUAD = squad_id
+				SELECTED_CAMP = None
 				
 				set_draw_mode('squad_info')
 				
@@ -125,7 +140,7 @@ def draw():
 		_selected_grid = None
 	
 	ui_strategy.draw_map_grid(selected_grid=_selected_grid)
-	ui_strategy.draw_squads()
+	ui_strategy.draw_squads(selected_squad=SELECTED_SQUAD)
 	
 	if DRAW_MODE == 'squad_info':
 		ui_strategy.draw_squad_info(SELECTED_SQUAD)
@@ -137,6 +152,9 @@ def draw():
 		ui_strategy.draw_time()
 		ui_strategy.draw_money()
 		ui_strategy.draw_news()
+	
+	elif DRAW_MODE == 'raid':
+		ui_strategy.draw_raid_info(SELECTED_SQUAD, SELECTED_CAMP)
 	
 	display.blit_surface('map_markers')
 	display.blit_surface('map_squads')

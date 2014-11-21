@@ -1,3 +1,14 @@
+#Fri Nov 21 2014
+
+It turns out the design needs to be tossed. I saved a few things, but I need a
+fresh start. I'm glad I realized this now rather than later.
+
+Consider the project on indefinite hiatus.
+
+I've been working on a smaller project tht uses Reactor 3's engine for combat,
+so I'm moving on to that.
+
+
 #Mon Nov  3 2014
 
 Took a decent break after I wrapped up the big squad changes last week and came
