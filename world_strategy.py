@@ -1,4 +1,4 @@
-from framework import display, worlds, entities, events, controls, movement
+from framework import display, worlds, entities, events, controls, movement, pathfinding
 
 import world_action
 import ui_strategy
@@ -7,9 +7,11 @@ import worldgen
 import main
 
 import random
+import numpy
 
 SELECTED_SQUAD = None
 SELECTED_CAMP = None
+MAP_PATH = []
 DRAW_MODE = 'news'
 MAP = None
 _DEBUG_ORD = 10
@@ -23,6 +25,7 @@ def create():
 	display.create_surface('map', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_markers', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_squads', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
+	display.create_surface('map_path', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('ui_bar', width=constants.WINDOW_WIDTH, height=constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT)
 	
 	events.register_event('mouse_moved', handle_mouse_moved)
@@ -37,7 +40,10 @@ def create():
 	_color_map = {}
 	
 	MAP = {'grid': _grid,
-	       'color_map': _color_map}	
+	       'color_map': _color_map,
+	       'astar_map': None,
+	       'astar_weight_map': numpy.ones((constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE,
+	                                       constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE))}
 	
 	for x in range(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE):
 		for y in range(constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE):
@@ -78,7 +84,7 @@ def handle_mouse_moved(x, y, dx, dy):
 	return
 
 def handle_mouse_pressed(x, y, button):
-	global SELECTED_SQUAD, SELECTED_CAMP
+	global SELECTED_SQUAD, SELECTED_CAMP, MAP_PATH
 	
 	_s1, _s2 = entities.get_entity_group('squads')[:2]
 	_m_x, _m_y = x / constants.MAP_CELL_SPACE, y / constants.MAP_CELL_SPACE
@@ -95,6 +101,7 @@ def handle_mouse_pressed(x, y, button):
 		elif not _camp['owned_by'] == 'Rogues':
 			if SELECTED_SQUAD:
 				if _camp['owned_by']:
+					MAP_PATH = pathfinding.astar(movement.get_position_via_id(_s1), (_m_x, _m_y), MAP['astar_map'], MAP['astar_weight_map'])
 					set_draw_mode('raid')
 				
 				else:
@@ -155,6 +162,9 @@ def draw():
 	
 	elif DRAW_MODE == 'raid':
 		ui_strategy.draw_raid_info(SELECTED_SQUAD, SELECTED_CAMP)
+		ui_strategy.draw_raid_path(MAP_PATH)
+		
+		display.blit_surface('map_path')
 	
 	display.blit_surface('map_markers')
 	display.blit_surface('map_squads')

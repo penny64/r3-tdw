@@ -1,4 +1,4 @@
-from framework import numbers, display
+from framework import numbers, display, pathfinding
 
 import libtcodpy as tcod
 
@@ -49,6 +49,7 @@ def create_map():
 	_noise = tcod.noise_new(3)
 	_zoom = 1.25
 	_c_pos = constants.STRAT_MAP_WIDTH/2, constants.STRAT_MAP_HEIGHT/2
+	_solids = set()
 	
 	for y in range(0, constants.STRAT_MAP_HEIGHT):
 		for x in range(0, constants.STRAT_MAP_WIDTH):
@@ -93,6 +94,12 @@ def create_map():
 				_c_3 = int(round(_color_map[x, y][2] * (.75 + _height * 1.2)))
 			
 			display._set_char('map', x, y, _char, (int(round(_c_1 * .8)), int(round(_c_2 * .8)), int(round(_c_3 * .8))), (_c_1, _c_2, _c_3))
+	
+	_solids = [(x/constants.MAP_CELL_SPACE, y/constants.MAP_CELL_SPACE) for x, y in list(_banned_plots)]
+	
+	world_strategy.MAP['astar_map'] = pathfinding.setup(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE,
+	                                                    constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE,
+	                                                    _solids)
 	
 	return list(_ownable_plots - _banned_plots)
 

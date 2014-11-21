@@ -1,4 +1,4 @@
-from framework import display, controls, entities, movement
+from framework import display, controls, entities, movement, shapes
 
 import world_strategy
 import constants
@@ -164,17 +164,11 @@ def draw_news():
 
 def draw_camp_info(camp_id):
 	_camp = world_strategy.MAP['grid'][camp_id]
-	_favor_text = [('Squads: ', '[1]', (55, 200, 55)),
-	               ('Condition: ', 'Bad', (200, 55, 55)),
-	               ('Favor: ', 'Good', (55, 200, 55)),
-	               ('Supplies: ', 'Low', (200, 55, 55))]
-	_y = 1
 	
-	for _favor_text in _favor_text:
-		display.write_string('ui_bar', 1, _y, _favor_text[0])
-		display.write_string('ui_bar', 1 + len(_favor_text[0]), _y, _favor_text[1], fore_color=_favor_text[2])
-		
-		_y += 1
+	flavor_print(1, 1, [('Squads: ', '[1]', (55, 200, 55)),
+	                    ('Condition: ', 'Bad', constants.STATUS_BAD),
+	                    ('Favor: ', 'Good', constants.STATUS_GOOD),
+	                    ('Supplies: ', 'Low', (200, 55, 55))])
 
 def draw_squad_info(squad_id):
 	_text_y_mod = 0
@@ -205,11 +199,39 @@ def draw_squad_info(squad_id):
 		
 		_text_y_mod += 1
 
-def draw_raid_info(squad_id, camp_id):
-	_camp = world_strategy.MAP['map_grid'][camp_id]
-	_squad = entities.get_entity(squad_id)
-	_text_y_mod = 0
+def flavor_print(x, y, lines):
+	_y = y
 	
-	display.write_string('ui_bar', 1, 1 + _text_y_mod,
-	                     _member['stats']['name'],
-	                     fore_color=(204, 200, 204))
+	for _favor_text in lines:
+		display.write_string('ui_bar', x, _y, _favor_text[0])
+		display.write_string('ui_bar', x + len(_favor_text[0]), _y, _favor_text[1], fore_color=_favor_text[2])
+		
+		_y += 1
+
+def draw_raid_info(squad_id, camp_id):
+	_camp = world_strategy.MAP['grid'][camp_id]
+	_squad = entities.get_entity(squad_id)
+	
+	display.write_string('ui_bar', 1, 1,
+	                     'Raid Order',
+	                     fore_color=(200, 50, 70))
+	
+	flavor_print(1, 3, [('Risk: ', 'Low', constants.STATUS_GOOD),
+	                    ('Cost: $ ', '%i' % 2500, constants.STATUS_GOOD),
+	                    ('Travel time: ', '1 day, 5 hours', constants.STATUS_OK)])
+	
+	flavor_print(35, 3, [('Test value: ', 'Low', constants.STATUS_GOOD)])
+
+def draw_raid_path(path):
+	_start_pos = path[0]
+	
+	for pos in path[1:]:
+		_r_pos_1 = _start_pos[0] * constants.MAP_CELL_SPACE, _start_pos[1] * constants.MAP_CELL_SPACE
+		_r_pos_2 = pos[0] * constants.MAP_CELL_SPACE, pos[1] * constants.MAP_CELL_SPACE
+		
+		for x, y in shapes.line(_r_pos_1, _r_pos_2):
+			display.write_char('map_path', x + constants.MAP_CELL_SPACE/2,
+			                   y + constants.MAP_CELL_SPACE/2,
+			                   chr(176))
+		
+		_start_pos = pos[:]
