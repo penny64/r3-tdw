@@ -228,8 +228,9 @@ def draw_raid_path(path):
 	for pos in path[1:]:
 		_r_pos_1 = _start_pos[0] * constants.MAP_CELL_SPACE, _start_pos[1] * constants.MAP_CELL_SPACE
 		_r_pos_2 = pos[0] * constants.MAP_CELL_SPACE, pos[1] * constants.MAP_CELL_SPACE
+		_line = shapes.line(_r_pos_1, _r_pos_2)
 		
-		for x, y in shapes.line(_r_pos_1, _r_pos_2):
+		for x, y in _line[:len(_line)-1]:
 			display.write_char('map_path', x + constants.MAP_CELL_SPACE/2,
 			                   y + constants.MAP_CELL_SPACE/2,
 			                   chr(176))
