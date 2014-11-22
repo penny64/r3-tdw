@@ -1,4 +1,4 @@
-from framework import display, controls, entities, movement, shapes
+from framework import display, controls, entities, movement, shapes, numbers
 
 import world_strategy
 import constants
@@ -211,6 +211,9 @@ def flavor_print(x, y, lines):
 def draw_raid_info(squad_id, camp_id):
 	_camp = world_strategy.MAP['grid'][camp_id]
 	_squad = entities.get_entity(squad_id)
+	_travel_distance = numbers.distance(movement.get_position_via_id(squad_id), camp_id)
+	_travel_time = _travel_distance * 60
+	_time_string = '%s hours %s minutes' % (_travel_time / 60, _travel_time - ((_travel_time / 60) * 60))
 	
 	display.write_string('ui_bar', 1, 1,
 	                     'Raid Order',
@@ -218,7 +221,7 @@ def draw_raid_info(squad_id, camp_id):
 	
 	flavor_print(1, 3, [('Risk: ', 'Low', constants.STATUS_GOOD),
 	                    ('Cost: $ ', '%i' % 2500, constants.STATUS_GOOD),
-	                    ('Travel time: ', '1 day, 5 hours', constants.STATUS_OK)])
+	                    ('Travel time: ', _time_string, constants.STATUS_OK)])
 	
 	flavor_print(35, 3, [('Test value: ', 'Low', constants.STATUS_GOOD)])
 
