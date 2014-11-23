@@ -15,6 +15,9 @@ MAP_PATH = []
 DRAW_MODE = 'news'
 MAP = None
 _DEBUG_ORD = 10
+TIME = 14 * 60
+NEWS = [('> Contact lost with camp C2.', (200, 200, 200), None),
+        ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]
 
 
 def create():
@@ -35,6 +38,7 @@ def create():
 	entities.create_entity_group('items', static=True)
 	entities.create_entity_group('factions', static=True)
 	entities.create_entity_group('squads', static=True)
+	entities.create_entity_group('systems')
 	
 	_grid = {}
 	_color_map = {}
@@ -49,9 +53,13 @@ def create():
 		for y in range(constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE):
 			_grid[x, y] = {'owned_by': None,
 			               'is_ownable': False,
-			               'squads': []}
+			               'squads': [],
+			               'produce_rate': 1}
 	
 	worldgen.generate()
+
+def news(text, fore_color=(200, 200, 200), back_color=None):
+	NEWS.append((text, fore_color, back_color))
 
 def set_draw_mode(mode):
 	global DRAW_MODE
@@ -61,13 +69,22 @@ def set_draw_mode(mode):
 	ui_strategy.clear_bar()
 
 def handle_input():
-	global _DEBUG_ORD
+	global _DEBUG_ORD, SELECTED_CAMP, SELECTED_SQUAD
 	
 	events.trigger_event('input')
 	
 	if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
 		if not DRAW_MODE == 'news':
-			set_draw_mode('news')
+			if SELECTED_SQUAD:
+				SELECTED_SQUAD = None
+				
+				if SELECTED_CAMP:
+					set_draw_mode('camp_info')
+			
+			elif SELECTED_CAMP:
+				SELECTED_CAMP = None
+				
+				set_draw_mode('news')
 		
 		else:
 			return False
@@ -90,7 +107,6 @@ def handle_mouse_pressed(x, y, button):
 	_m_x, _m_y = x / constants.MAP_CELL_SPACE, y / constants.MAP_CELL_SPACE
 	
 	if button == 1:
-		#for x, y in MAP['grid'].keys():
 		_camp = MAP['grid'][_m_x, _m_y]
 		
 		if _camp['owned_by'] == 'Rogues' and not SELECTED_CAMP:
@@ -101,13 +117,22 @@ def handle_mouse_pressed(x, y, button):
 		elif not _camp['owned_by'] == 'Rogues':
 			if SELECTED_SQUAD:
 				if _camp['owned_by']:
+					SELECTED_CAMP = (_m_x, _m_y)
 					MAP_PATH = pathfinding.astar(movement.get_position_via_id(_s1), (_m_x, _m_y), MAP['astar_map'], MAP['astar_weight_map'])
+					
 					set_draw_mode('raid')
 				
-				else:
+				elif _camp['is_ownable']:
+					SELECTED_CAMP = (_m_x, _m_y)
+					
 					set_draw_mode('occupy')
 				
-				SELECTED_CAMP = (_m_x, _m_y)
+				else:
+					SELECTED_SQUAD = None
+					SELECTED_CAMP = None
+					
+					set_draw_mode('news')
+				
 			#set_draw_mode('camp_info')
 		
 		else:
@@ -131,12 +156,39 @@ def handle_mouse_pressed(x, y, button):
 				break
 	
 	elif button == 2:
-		events.unregister_event('mouse_moved', handle_mouse_moved)
-		events.unregister_event('mouse_pressed', handle_mouse_pressed)
+		_camp = MAP['grid'][_m_x, _m_y]
 		
-		world_action.start_battle(attacking_squads=[_s1], defending_squads=[_s1])
+		if not _camp['owned_by'] == 'Rogues':
+			if SELECTED_SQUAD:
+				if DRAW_MODE == 'raid':
+					entities.trigger_event(entities.get_entity(SELECTED_SQUAD), 'raid', camp_id=(_m_x, _m_y))
+					
+					SELECTED_SQUAD = None
+					SELECTED_CAMP = None
+					
+					set_draw_mode('news')
+	
+		#events.unregister_event('mouse_moved', handle_mouse_moved)
+		#events.unregister_event('mouse_pressed', handle_mouse_pressed)
 		
-		set_draw_mode('news')
+		#world_action.start_battle(attacking_squads=[_s1], defending_squads=[_s1])
+		
+		#set_draw_mode('news')
+
+def tick():
+	global TIME
+	
+	for squad_id in entities.get_entity_group('squads'):
+		_squad = entities.get_entity(squad_id)
+		
+		entities.trigger_event(_squad, 'logic')
+	
+	for squad_id in entities.get_entity_group('squads'):
+		_squad = entities.get_entity(squad_id)
+		
+		entities.trigger_event(_squad, 'tick')
+	
+	TIME += 0.01
 
 def draw():
 	if SELECTED_SQUAD:
@@ -147,7 +199,9 @@ def draw():
 		_selected_grid = None
 	
 	ui_strategy.draw_map_grid(selected_grid=_selected_grid)
-	ui_strategy.draw_squads(selected_squad=SELECTED_SQUAD)
+	ui_strategy.draw_squads(selected_squad=SELECTED_SQUAD)	
+	ui_strategy.draw_time()
+	ui_strategy.draw_money()
 	
 	if DRAW_MODE == 'squad_info':
 		ui_strategy.draw_squad_info(SELECTED_SQUAD)
@@ -156,9 +210,7 @@ def draw():
 		ui_strategy.draw_camp_info(SELECTED_CAMP)
 	
 	elif DRAW_MODE == 'news':
-		ui_strategy.draw_time()
-		ui_strategy.draw_money()
-		ui_strategy.draw_news()
+		ui_strategy.draw_news(NEWS)
 	
 	elif DRAW_MODE == 'raid':
 		ui_strategy.draw_raid_info(SELECTED_SQUAD, SELECTED_CAMP)
@@ -181,6 +233,7 @@ def loop():
 	if not handle_input():
 		return False
 	
+	tick()
 	draw()
 	
 	return True

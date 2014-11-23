@@ -138,7 +138,7 @@ def clear_bar():
 		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(0, 0, 0))
 
 def draw_time():
-	_minutes = 191
+	_minutes = int(round(world_strategy.TIME))
 	_time = '%s:%02d' % (_minutes / 60, _minutes - ((_minutes / 60) * 60))
 	
 	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(0, 0, 0))
@@ -151,13 +151,11 @@ def draw_money():
 	                     fore_color=(60, 200, 60),
 	                     back_color=(10, 80, 10))
 
-def draw_news():
-	_news = [('> Contact lost with camp C2.', (200, 200, 200), None),
-	         ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]
+def draw_news(news):
 	_chr = chr(65 + 1)
 	_text_y_mod = 0
 	
-	for text, fore_color, back_color in _news:
+	for text, fore_color, back_color in news:
 		display.write_string('ui_bar', 1, 1 + _text_y_mod, text, fore_color=fore_color, back_color=back_color)
 		
 		_text_y_mod += 1
@@ -212,8 +210,28 @@ def draw_raid_info(squad_id, camp_id):
 	_camp = world_strategy.MAP['grid'][camp_id]
 	_squad = entities.get_entity(squad_id)
 	_travel_distance = numbers.distance(movement.get_position_via_id(squad_id), camp_id)
-	_travel_time = _travel_distance * 60
+	_highest_speed = 0
+	
+	for member_id in _squad['members']:
+		_member = entities.get_entity(member_id)
+		_speed = movement.get_move_cost(_member)
+		
+		if _speed > _highest_speed:
+			_highest_speed = _speed
+	
+	_travel_time = _travel_distance * (_highest_speed * 80)
 	_time_string = '%s hours %s minutes' % (_travel_time / 60, _travel_time - ((_travel_time / 60) * 60))
+	_info = 'Right Click Camp to Confirm Order, ESC to cancel'
+	
+	if time.time() % 1 >= .5:
+		_info_color = (200, 0, 0)
+	
+	else:
+		_info_color = (200, 80, 80)
+	
+	display.write_string('ui_bar', (constants.WINDOW_WIDTH / 2) - (len(_info) / 2), 0,
+	                     _info,
+	                     fore_color=_info_color)
 	
 	display.write_string('ui_bar', 1, 1,
 	                     'Raid Order',
@@ -221,6 +239,7 @@ def draw_raid_info(squad_id, camp_id):
 	
 	flavor_print(1, 3, [('Risk: ', 'Low', constants.STATUS_GOOD),
 	                    ('Cost: $ ', '%i' % 2500, constants.STATUS_GOOD),
+	                    ('Supplies needed: ', '%i' % 12, constants.STATUS_OK),
 	                    ('Travel time: ', _time_string, constants.STATUS_OK)])
 	
 	flavor_print(35, 3, [('Test value: ', 'Low', constants.STATUS_GOOD)])

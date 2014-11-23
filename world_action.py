@@ -44,7 +44,6 @@ def create():
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
 	entities.create_entity_group('missions', static=True)
-	entities.create_entity_group('systems')
 	entities.create_entity_group('ui')
 	entities.create_entity_group('ui_menus')
 	entities.create_entity_group('ui_dialogs')
@@ -70,7 +69,6 @@ def create():
 	events.register_event('camera', camera.update)
 	
 	ai.boot()
-	post_processing.start()
 	
 	camera.set_pos(150, 150)
 	

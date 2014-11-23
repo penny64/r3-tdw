@@ -13,6 +13,7 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	             'collisions': collisions,
 				 'direction': direction,
 				 'turn_speed': turn_speed,
+	             'override_speed': 2,
 	             'path': {'positions': [],
 	                      'destination': None,
 	                      'refresh': False}}
@@ -217,6 +218,9 @@ def set_path(entity, path):
 	entity['movement']['path']['destination'] = path[len(path)-1]
 	entity['movement']['path']['refresh'] = False
 
+def get_override_speed(entity):
+	return entity['movement']['override_speed']
+
 def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		return False
@@ -239,4 +243,4 @@ def _walk_path(entity):
 	if not entity['movement']['path']['positions']:
 		entity['movement']['path']['destination'] = None
 
-	push(entity, x=_d_x, y=_d_y, name='move', time=2)
+	push(entity, x=_d_x, y=_d_y, name='move', time=get_override_speed(entity))

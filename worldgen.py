@@ -1,4 +1,4 @@
-from framework import numbers, display, pathfinding
+from framework import numbers, display, pathfinding, entities
 
 import libtcodpy as tcod
 
@@ -6,6 +6,7 @@ import world_strategy
 import mapgen_forest
 import mapgen_swamp
 import mapgen_arena
+import mapgen
 import constants
 import ai_factions
 import ai_squads
@@ -25,10 +26,17 @@ def generate():
 	ai_squads.boot()
 	ai_flow.boot()
 	
+	_weight_map, _tile_map, _solids, _node_grid = mapgen.create_map(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE, constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE)
+	
 	_ownable_plots = create_map()
 	create_bases(_ownable_plots)
 	create_factions()
 	
+	_node_sets = {}
+	_fsl = {}
+	
+	_zone_id = zones.create('arena', constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT, _node_grid, _node_sets, _weight_map, _tile_map, {}, _fsl, {}, {})
+	zones.activate(_zone_id)
 	#if '--arena' in sys.argv:
 	#	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside = mapgen_arena.generate(100, 100)
 	#else:
@@ -95,7 +103,7 @@ def create_map():
 			
 			display._set_char('map', x, y, _char, (int(round(_c_1 * .8)), int(round(_c_2 * .8)), int(round(_c_3 * .8))), (_c_1, _c_2, _c_3))
 	
-	_solids = [(x/constants.MAP_CELL_SPACE, y/constants.MAP_CELL_SPACE) for x, y in list(_banned_plots)]
+	_solids = [(x, y) for x, y in list(_banned_plots)]
 	
 	world_strategy.MAP['astar_map'] = pathfinding.setup(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE,
 	                                                    constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE,
@@ -142,6 +150,11 @@ def create_factions():
 		_squad = ai_squads.create_human_squad(faction_name, _plot_pos[0], _plot_pos[1])
 		_plot['owned_by'] = faction_name
 		
+		if faction_name == 'Rogues':
+			entities.register_event(_squad, 'raid', lambda e, **kwargs: world_strategy.news('Order: Squad %s is raiding %s, %s.' % (e['squad_id'], _plot_pos[0], _plot_pos[1]),
+			                                                                                fore_color=(200, 40, 40)))
+			entities.register_event(_squad, 'position_changed', lambda e, **kwargs: _handle_squad_position_update(e))
+		
 		for i in range(3):
 			if faction_name == 'Rogues':
 				_e = life.sniper(17, 17 + i, 'Tester Toaster %i' % i, is_player=True)
@@ -150,3 +163,10 @@ def create_factions():
 				_e = life.human_terrorist(30, 30 + i, 'Bad Dude %i' % i)
 	
 			ai_squads.register_with_squad(_e, _squad['squad_id'])
+
+def _handle_squad_position_update(entity):
+	if len(entity['movement']['path']['positions']) == 1:
+		world_strategy.news('Alert: Squad %s is arriving at %s, %s.' % (entity['squad_id'],
+		                                                                entity['movement']['path']['destination'][0],
+		                                                                entity['movement']['path']['destination'][1]),
+		                    fore_color=(200, 40, 40), back_color=(80, 0, 0))

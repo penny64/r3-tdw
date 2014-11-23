@@ -53,8 +53,10 @@ def activate(zone_id):
 	_zone['astar_map'] = pathfinding.setup(_zone['width'], _zone['height'], _zone['solids'])
 	_zone['los_map'] = mapgen.generate_los_map(_zone['width'], _zone['height'], _zone['solids'])
 	
-	display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
-	maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
+	#display.create_surface('tiles', width=_zone['width'], height=_zone['height'])
+	#maps.render_map(_zone['tile_map'], _zone['width'], _zone['height'])
+	post_processing.start()
+	
 	events.register_event('logic', post_processing.tick_sun)
 	
 	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
