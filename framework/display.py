@@ -277,6 +277,7 @@ def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 	src_surface['r'] = []
 
 def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, dst_x, dst_y, width, height):
+	#print start_x, start_y, start_x + width, start_y + height, src_surface['f'][0][start_y:start_y+height, start_x:start_x+width].shape
 	dst_surface['f'][0][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][0][start_y:start_y+height, start_x:start_x+width]
 	dst_surface['f'][1][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][1][start_y:start_y+height, start_x:start_x+width]
 	dst_surface['f'][2][dst_y:dst_y+height, dst_x:dst_x+width] = src_surface['f'][2][start_y:start_y+height, start_x:start_x+width]

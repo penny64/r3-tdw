@@ -1,6 +1,8 @@
 from framework import display, controls, entities, movement, shapes, numbers
 
 import world_strategy
+import ai_factions
+import ai_squads
 import constants
 
 import time
@@ -144,12 +146,15 @@ def draw_time():
 	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(0, 0, 0))
 
 def draw_money():
-	_money = 4000
+	_money = ai_factions.FACTIONS['Rogues']['money']
+	_money_string = '%s' % int(round(_money))
 	
-	display.write_string('ui_bar', constants.WINDOW_WIDTH - len('$ %i' % _money) - 1, 2,
-	                     '$ %i' % _money,
-	                     fore_color=(60, 200, 60),
-	                     back_color=(10, 80, 10))
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_money_string) - 3, 2,
+	                     '$')
+	
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_money_string) - 1, 2,
+	                     _money_string,
+	                     fore_color=(60, 200, 60))
 
 def draw_news(news):
 	_chr = chr(65 + 1)
@@ -211,6 +216,7 @@ def draw_raid_info(squad_id, camp_id):
 	_squad = entities.get_entity(squad_id)
 	_travel_distance = numbers.distance(movement.get_position_via_id(squad_id), camp_id)
 	_highest_speed = 0
+	_cost = ai_squads.get_attack_cost(_squad, camp_id)
 	
 	for member_id in _squad['members']:
 		_member = entities.get_entity(member_id)
@@ -238,7 +244,7 @@ def draw_raid_info(squad_id, camp_id):
 	                     fore_color=(200, 50, 70))
 	
 	flavor_print(1, 3, [('Risk: ', 'Low', constants.STATUS_GOOD),
-	                    ('Cost: $ ', '%i' % 2500, constants.STATUS_GOOD),
+	                    ('Cost: $ ', '%i' % _cost, constants.STATUS_GOOD),
 	                    ('Supplies needed: ', '%i' % 12, constants.STATUS_OK),
 	                    ('Travel time: ', _time_string, constants.STATUS_OK)])
 	

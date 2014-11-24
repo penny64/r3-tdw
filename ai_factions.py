@@ -29,6 +29,7 @@ def _create(name, squad_size_range, base_size_range, enemy_factions):
 	            'faction_memory': {},
 	            'brains': [],
 	            'meta': {},
+	            'money': 1200,
 	            'squad_size_range': squad_size_range,
 	            'base_size_range': base_size_range,
 	            'enemies': enemy_factions,

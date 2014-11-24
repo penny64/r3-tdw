@@ -1,4 +1,4 @@
-from framework import numbers, display, pathfinding, entities
+from framework import numbers, display, pathfinding, entities, movement
 
 import libtcodpy as tcod
 
@@ -11,6 +11,7 @@ import constants
 import ai_factions
 import ai_squads
 import ai_flow
+import tiles
 import zones
 import life
 
@@ -34,8 +35,18 @@ def generate():
 	
 	_node_sets = {}
 	_fsl = {}
+	world_strategy.MAP
 	
-	_zone_id = zones.create('arena', constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT, _node_grid, _node_sets, _weight_map, _tile_map, {}, _fsl, {}, {})
+	print 'start', _tile_map
+	
+	for y in range(0, constants.STRAT_MAP_HEIGHT):
+		for x in range(0, constants.STRAT_MAP_WIDTH):
+			_m_x = x / constants.MAP_CELL_SPACE
+			_m_y = y / constants.MAP_CELL_SPACE
+			#_camp = world_strategy.MAP['grid'][_m_x, _m_y]
+			_tile_map[_m_y][_m_x] = tiles.grass(_m_x, _m_y)
+	
+	_zone_id = zones.create('arena', constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE, constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE, _node_grid, _node_sets, _weight_map, _tile_map, {}, _fsl, {}, {})
 	zones.activate(_zone_id)
 	#if '--arena' in sys.argv:
 	#	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside = mapgen_arena.generate(100, 100)
@@ -170,3 +181,18 @@ def _handle_squad_position_update(entity):
 		                                                                entity['movement']['path']['destination'][0],
 		                                                                entity['movement']['path']['destination'][1]),
 		                    fore_color=(200, 40, 40), back_color=(80, 0, 0))
+	
+	elif not len(entity['movement']['path']['positions']):
+		_x, _y = movement.get_position(entity)
+		_camp = world_strategy.MAP['grid'][_x, _y]
+		
+		if _camp['owned_by'] and not entity['faction'] == _camp['owned_by']:
+			_defending_squads = []
+			
+			for squad_id in entities.get_entity_group('squads'):
+				_squad = entities.get_entity(squad_id)
+				
+				if _squad['faction'] == _camp['owned_by']:
+					_defending_squads.append(squad_id)
+			
+			world_strategy.world_action.start_battle(attacking_squads=[entity['_id']], defending_squads=_defending_squads)

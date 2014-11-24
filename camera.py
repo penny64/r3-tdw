@@ -34,6 +34,9 @@ def update():
 	global LAST_X
 	global LAST_Y
 	
+	X = numbers.clip(X, X_MIN, X_MAX)
+	Y = numbers.clip(Y, Y_MIN, Y_MAX)
+	
 	if not LAST_X == X or not LAST_Y == Y:
 		display.blit_surface_viewport('tiles', X, Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 		display.set_surface_camera('tiles', X, Y)

@@ -70,7 +70,7 @@ def create():
 	
 	ai.boot()
 	
-	camera.set_pos(150, 150)
+	camera.set_pos(0, 0)
 	
 	
 	#ui_squad_control.register_squad(ai_squads.get_assigned_squad(PLAYER)['_id'])

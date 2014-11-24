@@ -4,6 +4,7 @@ from ai_factions import FACTIONS
 
 import ai_squad_director
 import ai_squad_logic
+import ai_factions
 import ai_flow
 import constants
 import settings
@@ -252,10 +253,15 @@ def handle_start_of_turn(entity, squad_id):
 		settings.set_tick_mode('normal')
 
 def handle_raid(entity, camp_id):
-	entity['movement']['override_speed'] = 60 * 5
+	entity['movement']['override_speed'] = 60 * 1
+	
+	ai_factions.FACTIONS[entity['faction']]['money'] -= get_attack_cost(entity, camp_id)
 	
 	movement.walk_to_position(entity, camp_id[0], camp_id[1], zones.get_active_astar_map(), zones.get_active_weight_map())
 	
 	#_leader = entities.get_entity(entity['leader'])
 	
 	#ai_squad_logic.leader_handle_raid_camp(_leader, camp)
+
+def get_attack_cost(entity, camp_id):
+	return numbers.distance(movement.get_position(entity), camp_id) * 125

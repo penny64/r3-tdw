@@ -2,6 +2,7 @@ from framework import display, worlds, entities, events, controls, movement, pat
 
 import world_action
 import ui_strategy
+import ai_factions
 import constants
 import worldgen
 import main
@@ -54,7 +55,7 @@ def create():
 			_grid[x, y] = {'owned_by': None,
 			               'is_ownable': False,
 			               'squads': [],
-			               'produce_rate': 1}
+			               'income': .025}
 	
 	worldgen.generate()
 
@@ -182,6 +183,12 @@ def tick():
 		_squad = entities.get_entity(squad_id)
 		
 		entities.trigger_event(_squad, 'logic')
+	
+	for x, y in MAP['grid'].keys():
+		_camp = MAP['grid'][x, y]
+		
+		if _camp['is_ownable'] and _camp['owned_by']:
+			ai_factions.FACTIONS[_camp['owned_by']]['money'] += _camp['income']
 	
 	for squad_id in entities.get_entity_group('squads'):
 		_squad = entities.get_entity(squad_id)
