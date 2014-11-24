@@ -220,8 +220,12 @@ def shade_surface_back_ext(surface_name, shader, width, height):
 
 def _clear_screen():
 	for rect in SCREEN['r']:
+		_force_background_redraw = False
+		
 		if len(rect) == 5:
 			_background = SURFACES[rect[4]]
+			_force_background_redraw = True
+			
 		else:
 			_background = BACKGROUND
 
@@ -237,7 +241,7 @@ def _clear_screen():
 				SCREEN['f'][1][y][x] = _background['f'][1][y][x]
 				SCREEN['f'][2][y][x] = _background['f'][2][y][x]
 
-				if _background['b'][0][y][x] or _background['b'][1][y][x] or _background['b'][2][y][x]:
+				if _force_background_redraw or _background['b'][0][y][x] or _background['b'][1][y][x] or _background['b'][2][y][x]:
 					SCREEN['b'][0][y][x] = _background['b'][0][y][x]
 					SCREEN['b'][1][y][x] = _background['b'][1][y][x]
 					SCREEN['b'][2][y][x] = _background['b'][2][y][x]
@@ -248,7 +252,12 @@ def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 	for rect in src_surface['r']:
 		if clear and src_name:
 			_rect = list(rect[:])
-			_rect.append(src_name)
+			
+			if src_surface['bg']:
+				_rect.append(src_surface['bg'])
+			
+			else:
+				_rect.append(src_name)
 
 			SCREEN['r'].append(_rect)
 

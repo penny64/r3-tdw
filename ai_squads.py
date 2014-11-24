@@ -253,7 +253,7 @@ def handle_start_of_turn(entity, squad_id):
 		settings.set_tick_mode('normal')
 
 def handle_raid(entity, camp_id):
-	entity['movement']['override_speed'] = 60 * 1
+	entity['movement']['override_speed'] = 2#60 * 1
 	
 	ai_factions.FACTIONS[entity['faction']]['money'] -= get_attack_cost(entity, camp_id)
 	

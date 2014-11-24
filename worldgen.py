@@ -37,8 +37,6 @@ def generate():
 	_fsl = {}
 	world_strategy.MAP
 	
-	print 'start', _tile_map
-	
 	for y in range(0, constants.STRAT_MAP_HEIGHT):
 		for x in range(0, constants.STRAT_MAP_WIDTH):
 			_m_x = x / constants.MAP_CELL_SPACE

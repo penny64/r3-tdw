@@ -64,6 +64,12 @@ def create():
 	display.create_surface('ui_menus')
 	display.create_surface('ui_dialogs')
 	
+	display.set_clear_surface('effects', 'tiles')
+	display.set_clear_surface('ui_menus', 'tiles')
+	display.set_clear_surface('ui_dialogs', 'tiles')
+	display.set_clear_surface('ui', 'tiles')
+	display.set_clear_surface('life', 'tiles')
+	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
@@ -92,6 +98,8 @@ def start_battle(attacking_squads=[], defending_squads=[]):
 	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside)
 	
 	zones.activate(_zone)
+	
+	display.blit_background('tiles')
 	
 	while loop():
 		events.trigger_event('cleanup')

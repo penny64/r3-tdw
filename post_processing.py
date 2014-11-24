@@ -68,7 +68,8 @@ def post_process_clouds(width, height, passes, noise, inside):
 	if settings.TICK_MODE == 'normal':
 		CLOUD_X -= numbers.clip(.003 * (settings.PLAN_TICK_RATE * .75), .003, 1)
 	
-	_worker = workers.counter_2d(width,
+	#HUGE decrease in FPS when using workers
+	'''_worker = workers.counter_2d(width,
 	                             height,
 	                             passes,
 	                             lambda x, y: _post_process_clouds(x, y, _clouds, _zoom, _clouds_x, _clouds_y, _size, _sunlight, noise, inside))
@@ -86,7 +87,7 @@ def post_process_clouds(width, height, passes, noise, inside):
 	                                                             _clouds,
 	                                                             constants.MAP_VIEW_WIDTH,
 	                                                             constants.MAP_VIEW_HEIGHT,
-	                                                             g=.9, b=.8))
+	                                                             g=.9, b=.8))'''
 
 def tick_sun():
 	global SUNLIGHT
