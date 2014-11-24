@@ -69,6 +69,7 @@ def create():
 	display.set_clear_surface('ui_dialogs', 'tiles')
 	display.set_clear_surface('ui', 'tiles')
 	display.set_clear_surface('life', 'tiles')
+	display.set_clear_surface('nodes', 'tiles')
 	
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('mouse_moved', handle_mouse_movement)
