@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, vision, respect=1, accuracy=1.0, mobility=80, intelligence=90, action_points=100, smgs=50, rifles=50, pistols=50, name='Unknown', kind='unknown'):
+def register(entity, health, speed, vision, class_name='Gunner', respect=1, accuracy=1.0, mobility=80, intelligence=90, action_points=100, smgs=50, rifles=50, pistols=50, name='Unknown', kind='unknown'):
 	_stats = {'health': health,
 			  'max_health': health,
 			  'speed': speed,
@@ -18,6 +18,7 @@ def register(entity, health, speed, vision, respect=1, accuracy=1.0, mobility=80
 	          'intelligence': intelligence,
 	          'skill_points': int(round(100 * (intelligence/100.0))),
 	          'mobility': mobility,
+	          'class': class_name,
 	          'smgs': smgs,
 	          'rifles': rifles,
 	          'pistols': pistols,
@@ -112,6 +113,12 @@ def get_speed(entity, items=True):
 	
 	return entity['stats']['speed']
 
+def get_shoot_cost(entity, weapon_id):
+	_weapon = entities.get_entity(weapon_id)
+	_weapon_accuracy = flags.get_flag(_weapon, 'shoot_cost')
+	
+	return _weapon_accuracy
+
 def get_accuracy(entity, weapon_id):
 	entity['stats']['accuracy'] = entity['stats']['max_accuracy']
 	_weapon = entities.get_entity(weapon_id)
@@ -121,6 +128,9 @@ def get_accuracy(entity, weapon_id):
 	
 	if _weapon['stats']['kind'] == 'pistol':
 		_weapon_accuracy *= 1 + (1 - (entity['stats']['pistols'] / 100.0))
+	
+	elif _weapon['stats']['kind'] == 'rifle':
+		_weapon_accuracy *= 1 + (1 - (entity['stats']['rifles'] / 100.0))
 	
 	else:
 		raise Exception('Invalid gun type.')

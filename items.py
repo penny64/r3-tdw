@@ -253,7 +253,10 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=55)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=2.35)
+	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
+	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=3)
 	entities.register_event(_entity, 'get_display_name', _handle_weapon_display_name)
 	
 	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
@@ -267,6 +270,17 @@ def glock(x, y, ammo=0):
 	#                                                                                                                y-camera.Y,
 	#                                                                                                                'Dead?')))	
 	
+	return _entity
+
+def shortrifle():
+	_entity = _create(0, 0, '.22 Short Rifle', 'P', 4, 'weapon', equip_to='weapon', kind='rifle')
+	
+	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=6)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=6)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=1.25)
+	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=40)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=82)
+	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
 	
 	return _entity
 
@@ -311,10 +325,11 @@ def _bullet_effects(entity, x, y):
 	
 	effects.vapor(x, y, start_alpha=numbers.clip((0.6-(_distance/35.0))+random.uniform(-.1, .1), 0, 1))
 
-def bullet(entity, x, y, tx, ty, speed, accuracy):
+def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
 	_entity['owner'] = entity['_id']
 	_entity['start_position'] = (x, y)
+	_entity['damage'] = damage
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)

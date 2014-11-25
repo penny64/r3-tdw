@@ -104,7 +104,25 @@ def tick():
 	else:
 		_squads = entities.get_entity_group('squads')
 		
-		#settings.set_tick_mode('strategy')
+		for squad_id in entities.get_entity_group('squads'):
+			_squad = entities.get_entity(squad_id)
+			_break = False
+			
+			if not _squad['faction'] == 'Rogues':
+				continue
+			
+			for member_id in _squad['members']:
+				_entity = entities.get_entity(member_id)
+				
+				if timers.has_timer_with_name(_entity, 'shoot') or _entity['movement']['path']['positions'] or timers.has_timer_with_name(_entity, 'move'):
+					_break = True
+					
+					break
+			
+			if _break:
+				break
+		else:
+			settings.set_tick_mode('strategy')
 	
 	for squad_id in _squads:
 		_squad = entities.get_entity(squad_id)

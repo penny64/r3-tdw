@@ -4,6 +4,7 @@ import world_strategy
 import ai_factions
 import ai_squads
 import constants
+import items
 
 import time
 
@@ -138,7 +139,6 @@ def draw_squads(selected_squad=None):
 def clear_bar():
 	for y in range(constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT):
 		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(0, 0, 0))
-	#	print constants.STRAT_MAP_HEIGHT + y
 
 def draw_time():
 	_minutes = int(round(world_strategy.TIME))
@@ -181,8 +181,15 @@ def draw_squad_info(squad_id):
 	for member_id in _squad['members']:
 		_member = entities.get_entity(member_id)
 		_health_string = '[OK]'
-		_weapon_name = '<Glock>'
-		_rank = 'Shooter'
+		_weapon = items.get_items_in_holder(_member, 'weapon')
+		
+		if _weapon:
+			_weapon_name = '<%s>' % entities.get_entity(_weapon[0])['stats']['name']
+		
+		else:
+			_weapon_name = '<None>'
+		
+		_class = _member['stats']['class']
 		
 		display.write_string('ui_bar', 1, 1 + _text_y_mod,
 		                     _member['stats']['name'],
@@ -197,7 +204,7 @@ def draw_squad_info(squad_id):
 		                     fore_color=(0, 200, 34))
 		
 		display.write_string('ui_bar', 4 + len(_member['stats']['name']) + len(_health_string) + len(_weapon_name), 1 + _text_y_mod,
-		                     _rank,
+		                     _class,
 		                     fore_color=(200, 50, 200),
 		                     back_color=(50, 12, 50))
 		

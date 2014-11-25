@@ -183,10 +183,8 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 
 	return _entity
 
-def _human(x, y, name, is_player):
-	_entity = _create_human(x, y, 100, 10, name, has_ai=True, is_player=is_player)
-	
-	entities.trigger_event(_entity, 'set_flag', flag='is_player', value=True)
+def _human(x, y, name, is_player, faction):
+	_entity = _create_human(x, y, 100, 10, name, has_ai=True, is_player=is_player, faction=faction)
 
 	#entities.register_event(_entity,
 	#			'hold_item',
@@ -209,56 +207,79 @@ def _human(x, y, name, is_player):
 	#								moving=False,
 	#								center=True))
 	
-	entities.register_event(_entity,
-	                        'new_target_spotted',
-	                        _handle_new_target)
-	entities.register_event(_entity,
-	                        'broadcast',
-	                        lambda e, message: effects.message(message))
-	entities.register_event(_entity,
-	                        'add_mission',
-	                        lambda e, mission_id: effects.message('New mission.'))
-	entities.register_event(_entity,
-	                        'complete_mission',
-	                        lambda e, mission_id: effects.message('Mission complete.'))
-	entities.register_event(_entity,
-	                        'set_rank',
-	                        lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
-	
-	entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
-	
-	entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
-	
-	entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_player_start_of_turn(_entity, squad_id))
-	entities.register_event(ai_flow.FLOW, 'end_of_turn', lambda e, squad_id: handle_player_end_of_turn(_entity, squad_id))
-	
-	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	if is_player:
+		entities.trigger_event(_entity, 'set_flag', flag='is_player', value=True)
+		entities.register_event(_entity,
+			                    'new_target_spotted',
+			                    _handle_new_target)
+		entities.register_event(_entity,
+			                    'broadcast',
+			                    lambda e, message: effects.message(message))
+		entities.register_event(_entity,
+			                    'add_mission',
+			                    lambda e, mission_id: effects.message('New mission.'))
+		entities.register_event(_entity,
+			                    'complete_mission',
+			                    lambda e, mission_id: effects.message('Mission complete.'))
+		entities.register_event(_entity,
+			                    'set_rank',
+			                    lambda e, rank: not _entity['stats']['rank'] == rank and effects.message('New Rank: %s' % rank))
+		
+		entities.register_event(_entity, 'heard_noise', handle_player_heard_noise)
+		
+		entities.register_event(_entity, 'receive_memory', handle_player_received_memory)
+		
+		entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_player_start_of_turn(_entity, squad_id))
+		entities.register_event(ai_flow.FLOW, 'end_of_turn', lambda e, squad_id: handle_player_end_of_turn(_entity, squad_id))
 
 	return _entity
 
-def sniper(x, y, name, is_player=False):
-	return _human(x, y, name, is_player)
-
-def human_terrorist(x, y, name):
-	_entity = _create_human(x, y, 100, 10, name, faction='Terrorists', fore_color=(200, 140, 190), has_ai=True)
+def sniper(x, y, name, faction, is_player=False):
+	_entity = _human(x, y, name, is_player, faction)
 	
-	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	_entity['stats']['class'] = 'Sniper'
+	_entity['stats']['rank'] = 'Novice'
+	_entity['stats']['smgs'] = random.randint(15, 20)
+	_entity['stats']['pistols'] = random.randint(17, 22)
+	_entity['stats']['rifles'] = random.randint(28, 32)
 	
-	return _entity
-
-def human_runner(x, y, name):
-	_entity = _create_human(x, y, 100, 10, name, faction='Terrorists', fore_color=(200, 140, 190), has_ai=True)
-	
-	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	_get_and_hold_item(_entity, items.shortrifle()['_id'])
 	
 	return _entity
 
-def human_bandit(x, y, name):
-	_entity = _create_human(x, y, 100, 10, name, faction='Militia', fore_color=(140, 140, 190), has_ai=True)
+def engineer(x, y, name, faction, is_player=False):
+	_entity = _human(x, y, name, is_player, faction)
 	
-	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+	_entity['stats']['class'] = 'Engineer'
+	_entity['stats']['rank'] = 'Novice'
+	_entity['stats']['smgs'] = random.randint(25, 30)
+	_entity['stats']['pistols'] = random.randint(20, 25)
+	_entity['stats']['rifles'] = random.randint(12, 16)
+	
+	_get_and_hold_item(_entity, items.glock(0, 0, ammo=17)['_id'])
 	
 	return _entity
+
+#def human_terrorist(x, y, name):
+#	_entity = _create_human(x, y, 100, 10, name, faction='Terrorists', fore_color=(200, 140, 190), has_ai=True)
+#	
+#	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+#	
+#	return _entity
+
+#def human_runner(x, y, name):
+#	_entity = _create_human(x, y, 100, 10, name, faction='Terrorists', fore_color=(200, 140, 190), has_ai=True)
+#	
+#	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+#	
+#	return _entity
+
+#def human_bandit(x, y, name):
+#	_entity = _create_human(x, y, 100, 10, name, faction='Militia', fore_color=(140, 140, 190), has_ai=True)
+#	
+#	_get_and_hold_item(_entity, items.glock(20, 20, ammo=17)['_id'])
+#	
+#	return _entity
 
 def wild_dog(x, y, name):
 	_entity = _create_animal(x, y, 100, 4, 'Wild Dog', faction='Wild Dogs', char='d', fore_color=(200, 0, 0), has_ai=True)
@@ -510,13 +531,14 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	                                                                value=[x, y]),
 	                       context_callback=lambda x, y: ui_dialog.create(x, y, 'Gunshot (Unknown)', title='Noise'))
 
-	entity['stats']['action_points'] -= 25
+	entity['stats']['action_points'] -= stats.get_shoot_cost(entity, weapon_id)
 
 	entities.trigger_event(entity, 'get_accuracy')
 	_accuracy = stats.get_accuracy(entity, weapon_id)
+	_damage = flags.get_flag(_weapon, 'damage')
 
 	effects.light(_x, _y, random.randint(2, 5))
-	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy)
+	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy, _damage)
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'shoot'):
@@ -524,6 +546,7 @@ def shoot_weapon(entity, target_id):
 
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]
 	_ammo = flags.get_flag(entities.get_entity(_weapon), 'ammo')
+	_rounds_per_shot = flags.get_flag(entities.get_entity(_weapon), 'rounds_per_shot')
 
 	if not _ammo:
 		return
@@ -531,6 +554,6 @@ def shoot_weapon(entity, target_id):
 	entities.trigger_event(entity,
 		                   'create_timer',
 		                   time=10,
-	                       repeat=3,
+	                       repeat=_rounds_per_shot,
 		                   name='shoot',
 		                   repeat_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))
