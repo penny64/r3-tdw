@@ -53,9 +53,8 @@ def paint_map(initial=False):
 			
 			_crosshair_mod = abs((_dist_to_crosshair - 1))
 			
-			#if not initial:
-			#	if not (x > 30 and x < 50) and (y > 5 and y < 20):# and not _crosshair_mod:
-			#		continue
+			#if not initial and not _crosshair_mod:
+			#	continue
 			
 			if _height > .4:
 				_height = (_height - .4) / .4
