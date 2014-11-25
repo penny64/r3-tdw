@@ -138,6 +138,7 @@ def draw_squads(selected_squad=None):
 def clear_bar():
 	for y in range(constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT):
 		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(0, 0, 0))
+	#	print constants.STRAT_MAP_HEIGHT + y
 
 def draw_time():
 	_minutes = int(round(world_strategy.TIME))

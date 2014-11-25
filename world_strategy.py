@@ -26,11 +26,14 @@ def create():
 	
 	worlds.create('strategy')
 	
+	display.create_surface('background')
 	display.create_surface('map', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_markers', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_squads', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_path', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('ui_bar', width=constants.WINDOW_WIDTH, height=constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT)
+	
+	display.blit_background('background')
 	
 	events.register_event('mouse_moved', handle_mouse_moved)
 	events.register_event('mouse_pressed', handle_mouse_pressed)
@@ -81,8 +84,12 @@ def handle_input():
 				
 				if SELECTED_CAMP:
 					set_draw_mode('camp_info')
+				
+				else:
+					set_draw_mode('news')
 			
-			elif SELECTED_CAMP:
+			else:
+				SELECTED_SQUAD = None
 				SELECTED_CAMP = None
 				
 				set_draw_mode('news')

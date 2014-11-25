@@ -13,16 +13,17 @@ import sys
 
 
 def main():
-	#world_action.create()
-	world_intro.create()
-	
-	#while world_intro.loop():
-	#	events.trigger_event('cleanup')
-	
-	#world_menu.create()
-	
-	#while world_menu.loop():
-	#	events.trigger_event('cleanup')
+	if not '--dev' in sys.argv:
+		#world_action.create()
+		world_intro.create()
+		
+		#while world_intro.loop():
+		#	events.trigger_event('cleanup')
+		
+		world_menu.create()
+		
+		while world_menu.loop():
+			events.trigger_event('cleanup')
 	
 	world_strategy.create()	
 	
