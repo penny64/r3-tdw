@@ -183,6 +183,86 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 
 	return _entity
 
+def _create_robot(x, y, health, speed, name, vision=30, faction='Rogues', is_player=False, has_ai=True, fore_color=(200, 200, 200)):
+	_entity = entities.create_entity(group='life')
+	
+	entities.create_event(_entity, 'get_and_store_item')
+	entities.create_event(_entity, 'get_and_hold_item')
+	entities.create_event(_entity, 'reload')
+	entities.create_event(_entity, 'shoot')
+	entities.create_event(_entity, 'damage')
+	entities.create_event(_entity, 'did_damage')
+	entities.create_event(_entity, 'receive_memory')
+	entities.create_event(_entity, 'handle_corpse')
+	entities.create_event(_entity, 'finish_turn')
+
+	tile.register(_entity, surface='life', char='@', fore_color=fore_color)
+	movement.register(_entity, collisions=True)
+	timers.register(_entity)
+	stats.register(_entity, health, speed, vision, name=name, kind='human')
+	nodes.register(_entity)
+	items.register(_entity)
+	flags.register(_entity)
+	noise.register(_entity)
+	missions.register(_entity)
+	skeleton.register(_entity)
+
+	if has_ai:
+		ai.register_robot(_entity)
+	
+	ai_factions.register(_entity, faction)
+	
+	_entity['ai']['is_player'] = is_player
+	
+	if is_player:
+		entities.register_event(_entity,
+		                        'did_damage',
+		                        lambda e, target_id, damage: effects.printer(entities.get_entity(target_id)['tile']['x'],
+		                                            entities.get_entity(target_id)['tile']['y']-1,
+		                                            '%s' % damage,
+		                                            fore_color=(200, 0, 0),
+		                                            speed_mod=0.3,
+		                                            show_mod=1.0,
+		                                            moving=True,
+		                                            center=True))
+		entities.register_event(_entity,
+		                        'log_kill',
+		                        lambda e, target_id: effects.printer(entities.get_entity(target_id)['tile']['x'],
+		                                            entities.get_entity(target_id)['tile']['y']-1,
+		                                            'KILL',
+		                                            fore_color=(255, 0, 0),
+		                                            speed_mod=0.3,
+		                                            show_mod=1.0,
+		                                            moving=True,
+		                                            center=True))
+
+	entities.register_event(_entity, 'finish_turn', finish_turn)
+	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
+	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
+	entities.register_event(_entity, 'get_and_hold_item', get_and_hold_item)
+	entities.register_event(_entity, 'reload', reload_weapon)
+	entities.register_event(_entity, 'shoot', shoot_weapon)
+	entities.register_event(_entity, 'heard_noise', handle_heard_noise)
+	entities.register_event(_entity, 'position_changed',
+	                        lambda e, **kwargs: entities.trigger_event(e,
+	                                                                   'create_noise',
+	                                                                   volume=25,
+	                                                                   text='?',
+	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
+	                                                                                                            'update_target_memory',
+	                                                                                                            target_id=_entity['_id'],
+	                                                                                                            key='last_seen_at',
+	                                                                                                            value=[x, y])))
+	entities.register_event(_entity, 'push', lambda e, **kwargs: movement.sub_move_cost(e))
+	                        
+	entities.trigger_event(_entity, 'set_position', x=x, y=y)
+	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
+	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
+	
+	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
+
+	return _entity
+
 def _human(x, y, name, is_player, faction):
 	_entity = _create_human(x, y, 100, 10, name, has_ai=True, is_player=is_player, faction=faction)
 
@@ -232,6 +312,17 @@ def _human(x, y, name, is_player, faction):
 		entities.register_event(ai_flow.FLOW, 'start_of_turn', lambda e, squad_id: handle_player_start_of_turn(_entity, squad_id))
 		entities.register_event(ai_flow.FLOW, 'end_of_turn', lambda e, squad_id: handle_player_end_of_turn(_entity, squad_id))
 
+	return _entity
+
+def turret(x, y, name, faction):
+	_entity = _create_robot(x, y, 100, 0, 'Turret', faction=faction)
+	
+	skeleton.create_motion(_entity, 'stand')
+	skeleton.create_limb(_entity, 'optic', [], False, 0.1, stat_mod={'vision': .25, 'accuracy': .22})
+	skeleton.create_limb(_entity, 'mount', ['optic'], True, 0.88)
+	
+	_get_and_hold_item(_entity, items.chaingun()['_id'])
+	
 	return _entity
 
 def sniper(x, y, name, faction, is_player=False):

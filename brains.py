@@ -248,6 +248,53 @@ def combat():
 
 	return _combat_brain
 
+def robot_combat():
+	_combat_brain = goapy.Planner('has_ammo',
+		                          'has_weapon',
+	                              'has_lost_target',
+		                          'weapon_loaded',
+		                          'in_engagement',
+		                          'in_enemy_los',
+		                          'is_target_near',
+		                          'is_squad_combat_ready',
+		                          'is_squad_overwhelmed',
+		                          'is_squad_forcing_surrender',
+		                          'is_squad_mobile_ready',
+		                          #'is_squad_pushing',
+		                          'is_target_armed',
+		                          'has_firing_position',
+		                          'in_firing_range',
+		                          'is_panicked',
+	                              'is_injured')
+	_combat_brain.set_goal_state(in_engagement=False)
+
+	_combat_actions = goapy.Action_List()
+
+	_combat_actions.add_condition('shoot',
+		                          weapon_loaded=True,
+		                          in_firing_range=True,
+		                          in_enemy_los=True)
+	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
+	_combat_actions.add_reaction('shoot', in_engagement=False)
+
+	#TODO: This doesn't work because is_target_near was repurposed as more of a "in shooting range" value
+	#_combat_actions.add_condition('panic_shoot',
+	#                              weapon_loaded=True,
+	#                              is_target_lost=False,
+	#                              is_squad_overwhelmed=False,
+	#                              is_squad_forcing_surrender=False,
+	#                              has_firing_position=False,
+	#                              is_target_near=False)
+	#_combat_actions.add_callback('panic_shoot', ai_logic.shoot_weapon)
+	#_combat_actions.add_reaction('panic_shoot', in_engagement=False)
+
+	#_combat_actions.set_weight('track', 20)
+	#_combat_actions.set_weight('make_surrender', 10)
+
+	_combat_brain.set_action_list(_combat_actions)
+
+	return _combat_brain
+
 def dog_combat():
 	_combat_brain = goapy.Planner('in_engagement',
 		                          'in_enemy_los',

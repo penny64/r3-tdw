@@ -240,6 +240,20 @@ def register_animal(entity, player=False):
 	entities.register_event(entity, 'logic', _animal_logic)
 	entities.register_event(entity, 'logic_offline', _animal_logic_offline)
 
+def register_robot(entity, player=False):
+	_register(entity, player=player)
+	_ai = entity['ai']
+	
+	#Combat
+	_ai['brain'].add_planner(brains.robot_combat())
+	
+	#Reload
+	_ai['brain'].add_planner(brains.reload())
+	
+	entities.register_event(entity, 'logic', _human_logic)
+	entities.register_event(entity, 'logic_offline', _human_logic_offline)
+
+
 ###################
 #System Operations#
 ###################

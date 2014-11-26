@@ -284,6 +284,18 @@ def shortrifle():
 	
 	return _entity
 
+def chaingun():
+	_entity = _create(0, 0, 'Chaingun', 'P', 4, 'weapon', equip_to='weapon', kind='rifle')
+	
+	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=100)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=100)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=3.00)
+	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=48)
+	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=6)
+	
+	return _entity
+
 def ammo_9x19mm(x, y):
 	_entity = _create(x, y, '9x19mm rounds', '+', 4, 'ammo')
 	
