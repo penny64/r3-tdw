@@ -7,6 +7,7 @@ import ai_flow
 import ui_director
 import ui_dialog
 import ui_menu
+import constants
 import skeleton
 import settings
 import missions
@@ -61,6 +62,8 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_pla
 	if has_ai:
 		ai.register_human(_entity)
 	
+	ai_factions.register(_entity, faction)
+	
 	_entity['ai']['is_player'] = is_player
 	
 	if is_player:
@@ -102,26 +105,24 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_pla
 	                                                                                                            target_id=_entity['_id'],
 	                                                                                                            key='last_seen_at',
 	                                                                                                            value=[x, y])))
-	entities.register_event(_entity, 'damage',
-	                        lambda e, **kwargs: entities.trigger_event(e,
-	                                                                   'create_noise',
-	                                                                   volume=12,
-	                                                                   text='Ow!',
-	                                                                   owner_can_hear=True,
-	                                                                   show_on_sight=True,
-	                                                                   callback=lambda t, x, y: entities.trigger_event(t,
-	                                                                                                            'update_target_memory',
-	                                                                                                            target_id=_entity['_id'],
-	                                                                                                            key='last_seen_at',
-	                                                                                                            value=[x, y])))
+	#entities.register_event(_entity, 'damage',
+	#                        lambda e, **kwargs: entities.trigger_event(e,
+	#                                                                   'create_noise',
+	#                                                                   volume=12,
+	#                                                                   text='Ow!',
+	#                                                                   owner_can_hear=True,
+	#                                                                   show_on_sight=True,
+	#                                                                   callback=lambda t, x, y: entities.trigger_event(t,
+	#                                                                                                            'update_target_memory',
+	#                                                                                                            target_id=_entity['_id'],
+	#                                                                                                            key='last_seen_at',
+	#                                                                                                            value=[x, y])))
 	#entities.register_event(_entity, 'position_changed', lambda e, **kwargs: ai_visuals.add_to_moved_life(e))
 	entities.register_event(_entity, 'push', lambda e, **kwargs: movement.sub_move_cost(e))
 	                        
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
 	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
-	
-	ai_factions.register(_entity, faction)
 	
 	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
 
@@ -145,6 +146,7 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	flags.register(_entity)
 	noise.register(_entity)
 	skeleton.register(_entity)
+	ai_factions.register(_entity, faction)
 
 	if has_ai:
 		ai.register_animal(_entity)
@@ -178,8 +180,6 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 	entities.trigger_event(_entity, 'set_position', x=x, y=y)
 	entities.trigger_event(_entity, 'create_holder', name='weapon', max_weight=10)
 	entities.trigger_event(_entity, 'create_holder', name='backpack', max_weight=10)
-	
-	ai_factions.register(_entity, faction)
 
 	return _entity
 
@@ -547,13 +547,15 @@ def shoot_weapon(entity, target_id):
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]
 	_ammo = flags.get_flag(entities.get_entity(_weapon), 'ammo')
 	_rounds_per_shot = flags.get_flag(entities.get_entity(_weapon), 'rounds_per_shot')
+	_pause_time = 30
 
 	if not _ammo:
 		return
 
 	entities.trigger_event(entity,
 		                   'create_timer',
-		                   time=10,
+		                   time=_pause_time,
 	                       repeat=_rounds_per_shot,
 		                   name='shoot',
+	                       enter_callback=lambda _: entities.trigger_event(entity, 'animate', animation=['\\', '|', '/', '-'], delay=_pause_time/4),
 		                   repeat_callback=lambda _: _shoot_weapon(entity, _weapon, target_id))

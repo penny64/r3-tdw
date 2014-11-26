@@ -31,7 +31,7 @@ def paint_map(initial=False):
 		
 		return
 	
-	REDRAW_RATE = 3.0
+	REDRAW_RATE = 2.0
 	
 	if initial:
 		_x_range = 0, constants.WINDOW_WIDTH

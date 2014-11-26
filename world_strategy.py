@@ -35,8 +35,7 @@ def create():
 	
 	display.blit_background('background')
 	
-	events.register_event('mouse_moved', handle_mouse_moved)
-	events.register_event('mouse_pressed', handle_mouse_pressed)
+	register_input()
 	
 	entities.create_entity_group('life', static=True)
 	entities.create_entity_group('items', static=True)
@@ -61,6 +60,14 @@ def create():
 			               'income': .025}
 	
 	worldgen.generate()
+
+def register_input():
+	events.register_event('mouse_moved', handle_mouse_moved)
+	events.register_event('mouse_pressed', handle_mouse_pressed)
+
+def unregister_input():
+	events.unregister_event('mouse_moved', handle_mouse_moved)
+	events.unregister_event('mouse_pressed', handle_mouse_pressed)
 
 def news(text, fore_color=(200, 200, 200), back_color=None):
 	NEWS.append((text, fore_color, back_color))
@@ -175,13 +182,6 @@ def handle_mouse_pressed(x, y, button):
 					SELECTED_CAMP = None
 					
 					set_draw_mode('news')
-	
-		#events.unregister_event('mouse_moved', handle_mouse_moved)
-		#events.unregister_event('mouse_pressed', handle_mouse_pressed)
-		
-		#world_action.start_battle(attacking_squads=[_s1], defending_squads=[_s1])
-		
-		#set_draw_mode('news')
 
 def tick():
 	global TIME

@@ -200,3 +200,4 @@ def _handle_squad_position_update(entity):
 					_defending_squads.append(squad_id)
 			
 			world_strategy.world_action.start_battle(attacking_squads=[entity['_id']], defending_squads=_defending_squads)
+			world_strategy.unregister_input()

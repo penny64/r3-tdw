@@ -17,6 +17,9 @@ def create_noise(entity, text, volume, owner_can_hear=False, show_on_sight=False
 		
 		_target = entities.get_entity(entity_id)
 		
+		if entity['ai']['faction'] == _target['ai']['faction']:
+			continue
+		
 		#TODO: Hearing stat
 		_distance = numbers.distance(movement.get_position(entity), movement.get_position(_target))
 		_accuracy = 1 - numbers.clip(_distance / float(volume), 0, 1)
