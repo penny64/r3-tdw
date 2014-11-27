@@ -65,6 +65,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_pla
 	ai_factions.register(_entity, faction)
 	
 	_entity['ai']['is_player'] = is_player
+	_entity['ai']['is_npc'] = not is_player
 	
 	if is_player:
 		entities.register_event(_entity,
@@ -150,6 +151,8 @@ def _create_animal(x, y, health, speed, name, vision=65, faction='Mutants', has_
 
 	if has_ai:
 		ai.register_animal(_entity)
+	
+	_entity['ai']['is_npc'] = True
 
 	entities.register_event(_entity, 'finish_turn', finish_turn)
 	entities.create_event(_entity, 'get_and_store_item')
@@ -213,6 +216,7 @@ def _create_robot(x, y, health, speed, name, vision=30, faction='Rogues', is_pla
 	ai_factions.register(_entity, faction)
 	
 	_entity['ai']['is_player'] = is_player
+	_entity['ai']['is_npc'] = not is_player
 	
 	if is_player:
 		entities.register_event(_entity,

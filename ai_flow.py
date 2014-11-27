@@ -103,6 +103,7 @@ def tick():
 	
 	else:
 		_squads = entities.get_entity_group('squads')
+		_found_able_player = False
 		
 		for squad_id in entities.get_entity_group('squads'):
 			_squad = entities.get_entity(squad_id)
@@ -114,15 +115,24 @@ def tick():
 			for member_id in _squad['members']:
 				_entity = entities.get_entity(member_id)
 				
+				if _entity['ai']['is_npc']:
+					continue
+				
 				if timers.has_timer_with_name(_entity, 'shoot') or _entity['movement']['path']['positions'] or timers.has_timer_with_name(_entity, 'move'):
 					_break = True
 					
 					break
+				
+				_found_able_player = True
 			
 			if _break:
 				break
+		
 		else:
-			settings.set_tick_mode('strategy')
+			if _found_able_player:
+				settings.set_tick_mode('strategy')
+			
+				print 'Dude'
 	
 	for squad_id in _squads:
 		_squad = entities.get_entity(squad_id)
@@ -136,6 +146,9 @@ def tick():
 			
 			if not settings.TURN_QUEUE:
 				_entity['stats']['action_points'] = _entity['stats']['action_points_max']
+				
+				if _entity['ai']['is_npc']:
+					continue
 			
 			if _entity['stats']['action_points'] <= 0:
 				continue
@@ -148,7 +161,11 @@ def tick():
 			elif _entity['ai']['is_player']:
 				_waiting = True
 				
+				print 'Waiting', _entity['stats']['name']
+				
 				continue
+			
+			print 'tick', _entity['stats']['name']
 			
 			entities.trigger_event(_entity, 'tick')
 			
@@ -175,3 +192,4 @@ def tick():
 		else:
 			if _entity['ai']['is_player'] and not _waiting:
 				settings.set_tick_mode('normal')
+				print 'Normal...'

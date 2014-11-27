@@ -45,6 +45,7 @@ def _register(entity, player=False):
 	                'nearest_target': None,
 	                'life_memory': {},
 	                'is_player': player,
+	                'is_npc': False,
 	                'meta': {'is_injured': False,
 	                         'is_panicked': False,
 	                         'is_squad_combat_ready': False,
@@ -451,6 +452,8 @@ def _human_logic(entity):
 		entities.trigger_event(entity, 'finish_turn')
 		entities.trigger_event(entity, 'stop')
 		
+		print 'no goap', entity['stats']['name']
+		
 		return	
 	
 	_plan = _goap[0]
@@ -465,6 +468,7 @@ def _human_logic(entity):
 		entity['ai']['last_action'] = _plan['actions'][0]['name']	
 	
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
+	
 	#print time.time() - _t
 	
 	entity['ai']['current_action'] = _plan['actions'][0]['name']

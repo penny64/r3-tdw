@@ -164,19 +164,22 @@ def create_factions():
 			                                                                                fore_color=(200, 40, 40)))
 			entities.register_event(_squad, 'position_changed', lambda e, **kwargs: _handle_squad_position_update(e))
 		
-		for i in range(3):
+		for i in range(2):
 			if faction_name == 'Rogues':
-				if random.randint(0, 1):
-					_e = life.sniper(30, 17 + i * 2, 'Good Dude %i' % i, faction_name, is_player=True)
+				if i == 0:
+					_e = life.sniper(30, 7 + i * 2, 'Good Dude %i' % i, faction_name, is_player=True)
 				else:
-					_e = life.turret(30, 17 + i * 2, 'Turret', faction_name)
+					_e = life.turret(30, 7 + i * 2, 'Turret %i' % i, faction_name)
 					#_e = life.engineer(30, 17 + i * 2, 'Good Dude %i' % i, faction_name, is_player=True)
 			
 			else:
 				if random.randint(0, 1):
-					_e = life.sniper(50, 50 + i, 'Bad Dude %i' % i, faction_name)
+					#_e = life.sniper(50, 50 + i, 'Bad Dude %i' % i, faction_name)
+					_e = life.turret(50, 70 + i * 2, 'Turret', faction_name)
+				
 				else:
-					_e = life.engineer(50, 50 + i, 'Bad Dude %i' % i, faction_name)
+					#_e = life.engineer(50, 50 + i, 'Bad Dude %i' % i, faction_name)
+					_e = life.turret(50, 70 + i * 2, 'Turret', faction_name)
 	
 			ai_squads.register_with_squad(_e, _squad['squad_id'])
 
@@ -200,5 +203,5 @@ def _handle_squad_position_update(entity):
 				if _squad['faction'] == _camp['owned_by']:
 					_defending_squads.append(squad_id)
 			
-			world_strategy.world_action.start_battle(attacking_squads=[entity['_id']], defending_squads=_defending_squads)
 			world_strategy.unregister_input()
+			world_strategy.world_action.start_battle(attacking_squads=[entity['_id']], defending_squads=_defending_squads)
