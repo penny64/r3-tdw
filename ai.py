@@ -452,8 +452,6 @@ def _human_logic(entity):
 		entities.trigger_event(entity, 'finish_turn')
 		entities.trigger_event(entity, 'stop')
 		
-		print 'no goap', entity['stats']['name']
-		
 		return	
 	
 	_plan = _goap[0]

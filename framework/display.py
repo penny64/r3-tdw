@@ -225,26 +225,34 @@ def _clear_screen():
 		if len(rect) == 5:
 			_background = SURFACES[rect[4]]
 			_force_background_redraw = True
+			_bg_x, _bg_y = _background['start_x'], _background['start_y']
 			
 		else:
 			_background = BACKGROUND
+			_bg_x, _bg_y = 0, 0
 
 		for y in range(rect[1], rect[3]):
 			for x in range(rect[0], rect[2]):
-				SCREEN['c'][y][x] = _background['c'][y][x]
+				_r_x = framework.numbers.clip(x + _bg_x, 0, _background['width'] - 1)
+				_r_y = framework.numbers.clip(y + _bg_y, 0, _background['height'] - 1)
+				
+				try:
+					SCREEN['c'][y][x] = _background['c'][_r_y][_r_x]
+				except:
+					raise(Exception('%i, %i' % (_r_x, _r_y)))
 
 				_pre = SCREEN['d'][:x+(y*constants.WINDOW_WIDTH)]
 				_post = SCREEN['d'][x+(y*constants.WINDOW_WIDTH)+1:]
 				SCREEN['d'] = _pre+'0'+_post
 
-				SCREEN['f'][0][y][x] = _background['f'][0][y][x]
-				SCREEN['f'][1][y][x] = _background['f'][1][y][x]
-				SCREEN['f'][2][y][x] = _background['f'][2][y][x]
+				SCREEN['f'][0][y][x] = _background['f'][0][_r_y][_r_x]
+				SCREEN['f'][1][y][x] = _background['f'][1][_r_y][_r_x]
+				SCREEN['f'][2][y][x] = _background['f'][2][_r_y][_r_x]
 
-				if _force_background_redraw or _background['b'][0][y][x] or _background['b'][1][y][x] or _background['b'][2][y][x]:
-					SCREEN['b'][0][y][x] = _background['b'][0][y][x]
-					SCREEN['b'][1][y][x] = _background['b'][1][y][x]
-					SCREEN['b'][2][y][x] = _background['b'][2][y][x]
+				if _force_background_redraw or _background['b'][0][_r_y][_r_x] or _background['b'][1][_r_y][_r_x] or _background['b'][2][_r_y][_r_x]:
+					SCREEN['b'][0][y][x] = _background['b'][0][_r_y][_r_x]
+					SCREEN['b'][1][y][x] = _background['b'][1][_r_y][_r_x]
+					SCREEN['b'][2][y][x] = _background['b'][2][_r_y][_r_x]
 
 	SCREEN['r'] = []
 

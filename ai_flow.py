@@ -131,8 +131,6 @@ def tick():
 		else:
 			if _found_able_player:
 				settings.set_tick_mode('strategy')
-			
-				print 'Dude'
 	
 	for squad_id in _squads:
 		_squad = entities.get_entity(squad_id)
