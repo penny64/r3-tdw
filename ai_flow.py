@@ -161,11 +161,7 @@ def tick():
 			elif _entity['ai']['is_player']:
 				_waiting = True
 				
-				print 'Waiting', _entity['stats']['name']
-				
 				continue
-			
-			print 'tick', _entity['stats']['name']
 			
 			entities.trigger_event(_entity, 'tick')
 			

@@ -45,6 +45,128 @@ def blood(x, y, surface='effects', group='effects'):
 
 	return _blood
 
+def _tick_burn(entity):
+	_x, _y = movement.get_position(entity)
+	_alpha = flags.get_flag(entity, 'alpha')
+	_alpha_mode = flags.get_flag(entity, 'alpha_mode')
+	_alpha_max = flags.get_flag(entity, 'alpha_max')
+	
+	if _alpha_mode:
+		_alpha -= random.uniform(.01, .05)
+		
+		if _alpha <= 0:
+			display._set_char('tiles', _x, _y, ' ', (0, 0, 0), None)
+			entities.delete_entity(entity)
+			
+			return
+	
+	else:
+		_alpha += random.uniform(.025, .05)
+		
+		if _alpha > _alpha_max:
+			_alpha_mode = 1
+	
+	_alpha += numbers.clip(_alpha, 0, 1)
+	
+	#entities.trigger_event(entity, 'set_char', char=random.choice(['*', '&', '%']))
+
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), _alpha)
+	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), _alpha)
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
+	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
+	entities.trigger_event(entity, 'set_back_color', color=_color[1])
+	
+	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
+	entities.trigger_event(entity, 'set_flag', flag='alpha_mode', value=_alpha_mode)
+
+def burn(x, y, amount):
+	_blood = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	entities.trigger_event(_blood, 'set_char', char=random.choice([',', '.', '^']))
+	flags.register(_blood)
+	flags.set_flag(_blood, 'alpha', value=0.0)
+	flags.set_flag(_blood, 'alpha_mode', value=0)
+	flags.set_flag(_blood, 'alpha_max', value=amount)
+
+	#_color = list(display.get_color_at('tiles', _x, _y))
+	#_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.BLACK_1, constants.BLACK_2, constants.BLACK_3]), amount)
+	#_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.BLACK_1, constants.BLACK_2, constants.BLACK_3]), amount)
+	
+	#for c in range(len(_color)):
+	#	for i in range(len(_color)):
+	#		_color[c][i] = int((round(_color[c][i])))
+	
+	#display._set_char('tiles', _x, _y, random.choice([',', '.', '^']), _color[0], _color[1])
+	#entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
+	#entities.trigger_event(_blood, 'set_back_color', color=_color[1])
+
+	return _blood
+
+def _tick_fire(entity):
+	_x, _y = movement.get_position(entity)
+	_alpha = flags.get_flag(entity, 'alpha')
+	_alpha += random.uniform(-.3, .3)
+	_alpha = numbers.clip(_alpha, 0, 1)
+	
+	if not _alpha:
+		entities.delete_entity(entity)
+		
+		return
+	
+	#entities.trigger_event(entity, 'set_char', char=random.choice(['*', '&', '%']))
+
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), _alpha)
+	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), _alpha)
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
+	entities.trigger_event(entity, 'set_fore_color', color=_color[0])
+	entities.trigger_event(entity, 'set_back_color', color=_color[1])
+	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
+
+def fire(x, y, amount):
+	_blood = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	flags.register(_blood)
+	
+	entities.trigger_event(_blood, 'set_flag', flag='alpha', value=amount)
+	entities.trigger_event(_blood, 'set_char', char=' ')
+
+	_color = list(display.get_color_at('tiles', _x, _y))
+	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), amount)
+	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.FIRE_1, constants.FIRE_2, constants.FIRE_3]), amount)
+	
+	for c in range(len(_color)):
+		for i in range(len(_color)):
+			_color[c][i] = int((round(_color[c][i])))
+	
+	#display._set_char('tiles', _x, _y, random.choice([',', '.', '^']), _color[0], _color[1])
+	entities.register_event(_blood, 'tick', _tick_fire)
+	
+	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
+	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
+
+	return _blood
+
+def explosion(x, y, size):
+	for pos in shapes.circle(x, y, size):
+		_c_mod = 1 - (numbers.float_distance((x, y), pos) / size)
+		
+		burn(pos[0], pos[1], _c_mod)
+		
+		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75):
+			fire(pos[0], pos[1], _c_mod)
+
 def _muzzle_flash_move(entity):
 	_direction = movement.get_direction(entity)
 	_nx, _ny = numbers.velocity(_direction, 1)

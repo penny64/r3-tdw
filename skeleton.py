@@ -65,6 +65,8 @@ def hit(entity, projectile):
 	_y += int(round(random.uniform(-1, 1)))
 	_mod = _limb['health']/float(_limb['max_health'])
 	
+	effects.explosion(_x, _y, 10)
+	
 	if not (_x, _y) in zones.get_active_solids(entity, ignore_calling_entity=True):
 		effects.blood(_x, _y)
 		entities.trigger_event(entity, 'animate', animation=['X', '@@'], repeat=4 * int(round((1-_mod))), delay=20 * _mod)
