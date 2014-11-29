@@ -63,7 +63,7 @@ def _tick_burn(entity):
 			return
 	
 	else:
-		_alpha += random.uniform(.05, .1)
+		_alpha += random.uniform(.01, .05)
 		
 		if _alpha > _alpha_max:
 			_alpha_mode = 1
