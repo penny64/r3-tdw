@@ -103,9 +103,10 @@ def _push_tank(entity, direction):
 def _push(entity, x, y):
 	_nx = entity['movement']['x'] + x
 	_ny = entity['movement']['y'] + y
-	_solids = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
 	
 	if entity['movement']['collisions']:
+		_solids = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]
+		
 		if (_nx, _ny) in _solids:
 			entity['movement']['path']['refresh'] = True
 			

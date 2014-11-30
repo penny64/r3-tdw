@@ -319,6 +319,8 @@ def check_for_collisions(entity):
 	if (_x, _y) in zones.get_active_solids(entity):
 		entities.delete_entity(entity)
 		
+		effects.smoke_cloud(_x, _y, random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65))
+		
 		return
 	
 	for entity_id in entities.get_entity_group('life'):

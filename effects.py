@@ -45,7 +45,7 @@ def blood(x, y, surface='effects', group='effects'):
 
 	return _blood
 
-def _tick_burn(entity):
+def _tick_smoke(entity):
 	_x, _y = movement.get_position(entity)
 	_alpha = flags.get_flag(entity, 'alpha')
 	_alpha_mode = flags.get_flag(entity, 'alpha_mode')
@@ -86,7 +86,7 @@ def _tick_burn(entity):
 	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
 	entities.trigger_event(entity, 'set_flag', flag='alpha_mode', value=_alpha_mode)
 
-def burn(x, y, amount):
+def smoke(x, y, amount):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	_fore_color = random.choice([constants.BLACK_1, constants.BLACK_2, constants.BLACK_3])
@@ -113,9 +113,16 @@ def burn(x, y, amount):
 	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
 	
-	entities.register_event(_blood, 'tick', _tick_burn)
+	entities.register_event(_blood, 'tick', _tick_smoke)
 
 	return _blood
+
+def char(x, y, amount):
+	_color = list(display.get_color_at('tiles', x, y))
+	_color[0] = numbers.interp_velocity(_color[0], random.choice([constants.DARKER_BLACK_1, constants.DARKER_BLACK_2, constants.DARKER_BLACK_3]), amount)
+	_color[1] = numbers.interp_velocity(_color[1], random.choice([constants.DARKER_BLACK_1, constants.DARKER_BLACK_2, constants.DARKER_BLACK_3]), amount)
+	
+	display._set_char('tiles', x, y, random.choice([',', '.', '^']), _color[0], _color[1])
 
 def _tick_fire(entity):
 	_x, _y = movement.get_position(entity)
@@ -124,6 +131,7 @@ def _tick_fire(entity):
 	_alpha = numbers.clip(_alpha, 0, 1)
 	
 	if not _alpha:
+		#char(_x, _y, numbers.clip(flags.get_flag(entity, 'alpha_max') - random.uniform(.1, .2), 0, 1))
 		entities.delete_entity(entity)
 		
 		return
@@ -147,8 +155,10 @@ def fire(x, y, amount):
 	_x, _y = (int(round(x)), int(round(y)))
 	
 	flags.register(_blood)
+	timers.register(_blood)
 	
 	entities.trigger_event(_blood, 'set_flag', flag='alpha', value=amount)
+	entities.trigger_event(_blood, 'set_flag', flag='alpha_max', value=amount)
 	entities.trigger_event(_blood, 'set_char', char=' ')
 
 	_color = list(display.get_color_at('tiles', _x, _y))
@@ -161,20 +171,32 @@ def fire(x, y, amount):
 	
 	#display._set_char('tiles', _x, _y, random.choice([',', '.', '^']), _color[0], _color[1])
 	entities.register_event(_blood, 'tick', _tick_fire)
-	
+	entities.register_event(_blood, 'position_changed', lambda e, x, y, **kwargs: char(x, y, flags.get_flag(e, 'alpha')))
+	entities.trigger_event(_blood, 'create_timer', time=120, repeat=-1, repeat_callback=lambda e: movement.push(e,
+	                                                                                                            random.randint(-1, 1),
+	                                                                                                            random.randint(-1, 1),
+	                                                                                                            time=1))
 	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
+	entities.trigger_event(_blood, 'set_position', x=_x, y=_y)
 
 	return _blood
 
+def smoke_cloud(x, y, size, start_alpha=.0):
+	for pos in shapes.circle_smooth(x, y, size + .1, 0.1):
+		_c_mod = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, start_alpha, 1)
+		
+		smoke(pos[0], pos[1], _c_mod)
+
 def explosion(x, y, size):
-	for pos in shapes.circle(x, y, size):
+	for pos in shapes.circle_smooth(x, y, size + .1, 0.05):
 		_c_mod = 1 - (numbers.float_distance((x, y), pos) / size)
+		_c_mod_clip = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, random.uniform(.3, .45), 1)
 		
-		burn(pos[0], pos[1], _c_mod)
+		smoke(pos[0], pos[1], _c_mod_clip)
 		
-		#if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75):
-		#	fire(pos[0], pos[1], _c_mod)
+		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75):
+			fire(pos[0], pos[1], _c_mod)
 
 def _muzzle_flash_move(entity):
 	_direction = movement.get_direction(entity)
