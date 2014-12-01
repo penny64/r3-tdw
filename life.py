@@ -632,7 +632,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	_accuracy = stats.get_accuracy(entity, weapon_id)
 	_damage = flags.get_flag(_weapon, 'damage')
 
-	effects.light(_x, _y, random.randint(2, 5))
+	effects.light(_x, _y, random.randint(3, 5), r=1.5, g=1.5, b=0)
 	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy, _damage)
 
 def shoot_weapon(entity, target_id):

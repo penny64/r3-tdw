@@ -411,7 +411,7 @@ def light(x, y, brightness, r=1., g=1., b=1.):
 	
 	_light_map = post_processing.get_light_map()
 	
-	for _x, _y in shapes.circle_smooth(x, y, brightness, smoothness=.1):
+	for _x, _y in shapes.circle(x, y, brightness):
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
 		_light_map[0][_y, _x] = 2 * (_brightness * r)
 		_light_map[1][_y, _x] = 2 * (_brightness * g)
