@@ -35,7 +35,7 @@ import time
 import sys
 
 MOVIE_TIME = 0
-MOVIE_TIME_MAX = 30
+MOVIE_TIME_MAX = 10
 PLAYER_HAS_SHOOT_TIMER = False
 
 
@@ -124,6 +124,9 @@ def handle_input():
 
 		if settings.TICK_MODE == 'strategy':
 			ui_squad_control.handle_keyboard_input()
+
+	if controls.get_input_char_pressed('k'):
+		display.screenshot('screenshot-%s.bmp' % time.time())
 
 	return True
 
@@ -268,12 +271,13 @@ def draw():
 
 	events.trigger_event('draw')
 
-	#MOVIE_TIME += 1
-
-	#if MOVIE_TIME == MOVIE_TIME_MAX:
-	#	display.screenshot('screenshot-%s.bmp' % time.time())
-	#	
-	#	MOVIE_TIME = 0
+	if '--record' in sys.argv:
+		MOVIE_TIME += 1
+	
+		if MOVIE_TIME == MOVIE_TIME_MAX:
+			display.screenshot('screenshot-%s.bmp' % time.time())
+			
+			MOVIE_TIME = 0
 
 def loop():
 	global PLAYER_HAS_SHOOT_TIMER
