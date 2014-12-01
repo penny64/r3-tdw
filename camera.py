@@ -41,14 +41,13 @@ def update():
 	
 	_zone = zones.ZONES[zones.ACTIVE_ZONE]
 	
-	if not LAST_X == X or not LAST_Y == Y:
-		display.set_surface_camera('tiles', X, Y)
-		display.reset_surface_shaders('tiles')
-		
-		for shader in _zone['shaders']:
-			display.apply_surface_shader('tiles', shader, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
-		
-		display.blit_surface_viewport('tiles', X, Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
-		
-		LAST_X = X
-		LAST_Y = Y
+	display.set_surface_camera('tiles', X, Y)
+	display.reset_surface_shaders('tiles')
+	
+	for shader in _zone['shaders']:
+		display.apply_surface_shader('tiles', shader, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+	
+	display.blit_surface_viewport('tiles', X, Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+	
+	LAST_X = X
+	LAST_Y = Y

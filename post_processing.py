@@ -106,8 +106,12 @@ def post_process_lights():
 	if not settings.TICK_MODE == 'normal':
 		return
 	
-	LIGHTS *= .98
-	LIGHTS = LIGHTS.clip(1, 2)
+	LIGHTS[0] *= .98
+	LIGHTS[1] *= .98
+	LIGHTS[2] *= .98
+	LIGHTS[0] = LIGHTS[0].clip(1, 2)
+	LIGHTS[1] = LIGHTS[1].clip(1, 2)
+	LIGHTS[2] = LIGHTS[2].clip(1, 2)
 
 def generate_shadow_map(width, height, solids, trees):
 	global SHADOWS
@@ -157,6 +161,11 @@ def generate_shadow_map(width, height, solids, trees):
 def generate_light_map(width, height, solids, trees):
 	global LIGHTS#, SUN
 	
-	LIGHTS = numpy.ones((height, width))
+	LIGHTS = display.create_shader(width, height)
+	LIGHTS[0] += 1
+	LIGHTS[1] += 1
+	LIGHTS[2] += 1
+	
+	return LIGHTS
 #	SUN = numpy.ones((constants.MAP_VIEW_HEIGHT, constants.MAP_VIEW_WIDTH))
 #	SUN -= .5

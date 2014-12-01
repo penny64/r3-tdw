@@ -63,7 +63,7 @@ def activate(zone_id):
 	events.register_event('logic', post_processing.tick_sun)
 	
 	_zone['shaders'].append(post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees']))
-	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
+	_zone['shaders'].append(post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees']))
 	
 	_noise = tcod.noise_new(3)
 	_zoom = 2.0
@@ -88,9 +88,9 @@ def activate(zone_id):
 	#		                                                                              8,
 	#		                                                                              _noise,
 	#		                                                                              _zone['inside']))
-	#	post_processing.run(time=0,
-	#		                repeat=-1,
-	#		                repeat_callback=lambda _: post_processing.post_process_lights())
+	post_processing.run(time=0,
+		                repeat=-1,
+		                repeat_callback=lambda _: post_processing.post_process_lights())
 	#post_processing.run(time=0,
 	#                    repeat=-1,
 	#                    repeat_callback=lambda _: post_processing.sunlight())

@@ -179,6 +179,8 @@ def fire(x, y, amount):
 	entities.trigger_event(_blood, 'set_fore_color', color=_color[0])
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
 	entities.trigger_event(_blood, 'set_position', x=_x, y=_y)
+	
+	light(_x, _y, 10, r=1.5, g=.1, b=.1)
 
 	return _blood
 
@@ -403,15 +405,17 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 	
 	return printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=True)
 
-def light(x, y, brightness):
+def light(x, y, brightness, r=1., g=1., b=1.):
 	if '--no-fx' in sys.argv:
 		return
 	
 	_light_map = post_processing.get_light_map()
 	
-	for _x, _y in shapes.circle(x, y, brightness):
+	for _x, _y in shapes.circle_smooth(x, y, brightness, smoothness=.1):
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
-		_light_map[_y, _x] = 2 * _brightness
+		_light_map[0][_y, _x] = 2 * (_brightness * r)
+		_light_map[1][_y, _x] = 2 * (_brightness * g)
+		_light_map[2][_y, _x] = 2 * (_brightness * b)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')

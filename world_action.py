@@ -243,6 +243,12 @@ def draw():
 
 	events.trigger_event('post_process')
 	
+	#display.reset_surface_shaders('tiles')
+	
+	#_zone = zones.ZONES[zones.ACTIVE_ZONE]	
+	#for shader in _zone['shaders']:
+	#	display.apply_surface_shader('tiles', shader, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+	
 	if ui_director.HAS_FOCUS:
 		ui_director.draw()
 	
