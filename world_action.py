@@ -76,14 +76,7 @@ def create():
 	events.register_event('mouse_moved', handle_mouse_movement)
 	events.register_event('camera', camera.update)
 	
-	ai.boot()
-	
 	camera.set_pos(0, 0)
-	
-	
-	#ui_squad_control.register_squad(ai_squads.get_assigned_squad(PLAYER)['_id'])
-	
-	#items.ammo_9x19mm(50, 50)
 	
 	ui_cursor.boot()
 	ai.boot()
