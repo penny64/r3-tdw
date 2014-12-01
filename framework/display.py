@@ -62,6 +62,7 @@ def create_surface(surface_name, width=constants.WINDOW_WIDTH, height=constants.
 	SURFACES[surface_name]['start_y'] = 0
 	SURFACES[surface_name]['width'] = width
 	SURFACES[surface_name]['height'] = height
+	SURFACES[surface_name]['batches'] = []
 
 	SURFACES[surface_name]['f'] = []
 	SURFACES[surface_name]['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
@@ -86,6 +87,25 @@ def delete_surface(surface_name):
 
 def get_surface(surface_name):
 	return SURFACES[surface_name]
+
+def create_batch(width, height, dst_x, dst_y):
+	_batch = {'f': [],
+	          'b': [],
+	          'c': None,
+	          'width': width,
+	          'height': height,
+	          'dst_x': dst_x,
+	          'dst_y': dst_y}
+	
+	_batch['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['f'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['b'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['b'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['b'].append(numpy.zeros((height, width), dtype=numpy.int16))
+	_batch['c'] = numpy.zeros((height, width), dtype=numpy.int32)
+	
+	return _batch
 
 def clear_rect(surface_name, x, y, width, height):
 	SURFACES[surface_name]['r'].append((x, y, x+width, y+height))
@@ -122,6 +142,27 @@ def _write_string(surface_name, x, y, string, fore_color, back_color):
 		yield surface_name, x+_i, y, c, fore_color, back_color
 
 		_i += 1
+
+def draw_batch(batch, surface_name):
+	SURFACES[surface_name]['batches'].append((batch, surface_name))
+
+def write_char_batch(batch, x, y, c, fore_color=(200, 200, 200), back_color=None):
+	_x = x - batch['dst_x']
+	_y = y - batch['dst_y']
+	
+	batch['f'][0][_y, _x] = fore_color[0]
+	batch['f'][1][_y, _x] = fore_color[1]
+	batch['f'][2][_y, _x] = fore_color[2]
+	
+	if back_color:
+		batch['b'][0][_y, _x] = back_color[0]
+		batch['b'][1][_y, _x] = back_color[1]
+		batch['b'][2][_y, _x] = back_color[2]
+	
+	batch['c'][_y, _x] = ord(c)
+	
+	#batch.draw_calls.append(x, y, c, fore_color, back_color)
+	#DRAW_CALLS.append(_write_char(surface_name, x, y, c, fore_color, back_color))
 
 def write_char(surface_name, x, y, c, fore_color=(200, 200, 200), back_color=None):
 	if SCREEN['d'][x+(y*constants.WINDOW_WIDTH)] == c:
@@ -236,10 +277,7 @@ def _clear_screen():
 				_r_x = framework.numbers.clip(x + _bg_x, 0, _background['width'] - 1)
 				_r_y = framework.numbers.clip(y + _bg_y, 0, _background['height'] - 1)
 				
-				try:
-					SCREEN['c'][y][x] = _background['c'][_r_y][_r_x]
-				except:
-					raise(Exception('%i, %i' % (_r_x, _r_y)))
+				SCREEN['c'][y][x] = _background['c'][_r_y][_r_x]
 
 				_pre = SCREEN['d'][:x+(y*constants.WINDOW_WIDTH)]
 				_post = SCREEN['d'][x+(y*constants.WINDOW_WIDTH)+1:]
@@ -290,7 +328,32 @@ def _blit_surface(src_surface, dst_surface, clear=True, src_name=None):
 					dst_surface['b'][0][y][x] = src_surface['b'][0][y][x]
 					dst_surface['b'][1][y][x] = src_surface['b'][1][y][x]
 					dst_surface['b'][2][y][x] = src_surface['b'][2][y][x]
+	
+	for batch, surface_name in src_surface['batches']:
+		#_dst_surface = SURFACES[surface_name]
+		_dst_x = batch['dst_x']
+		_dst_y = batch['dst_y']
+		_start_x = 0
+		_start_y = 0
+		_width, _height = batch['width'], batch['height']
+		#dst_surface['fo'][0][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][0][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		#dst_surface['fo'][1][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][1][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		#dst_surface['fo'][2][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][2][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		dst_surface['f'][0][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][0][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		dst_surface['f'][1][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][1][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		dst_surface['f'][2][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['f'][2][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		#dst_surface['bo'][0][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][0][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		#dst_surface['bo'][1][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][1][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		#dst_surface['bo'][2][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][2][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		
+		if batch['b'][0][_start_y:_start_y+_height, _start_x:_start_x+_width].any() or batch['b'][1][_start_y:_start_y+_height, _start_x:_start_x+_width].any() or batch['b'][2][_start_y:_start_y+_height, _start_x:_start_x+_width].any():
+			dst_surface['b'][0][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][0][_start_y:_start_y+_height, _start_x:_start_x+_width]
+			dst_surface['b'][1][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][1][_start_y:_start_y+_height, _start_x:_start_x+_width]
+			dst_surface['b'][2][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['b'][2][_start_y:_start_y+_height, _start_x:_start_x+_width]
+		
+		dst_surface['c'][_dst_y:_dst_y+_height, _dst_x:_dst_x+_width] = batch['c'][_start_y:_start_y+_height, _start_x:_start_x+_width]
 
+	src_surface['batches'] = []
 	src_surface['r'] = []
 
 def _blit_surface_viewport(src_surface, dst_surface, start_x, start_y, dst_x, dst_y, width, height):

@@ -31,7 +31,7 @@ def paint_map(initial=False):
 		
 		return
 	
-	REDRAW_RATE = 2.0
+	REDRAW_RATE = 0.0
 	
 	if initial:
 		_x_range = 0, constants.WINDOW_WIDTH
@@ -94,19 +94,31 @@ def handle_input():
 
 def draw():
 	#Title
-	#display.write_string('text', (constants.WINDOW_WIDTH / 2) - (len(''.join(TEXT)) / 2),
-	#                     12, TEXT[0],
-	#                     fore_color=(200 * FADE_ALPHA, 200 * FADE_ALPHA, 200 * FADE_ALPHA))
+	_i = 0
+	_dst_x = 9999
+	
+	for c in TEXT[0]:
+		_alpha = numbers.clip(FADE_ALPHA * numbers.clip(16 - _i, 7, 16) / SPARK_SIZE, 0, 1)
+		_dx = ((constants.WINDOW_WIDTH / 2) - (len(''.join(TEXT)) / 2)) + _i
+		
+		if _dx < _dst_x:
+			_dst_x = _dx
+	
+	_batch = display.create_batch(len(TEXT[0]), 1, _dst_x, 12)
+	
 	_i = 0
 	for c in TEXT[0]:
 		_alpha = numbers.clip(FADE_ALPHA * numbers.clip(16 - _i, 7, 16) / SPARK_SIZE, 0, 1)
 		
-		display.write_char('text', ((constants.WINDOW_WIDTH / 2) - (len(''.join(TEXT)) / 2)) + _i,
+		display.write_char_batch(_batch, ((constants.WINDOW_WIDTH / 2) - (len(''.join(TEXT)) / 2)) + _i,
 		                   12,
 		                   c,
 		                   fore_color=(200 * _alpha, 200 * _alpha, 200 * _alpha))
 		
+		
 		_i += 1
+	
+	display.draw_batch(_batch, 'text')
 	
 	_i = 0
 	for c in TEXT[1]:
