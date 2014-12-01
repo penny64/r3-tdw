@@ -336,7 +336,7 @@ def check_for_collisions(entity):
 
 def _bullet_effects(entity, x, y):
 	_distance = numbers.distance((x, y), entity['start_position'])
-	_target_distance = numbers.distance((x, y), entity['end_position'])
+	_target_distance = numbers.distance((x, y), entity['end_position']) + numbers.clip(10 - _distance, 0, 10) 
 	_x, _y = movement.get_position(entity)
 	_mod = (0.6-(_distance/35.0))+random.uniform(-.1, .1)
 	_alpha = numbers.clip(_mod, 0, 1)
@@ -346,8 +346,6 @@ def _bullet_effects(entity, x, y):
 	
 	if _target_distance < 10:
 		_size = int(round(3 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/10.0, 0, 1)))))
-		
-		print _size
 		
 		if _size:
 			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)

@@ -645,7 +645,7 @@ def shoot_weapon(entity, target_id):
 	_weapon = items.get_items_in_holder(entity, 'weapon')[0]
 	_ammo = flags.get_flag(entities.get_entity(_weapon), 'ammo')
 	_rounds_per_shot = flags.get_flag(entities.get_entity(_weapon), 'rounds_per_shot')
-	_pause_time = 30
+	_pause_time = 15
 
 	if not _ammo:
 		return
