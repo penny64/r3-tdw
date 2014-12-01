@@ -435,19 +435,26 @@ def light(x, y, brightness, r=1., g=1., b=1.):
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')
 	_index = flags.get_flag(entity, 'index')
+	_center = flags.get_flag(entity, 'center')
+	
+	if _center:
+		_x = (constants.MAP_VIEW_WIDTH / 2)  - (len(_text) / 2)
+	
+	else:
+		_x = 3
 	
 	for i in range(0, 3):
 		if i == 1:
-			display.write_string('ui', 3, 3 + i + (4 * _index), '  %s  ' % _text, fore_color=(200, 200, 200), back_color=(60, 60, 60))
+			display.write_string('ui', _x, 3 + i + (4 * _index), '  %s  ' % _text, fore_color=(200, 200, 200), back_color=(60, 60, 60))
 		else:
-			display.write_string('ui', 3, 3 + i + (4 * _index), ' ' * (len(_text) + 4), fore_color=(20, 20, 20), back_color=(60, 60, 60))
+			display.write_string('ui', _x, 3 + i + (4 * _index), ' ' * (len(_text) + 4), fore_color=(20, 20, 20), back_color=(60, 60, 60))
 
 def _message_delete(entity):
 	global MESSAGES_ACTIVE
 	
 	MESSAGES_ACTIVE -= 1
 
-def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10), time=-1):
+def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10), time=-1, center=False):
 	global MESSAGES_ACTIVE
 	
 	_entity = entities.create_entity(group='ui_effects_freetick')
@@ -467,6 +474,7 @@ def message(text, fore_color=(255, 255, 255), back_color=(10, 10, 10), time=-1):
 	entities.trigger_event(_entity, 'create_timer', time=_time, exit_callback=entities.delete_entity)
 	entities.trigger_event(_entity, 'set_flag', flag='text', value=text)
 	entities.trigger_event(_entity, 'set_flag', flag='index', value=MESSAGES_ACTIVE)
+	entities.trigger_event(_entity, 'set_flag', flag='center', value=center)
 	
 	MESSAGES_ACTIVE += 1
 	

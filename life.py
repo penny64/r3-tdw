@@ -489,25 +489,23 @@ def handle_player_start_of_turn(entity, squad_id):
 		settings.set_tick_mode('strategy')
 		
 		print 'Start of turn'
-		
-		return False
 	
-	_squad = entities.get_entity(squad_id)
-	
-	if not ai_factions.is_enemy(entity, _squad['leader']):
-		if _squad['meta']['is_squad_combat_ready']:
-			_message = random.choice(['Locked and loaded.',
-			                          'Nuke \'em!',
-			                          'No mercy, boys...'])
+		_squad = entities.get_entity(squad_id)
 		
-		elif _squad['meta']['is_squad_overwhelmed']:
-			_message = random.choice(['We\'re outnumbered!',
-			                          'Fall back!'])
+		if not ai_factions.is_enemy(entity, _squad['leader']) and entity['_id'] == _squad['leader']:
+			if _squad['meta']['is_squad_combat_ready']:
+				_message = random.choice(['Locked and loaded.',
+					                      'Nuke \'em!',
+					                      'No mercy, boys...'])
 			
-		else:
-			return
-		
-		effects.message(_message, time=70)
+			elif _squad['meta']['is_squad_overwhelmed']:
+				_message = random.choice(['We\'re outnumbered!',
+					                      'Fall back!'])
+				
+			else:
+				return
+			
+			effects.message(_message, time=120, center=True)
 
 def handle_player_end_of_turn(entity, squad_id):
 	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
