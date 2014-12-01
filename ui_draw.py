@@ -22,25 +22,26 @@ def draw_status_bar(planning=False, executing=False, execute_speed='', selecting
 	_x = 0
 	
 	if planning:
-		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'PLANNING')
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'PLANNING', back_color=(15, 15, 15))
 		
 		_x += len('PLANNING')+1
 	
 	if executing:
-		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'EXECUTING')
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'EXECUTING', back_color=(15, 15, 15))
 		
 		_x += len('EXECUTING')+1
 	
 	if execute_speed:
-		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, execute_speed)
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, execute_speed, back_color=(15, 15, 15))
 		
 		_x += len(execute_speed)+1
 	
 	if selecting:
-		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'SELECTING TARGET')
+		display.write_string('ui', _x, constants.MAP_VIEW_HEIGHT, 'SELECTING TARGET', back_color=(15, 15, 15))
 		
 		_x += len('SELECTING TARGET')+1
 	
+	display.write_string('ui', _x - 1, constants.MAP_VIEW_HEIGHT, ' ' * (constants.MAP_VIEW_WIDTH - _x + 1), back_color=(15, 15, 15))
 	#_weapons = items.get_items_in_holder(PLAYER, 'weapon')
 	
 	#if _weapons:
