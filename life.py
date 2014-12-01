@@ -240,6 +240,7 @@ def _create_robot(x, y, health, speed, name, vision=30, faction='Rogues', is_pla
 		                                            moving=True,
 		                                            center=True))
 
+	entities.register_event(_entity, 'delete', _handle_robot_death)
 	entities.register_event(_entity, 'finish_turn', finish_turn)
 	entities.register_event(_entity, 'post_tick', ai_visuals.cleanup)
 	entities.register_event(_entity, 'get_and_store_item', get_and_store_item)
@@ -266,6 +267,11 @@ def _create_robot(x, y, health, speed, name, vision=30, faction='Rogues', is_pla
 	_get_and_hold_item(_entity, items.leather_backpack(20, 20)['_id'])
 
 	return _entity
+
+def _handle_robot_death(entity):
+	_x, _y = movement.get_position(entity)
+	
+	effects.explosion(_x, _y, 5)
 
 def _human(x, y, name, is_player, faction):
 	_entity = _create_human(x, y, 100, 10, name, has_ai=True, is_player=is_player, faction=faction)

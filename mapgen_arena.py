@@ -48,21 +48,68 @@ def generate(width, height):
 			#_weight_map[y][x] = _tile['w']
 			_ground_tiles.add((x, y))
 	
+	_lookup = {(0, -1): 1,
+	           (1, 0): 2,
+	           (0, 1): 4,
+	           (-1, 0): 8}
+	_tile_type = {}
+	
 	for x, y in _ground_tiles.copy():
 		_count = 0
-		
-		for x1, y1 in [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]:
-			if (x1, y1) in _solids:
+				
+		for x1, y1 in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+			_x = x + x1
+			_y = y + y1
+			
+			if (_x, _y) in _solids:
 				_count += 1
 		
 		if _count >= 4:
 			_solids.add((x, y))
 			
 			if (x, y) in list(_ground_tiles):
-				_ground_tiles.remove((x, y))
+				_ground_tiles.remove((x, y))		
+	
+	for x, y in _solids:#_ground_tiles.copy():
+		_count = 0
+		
+		for x1, y1 in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+			_x = x + x1
+			_y = y + y1
+			
+			if (_x, _y) in _solids:
+				_count += _lookup[x1, y1]
+		
+		_tile_type[x, y] = _count
 	
 	for pos in _solids:
+		_type = _tile_type[pos]
 		_tile = tiles.wooden_fence(pos[0], pos[1])
+		
+		if _type in [11, 14]: # left - right
+			_tile['c'] = chr(196)
+			_tile['c_f'] = (200, 200, 200)
+		
+		elif _type == 6: # top left
+			_tile['c'] = chr(218)
+			_tile['c_f'] = (200, 200, 200)
+		
+		elif _type in [7, 13]: # top - bottom
+			_tile['c'] = chr(179)
+			_tile['c_f'] = (200, 200, 200)
+		
+		elif _type == 12: # top right
+			_tile['c'] = chr(187)
+			_tile['c_f'] = (200, 200, 200)
+		
+		elif _type == 3: # bottom left
+			_tile['c'] = chr(192)
+			_tile['c_f'] = (200, 200, 200)
+		
+		elif _type == 9: # bottom right
+			_tile['c'] = chr(188)
+			_tile['c_f'] = (200, 200, 200)
+		
 		_tile_map[pos[1]][pos[0]] = _tile
 		_weight_map[pos[1]][pos[0]] = _tile['w']
 	

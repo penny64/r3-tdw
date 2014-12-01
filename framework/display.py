@@ -289,12 +289,12 @@ def apply_surface_shader(surface_name, shader, width, height):
 	_b1 = _surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader[1][_start_y:_start_y+height, _start_x:_start_x+width]
 	_b2 = _surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader[2][_start_y:_start_y+height, _start_x:_start_x+width]
 
-	_surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _f0
-	_surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _f1
-	_surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _f2
-	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _b0
-	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _b1
-	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _b2
+	_surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _f0.clip(0, 255)
+	_surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _f1.clip(0, 255)
+	_surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _f2.clip(0, 255)
+	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _b0.clip(0, 255)
+	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _b1.clip(0, 255)
+	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _b2.clip(0, 255)
 
 def _clear_screen():
 	for rect in SCREEN['r']:

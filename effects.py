@@ -186,7 +186,7 @@ def fire(x, y, amount):
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
 	entities.trigger_event(_blood, 'set_position', x=_x, y=_y)
 	
-	light(_x, _y, 10, r=1.5, g=.1, b=.1)
+	light(_x, _y, random.randint(5, 7), r=1.5, g=.1, b=.1)
 
 	return _blood
 

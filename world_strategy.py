@@ -106,9 +106,11 @@ def handle_input():
 	
 	if controls.get_input_char_pressed('z'):
 		_DEBUG_ORD -= 1
+		print _DEBUG_ORD
 	
 	elif controls.get_input_char_pressed('x'):
 		_DEBUG_ORD += 1
+		print _DEBUG_ORD
 	
 	return True
 
