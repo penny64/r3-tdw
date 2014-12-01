@@ -410,12 +410,19 @@ def light(x, y, brightness, r=1., g=1., b=1.):
 		return
 	
 	_light_map = post_processing.get_light_map()
+	_width, _height = zones.get_active_size()
 	
 	for _x, _y in shapes.circle(x, y, brightness):
+		if _x < 0 or _x >= _width or _y < 0 or _y >= _height:
+			continue
+		
+		if _light_map[0][_y, _x] > 1:
+			continue
+		
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
-		_light_map[0][_y, _x] = 2 * (_brightness * r)
-		_light_map[1][_y, _x] = 2 * (_brightness * g)
-		_light_map[2][_y, _x] = 2 * (_brightness * b)
+		_light_map[0][_y, _x] = numbers.clip(2 * (_brightness * r), 1, 3)
+		_light_map[1][_y, _x] = numbers.clip(2 * (_brightness * g), 1, 3)
+		_light_map[2][_y, _x] = numbers.clip(2 * (_brightness * b), 1, 3)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')

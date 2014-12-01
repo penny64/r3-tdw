@@ -330,15 +330,20 @@ def check_for_collisions(entity):
 		
 		if movement.get_position(entity) == movement.get_position_via_id(entity_id):
 			entities.trigger_event(entities.get_entity(entity_id), 'hit', projectile=entity)
-			#skeleton.hit(entities.get_entity(entity_id), entity)
 			entities.delete_entity(entity)
 			
 			return
 
 def _bullet_effects(entity, x, y):
 	_distance = numbers.distance((x, y), entity['start_position'])
+	_x, _y = movement.get_position(entity)
+	_alpha = numbers.clip((0.6-(_distance/35.0))+random.uniform(-.1, .1), 0, 1)
 	
-	effects.vapor(x, y, start_alpha=numbers.clip((0.6-(_distance/35.0))+random.uniform(-.1, .1), 0, 1))
+	if _alpha > 0:
+		effects.vapor(x, y, start_alpha=_alpha)
+	
+	if _alpha < .5:
+		effects.light(_x, _y, int(round(3 - _alpha)))
 
 def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
