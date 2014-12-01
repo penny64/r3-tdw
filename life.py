@@ -67,7 +67,7 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_pla
 	_entity['ai']['is_player'] = is_player
 	_entity['ai']['is_npc'] = not is_player
 	
-	if is_player:
+	if faction == 'Rogues':
 		entities.register_event(_entity,
 		                        'did_damage',
 		                        lambda e, target_id, damage: effects.printer(entities.get_entity(target_id)['tile']['x'],
@@ -291,11 +291,14 @@ def _human(x, y, name, is_player, faction):
 	#								moving=False,
 	#								center=True))
 	
-	if is_player:
-		entities.trigger_event(_entity, 'set_flag', flag='is_player', value=True)
-		entities.register_event(_entity,
-			                    'new_target_spotted',
-			                    _handle_new_target)
+	if faction == 'Rogues':
+		entities.trigger_event(_entity, 'set_flag', flag='is_player', value=is_player)
+		
+		if is_player:
+			entities.register_event(_entity,
+				                    'new_target_spotted',
+				                    _handle_new_target)
+		
 		entities.register_event(_entity,
 			                    'broadcast',
 			                    lambda e, message: effects.message(message))

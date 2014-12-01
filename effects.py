@@ -150,6 +150,12 @@ def _tick_fire(entity):
 	entities.trigger_event(entity, 'set_back_color', color=_color[1])
 	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
 
+def _fire_movement(entity, x, y, **kwargs):
+	_solids = zones.get_active_solids({}, no_life=True)
+	
+	if (x, y) in _solids:
+		entities.delete_entity(entity)
+
 def fire(x, y, amount):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
@@ -191,13 +197,15 @@ def smoke_cloud(x, y, size, start_alpha=.0):
 		smoke(pos[0], pos[1], _c_mod)
 
 def explosion(x, y, size):
+	_solids = zones.get_active_solids({}, no_life=True)
+	
 	for pos in shapes.circle_smooth(x, y, size + .1, 0.05):
 		_c_mod = 1 - (numbers.float_distance((x, y), pos) / size)
 		_c_mod_clip = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, random.uniform(.3, .45), 1)
 		
 		smoke(pos[0], pos[1], _c_mod_clip)
 		
-		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75):
+		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75) and not pos in _solids:
 			fire(pos[0], pos[1], _c_mod)
 
 def _muzzle_flash_move(entity):

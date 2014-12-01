@@ -253,7 +253,7 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
-	entities.trigger_event(_entity, 'set_flag', flag='damage', value=55)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=75)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=2.35)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=3)
@@ -279,7 +279,7 @@ def shortrifle():
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=6)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=1.25)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=40)
-	entities.trigger_event(_entity, 'set_flag', flag='damage', value=82)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=89)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
 	
 	return _entity
@@ -336,19 +336,27 @@ def check_for_collisions(entity):
 
 def _bullet_effects(entity, x, y):
 	_distance = numbers.distance((x, y), entity['start_position'])
+	_target_distance = numbers.distance((x, y), entity['end_position'])
 	_x, _y = movement.get_position(entity)
-	_alpha = numbers.clip((0.6-(_distance/35.0))+random.uniform(-.1, .1), 0, 1)
+	_mod = (0.6-(_distance/35.0))+random.uniform(-.1, .1)
+	_alpha = numbers.clip(_mod, 0, 1)
 	
 	if _alpha > 0:
 		effects.vapor(x, y, start_alpha=_alpha)
 	
-	if _alpha < .5:
-		effects.light(_x, _y, int(round(3 - _alpha)))
+	if _target_distance < 10:
+		_size = int(round(3 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/10.0, 0, 1)))))
+		
+		print _size
+		
+		if _size:
+			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)
 
 def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
 	_entity['owner'] = entity['_id']
 	_entity['start_position'] = (x, y)
+	_entity['end_position'] = (tx, ty)
 	_entity['damage'] = damage
 	
 	entities.add_entity_to_group(_entity, 'bullets')
