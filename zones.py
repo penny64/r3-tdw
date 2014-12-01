@@ -1,4 +1,4 @@
-from framework import pathfinding, display, shapes, movement, entities, events
+from framework import pathfinding, display, shapes, movement, entities, events, numbers
 
 import libtcodpy as tcod
 
@@ -34,7 +34,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'astar_map': None,
 	               'trees': trees,
 	               'inside': inside,
-	               'los_map': None}
+	               'los_map': None,
+	               'shaders': []}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -61,20 +62,35 @@ def activate(zone_id):
 	
 	events.register_event('logic', post_processing.tick_sun)
 	
-	post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
+	_zone['shaders'].append(post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees']))
 	post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'])
 	
-	if not '--no-fx' in sys.argv:
-		post_processing.run(time=8,
-			                repeat=-1,
-			                repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
-			                                                                              constants.MAP_VIEW_HEIGHT,
-			                                                                              8,
-			                                                                              _noise,
-			                                                                              _zone['inside']))
-		post_processing.run(time=0,
-			                repeat=-1,
-			                repeat_callback=lambda _: post_processing.post_process_lights())
+	_noise = tcod.noise_new(3)
+	_zoom = 2.0
+	_shader = display.create_shader(_zone['width'], _zone['height'])
+	
+	for y in range(0, _zone['height']):
+		for x in range(0, _zone['width']):
+			_noise_values = [(_zoom * x / _zone['width']),
+					         (_zoom * y / _zone['height'])]
+			_height = .35 + numbers.clip(tcod.noise_get_turbulence(_noise, _noise_values, tcod.NOISE_SIMPLEX), .35, 1)
+			
+			_shader[0][y, x] = 1.3 * _height
+			_shader[1][y, x] = 1.3 * _height
+			_shader[2][y, x] = 1.1 * _height
+	
+	_zone['shaders'].append(_shader)
+	#if not '--no-fx' in sys.argv:
+	#	post_processing.run(time=8,
+	#		                repeat=-1,
+	#		                repeat_callback=lambda _: post_processing.post_process_clouds(constants.MAP_VIEW_WIDTH,
+	#		                                                                              constants.MAP_VIEW_HEIGHT,
+	#		                                                                              8,
+	#		                                                                              _noise,
+	#		                                                                              _zone['inside']))
+	#	post_processing.run(time=0,
+	#		                repeat=-1,
+	#		                repeat_callback=lambda _: post_processing.post_process_lights())
 	#post_processing.run(time=0,
 	#                    repeat=-1,
 	#                    repeat_callback=lambda _: post_processing.sunlight())

@@ -1,5 +1,7 @@
 from framework import display, numbers
 
+import zones
+
 import constants
 
 
@@ -37,7 +39,14 @@ def update():
 	X = numbers.clip(X, X_MIN, X_MAX)
 	Y = numbers.clip(Y, Y_MIN, Y_MAX)
 	
+	_zone = zones.ZONES[zones.ACTIVE_ZONE]
+	
 	if not LAST_X == X or not LAST_Y == Y:
+		display.reset_surface_shaders('tiles')
+		
+		for shader in _zone['shaders']:
+			display.apply_surface_shader('tiles', shader, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
+		
 		display.blit_surface_viewport('tiles', X, Y, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 		display.set_surface_camera('tiles', X, Y)
 		

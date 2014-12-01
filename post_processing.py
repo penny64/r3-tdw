@@ -112,7 +112,11 @@ def post_process_lights():
 def generate_shadow_map(width, height, solids, trees):
 	global SHADOWS
 	
-	SHADOWS = numpy.ones((height, width))
+	SHADOWS = display.create_shader(width, height)
+	SHADOWS[0] += 1
+	SHADOWS[1] += 1
+	SHADOWS[2] += 1
+	
 	_taken = set()
 	
 	for x, y in solids:
@@ -125,8 +129,10 @@ def generate_shadow_map(width, height, solids, trees):
 			
 			_shadow = numbers.clip((i)/5.0, .35, .9)
 			
-			if _shadow < SHADOWS[y+i][x+i]:
-				SHADOWS[y+i][x+i] = _shadow
+			if _shadow < SHADOWS[0][y+i][x+i]:
+				SHADOWS[0][y+i][x+i] = _shadow
+				SHADOWS[1][y+i][x+i] = _shadow
+				SHADOWS[2][y+i][x+i] = _shadow
 			
 			_taken.add((x+1, y+1))
 	
@@ -142,7 +148,11 @@ def generate_shadow_map(width, height, solids, trees):
 			_distance = numbers.float_distance((x, y), (_x, _y))*1.25
 			_shadow = numbers.clip(1 - ((_distance / _tree_size) + .25), .1, .9)
 			
-			SHADOWS[y][x] = numbers.clip(SHADOWS[y][x]-_shadow, .45, 1)
+			SHADOWS[0][y][x] = numbers.clip(SHADOWS[0][y][x]-_shadow, .45, 1)
+			SHADOWS[1][y][x] = numbers.clip(SHADOWS[1][y][x]-_shadow, .45, 1)
+			SHADOWS[2][y][x] = numbers.clip(SHADOWS[2][y][x]-_shadow, .45, 1)
+	
+	return SHADOWS
 
 def generate_light_map(width, height, solids, trees):
 	global LIGHTS#, SUN

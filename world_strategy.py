@@ -242,6 +242,7 @@ def draw():
 	                              dy=constants.STRAT_MAP_HEIGHT)
 	
 	events.trigger_event('draw')
+	display.reset_surface_shaders('map')
 
 def loop():
 	if not handle_input():

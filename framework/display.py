@@ -88,6 +88,14 @@ def delete_surface(surface_name):
 def get_surface(surface_name):
 	return SURFACES[surface_name]
 
+def create_shader(width, height):
+	_shader = []
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
+	
+	return _shader
+
 def create_batch(width, height, dst_x, dst_y):
 	_batch = {'f': [],
 	          'b': [],
@@ -217,7 +225,7 @@ def shade_surface_fore(surface_name, shader, width, height, r=1.0, g=1.0, b=1.0)
 	SCREEN['f'][1][0:height, 0:width] = _f1
 	SCREEN['f'][2][0:height, 0:width] = _f2
 
-def shade_surface_back(surface_name, shader, width, height, r=1.0, g=1.0, b=1.):
+def shade_surface_back(surface_name, shader, width, height, r=1.0, g=1.0, b=1.0):
 	_surface = SURFACES[surface_name]
 	_start_x = _surface['start_x']
 	_start_y = _surface['start_y']
@@ -258,6 +266,35 @@ def shade_surface_back_ext(surface_name, shader, width, height):
 	SCREEN['b'][0][0:height, 0:width] = _f0
 	SCREEN['b'][1][0:height, 0:width] = _f1
 	SCREEN['b'][2][0:height, 0:width] = _f2
+
+def reset_surface_shaders(surface_name):
+	_surface = SURFACES[surface_name]
+	
+	_surface['f'][0] = _surface['fo'][0].copy()
+	_surface['f'][1] = _surface['fo'][1].copy()
+	_surface['f'][2] = _surface['fo'][2].copy()
+	_surface['b'][0] = _surface['bo'][0].copy()
+	_surface['b'][1] = _surface['bo'][1].copy()
+	_surface['b'][2] = _surface['bo'][2].copy()
+
+def apply_surface_shader(surface_name, shader, width, height):
+	_surface = SURFACES[surface_name]
+	_start_x = _surface['start_x']
+	_start_y = _surface['start_y']
+
+	_f0 = _surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader[0][_start_y:_start_y+height, _start_x:_start_x+width]
+	_f1 = _surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader[1][_start_y:_start_y+height, _start_x:_start_x+width]
+	_f2 = _surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader[2][_start_y:_start_y+height, _start_x:_start_x+width]
+	_b0 = _surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] * shader[0][_start_y:_start_y+height, _start_x:_start_x+width]
+	_b1 = _surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] * shader[1][_start_y:_start_y+height, _start_x:_start_x+width]
+	_b2 = _surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] * shader[2][_start_y:_start_y+height, _start_x:_start_x+width]
+
+	_surface['f'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _f0
+	_surface['f'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _f1
+	_surface['f'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _f2
+	_surface['b'][0][_start_y:_start_y+height, _start_x:_start_x+width] = _b0
+	_surface['b'][1][_start_y:_start_y+height, _start_x:_start_x+width] = _b1
+	_surface['b'][2][_start_y:_start_y+height, _start_x:_start_x+width] = _b2
 
 def _clear_screen():
 	for rect in SCREEN['r']:

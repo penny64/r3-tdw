@@ -129,9 +129,6 @@ def draw():
 		                   fore_color=(200 * _alpha, 60 * _alpha, 80 * _alpha))
 		
 		_i += 1
-	#display.write_string('text', (constants.WINDOW_WIDTH / 2) - (len(TEXT[1]) / 2),
-	#                     13, TEXT[1].upper(),
-	#                     fore_color=(200 * FADE_ALPHA, 60 * FADE_ALPHA, 80 * FADE_ALPHA))
 	
 	#Menu
 	_i = 0

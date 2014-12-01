@@ -6,10 +6,23 @@ import ai_squads
 import constants
 import items
 
+import random
+import numpy
 import time
 
 
 def draw_map_grid(selected_grid=None):
+	_shader = []
+	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
+	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
+	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
+	
+	_shader[0] += .9
+	_shader[1] += .9
+	_shader[2] += .8
+	
+	display.apply_surface_shader('map', _shader, constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT)
+	
 	display.blit_surface_viewport('map', 0, 0, constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT)
 	
 	for x in range(constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE):
