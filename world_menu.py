@@ -4,6 +4,7 @@ import libtcodpy as tcod
 
 import constants
 import random
+import time
 
 TEXT = 'Insurgence: ', 'Shadow Operation'
 FADE_ALPHA = 0.0
@@ -89,6 +90,9 @@ def handle_input():
 	
 	if controls.get_input_char_pressed('\r'):
 		return False
+	
+	if controls.get_input_char_pressed('k'):
+		display.screenshot('screenshot-%s.bmp' % time.time())
 	
 	return True
 
