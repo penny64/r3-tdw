@@ -320,7 +320,7 @@ def check_for_collisions(entity):
 		entities.delete_entity(entity)
 		
 		effects.light(_x, _y, random.randint(3, 4))
-		effects.smoke_cloud(_x, _y, random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65))
+		effects.smoke_cloud(_x, _y, random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65), decay_amount=1.5)
 		
 		return
 	

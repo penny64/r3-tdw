@@ -169,8 +169,8 @@ def create_factions():
 				if i == 0:
 					_e = life.sniper(30 + i * 2, 7, 'Good Dude %i' % i, faction_name, is_player=True)
 				else:
-					#_e = life.turret(30, 7 + i * 2, 'Turret %i' % i, faction_name)
-					_e = life.engineer(30 + i * 2, 17, 'Good Dude %i' % i, faction_name)
+					_e = life.turret(30, 7 + i * 2, 'Turret %i' % i, faction_name)
+					#_e = life.engineer(30 + i * 2, 17, 'Good Dude %i' % i, faction_name)
 			
 			else:
 				if random.randint(0, 1):

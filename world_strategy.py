@@ -32,6 +32,7 @@ def create():
 	display.create_surface('map_squads', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('map_path', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('ui_bar', width=constants.WINDOW_WIDTH, height=constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT)
+	display.fill_surface('ui_bar', (30, 30, 30))
 	
 	display.blit_background('background')
 	

@@ -52,9 +52,10 @@ def _tick_smoke(entity):
 	_alpha_max = flags.get_flag(entity, 'alpha_max')
 	_fore_color = flags.get_flag(entity, 'fore_color')
 	_back_color = flags.get_flag(entity, 'back_color')
+	_decay_mod = flags.get_flag(entity, 'decay')
 	
 	if _alpha_mode:
-		_alpha -= random.uniform(.001, .005)
+		_alpha -= random.uniform(.001 * _decay_mod, .005 * _decay_mod)
 		
 		if _alpha <= 0:
 			display._set_char('tiles', _x, _y, ' ', (0, 0, 0), None)
@@ -86,7 +87,7 @@ def _tick_smoke(entity):
 	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
 	entities.trigger_event(entity, 'set_flag', flag='alpha_mode', value=_alpha_mode)
 
-def smoke(x, y, amount):
+def smoke(x, y, amount, decay_amount=1.0):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	_fore_color = random.choice([constants.BLACK_1, constants.BLACK_2, constants.BLACK_3])
@@ -97,6 +98,7 @@ def smoke(x, y, amount):
 	entities.trigger_event(_blood, 'set_char', char=' ')
 	flags.register(_blood)
 	flags.set_flag(_blood, 'alpha', value=0.0)
+	flags.set_flag(_blood, 'decay', value=decay_amount)
 	flags.set_flag(_blood, 'alpha_mode', value=0)
 	flags.set_flag(_blood, 'alpha_max', value=amount)
 	flags.set_flag(_blood, 'fore_color', value=_fore_color)
@@ -186,15 +188,15 @@ def fire(x, y, amount):
 	entities.trigger_event(_blood, 'set_back_color', color=_color[1])
 	entities.trigger_event(_blood, 'set_position', x=_x, y=_y)
 	
-	light(_x, _y, random.randint(5, 7), r=1.5, g=.1, b=.1)
+	#light(_x, _y, random.randint(5, 7), r=1.5, g=.1, b=.1)
 
 	return _blood
 
-def smoke_cloud(x, y, size, start_alpha=.0):
+def smoke_cloud(x, y, size, start_alpha=.0, decay_amount=1.0):
 	for pos in shapes.circle_smooth(x, y, size + .1, 0.1):
 		_c_mod = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, start_alpha, 1)
 		
-		smoke(pos[0], pos[1], _c_mod)
+		smoke(pos[0], pos[1], _c_mod, decay_amount=decay_amount)
 
 def explosion(x, y, size):
 	_solids = zones.get_active_solids({}, no_life=True)
@@ -207,6 +209,8 @@ def explosion(x, y, size):
 		
 		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75) and not pos in _solids:
 			fire(pos[0], pos[1], _c_mod)
+	
+	light(x, y, random.randint(7, 9), r=2.5, g=1.5, b=1.5)
 
 def _muzzle_flash_move(entity):
 	_direction = movement.get_direction(entity)

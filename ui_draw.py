@@ -140,7 +140,7 @@ def draw_life_memory():
 	_draw_life = list(_draw_life)
 
 	for entity_id in _draw_life:
-		if entity_id in _can_see_life:
+		if entity_id in _can_see_life or not entity_id in entities.ENTITIES:
 			continue
 		
 		_entity = entities.get_entity(entity_id)

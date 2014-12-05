@@ -292,7 +292,7 @@ def loop():
 				_member = entities.get_entity(member_id)
 				
 				_check_life.add(member_id)
-				_check_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see']])
+				_check_life.update([i for i in _member['ai']['life_memory'] if _member['ai']['life_memory'][i]['can_see'] and i in entities.ENTITIES])
 
 		_check_life = list(_check_life)
 		

@@ -151,13 +151,13 @@ def draw_squads(selected_squad=None):
 
 def clear_bar():
 	for y in range(constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT):
-		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(0, 0, 0))
+		display.write_string('ui_bar', 0, y, ' ' * constants.WINDOW_WIDTH, back_color=(30, 30, 30))
 
 def draw_time():
 	_minutes = int(round(world_strategy.TIME))
 	_time = '%s:%02d' % (_minutes / 60, _minutes - ((_minutes / 60) * 60))
 	
-	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(0, 0, 0))
+	display.write_string('ui_bar', constants.WINDOW_WIDTH - len(_time) - 1, 1, _time, back_color=(30, 30, 30))
 
 def draw_money():
 	_money = ai_factions.FACTIONS['Rogues']['money']
