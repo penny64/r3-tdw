@@ -165,7 +165,8 @@ def _smoke_shooter_push(entity):
 	_v_x, _v_y = numbers.velocity(_direction, random.uniform(.65, .85))
 	
 	if not int(round(_x + _v_x)) == int(round(_x)) or not int(round(_y + _v_y)) == int(round(_y)):
-		smoke(_x + _v_x, _y + _v_y, 1, start_amount=_alpha, decay_amount=1.2)
+		#smoke_cloud(_x + _v_x, _y + _v_y, random.randint(1, 2), start_alpha=_alpha, decay_amount=1.2)
+		smoke(_x + _v_x, _y + _v_y, .75, start_amount=_alpha, decay_amount=1.2)
 	
 	_x += _v_x
 	_y += _v_y
@@ -183,8 +184,10 @@ def smoke_shooter(x, y, direction):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	
+	_v_x, _v_y = numbers.velocity(direction, random.randint(4, 6))
 	
-	blood(_x, _y)
+	_x = int(round(_x + _v_x))
+	_y = int(round(_y + _v_y))
 	
 	flags.register(_blood)
 	timers.register(_blood)
@@ -273,7 +276,7 @@ def smoke_cloud(x, y, size, start_alpha=.0, decay_amount=1.0):
 	for pos in shapes.circle_smooth(x, y, size + .1, 0.1):
 		_c_mod = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, start_alpha, 1)
 		
-		smoke(pos[0], pos[1], start_amount=_c_mod, decay_amount=decay_amount)
+		smoke(pos[0], pos[1], 1, start_amount=_c_mod, decay_amount=decay_amount)
 
 def explosion(x, y, size):
 	_solids = zones.get_active_solids({}, no_life=True)
