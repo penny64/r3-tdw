@@ -45,6 +45,36 @@ def blood(x, y, surface='effects', group='effects'):
 
 	return _blood
 
+def _blood_splatter_push(entity):
+	_x, _y = movement.get_position(entity)
+	_direction = movement.get_direction(entity) + random.randint(-25, 25)
+	
+	_v_x, _v_y = numbers.velocity(_direction, random.uniform(.55, .75))
+	
+	if not int(round(_x + _v_x)) == int(round(_x)) or not int(round(_y + _v_y)) == int(round(_y)):
+		blood(_x + _v_x, _y + _v_y)
+	
+	_x += _v_x
+	_y += _v_y
+	
+	entities.trigger_event(entity, 'set_direction', direction=_direction)
+	entities.trigger_event(entity, 'set_position', x=_x, y=_y)
+
+def blood_splatter(x, y, direction):
+	_blood = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	blood(_x, _y)
+	
+	flags.register(_blood)
+	timers.register(_blood)
+	
+	entities.trigger_event(_blood, 'set_direction', direction=direction)
+	#entities.trigger_event(_blood, 'set_flag', flag='speed', value=random.)
+	
+	entities.trigger_event(_blood, 'create_timer', time=random.randint(24, 32), repeat=random.randint(2, 3), repeat_callback=_blood_splatter_push,
+	                       exit_callback=entities.delete_entity)
+
 def _tick_smoke(entity):
 	_x, _y = movement.get_position(entity)
 	_alpha = flags.get_flag(entity, 'alpha')
@@ -87,7 +117,7 @@ def _tick_smoke(entity):
 	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha)
 	entities.trigger_event(entity, 'set_flag', flag='alpha_mode', value=_alpha_mode)
 
-def smoke(x, y, amount, decay_amount=1.0):
+def smoke(x, y, amount, start_amount=0.0, decay_amount=1.0):
 	_blood = _create(x, y)
 	_x, _y = (int(round(x)), int(round(y)))
 	_fore_color = random.choice([constants.BLACK_1, constants.BLACK_2, constants.BLACK_3])
@@ -97,7 +127,7 @@ def smoke(x, y, amount, decay_amount=1.0):
 	
 	entities.trigger_event(_blood, 'set_char', char=' ')
 	flags.register(_blood)
-	flags.set_flag(_blood, 'alpha', value=0.0)
+	flags.set_flag(_blood, 'alpha', value=start_amount)
 	flags.set_flag(_blood, 'decay', value=decay_amount)
 	flags.set_flag(_blood, 'alpha_mode', value=0)
 	flags.set_flag(_blood, 'alpha_max', value=amount)
@@ -118,6 +148,53 @@ def smoke(x, y, amount, decay_amount=1.0):
 	entities.register_event(_blood, 'tick', _tick_smoke)
 
 	return _blood
+
+def _smoke_shooter_push(entity):
+	_x, _y = movement.get_position(entity)
+	_direction = movement.get_direction(entity)
+	_mod = random.randint(-35, 35)
+	_alpha = flags.get_flag(entity, 'alpha')
+	
+	if _mod < 0:
+		_mod = numbers.clip(_mod, -35, -20)
+	else:
+		_mod = numbers.clip(_mod, 20, 35)
+	
+	_direction += _mod
+	
+	_v_x, _v_y = numbers.velocity(_direction, random.uniform(.65, .85))
+	
+	if not int(round(_x + _v_x)) == int(round(_x)) or not int(round(_y + _v_y)) == int(round(_y)):
+		smoke(_x + _v_x, _y + _v_y, 1, start_amount=_alpha, decay_amount=1.2)
+	
+	_x += _v_x
+	_y += _v_y
+	
+	if (int(round(_x)), int(round(_y))) in zones.get_active_solids({}, no_life=True):
+		entities.delete_entity(entity)
+		
+		return
+	
+	entities.trigger_event(entity, 'set_direction', direction=_direction)
+	entities.trigger_event(entity, 'set_position', x=_x, y=_y)
+	entities.trigger_event(entity, 'set_flag', flag='alpha', value=_alpha - .05)
+
+def smoke_shooter(x, y, direction):
+	_blood = _create(x, y)
+	_x, _y = (int(round(x)), int(round(y)))
+	
+	
+	blood(_x, _y)
+	
+	flags.register(_blood)
+	timers.register(_blood)
+	
+	entities.trigger_event(_blood, 'set_flag', flag='alpha', value=1.0)
+	
+	entities.trigger_event(_blood, 'set_direction', direction=direction)
+	
+	entities.trigger_event(_blood, 'create_timer', time=random.randint(3, 6), repeat=random.randint(2, 4), repeat_callback=_smoke_shooter_push,
+	                       exit_callback=entities.delete_entity)
 
 def char(x, y, amount):
 	_color = list(display.get_color_at('tiles', x, y))
@@ -196,7 +273,7 @@ def smoke_cloud(x, y, size, start_alpha=.0, decay_amount=1.0):
 	for pos in shapes.circle_smooth(x, y, size + .1, 0.1):
 		_c_mod = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, start_alpha, 1)
 		
-		smoke(pos[0], pos[1], _c_mod, decay_amount=decay_amount)
+		smoke(pos[0], pos[1], start_amount=_c_mod, decay_amount=decay_amount)
 
 def explosion(x, y, size):
 	_solids = zones.get_active_solids({}, no_life=True)
@@ -209,6 +286,9 @@ def explosion(x, y, size):
 		
 		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75) and not pos in _solids:
 			fire(pos[0], pos[1], _c_mod)
+	
+	for i in range(random.randint(2 * size, 3*size)):
+		smoke_shooter(x, y, random.randint(0, 359))
 	
 	light(x, y, random.randint(7, 9), r=2.5, g=1.5, b=1.5)
 

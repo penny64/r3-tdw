@@ -16,8 +16,10 @@ def register(entity):
 	                      'motion': None}
 	
 	entities.create_event(entity, 'hit')
+	entities.create_event(entity, 'force')
 	entities.create_event(entity, 'set_motion')
 	entities.register_event(entity, 'hit', hit)
+	entities.register_event(entity, 'force', force)
 	entities.register_event(entity, 'get_speed', get_speed_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
 	entities.register_event(entity, 'get_vision', get_vision_mod)
@@ -53,12 +55,12 @@ def hit(entity, projectile):
 	for limb_name in entity['skeleton']['limbs']:
 		_limb = entity['skeleton']['limbs'][limb_name]
 		
-		for i in range(int(round(_limb['health']*_limb['accuracy']))):
+		for i in range(int(round(_limb['health'] * _limb['accuracy']))):
 			_hit_map.append(limb_name)
 	
 	_limb_name = random.choice(_hit_map)
 	_limb = entity['skeleton']['limbs'][_limb_name]
-	_damage = int(round(projectile['damage'] * _accuracy))
+	_damage = int(round((projectile['damage'] * _accuracy) * numbers.clip((1 - _limb['accuracy']), 0.25, 1)))
 	_limb['health'] -= _damage
 	_x, _y = movement.get_position(entity)
 	_x += int(round(random.uniform(-1, 1)))
@@ -68,7 +70,8 @@ def hit(entity, projectile):
 	#effects.explosion(_x, _y, 6)
 	
 	if not (_x, _y) in zones.get_active_solids(entity, ignore_calling_entity=True):
-		effects.blood(_x, _y)
+		#effects.blood(_x, _y)
+		effects.blood_splatter(_x, _y, movement.get_direction(projectile) + random.randint(-5, 5))
 		entities.trigger_event(entity, 'animate', animation=['X', '@@'], repeat=4 * int(round((1-_mod))), delay=20 * _mod)
 	
 	if _limb['health'] <= 0:
@@ -84,6 +87,9 @@ def hit(entity, projectile):
 			entities.trigger_event(entities.get_entity(projectile['owner']), 'did_damage', target_id=entity['_id'], damage=_damage)
 		
 		entities.trigger_event(entity, 'damage', limb=_limb_name, damage=_damage)
+
+def force(entity, limb_name, force):
+	_limb = entity['skeleton']['limbs'][limb_name]
 
 def handle_pain(entity, limb, damage):
 	_pain = int(round(damage * .75))
