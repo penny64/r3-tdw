@@ -345,7 +345,7 @@ def _bullet_effects(entity, x, y):
 		effects.vapor(x, y, start_alpha=_alpha)
 	
 	if _target_distance < 10:
-		_size = int(round(3 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/10.0, 0, 1)))))
+		_size = int(round(3 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/10.0, 0, 1))))) + random.randint(1, 2)
 		
 		if _size:
 			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)

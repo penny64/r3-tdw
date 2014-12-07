@@ -166,7 +166,7 @@ def _smoke_shooter_push(entity):
 	
 	if not int(round(_x + _v_x)) == int(round(_x)) or not int(round(_y + _v_y)) == int(round(_y)):
 		#smoke_cloud(_x + _v_x, _y + _v_y, random.randint(1, 2), start_alpha=_alpha, decay_amount=1.2)
-		smoke(_x + _v_x, _y + _v_y, .75, start_amount=_alpha, decay_amount=1.2)
+		smoke(_x + _v_x, _y + _v_y, .75, start_amount=_alpha, decay_amount=random.uniform(3.0, 4.0))
 	
 	_x += _v_x
 	_y += _v_y
