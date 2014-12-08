@@ -515,9 +515,12 @@ def light(x, y, brightness, r=1., g=1., b=1.):
 			continue
 		
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
-		_light_map[0][_y, _x] = numbers.clip(2 * (_brightness * r), 1, 3)
-		_light_map[1][_y, _x] = numbers.clip(2 * (_brightness * g), 1, 3)
-		_light_map[2][_y, _x] = numbers.clip(2 * (_brightness * b), 1, 3)
+		_r = numbers.clip(2 * (_brightness * r), 1, 3)
+		_g = numbers.clip(2 * (_brightness * g), 1, 3)
+		_b = numbers.clip(2 * (_brightness * b), 1, 3)
+		_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, 0.5)
+		_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, 0.5)
+		_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, 0.5)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')
