@@ -294,6 +294,7 @@ def explosion(x, y, size):
 		smoke_shooter(x, y, random.randint(0, 359))
 	
 	light(x, y, random.randint(7, 9), r=2.5, g=1.5, b=1.5)
+	light(x, y, random.randint(13, 15), r=1.3, g=1.3, b=1.3)
 
 def _muzzle_flash_move(entity):
 	_direction = movement.get_direction(entity)
@@ -485,13 +486,17 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 	
 	#TODO: Redo
 	if not show_on_sight:
-		while 1:
+		_i = 100
+		
+		while _i:
 			_nx, _ny = numbers.velocity(random.randint(0, 359), 5 * (1-accuracy))
 			_x = int(round(x + _nx))
 			_y = int(round(y + _ny))
 			
 			if not life.can_see_position(entity, (_x, _y)):
 				break
+			
+			_i -= 1
 	else:
 		_x, _y = x, y
 		
@@ -515,12 +520,12 @@ def light(x, y, brightness, r=1., g=1., b=1.):
 			continue
 		
 		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
-		_r = numbers.clip(2 * (_brightness * r), 1, 3)
-		_g = numbers.clip(2 * (_brightness * g), 1, 3)
-		_b = numbers.clip(2 * (_brightness * b), 1, 3)
-		_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, 0.5)
-		_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, 0.5)
-		_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, 0.5)
+		_r = numbers.clip(2 * (_brightness * r), 1, 4)
+		_g = numbers.clip(2 * (_brightness * g), 1, 4)
+		_b = numbers.clip(2 * (_brightness * b), 1, 4)
+		_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, 1.25)
+		_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, 1.25)
+		_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, 1.25)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')
