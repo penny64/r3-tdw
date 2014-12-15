@@ -27,14 +27,14 @@ _landing = {'name': 'landing',
                       'entry_room': True}}
 
 _kitchen = {'name': 'kitchen',
-            'size': 2,
+            'size': 3,
             'rules': {'banned_rooms': [],
                       'required_rooms': ['pantry'],
                       'allow_only_required': False,
                       'entry_room': False}}
 
 _pantry = {'name': 'pantry',
-           'size': 1,
+           'size': 2,
            'rules': {'banned_rooms': [],
                      'required_rooms': [],
                      'allow_only_required': True,
@@ -96,21 +96,6 @@ def create_blueprint(room_list):
 		_room_id = _room_reverse_lookup[_current_room_name]
 		_rejected_potential_potential_next_positions = set()
 		
-		for y in range(_height):
-			for x in range(_width):
-				_id = _room_id_map[y, x]
-				
-				if not _id:
-					print '.',
-					
-					continue
-				
-				print _room_lookup[_id][0],
-			
-			print
-		
-		print
-		
 		while 1:
 			#NOTE: _potential_next_positions will almost always be empty
 			if not _potential_next_positions:
@@ -142,8 +127,6 @@ def create_blueprint(room_list):
 							
 							if not _neighbor_id:
 								_potential_next_positions.add((_neighbor_x, _neighbor_y))
-			else:
-				print '\t\t\t\t\t\t\t\t\tList is populated?'
 			
 			logging.debug('Placement start: %s (%i potential location(s) left)' % (_current_room_name, len(_potential_next_positions)))
 			
@@ -152,14 +135,6 @@ def create_blueprint(room_list):
 			
 			while _room_size:
 				_fail_bad_neighbor = False
-				
-				#print 'Avail this pass:', _placer_x, _placer_y, _potential_potential_next_positions
-				
-				#if (_placer_x, _placer_x) in _rejected_potential_potential_next_positions:
-				#	if (_placer_x, _placer_y) in _potential_next_positions:
-				#		_potential_next_positions.remove((_placer_x, _placer_y))
-				#	
-				#	continue
 				
 				#Required/banned neighbor check
 				for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
@@ -172,11 +147,7 @@ def create_blueprint(room_list):
 					_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
 					
 					if not _neighbor_id:
-						_potential_potential_next_positions.add((_neighbor_y, _neighbor_x))
-						
 						continue
-					#else:
-					#	print 'SO WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG'
 					
 					_neighbor_room_name = _room_lookup[_neighbor_id]
 					_neighbor_room_rules = room_list[_neighbor_room_name]['rules']
@@ -207,11 +178,27 @@ def create_blueprint(room_list):
 					if (_placer_x, _placer_y) in _potential_next_positions:
 						_potential_next_positions.remove((_placer_x, _placer_y))
 					
-					
 					if _room_id_map[_placer_y, _placer_x]:
 						raise Exception('How in the actual fuck?')
 					
 					_room_id_map[_placer_y, _placer_x] = _room_id
+					
+					logging.debug('\tPutting down 1 room at %i, %i' % (_placer_x, _placer_y))
+					
+					for y in range(_height):
+						for x in range(_width):
+							_id = _room_id_map[y, x]
+							
+							if not _id:
+								print '.',
+								
+								continue
+							
+							print _room_lookup[_id][0],
+						
+						print
+					
+					print
 					
 					if _current_room_name in _placed_rooms:
 						_placed_rooms[_current_room_name].append((_placer_x, _placer_y))
@@ -224,16 +211,28 @@ def create_blueprint(room_list):
 					if not _room_size:
 						break
 					
-					_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
+					_potential_potential_next_positions = set()
 					
-					print '(1) Moving placer to %i, %i' % (_placer_x, _placer_y)
+					for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+						_neighbor_x = _placer_x + x_mod
+						_neighbor_y = _placer_y + y_mod
+						
+						if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+							continue
+						
+						_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+						
+						if not _neighbor_id:
+							_potential_potential_next_positions.add((_neighbor_x, _neighbor_y))
+					
+					_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
+					print 'taking off pp list'
 					
 					continue
 				
 				else:
 					_placer_x, _placer_y = random.choice(list(_potential_next_positions))
-					
-					print '(2) Moving placer to %i, %i' % (_placer_x, _placer_y)
+					print 'taking off Next pos'
 				
 				#if (_placer_x, _placer_y) in _potential_next_positions:
 				#	_potential_next_positions.remove((_placer_x, _placer_y))
