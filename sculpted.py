@@ -127,6 +127,8 @@ def create_blueprint(room_list):
 							
 							if not _neighbor_id:
 								_potential_next_positions.add((_neighbor_x, _neighbor_y))
+							
+							if _room_size 
 			
 			logging.debug('Placement start: %s (%i potential location(s) left)' % (_current_room_name, len(_potential_next_positions)))
 			
