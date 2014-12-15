@@ -49,8 +49,8 @@ _bathroom = {'name': 'bathroom',
 
 ROOMS = {_landing['name']: _landing,
          _kitchen['name']: _kitchen,
-         _bathroom['name']: _bathroom,
-         _pantry['name']: _pantry}
+#_bathroom['name']: _bathroom,
+_pantry['name']: _pantry}
 
 
 def create_blueprint(room_list):
@@ -92,8 +92,24 @@ def create_blueprint(room_list):
 	
 	while _room_pool:
 		_room_rules = room_list[_current_room_name]['rules']
+		_room_size = room_list[_current_room_name]['size']
 		_room_id = _room_reverse_lookup[_current_room_name]
 		_rejected_potential_potential_next_positions = set()
+		
+		for y in range(_height):
+			for x in range(_width):
+				_id = _room_id_map[y, x]
+				
+				if not _id:
+					print '.',
+					
+					continue
+				
+				print _room_lookup[_id][0],
+			
+			print
+		
+		print
 		
 		while 1:
 			#NOTE: _potential_next_positions will almost always be empty
@@ -101,8 +117,8 @@ def create_blueprint(room_list):
 				if len(_room_pool) > 1:
 					_temp_room_pool = _room_pool[:]
 					
-					if _current_room_name in _temp_room_pool:
-						_temp_room_pool.remove(_current_room_name)
+					#if _current_room_name in _temp_room_pool:
+					_temp_room_pool.remove(_current_room_name)
 					
 					_last_room_name = _current_room_name
 					_current_room_name = random.choice(_temp_room_pool)
@@ -110,99 +126,128 @@ def create_blueprint(room_list):
 					logging.debug('Failed to place \'%s\', moving to \'%s\'' % (_last_room_name, _current_room_name))
 				
 				_room_rules = room_list[_current_room_name]['rules']
+				_room_size = room_list[_current_room_name]['size']
 				_room_id = _room_reverse_lookup[_current_room_name]
 				
 				for placed_room_name in _placed_rooms:
-					_placed_room_at_x, _placed_room_at_y = _placed_rooms[placed_room_name]
-					
-					for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
-						_neighbor_x = _placed_room_at_x + x_mod
-						_neighbor_y = _placed_room_at_y + y_mod
-						
-						if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
-							continue
-						
-						_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
-						
-						if not _neighbor_id:
-							_potential_next_positions.add((_neighbor_x, _neighbor_y))
+					for _placed_room_at_x, _placed_room_at_y in _placed_rooms[placed_room_name]:
+						for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+							_neighbor_x = _placed_room_at_x + x_mod
+							_neighbor_y = _placed_room_at_y + y_mod
+							
+							if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+								continue
+							
+							_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+							
+							if not _neighbor_id:
+								_potential_next_positions.add((_neighbor_x, _neighbor_y))
+			else:
+				print '\t\t\t\t\t\t\t\t\tList is populated?'
 			
 			logging.debug('Placement start: %s (%i potential location(s) left)' % (_current_room_name, len(_potential_next_positions)))
-				
+			
 			_placer_x, _placer_y = random.choice(list(_potential_next_positions))
-			_fail_bad_neighbor = False
 			_potential_potential_next_positions = set()
 			
-			if (_placer_x, _placer_x) in _rejected_potential_potential_next_positions:
-				_potential_next_positions.remove((_placer_x, _placer_y))
+			while _room_size:
+				_fail_bad_neighbor = False
 				
-				continue
-			
-			#Required/banned neighbor check
-			for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
-				_neighbor_x = _placer_x + x_mod
-				_neighbor_y = _placer_y + y_mod
+				#print 'Avail this pass:', _placer_x, _placer_y, _potential_potential_next_positions
 				
-				#TODO: Maybe?
-				#if (_neighbor_x, _neighbor_y) in _rejected_potential_potential_next_positions:
-				#	print '\t\t\t\trej'
+				#if (_placer_x, _placer_x) in _rejected_potential_potential_next_positions:
+				#	if (_placer_x, _placer_y) in _potential_next_positions:
+				#		_potential_next_positions.remove((_placer_x, _placer_y))
+				#	
 				#	continue
 				
-				if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+				#Required/banned neighbor check
+				for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+					_neighbor_x = _placer_x + x_mod
+					_neighbor_y = _placer_y + y_mod
+					
+					if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+						continue
+					
+					_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+					
+					if not _neighbor_id:
+						_potential_potential_next_positions.add((_neighbor_y, _neighbor_x))
+						
+						continue
+					#else:
+					#	print 'SO WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG'
+					
+					_neighbor_room_name = _room_lookup[_neighbor_id]
+					_neighbor_room_rules = room_list[_neighbor_room_name]['rules']
+					
+					if not _current_room_name == _neighbor_room_name:
+						if _neighbor_room_name in _room_rules['banned_rooms'] or _current_room_name in _neighbor_room_rules['banned_rooms']:
+							_fail_bad_neighbor = True
+							
+							logging.debug('\tNeighbor is banned/banned by neighbor: %s' % _neighbor_room_name)
+							
+							continue
+						
+						if _neighbor_room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+							_fail_bad_neighbor = True
+							
+							logging.debug('\tNeighbor banned us: Not in required list: %s' % _neighbor_room_name)
+							
+							continue
+						
+						if _room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+							_fail_bad_neighbor = True
+							
+							logging.debug('\tNeighbor is banned: Only allowing required links: %s' % _neighbor_room_name)
+							
+							continue
+				
+				if not _fail_bad_neighbor:
+					if (_placer_x, _placer_y) in _potential_next_positions:
+						_potential_next_positions.remove((_placer_x, _placer_y))
+					
+					
+					if _room_id_map[_placer_y, _placer_x]:
+						raise Exception('How in the actual fuck?')
+					
+					_room_id_map[_placer_y, _placer_x] = _room_id
+					
+					if _current_room_name in _placed_rooms:
+						_placed_rooms[_current_room_name].append((_placer_x, _placer_y))
+					
+					else:
+						_placed_rooms[_current_room_name] = [(_placer_x, _placer_y)]
+					
+					_room_size -= 1
+					
+					if not _room_size:
+						break
+					
+					_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
+					
+					print '(1) Moving placer to %i, %i' % (_placer_x, _placer_y)
+					
 					continue
 				
-				_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+				else:
+					_placer_x, _placer_y = random.choice(list(_potential_next_positions))
+					
+					print '(2) Moving placer to %i, %i' % (_placer_x, _placer_y)
 				
-				if not _neighbor_id:
-					continue
+				#if (_placer_x, _placer_y) in _potential_next_positions:
+				#	_potential_next_positions.remove((_placer_x, _placer_y))
 				
-				_neighbor_room_name = _room_lookup[_neighbor_id]
-				_neighbor_room_rules = room_list[_neighbor_room_name]['rules']
+				#_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
 				
-				if _neighbor_room_name in _room_rules['banned_rooms'] or _current_room_name in _neighbor_room_rules['banned_rooms']:
-					_fail_bad_neighbor = True
-					
-					logging.debug('\tNeighbor is banned/banned by neighbor: %s' % _neighbor_room_name)
-					
-					break
-				
-				if _neighbor_room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
-					_fail_bad_neighbor = True
-					
-					logging.debug('\tNeighbor banned us: Not in required list: %s' % _neighbor_room_name)
-					
-					break
-				
-				if _room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
-					_fail_bad_neighbor = True
-					
-					logging.debug('\tNeighbor is banned: Only allowing required links: %s' % _neighbor_room_name)
-					
-					break	
+				#continue
 			
-			if not _fail_bad_neighbor:
-				_rejected_potential_potential_next_positions.add((_placer_x, _placer_y))
-				_potential_next_positions.remove((_placer_x, _placer_y))
-				
-				break
-			
-			else:
-				_potential_next_positions.remove((_placer_x, _placer_y))
-				
-				continue
-			
-			if not _potential_potential_next_positions:
-				raise Exception('No positions available.')
+			break
 		
-		_room_id_map[_placer_y, _placer_x] = _room_id
-		_placed_rooms[_current_room_name] = _placer_x, _placer_y
-		
-		if _current_room_name in _room_pool:
-			_room_pool.remove(_current_room_name)
-		
+		_room_pool.remove(_current_room_name)
 		_potential_next_positions = set()
 		
-		logging.debug('\tPlaced room: %s (ID=%i)' % (_current_room_name, _room_id))
+		logging.debug('\tPlaced room: %s (ID=%i) at %s' % (_current_room_name, _room_id, _placed_rooms[_current_room_name]))
 		
 		if not _room_pool:
 			break
@@ -232,14 +277,21 @@ def create_blueprint(room_list):
 			
 			if not _r['rules']['required_rooms'] or len(set(_r['rules']['required_rooms']) & set(_placed_rooms.keys())) == len(_r['rules']['required_rooms']):
 				_rooms_okay_to_choose_in_pool.append(next_room_name)
-			
+		
 		_current_room_name = random.choice(_rooms_okay_to_choose_in_pool)
 	
 	print
 	
 	for y in range(_height):
 		for x in range(_width):
-			print _room_id_map[y, x],
+			_id = _room_id_map[y, x]
+			
+			if not _id:
+				print '.',
+				
+				continue
+			
+			print _room_lookup[_id][0],
 		
 		print
 
