@@ -86,45 +86,45 @@ def create_blueprint(room_list):
 		_saved_potential_next_positions_no_removal = set()
 		
 		while 1:
-			#if not _potential_next_positions:
-			if len(_room_pool) > 1:
-				_temp_room_pool = _room_pool[:]
-				_temp_room_pool.remove(_current_room_name)
-				
-				print 'Failed', _current_room_name,
-				
-				_current_room_name = random.choice(_temp_room_pool)
-				
-				print 'moving on to', _current_room_name
-			
-			_room_rules = room_list[_current_room_name]['rules']
-			_room_id = _room_reverse_lookup[_current_room_name]
-			_potential_next_positions = set()
-			
-			for placed_room_name in _placed_rooms:
-				_placed_room_at_x, _placed_room_at_y = _placed_rooms[placed_room_name]
-				
-				for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
-					_neighbor_x = _placed_room_at_x + x_mod
-					_neighbor_y = _placed_room_at_y + y_mod
+			if not _potential_next_positions:
+				if len(_room_pool) > 1:
+					_temp_room_pool = _room_pool[:]
+					_temp_room_pool.remove(_current_room_name)
 					
-					if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
-						continue
+					print 'Failed', _current_room_name,
 					
-					_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+					_current_room_name = random.choice(_temp_room_pool)
 					
-					if not _neighbor_id:
-						_potential_next_positions.add((_neighbor_x, _neighbor_y))
+					print 'moving on to', _current_room_name
+				
+				_room_rules = room_list[_current_room_name]['rules']
+				_room_id = _room_reverse_lookup[_current_room_name]
+				_potential_next_positions = set()
+				
+				for placed_room_name in _placed_rooms:
+					_placed_room_at_x, _placed_room_at_y = _placed_rooms[placed_room_name]
+					
+					for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+						_neighbor_x = _placed_room_at_x + x_mod
+						_neighbor_y = _placed_room_at_y + y_mod
+						
+						if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+							continue
+						
+						_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+						
+						if not _neighbor_id:
+							_potential_next_positions.add((_neighbor_x, _neighbor_y))
+				
+			_placer_x, _placer_y = random.choice(list(_potential_next_positions))
+			_fail_bad_neighbor = False
+			_potential_potential_next_positions = set()
 			
-		_placer_x, _placer_y = random.choice(list(_potential_next_positions))
-		_fail_bad_neighbor = False
-		_potential_potential_next_positions = set()
-		
-		if (_placer_x, _placer_x) in _rejected_potential_potential_next_positions:
-			_potential_next_positions.remove((_placer_x, _placer_y))
-			print 'early continue'
-			
-			continue
+			if (_placer_x, _placer_x) in _rejected_potential_potential_next_positions:
+				_potential_next_positions.remove((_placer_x, _placer_y))
+				print 'early continue'
+				
+				continue
 			
 			#Required/banned neighbor check
 			for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
