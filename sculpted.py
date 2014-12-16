@@ -75,7 +75,7 @@ ROOMS = {_landing['name']: _landing,
          _bunks['name']: _bunks,}
 
 
-def create_blueprint(room_list):
+def _create_blueprint(room_list):
 	_total_room_size = 0
 	_bitmask_map = None
 	_room_id_map = None
@@ -318,6 +318,43 @@ def create_blueprint(room_list):
 	
 	print
 	
+	logging.debug('Writing bitmask map')
+	
+	for y in range(_height):
+		for x in range(_width):
+			_room_id = _room_id_map[y, x]
+			_neighbor_count = 0
+			
+			if _room_id:
+				_neighbor_count += 100
+			
+			for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+				_neighbor_x = x + x_mod
+				_neighbor_y = y + y_mod
+				
+				if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+					continue
+			
+				_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
+			
+				if _room_id:
+					_current_room_name = _room_lookup[_room_id]
+					_room_rules = room_list[_current_room_name]['rules']
+					
+					if _neighbor_id:
+						_neighbor_room_name = _room_lookup[_neighbor_id]
+						_neighbor_room_rules = room_list[_neighbor_room_name]['rules']
+						
+						if _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
+							continue
+						
+						if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+							continue
+						
+						_neighbor_count += LOOKUP[x_mod, y_mod]
+			
+			_bitmask_map[y, x] = _neighbor_count
+	
 	for y in range(_height):
 		for x in range(_width):
 			_id = _room_id_map[y, x]
@@ -331,8 +368,23 @@ def create_blueprint(room_list):
 		
 		print
 	
-	return True
+	_blueprint = {'bitmask_map': _bitmask_map,
+	              'room_map': _room_id_map,
+	              'rooms': room_list,
+	              'room_lookup': _room_lookup,
+	              'width': _width,
+	              'height': _height}
+	
+	return _blueprint
+
+def create_blueprint(room_list):
+	while 1:
+		_blueprint = _create_blueprint(room_list)
+		
+		if _blueprint:
+			break
+	
+	return _blueprint
 
 if __name__ == '__main__':
-	while not create_blueprint(ROOMS):
-		continue
+	print create_blueprint(ROOMS)
