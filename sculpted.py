@@ -23,34 +23,56 @@ _landing = {'name': 'landing',
             'size': 1,
             'rules': {'banned_rooms': ['bathroom'],
                       'required_rooms': [],
-                      'allow_only_required': False,
+                      'allow_only_if_required_by_neighbor': False,
+                      'whitelist_required': False,
                       'entry_room': True}}
 
 _kitchen = {'name': 'kitchen',
             'size': 3,
             'rules': {'banned_rooms': [],
-                      'required_rooms': ['pantry'],
-                      'allow_only_required': False,
+                      'required_rooms': [],
+                      'allow_only_if_required_by_neighbor': False,
+                      'whitelist_required': False,
                       'entry_room': False}}
 
 _pantry = {'name': 'pantry',
            'size': 2,
            'rules': {'banned_rooms': [],
-                     'required_rooms': [],
-                     'allow_only_required': True,
+                     'required_rooms': ['kitchen'],
+                     'allow_only_if_required_by_neighbor': False,
+                     'whitelist_required': True,
                      'entry_room': False}}
 
 _bathroom = {'name': 'bathroom',
              'size': 1,
              'rules': {'banned_rooms': [],
+                       'required_rooms': ['hall'],
+                       'allow_only_if_required_by_neighbor': False,
+                       'whitelist_required': True,
+                       'entry_room': False}}
+
+_hall = {'name': 'hall',
+             'size': 3,
+             'rules': {'banned_rooms': [],
                        'required_rooms': [],
-                       'allow_only_required': False,
+                       'allow_only_if_required_by_neighbor': False,
+                       'whitelist_required': False,
+                       'entry_room': False}}
+
+_bunks = {'name': 'Bunks',
+             'size': 3,
+             'rules': {'banned_rooms': [],
+                       'required_rooms': ['hall'],
+                       'allow_only_if_required_by_neighbor': False,
+                       'whitelist_required': True,
                        'entry_room': False}}
 
 ROOMS = {_landing['name']: _landing,
          _kitchen['name']: _kitchen,
-#_bathroom['name']: _bathroom,
-_pantry['name']: _pantry}
+         _pantry['name']: _pantry,
+         _bathroom['name']: _bathroom,
+         _hall['name']: _hall,
+         _bunks['name']: _bunks,}
 
 
 def create_blueprint(room_list):
@@ -85,7 +107,7 @@ def create_blueprint(room_list):
 	
 	#Pick an entry point - can be keyword arg at some point
 	_current_room_name = random.choice(_potential_start_rooms)
-	_placer_x, _placer_y = random.randint(0, _width-1), 0
+	_placer_x, _placer_y = random.randint(3, _width-4), 0
 	_potential_next_positions = set([(_placer_x, _placer_y)])
 	_placed_rooms = {}
 	_room_pool_priority = set()
@@ -128,15 +150,23 @@ def create_blueprint(room_list):
 							if not _neighbor_id:
 								_potential_next_positions.add((_neighbor_x, _neighbor_y))
 							
-							if _room_size 
+							#TODO: can probably fix split room bug
+							#if _room_size 
 			
 			logging.debug('Placement start: %s (%i potential location(s) left)' % (_current_room_name, len(_potential_next_positions)))
 			
 			_placer_x, _placer_y = random.choice(list(_potential_next_positions))
 			_potential_potential_next_positions = set()
+			_failures = 0
+			_fail = False
 			
 			while _room_size:
 				_fail_bad_neighbor = False
+				_failures += 1
+				
+				if _failures >= 12:
+					_fail = True
+					break
 				
 				#Required/banned neighbor check
 				for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
@@ -162,17 +192,24 @@ def create_blueprint(room_list):
 							
 							continue
 						
-						if _neighbor_room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+						if _neighbor_room_rules['allow_only_if_required_by_neighbor'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor banned us: Not in required list: %s' % _neighbor_room_name)
 							
 							continue
 						
-						if _room_rules['allow_only_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+						if _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor is banned: Only allowing required links: %s' % _neighbor_room_name)
+							
+							continue
+						
+						if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+							_fail_bad_neighbor = True
+							
+							logging.debug('\tNeighbor banned us: Not in required list: %s' % _neighbor_room_name)
 							
 							continue
 				
@@ -236,14 +273,12 @@ def create_blueprint(room_list):
 					_placer_x, _placer_y = random.choice(list(_potential_next_positions))
 					print 'taking off Next pos'
 				
-				#if (_placer_x, _placer_y) in _potential_next_positions:
-				#	_potential_next_positions.remove((_placer_x, _placer_y))
 				
-				#_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
-				
-				#continue
 			
 			break
+		
+		if _fail:
+			return False
 		
 		_room_pool.remove(_current_room_name)
 		_potential_next_positions = set()
@@ -295,6 +330,9 @@ def create_blueprint(room_list):
 			print _room_lookup[_id][0],
 		
 		print
+	
+	return True
 
 if __name__ == '__main__':
-	create_blueprint(ROOMS)
+	while not create_blueprint(ROOMS):
+		continue
