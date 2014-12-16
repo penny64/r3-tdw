@@ -3,15 +3,6 @@ import random
 import numpy
 
 
-#TODO: Remove this
-logger = logging.getLogger()
-console_formatter = logging.Formatter('[%(levelname)s] %(message)s', datefmt='%H:%M:%S %m/%d/%y')
-ch = logging.StreamHandler()
-ch.setFormatter(console_formatter)
-logger.addHandler(ch)
-
-logger.setLevel(logging.DEBUG)
-
 #For bitmasking
 LOOKUP = {(0, -1): 1,
           (1, 0): 2,
@@ -345,13 +336,17 @@ def _create_blueprint(room_list):
 						_neighbor_room_name = _room_lookup[_neighbor_id]
 						_neighbor_room_rules = room_list[_neighbor_room_name]['rules']
 						
-						if _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
-							continue
-						
-						if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
-							continue
+						if not _current_room_name == _neighbor_room_name:
+							if _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
+								continue
+							
+							if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+								continue
 						
 						_neighbor_count += LOOKUP[x_mod, y_mod]
+				
+				elif not _room_id and _neighbor_id:
+					_neighbor_count += LOOKUP[x_mod, y_mod]
 			
 			_bitmask_map[y, x] = _neighbor_count
 	

@@ -3,6 +3,7 @@ from framework import numbers, shapes
 import libtcodpy as tcod
 
 import constants
+import sculpted
 import mapgen
 import tiles
 import life
@@ -26,17 +27,52 @@ def generate(width, height):
 	_ground_tiles = set()
 	_possible_camps = set()
 	_trees = {}
-	_num_walls = 10
+	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
+	_room_size = 11
+	_place_x, _place_y = 0, 15
 	
-	for i in range(_num_walls):
-		_x = random.randint(int(round(width * .15)), int(round(width * .85)))
-		_y = random.randint(int(round(height * .15)), int(round(height * .85)))
-		
-		for pos in shapes.circle(_x, _y, random.randint(7, 10)):
-			#_tile = tiles.wooden_fence(pos[0], pos[1])
-			#_tile_map[pos[1]][pos[0]] = _tile
-			#_weight_map[pos[1]][pos[0]] = _tile['w']
-			_solids.add((pos[0], pos[1]))
+	for y in range(_blueprint['height']):
+		for x in range(_blueprint['width']):
+			_o_bitmask = _blueprint['bitmask_map'][y, x]
+			_bitmask = _blueprint['bitmask_map'][y, x]
+			
+			if not _bitmask:
+				continue
+			
+			if _bitmask < 100:
+				_bitmask += 100
+			
+			print _bitmask
+			
+			for y1 in range(_room_size):
+				for x1 in range(_room_size):
+					_p_x, _p_y = (x * _room_size) + x1, (y * _room_size) + y1
+					
+					if _o_bitmask > 100:
+						if y1 == 0 and not _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						elif y1 == _room_size-1 and not _bitmask in [104, 105, 106, 117, 112, 113, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						if x1 == _room_size-1 and not _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						elif x1 == 0 and not _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+					
+					else:
+						if y1 == 0 and _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						elif y1 == _room_size-1 and _bitmask in [104, 105, 106, 117, 112, 113, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						if x1 == _room_size-1 and _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
+						
+						elif x1 == 0 and _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
+							_solids.add((_place_x + _p_x, _place_y + _p_y))
 	
 	for y in range(height):
 		for x in range(width):
