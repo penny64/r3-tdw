@@ -35,6 +35,7 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'trees': trees,
 	               'inside': inside,
 	               'los_map': None,
+	               'light_maps': {},
 	               'shaders': []}
 	
 	logging.info('Created zone: %s' % name)
@@ -62,8 +63,11 @@ def activate(zone_id):
 	
 	events.register_event('logic', post_processing.tick_sun)
 	
-	_zone['shaders'].append(post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees']))
+	_static_lighting = display.create_shader(_zone['width'], _zone['height'], start_offset=1)
+	_zone['shaders'].append(post_processing.generate_shadow_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees'], _zone['inside']))
 	_zone['shaders'].append(post_processing.generate_light_map(_zone['width'], _zone['height'], _zone['solids'], _zone['trees']))
+	_zone['light_maps']['static_lighting'] = _static_lighting
+	_zone['shaders'].append(_static_lighting)
 	
 	_noise = tcod.noise_new(3)
 	_zoom = 2.0
@@ -71,9 +75,12 @@ def activate(zone_id):
 	
 	for y in range(0, _zone['height']):
 		for x in range(0, _zone['width']):
-			_noise_values = [(_zoom * x / _zone['width']),
-					         (_zoom * y / _zone['height'])]
-			_height = .35 + numbers.clip(tcod.noise_get_turbulence(_noise, _noise_values, tcod.NOISE_SIMPLEX), .35, 1)
+			if (x, y) in _zone['inside']:
+				_height = .75
+			else:
+				_noise_values = [(_zoom * x / _zone['width']),
+					             (_zoom * y / _zone['height'])]
+				_height = .35 + numbers.clip(tcod.noise_get_turbulence(_noise, _noise_values, tcod.NOISE_SIMPLEX), .35, 1)
 			
 			_shader[0][y, x] = 1.3 * _height
 			_shader[1][y, x] = 1.3 * _height
@@ -124,6 +131,12 @@ def get_active_solids(entity, ignore_entities=[], ignore_calling_entity=False, n
 		_solids.update([movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p in ignore_entities])
 	
 	return _solids
+
+def get_active_light_maps():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['light_maps']
 
 def get_active_life_positions(entity):
 	return [movement.get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]

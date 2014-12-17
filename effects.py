@@ -505,27 +505,36 @@ def show_noise(entity, x, y, accuracy, direction, text, show_on_sight, callback)
 	
 	return printer(_x, _y, text, moving=_moving, move_direction=_move_direction, show_mod=1, speed_mod=0.3, free_tick=True)
 
-def light(x, y, brightness, r=1., g=1., b=1.):
+def light(x, y, brightness, r=1., g=1., b=1., light_map=None):
 	if '--no-fx' in sys.argv:
 		return
 	
-	_light_map = post_processing.get_light_map()
+	if light_map:
+		_active_light_maps = zones.get_active_light_maps()
+		_light_map = _active_light_maps[light_map]
+	
+	else:
+		_light_map = post_processing.get_light_map()
+	
 	_width, _height = zones.get_active_size()
 	
 	for _x, _y in shapes.circle(x, y, brightness):
 		if _x < 0 or _x >= _width or _y < 0 or _y >= _height:
 			continue
 		
-		if _light_map[0][_y, _x] > 1:
-			continue
-		
-		_brightness = 1 - (numbers.float_distance((x, y), (_x, _y)) / float(brightness))
+		_brightness = 1 - ((numbers.float_distance((x, y), (_x, _y)) - 1.15) / float(brightness))
 		_r = numbers.clip(2 * (_brightness * r), 1, 4)
 		_g = numbers.clip(2 * (_brightness * g), 1, 4)
 		_b = numbers.clip(2 * (_brightness * b), 1, 4)
-		_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, 1.25)
-		_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, 1.25)
-		_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, 1.25)
+		
+		if _r > _light_map[0][_y, _x]:
+			_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, .9)
+		
+		if _g > _light_map[1][_y, _x]:
+			_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, .9)
+		
+		if _b > _light_map[2][_y, _x]:
+			_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, .9)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')

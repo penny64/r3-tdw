@@ -88,11 +88,11 @@ def delete_surface(surface_name):
 def get_surface(surface_name):
 	return SURFACES[surface_name]
 
-def create_shader(width, height):
+def create_shader(width, height, start_offset=0):
 	_shader = []
-	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
-	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
-	_shader.append(numpy.zeros((height, width), dtype=numpy.float))
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float) + start_offset)
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float) + start_offset)
+	_shader.append(numpy.zeros((height, width), dtype=numpy.float) + start_offset)
 	
 	return _shader
 

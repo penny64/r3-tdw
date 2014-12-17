@@ -30,6 +30,7 @@ def generate(width, height):
 	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
 	_room_size = 11
 	_place_x, _place_y = 0, 15
+	_floor = set()
 	
 	for y in range(_blueprint['height']):
 		for x in range(_blueprint['width']):
@@ -42,37 +43,47 @@ def generate(width, height):
 			if _bitmask < 100:
 				_bitmask += 100
 			
-			print _bitmask
-			
 			for y1 in range(_room_size):
 				for x1 in range(_room_size):
+					_placed = False
 					_p_x, _p_y = (x * _room_size) + x1, (y * _room_size) + y1
 					
 					if _o_bitmask > 100:
 						if y1 == 0 and not _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						elif y1 == _room_size-1 and not _bitmask in [104, 105, 106, 117, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						if x1 == _room_size-1 and not _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						elif x1 == 0 and not _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 					
 					else:
 						if y1 == 0 and _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						elif y1 == _room_size-1 and _bitmask in [104, 105, 106, 117, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						if x1 == _room_size-1 and _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
 						
 						elif x1 == 0 and _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
+							_placed = True
+			
+					if not _placed and _o_bitmask > 100:
+						_floor.add((_place_x + _p_x, _place_y + _p_y))
 	
 	for y in range(height):
 		for x in range(width):
@@ -154,10 +165,15 @@ def generate(width, height):
 		_tile_map[y][x] = _tile
 		_weight_map[y][x] = _tile['w']
 	
+	for x, y in _floor:
+		_tile = tiles.concrete_striped(x, y)
+		_tile_map[y][x] = _tile
+		_weight_map[y][x] = _tile['w']
+	
 	mapgen.build_node_grid(_node_grid, _solids)
 	
 	#_fsl = {'Terrorists': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_runner, 'spawn_pos': (15, 50)},
 	#        'Militia': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_bandit, 'spawn_pos': (90, 50)}}
 	#        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	
-	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, {}, _trees, _building_space - _walls
+	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, {}, _trees, _floor
