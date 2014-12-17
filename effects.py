@@ -522,7 +522,7 @@ def light(x, y, brightness, r=1., g=1., b=1., light_map=None):
 		if _x < 0 or _x >= _width or _y < 0 or _y >= _height:
 			continue
 		
-		_brightness = 1 - ((numbers.float_distance((x, y), (_x, _y)) - 1.15) / float(brightness))
+		_brightness = 1 - ((numbers.float_distance((x, y), (_x, _y)) - 1.0) / float(brightness))
 		_r = numbers.clip(2 * (_brightness * r), 1, 4)
 		_g = numbers.clip(2 * (_brightness * g), 1, 4)
 		_b = numbers.clip(2 * (_brightness * b), 1, 4)
