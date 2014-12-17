@@ -11,6 +11,8 @@ import zones
 
 import settings
 
+import random
+
 
 def boot():
 	events.register_event('input', handle_keyboard_input)
@@ -76,7 +78,7 @@ def handle_keyboard_input():
 		_menu = ui_menu.create(_x, _y, title='Tile Info')
 		
 		ui_menu.add_selectable(_menu, 'Warp', lambda: entities.trigger_event(entity, 'set_position', x=_mx, y=_my))
-		ui_menu.add_selectable(_menu, 'Light', lambda: effects.light(_mx, _my, 15, light_map='static_lighting'))
+		ui_menu.add_selectable(_menu, 'Light', lambda: effects.light(_mx, _my, 15, r=random.uniform(1.0, 1.5), g=random.uniform(1.0, 1.5), light_map='static_lighting'))
 		ui_menu.add_selectable(_menu, 'Weight: %s' % _weight, lambda: _)
 				
 def _show_metas(entity):

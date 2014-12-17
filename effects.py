@@ -527,14 +527,18 @@ def light(x, y, brightness, r=1., g=1., b=1., light_map=None):
 		_g = numbers.clip(2 * (_brightness * g), 1, 4)
 		_b = numbers.clip(2 * (_brightness * b), 1, 4)
 		
-		if _r > _light_map[0][_y, _x]:
-			_light_map[0][_y, _x] = numbers.interp(_light_map[0][_y, _x], _r, .9)
+		_min_r = min(_light_map[0][_y, _x], _r)
+		_max_r = max(_light_map[0][_y, _x], _r)
 		
-		if _g > _light_map[1][_y, _x]:
-			_light_map[1][_y, _x] = numbers.interp(_light_map[1][_y, _x], _g, .9)
+		_min_g = min([_light_map[1][_y, _x], _g])
+		_max_g = max([_light_map[1][_y, _x], _g])
 		
-		if _b > _light_map[2][_y, _x]:
-			_light_map[2][_y, _x] = numbers.interp(_light_map[2][_y, _x], _b, .9)
+		_min_b = min([_light_map[2][_y, _x], _b])
+		_max_b = max([_light_map[2][_y, _x], _b])
+		
+		_light_map[0][_y, _x] = numbers.interp(_min_r, _max_r, .5)
+		_light_map[1][_y, _x] = numbers.interp(_min_g, _max_g, .5)
+		_light_map[2][_y, _x] = numbers.interp(_min_b, _max_b, .5)
 
 def _message_draw(entity):
 	_text = flags.get_flag(entity, 'text')
