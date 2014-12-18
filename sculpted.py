@@ -364,7 +364,6 @@ def _create_blueprint(room_list):
 							
 							if not _neighbor_room_name in _has_door_to:
 								if _neighbor_room_name in _doors_map and _room_name in _doors_map[_neighbor_room_name] and not _doors_map[_neighbor_room_name][_room_name] == (x, y):
-									print 'Shit', _current_room_name, _neighbor_room_name
 									continue
 								
 								_door_count += LOOKUP[x_mod, y_mod]
