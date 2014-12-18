@@ -23,7 +23,7 @@ _landing = {'name': 'landing',
 
 _kitchen = {'name': 'kitchen',
             'size': 3,
-            'tile': tiles.concrete_striped,
+            'tile': tiles.tile_checkered,
             'rules': {'banned_rooms': [],
                       'required_rooms': [],
                       'allow_only_if_required_by_neighbor': False,
@@ -320,6 +320,7 @@ def _create_blueprint(room_list):
 	#print
 	
 	logging.debug('Writing bitmask map')
+	_doors_map = {}
 	
 	for y in range(_height):
 		for x in range(_width):
@@ -327,15 +328,21 @@ def _create_blueprint(room_list):
 			_neighbor_count = 0
 			_door_count = 0
 			_has_door_to = set()
+			_room_name = None
 			
 			if _room_id:
 				_neighbor_count += 100
+				_room_name = _room_lookup[_room_id]
+				_room_rules = room_list[_room_name]['rules']
 			
 			for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
 				_neighbor_x = x + x_mod
 				_neighbor_y = y + y_mod
 				
 				if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
+					if _room_id and _room_rules['entry_room'] and _neighbor_y < 0:
+						_door_count += LOOKUP[x_mod, y_mod]
+					
 					continue
 			
 				_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
@@ -356,8 +363,18 @@ def _create_blueprint(room_list):
 								continue
 							
 							if not _neighbor_room_name in _has_door_to:
+								if _neighbor_room_name in _doors_map and _room_name in _doors_map[_neighbor_room_name] and not _doors_map[_neighbor_room_name][_room_name] == (x, y):
+									print 'Shit', _current_room_name, _neighbor_room_name
+									continue
+								
 								_door_count += LOOKUP[x_mod, y_mod]
 								_has_door_to.add(_neighbor_room_name)
+								
+								if _room_name in _doors_map:
+									_doors_map[_room_name][_neighbor_room_name] = (_neighbor_x, _neighbor_y)
+								
+								else:
+									_doors_map[_room_name] = {_neighbor_room_name: (_neighbor_x, _neighbor_y)}
 							
 							else:
 								continue

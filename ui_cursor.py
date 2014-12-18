@@ -19,6 +19,8 @@ def boot():
 	events.register_event('mouse_pressed', handle_mouse_pressed)
 	events.register_event('input', handle_keyboard_input)
 	events.register_event('draw', lambda *args: entities.trigger_event(CURSOR, 'draw'))
+	
+	entities.trigger_event(CURSOR, 'set_position', x=constants.MAP_VIEW_WIDTH/2, y=constants.MAP_VIEW_HEIGHT/2)
 
 def handle_mouse_movement(x, y, **kwargs):
 	entities.trigger_event(CURSOR, 'set_position', x=x, y=y)

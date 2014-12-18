@@ -49,7 +49,6 @@ def generate(width, height):
 				_bitmask += 100
 			
 			else:
-				print _blueprint['room_map'][y, x]
 				_room_name = _blueprint['room_lookup'][_blueprint['room_map'][y, x]]
 			
 			for y1 in range(_room_size):
@@ -94,30 +93,42 @@ def generate(width, height):
 					if not _placed and _o_bitmask > 100 and not _door_bitmask:
 						_floor.add((_place_x + _p_x, _place_y + _p_y, _room_name))
 					
-					elif _door_bitmask and not _placed:
+					elif _door_bitmask:
 						_doorway_placed = False
 						
 						if y1 == 0 and _door_bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							if x1 < _min_door_pos or x1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
+							
+							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
+								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
 						elif y1 == _room_size-1 and _door_bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
 							if x1 < _min_door_pos or x1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
+							
+							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
+								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
 						if x1 == _room_size-1 and _door_bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							if y1 < _min_door_pos or y1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
+							
+							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
+								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
 						elif x1 == 0 and _door_bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							if y1 < _min_door_pos or y1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
+							
+							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
+								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
-						if not _doorway_placed:
+						if not _doorway_placed and not _placed:
 							_floor.add((_place_x + _p_x, _place_y + _p_y, _room_name))
 	
 	for y in range(height):
