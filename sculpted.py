@@ -1,3 +1,5 @@
+import tiles
+
 import logging
 import random
 import numpy
@@ -12,6 +14,7 @@ LOOKUP = {(0, -1): 1,
 
 _landing = {'name': 'landing',
             'size': 1,
+            'tile': tiles.wood_floor,
             'rules': {'banned_rooms': ['bathroom'],
                       'required_rooms': [],
                       'allow_only_if_required_by_neighbor': False,
@@ -20,6 +23,7 @@ _landing = {'name': 'landing',
 
 _kitchen = {'name': 'kitchen',
             'size': 3,
+            'tile': tiles.concrete_striped,
             'rules': {'banned_rooms': [],
                       'required_rooms': [],
                       'allow_only_if_required_by_neighbor': False,
@@ -28,6 +32,7 @@ _kitchen = {'name': 'kitchen',
 
 _pantry = {'name': 'pantry',
            'size': 2,
+           'tile': tiles.concrete_striped,
            'rules': {'banned_rooms': [],
                      'required_rooms': ['kitchen'],
                      'allow_only_if_required_by_neighbor': False,
@@ -36,6 +41,7 @@ _pantry = {'name': 'pantry',
 
 _bathroom = {'name': 'bathroom',
              'size': 1,
+             'tile': tiles.concrete_striped,
              'rules': {'banned_rooms': [],
                        'required_rooms': ['hall'],
                        'allow_only_if_required_by_neighbor': False,
@@ -44,6 +50,7 @@ _bathroom = {'name': 'bathroom',
 
 _hall = {'name': 'hall',
              'size': 3,
+             'tile': tiles.concrete_striped,
              'rules': {'banned_rooms': [],
                        'required_rooms': [],
                        'allow_only_if_required_by_neighbor': False,
@@ -52,6 +59,7 @@ _hall = {'name': 'hall',
 
 _bunks = {'name': 'Bunks',
              'size': 3,
+             'tile': tiles.concrete_striped,
              'rules': {'banned_rooms': [],
                        'required_rooms': ['hall'],
                        'allow_only_if_required_by_neighbor': False,
@@ -69,6 +77,7 @@ ROOMS = {_landing['name']: _landing,
 def _create_blueprint(room_list):
 	_total_room_size = 0
 	_bitmask_map = None
+	_bitmask_door_map = None
 	_room_id_map = None
 	_potential_start_rooms = []
 	_room_pool = []
@@ -93,6 +102,7 @@ def _create_blueprint(room_list):
 	#TODO: CERTAIN ROOMS (PANTRY, ETC) SHOULDN'T CONNECT TO ANYTHING
 		
 	_bitmask_map = numpy.zeros((_total_room_size, _total_room_size))
+	_bitmask_door_map = numpy.zeros((_total_room_size, _total_room_size))
 	_room_id_map = numpy.zeros((_total_room_size, _total_room_size), dtype=numpy.int32)
 	_width, _height = _total_room_size, _total_room_size
 	
@@ -215,20 +225,20 @@ def _create_blueprint(room_list):
 					
 					logging.debug('\tPutting down 1 room at %i, %i' % (_placer_x, _placer_y))
 					
-					for y in range(_height):
-						for x in range(_width):
-							_id = _room_id_map[y, x]
-							
-							if not _id:
-								print '.',
-								
-								continue
-							
-							print _room_lookup[_id][0],
-						
-						print
-					
-					print
+					#for y in range(_height):
+					#	for x in range(_width):
+					#		_id = _room_id_map[y, x]
+					#		
+					#		if not _id:
+					#			print '.',
+					#			
+					#			continue
+					#		
+					#		print _room_lookup[_id][0],
+					#	
+					#	print
+					#
+					#print
 					
 					if _current_room_name in _placed_rooms:
 						_placed_rooms[_current_room_name].append((_placer_x, _placer_y))
@@ -256,13 +266,13 @@ def _create_blueprint(room_list):
 							_potential_potential_next_positions.add((_neighbor_x, _neighbor_y))
 					
 					_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
-					print 'taking off pp list'
+					#print 'taking off pp list'
 					
 					continue
 				
 				else:
 					_placer_x, _placer_y = random.choice(list(_potential_next_positions))
-					print 'taking off Next pos'
+					#print 'taking off Next pos'
 				
 				
 			
@@ -307,7 +317,7 @@ def _create_blueprint(room_list):
 		
 		_current_room_name = random.choice(_rooms_okay_to_choose_in_pool)
 	
-	print
+	#print
 	
 	logging.debug('Writing bitmask map')
 	
@@ -315,6 +325,8 @@ def _create_blueprint(room_list):
 		for x in range(_width):
 			_room_id = _room_id_map[y, x]
 			_neighbor_count = 0
+			_door_count = 0
+			_has_door_to = set()
 			
 			if _room_id:
 				_neighbor_count += 100
@@ -342,6 +354,13 @@ def _create_blueprint(room_list):
 							
 							if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
 								continue
+							
+							if not _neighbor_room_name in _has_door_to:
+								_door_count += LOOKUP[x_mod, y_mod]
+								_has_door_to.add(_neighbor_room_name)
+							
+							else:
+								continue
 						
 						_neighbor_count += LOOKUP[x_mod, y_mod]
 				
@@ -349,6 +368,9 @@ def _create_blueprint(room_list):
 					_neighbor_count += LOOKUP[x_mod, y_mod]
 			
 			_bitmask_map[y, x] = _neighbor_count
+			
+			if _door_count:
+				_bitmask_door_map[y, x] = _door_count + 100
 	
 	for y in range(_height):
 		for x in range(_width):
@@ -364,9 +386,11 @@ def _create_blueprint(room_list):
 		print
 	
 	_blueprint = {'bitmask_map': _bitmask_map,
+	              'bitmask_door_map': _bitmask_door_map,
 	              'room_map': _room_id_map,
 	              'rooms': room_list,
 	              'room_lookup': _room_lookup,
+	              'room_reverse_lookup': _room_reverse_lookup,
 	              'width': _width,
 	              'height': _height}
 	
