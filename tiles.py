@@ -119,11 +119,22 @@ def wood_floor(x, y):
 
 def tile_checkered(x, y):
 	if not x % 2 or not y % 2:
-		_c_1 = (105, 105, 105)
-		_c_2 = (105, 105, 105)
+		_c_1 = (255, 255, 255)
+		_c_2 = (255, 255, 255)
 	else:
-		_c_1 = (80, 80, 80)
-		_c_2 = (80, 80, 80)
+		_c_1 = (205, 205, 205)
+		_c_2 = (205, 205, 205)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 2, _c_1, _c_2)
+
+def tile_domino(x, y):
+	if not x % 2 or not y % 2:
+		_c_1 = (20, 20, 20)
+		_c_2 = (20, 20, 20)
+	
+	else:
+		_c_1 = (255, 255, 255)
+		_c_2 = (255, 255, 255)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 2, _c_1, _c_2)
 
@@ -131,6 +142,14 @@ def carpet_burgandy(x, y):
 	_c_1, _c_2 = random.sample([constants.BURGANDY_1,
 	                            constants.BURGANDY_2,
 	                            constants.BURGANDY_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
+def carpet_brown(x, y):
+	_c_1, _c_2 = random.sample([constants.BROWN_1,
+	                            constants.BROWN_2,
+	                            constants.BROWN_3],
 	                           2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)

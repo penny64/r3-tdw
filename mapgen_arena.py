@@ -28,8 +28,8 @@ def generate(width, height):
 	_possible_camps = set()
 	_trees = {}
 	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
-	_room_size = 11
-	_door_width = 2
+	_room_size = 13
+	_door_width = 1
 	_place_x, _place_y = 0, 15
 	_floor = set()
 	
@@ -50,6 +50,10 @@ def generate(width, height):
 			
 			else:
 				_room_name = _blueprint['room_lookup'][_blueprint['room_map'][y, x]]
+				_wall_padding = range(_blueprint['rooms'][_room_name]['wall_padding'] + 1)
+				_wall_padding_2 = [(_room_size-1) - i for i in range(_blueprint['rooms'][_room_name]['wall_padding'] + 1)]
+				_wall_padding_3 = range(_blueprint['rooms'][_room_name]['doorway_padding'] + 1)
+				_wall_padding_4 = [(_room_size-1) - i for i in range(_blueprint['rooms'][_room_name]['doorway_padding'] + 1)]
 			
 			for y1 in range(_room_size):
 				for x1 in range(_room_size):
@@ -57,19 +61,19 @@ def generate(width, height):
 					_p_x, _p_y = (x * _room_size) + x1, (y * _room_size) + y1
 					
 					if _o_bitmask > 100 and _o_bitmask < 200:
-						if y1 == 0 and not _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
+						if y1 in _wall_padding and not _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
 						
-						elif y1 == _room_size-1 and not _bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
+						elif y1 in _wall_padding_2 and not _bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
 						
-						if x1 == _room_size-1 and not _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
+						if x1 in _wall_padding_2 and not _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
 						
-						elif x1 == 0 and not _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
+						elif x1 in _wall_padding and not _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
 					
@@ -96,7 +100,7 @@ def generate(width, height):
 					elif _door_bitmask:
 						_doorway_placed = False
 						
-						if y1 == 0 and _door_bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
+						if y1 in _wall_padding_3 and _door_bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							if x1 < _min_door_pos or x1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
@@ -104,7 +108,7 @@ def generate(width, height):
 							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
 								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
-						elif y1 == _room_size-1 and _door_bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
+						elif y1 in _wall_padding_4 and _door_bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
 							if x1 < _min_door_pos or x1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
@@ -112,7 +116,7 @@ def generate(width, height):
 							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
 								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
-						if x1 == _room_size-1 and _door_bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
+						if x1 in _wall_padding_4 and _door_bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							if y1 < _min_door_pos or y1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True
@@ -120,7 +124,7 @@ def generate(width, height):
 							elif (_place_x + _p_x, _place_y + _p_y) in _solids:
 								_solids.remove((_place_x + _p_x, _place_y + _p_y))
 						
-						elif x1 == 0 and _door_bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
+						elif x1 in _wall_padding_3 and _door_bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							if y1 < _min_door_pos or y1 > _max_door_pos:
 								_solids.add((_place_x + _p_x, _place_y + _p_y))
 								_doorway_placed = True

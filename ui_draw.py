@@ -173,12 +173,12 @@ def draw_long_range_life():
 	_camera_x, _camera_y = camera.X, camera.Y
 	_width = display.get_surface('life')['width']
 	_height = display.get_surface('life')['height']
+	_draw_life_targets = set()
 	
 	if settings.OBSERVER_MODE:
 		_draw_life = entities.get_entity_group('life')
 	else:
 		_draw_life = set()
-		_draw_life_targets = set()
 		
 		for squad_id in entities.get_entity_group('squads'):
 			_squad = entities.get_entity(squad_id)
