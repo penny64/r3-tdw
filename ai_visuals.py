@@ -27,6 +27,8 @@ def build_item_list(entity):
 	                                 'bullet': [],
 	                                 'corpse': []}
 	
+	return
+	
 	_active_solids = zones.get_active_solids(entity)
 	
 	for entity_id in entities.get_entity_group('items'):

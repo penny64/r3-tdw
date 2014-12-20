@@ -4,6 +4,7 @@ import libtcodpy as tcod
 
 import constants
 import sculpted
+import roomgen
 import mapgen
 import tiles
 import life
@@ -215,7 +216,12 @@ def generate(width, height):
 		_tile_map[y][x] = _tile
 		_weight_map[y][x] = _tile['w']
 	
+	_item_locations = roomgen.spawn_items(_blueprint['rooms'], _floor, _solids, _room_size)
+	
 	for x, y, room_name in _floor:
+		if (x, y) in _item_locations:
+			continue
+		
 		_tile = _blueprint['rooms'][room_name]['tile'](x, y)
 		_tile_map[y][x] = _tile
 		_weight_map[y][x] = _tile['w']
@@ -228,9 +234,5 @@ def generate(width, height):
 	_floor = _floor_new
 	
 	mapgen.build_node_grid(_node_grid, _solids)
-	
-	#_fsl = {'Terrorists': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_runner, 'spawn_pos': (15, 50)},
-	#        'Militia': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.human_bandit, 'spawn_pos': (90, 50)}}
-	#        'Wild Dogs': {'bases': 0, 'squads': 1, 'trader': False, 'type': life.wild_dog}}
 	
 	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, {}, _trees, _floor
