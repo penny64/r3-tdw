@@ -307,6 +307,13 @@ def _bullet_tick(entity):
 	_direction = movement.get_direction(entity)
 	
 	entities.trigger_event(entity, 'push_tank', direction=_direction)
+	
+	_x, _y = movement.get_position(entity)
+	_distance = numbers.distance((_x, _y), entity['start_position'])
+	_starting_target_distance = numbers.distance(entity['start_position'], entity['end_position'])
+	
+	if _distance > _starting_target_distance + (12 - (entity['speed'] * 2)):
+		entities.delete_entity(entity)
 
 def check_for_collisions(entity):
 	_x, _y = movement.get_position(entity)
@@ -338,16 +345,21 @@ def _bullet_effects(entity, x, y):
 	_distance = numbers.distance((x, y), entity['start_position'])
 	_target_distance = numbers.distance((x, y), entity['end_position']) + numbers.clip(10 - _distance, 0, 10) 
 	_x, _y = movement.get_position(entity)
-	_mod = (0.6-(_distance/35.0))+random.uniform(-.1, .1)
+	_mod = (0.6 - (_distance / 35.0)) + random.uniform(-.1, .1)
 	_alpha = numbers.clip(_mod, 0, 1)
+	_crash_dist = 60 - (entity['speed'] * 2)
 	
 	if _alpha > 0:
 		effects.vapor(x, y, start_alpha=_alpha)
 	
-	if _target_distance < 10:
-		_size = int(round(3 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/10.0, 0, 1))))) + random.randint(1, 2)
+	if _target_distance < 30:
+		_size = int(round(2 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/60.0, 0, 1))))) + random.randint(1, 2)
 		
-		if _size:
+		if _distance > _crash_dist:
+			_size *= (_crash_dist/float(_distance))
+			print (_crash_dist/float(_distance))
+		
+		if _size > 1:
 			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)
 
 def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
@@ -355,6 +367,7 @@ def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	_entity['owner'] = entity['_id']
 	_entity['start_position'] = (x, y)
 	_entity['end_position'] = (tx, ty)
+	_entity['speed'] = speed
 	_entity['damage'] = damage
 	
 	entities.add_entity_to_group(_entity, 'bullets')

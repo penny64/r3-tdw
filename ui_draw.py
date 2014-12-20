@@ -134,7 +134,7 @@ def draw_life_memory():
 			_draw_life.update(_member['ai']['targets'] - _member['ai']['visible_life'])
 			
 			for memory_id in _member['ai']['life_memory'].keys():
-				if not member_id in _last_seen_locations:
+				if not member_id in _last_seen_locations and _member['ai']['life_memory'][memory_id]['last_seen_at']:
 					_last_seen_locations[memory_id] = _member['ai']['life_memory'][memory_id]['last_seen_at']
 	
 	_draw_life = list(_draw_life)

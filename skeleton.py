@@ -60,7 +60,7 @@ def hit(entity, projectile):
 	
 	_limb_name = random.choice(_hit_map)
 	_limb = entity['skeleton']['limbs'][_limb_name]
-	_damage = int(round((projectile['damage'] * _accuracy) * numbers.clip((1 - _limb['accuracy']), 0.25, 1)))
+	_damage = int(round((projectile['damage'] * _accuracy) * (numbers.clip((1 - _limb['accuracy']), 0.25, .6) + .4)))
 	_limb['health'] -= _damage
 	_x, _y = movement.get_position(entity)
 	_x += int(round(random.uniform(-1, 1)))
