@@ -5,6 +5,7 @@ import framework
 import world_strategy
 import world_action
 import world_intro
+import world_hire
 import world_menu
 
 import cProfile
@@ -24,6 +25,11 @@ def main():
 		
 		while world_menu.loop():
 			events.trigger_event('cleanup')
+	
+	world_hire.create()
+	
+	while world_hire.loop():
+		events.trigger_event('cleanup')
 	
 	world_strategy.create()	
 	

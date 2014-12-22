@@ -5,8 +5,8 @@ import random
 
 def register(entity, health, speed, vision, class_name='Gunner', respect=1, accuracy=1.0, mobility=80, intelligence=90, action_points=100, smgs=50, rifles=50, pistols=50, name='Unknown', kind='unknown'):
 	_stats = {'health': health,
-			  'max_health': health,
-			  'speed': speed,
+	          'max_health': health,
+	          'speed': speed,
 	          'max_speed': speed,
 	          'pain': 0,
 	          'accuracy': accuracy,

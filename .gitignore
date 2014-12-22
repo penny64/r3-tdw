@@ -5,6 +5,9 @@
 *.wpr
 *.wpu
 *.py.*prof
+*.gif
+*.jpg
+*.bmp
 profile.*
 kernprof.py
 .DS_STORE
