@@ -184,7 +184,7 @@ def _create_node(entity, x, y, draw_path=False, passive=True, action_time=0, nam
 				_move_cost = 0
 				
 				for pos in _last_node['node']['path'][_last_node['node']['path'].index(LAST_CLICKED_POS):]:
-					_move_cost += stats.get_speed(entity)
+					_move_cost += movement.get_move_cost(entity)
 					
 					if _move_cost < action_time and pos in _node_positions:
 						return
@@ -467,7 +467,7 @@ def draw_path(entity, x_mod=0, y_mod=0):
 				_color = (200, 200, 200)
 			
 			if _action_time_max:
-				_move_cost += stats.get_speed(entity)
+				_move_cost += movement.get_move_cost(entity)
 				
 				if _move_cost >= _action_time_max:
 					_action_time_max = 0

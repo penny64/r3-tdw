@@ -49,15 +49,15 @@ def _create_human(x, y, health, speed, name, vision=50, faction='Rogues', is_pla
 	missions.register(_entity)
 	skeleton.register(_entity)
 	skeleton.create_motion(_entity, 'stand')
-	skeleton.create_motion(_entity, 'crouch', stat_mod={'speed': 1.55})
-	skeleton.create_motion(_entity, 'crawl', stat_mod={'speed': 2.3})
+	skeleton.create_motion(_entity, 'crouch', stat_mod={'mobility': 1.55})
+	skeleton.create_motion(_entity, 'crawl', stat_mod={'mobility': 2.3})
 	skeleton.create_limb(_entity, 'head', [], True, 0.1, stat_mod={'vision': .75})
-	skeleton.create_limb(_entity, 'chest', ['head'], True, 0.88, stat_mod={'speed': .1})
-	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.75, stat_mod={'speed': .6})
+	skeleton.create_limb(_entity, 'chest', ['head'], True, 0.88, stat_mod={'mobility': .1})
+	skeleton.create_limb(_entity, 'torso', ['chest'], True, 0.75, stat_mod={'mobility': .6})
 	skeleton.create_limb(_entity, 'left arm', ['chest'], False, 0.3, can_sever=True, stat_mod={'accuracy': .22})
 	skeleton.create_limb(_entity, 'right arm', ['chest'], False, 0.3, can_sever=True, stat_mod={'accuracy': .22})
-	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'left leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'mobility': .4})
+	skeleton.create_limb(_entity, 'right leg', ['torso'], False, 0.45, can_sever=True, stat_mod={'mobility': .4})
 
 	if has_ai:
 		ai.register_human(_entity)
@@ -390,11 +390,11 @@ def wild_dog(x, y, name):
 	
 	skeleton.create_motion(_entity, 'stand')
 	skeleton.create_limb(_entity, 'head', [], True, 0.1, health=25, stat_mod={'vision': .75})
-	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=45, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'front left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'front right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'back left leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
-	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'speed': .4})
+	skeleton.create_limb(_entity, 'torso', ['head'], True, 0.88, health=45, stat_mod={'mobility': .4})
+	skeleton.create_limb(_entity, 'front left leg', ['torso'], False, 0.4, health=45, stat_mod={'mobility': .4})
+	skeleton.create_limb(_entity, 'front right leg', ['torso'], False, 0.4, health=45, stat_mod={'mobility': .4})
+	skeleton.create_limb(_entity, 'back left leg', ['torso'], False, 0.4, health=45, stat_mod={'mobility': .4})
+	skeleton.create_limb(_entity, 'back right leg', ['torso'], False, 0.4, health=45, stat_mod={'mobility': .4})
 	
 	return _entity
 

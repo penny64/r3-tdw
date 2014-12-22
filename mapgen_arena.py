@@ -31,7 +31,7 @@ def generate(width, height):
 	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
 	_room_size = 13
 	_door_width = 1
-	_place_x, _place_y = 0, 15
+	_place_x, _place_y = 15, 30
 	_floor = set()
 	
 	_min_door_pos = (_room_size / 2) - _door_width

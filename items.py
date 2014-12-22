@@ -253,7 +253,7 @@ def glock(x, y, ammo=0):
 	
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=ammo)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=17)
-	entities.trigger_event(_entity, 'set_flag', flag='damage', value=75)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=135)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=2.35)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=3)
@@ -279,7 +279,7 @@ def shortrifle():
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=6)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=1.25)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=40)
-	entities.trigger_event(_entity, 'set_flag', flag='damage', value=89)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=189)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
 	
 	return _entity
@@ -291,7 +291,7 @@ def chaingun():
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=100)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=3.00)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
-	entities.trigger_event(_entity, 'set_flag', flag='damage', value=48)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=148)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=6)
 	
 	return _entity
@@ -356,8 +356,7 @@ def _bullet_effects(entity, x, y):
 		_size = int(round(2 * (1 - (1 * numbers.clip(numbers.clip(_target_distance, 0, 100)/60.0, 0, 1))))) + random.randint(1, 2)
 		
 		if _distance > _crash_dist:
-			_size *= (_crash_dist/float(_distance))
-			print (_crash_dist/float(_distance))
+			_size = int(round(_size * (_crash_dist/float(_distance))))
 		
 		if _size > 1:
 			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)

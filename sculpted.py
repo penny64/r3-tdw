@@ -116,7 +116,7 @@ def _create_blueprint(room_list):
 	_bitmask_map = numpy.zeros((_total_room_size, _total_room_size))
 	_bitmask_door_map = numpy.zeros((_total_room_size, _total_room_size))
 	_room_id_map = numpy.zeros((_total_room_size, _total_room_size), dtype=numpy.int32)
-	_width, _height = _total_room_size, _total_room_size
+	_width, _height = int(round(_total_room_size * .75)), int(round(_total_room_size * .75))
 	
 	#Pick an entry point - can be keyword arg at some point
 	_current_room_name = random.choice(_potential_start_rooms)

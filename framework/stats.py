@@ -18,6 +18,7 @@ def register(entity, health, speed, vision, class_name='Gunner', respect=1, accu
 	          'intelligence': intelligence,
 	          'skill_points': int(round(100 * (intelligence/100.0))),
 	          'mobility': mobility,
+	          'max_mobility': mobility,
 	          'class': class_name,
 	          'smgs': smgs,
 	          'rifles': rifles,
@@ -40,7 +41,7 @@ def register(entity, health, speed, vision, class_name='Gunner', respect=1, accu
 	entities.create_event(entity, 'slow')
 	entities.create_event(entity, 'set_respect')
 	entities.create_event(entity, 'set_rank')
-	entities.create_event(entity, 'get_speed')
+	entities.create_event(entity, 'get_mobility')
 	entities.create_event(entity, 'get_vision')
 	entities.create_event(entity, 'get_accuracy')
 	entities.register_event(entity, 'kill', kill)
@@ -102,16 +103,12 @@ def get_strength(entity, items=True):
 	
 	return _strength
 
-def get_speed(entity, items=True):
-	entity['stats']['speed'] = entity['stats']['max_speed']
+def get_mobility(entity):
+	entity['stats']['mobility'] = entity['stats']['max_mobility']
 	
-	entities.trigger_event(entity, 'get_speed')
+	entities.trigger_event(entity, 'get_mobility')
 	
-	#if items:
-	#	for item in inventory.get_items(entity):
-	#		_speed += item['stats']['speed']
-	
-	return entity['stats']['speed']
+	return entity['stats']['mobility']
 
 def get_shoot_cost(entity, weapon_id):
 	_weapon = entities.get_entity(weapon_id)

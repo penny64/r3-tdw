@@ -20,7 +20,7 @@ def register(entity):
 	entities.create_event(entity, 'set_motion')
 	entities.register_event(entity, 'hit', hit)
 	entities.register_event(entity, 'force', force)
-	entities.register_event(entity, 'get_speed', get_speed_mod)
+	entities.register_event(entity, 'get_mobility', get_mobility_mod)
 	entities.register_event(entity, 'get_accuracy', get_accuracy_mod)
 	entities.register_event(entity, 'get_vision', get_vision_mod)
 	entities.register_event(entity, 'set_motion', set_motion)
@@ -121,22 +121,26 @@ def set_motion(entity, motion):
 	
 	entities.trigger_event(entity, 'create_timer', time=25, exit_callback=lambda e: _set_motion(e, motion))
 
-def get_stat_mod(entity, stat):
+def get_stat_mod(entity, stat, subtract=False):
 	for limb_name in entity['skeleton']['limbs']:
 		_limb = entity['skeleton']['limbs'][limb_name]
 		
 		if stat in _limb['stat_mod']:
 			_mod = _limb['health'] / float(_limb['max_health'])
 			
-			entity['stats'][stat] *= numbers.clip(1+(1-_mod), 1, 1+_limb['stat_mod'][stat])
+			if subtract:
+				entity['stats'][stat] *= numbers.clip(1 - (1 - _mod), 1 - _limb['stat_mod'][stat], 1)
+			
+			else:
+				entity['stats'][stat] *= numbers.clip(1 + (1 - _mod), 1, 1 + _limb['stat_mod'][stat])
 	
 	return int(round(entity['stats'][stat]))
 
-def get_speed_mod(entity):
-	entity['stats']['speed'] = get_stat_mod(entity, 'speed')
+def get_mobility_mod(entity):
+	entity['stats']['mobility'] = get_stat_mod(entity, 'mobility', subtract=True)
 	
 	if 'speed' in entity['skeleton']['motions'][entity['skeleton']['motion']]['stat_mod']:
-		entity['stats']['speed'] *= entity['skeleton']['motions'][entity['skeleton']['motion']]['stat_mod']['speed']
+		entity['stats']['mobility'] *= entity['skeleton']['motions'][entity['skeleton']['motion']]['stat_mod']['speed']
 
 def get_accuracy_mod(entity):
 	entity['stats']['accuracy'] = get_stat_mod(entity, 'accuracy')

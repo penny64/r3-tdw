@@ -18,26 +18,6 @@ def boot():
 	events.register_event('input', handle_keyboard_input)
 
 def handle_keyboard_input():
-	if controls.get_input_char_pressed('1'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .1)))
-		settings.set_plan_tick_rate_string('>')
-	
-	elif controls.get_input_char_pressed('2'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .15)))
-		settings.set_plan_tick_rate_string('>>')
-	
-	elif controls.get_input_char_pressed('3'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .2)))
-		settings.set_plan_tick_rate_string('>>>')
-	
-	elif controls.get_input_char_pressed('4'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .25)))
-		settings.set_plan_tick_rate_string('>>>>')
-	
-	elif controls.get_input_char_pressed('5'):
-		settings.set_plan_tick_rate(int(round(stats.get_speed(entity) * .3)))
-		settings.set_plan_tick_rate_string('>>>>>')
-	
 	if controls.get_input_char_pressed('\t'):
 		if settings.TICK_MODE == 'strategy':
 			if ui_panel.ACTIVE_MENU:
