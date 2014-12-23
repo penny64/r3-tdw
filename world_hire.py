@@ -9,7 +9,13 @@ import random
 import time
 import math
 
-STATS = {}
+
+SKILL_NAMES = ['mobility', 'smgs', 'rifles', 'pistols', 'explosives']
+HIRED_MEMBERS = []
+NOISE = None
+ZOOM = .5
+SIDEBAR_WIDTH = 44
+TITLE = 'Hire Squad'
 
 
 def create():
@@ -18,91 +24,64 @@ def create():
 	display.blit_background('background')
 	
 	roll()
+	
+	NOISE = tcod.noise_new(2, h=tcod.NOISE_DEFAULT_HURST, random=tcod.random_new())
+	
+	for y in range(0, constants.WINDOW_HEIGHT):
+		for x in range(0, constants.WINDOW_WIDTH):
+			_noise_values = [(ZOOM * x / (constants.WINDOW_WIDTH)),
+			                 (ZOOM * y / (constants.WINDOW_HEIGHT))]
+			_height = 1 - tcod.noise_get_turbulence(NOISE, _noise_values, tcod.NOISE_SIMPLEX)
+			_dist_to_crosshair = 30
+			#_height *= _dist_to_crosshair
+			
+			_crosshair_mod = abs((_dist_to_crosshair - 1))
+			
+			#if not initial and not _crosshair_mod:
+			#	continue
+			
+			if _height > .4:
+				_height = (_height - .4) / .4
+				_r, _g, _b = numbers.clip(30 * _height, 20, 255), 50 * _height, numbers.clip(30 * _height, 30, 255)
+			
+			else:
+				_r, _g, _b = 20, 0, 30
+				#_height = 1 - (_height / .5)
+				#_r, _g, _b = 60 * _height, 60 * _height, 100 * _height
+			
+			_r += 80 * _crosshair_mod
+			
+			if x < SIDEBAR_WIDTH:
+				_r = (int(round(_r * 1.0)))
+				_g = (int(round(_g * .2)))
+				_b = (int(round(_b * .2)))
+			
+			display._set_char('background', x, y, ' ', (0, 0, 0), (_r, _g, _b))
 
 def roll():
-	global STATS
-	#STATS['intelligence'] = random.randint(25, 100)
-	#int(round(100 * (STATS['intelligence'] / 100.0)))
-	#STATS['mobility'] = random.randint
-
-	#Int
-	#	low = more starting points, no customization
-	#	high = less starting points, more customization
-	#print i,
-	_skill_names = ['mobility', 'smgs', 'rifles', 'pistols', 'explosives']
-	_levels = {_skill: 1 for _skill in _skill_names}
+	global HIRED_MEMBERS
 	
-	random.shuffle(_skill_names)
+	HIRED_MEMBERS = []
+	
+	for i in range(5):
+		_levels = {_skill: 1 for _skill in SKILL_NAMES}
+		_skill_cost = {_skill: 1 for _skill in SKILL_NAMES}
+		_skill_cost['mobility'] = .3
+		_skill_cost['smgs'] = .48
+		_skill_cost['rifles'] = .75
+		_skill_cost['pistols'] = .41
+		_skill_cost['explosives'] = .65
+		_total_cost = 0
 		
-	#_mob = 2
-	#_int = 1
-	#_wep_sub = 3
-	#_wep_rif = 2
-	#_wep_pis = 1
-	#_wep_exp = 1
-	_level = 1
-	_level_cap = 5
-	_mob_diff = 1.5
-	_wep_sub_diff = 1.65
-	_wep_rif_diff = 1.75
-	_wep_pis_diff = 1.58
-	_wep_exp_diff = 1.45
-	
-	#_test_diff = _wep_sub_diff
-	
-	_int = random.randint(1, 5)
-	_r_int = 1 - (_int / (_int + .5))
-	_max_skill_points = 140 + ((_int - 1) * 20)
-	
-	#print _max_skill_points
-	#print
-	
-	#_skill_diffs = {'mobility': _mob_diff}
-	#_skill_diffs['smgs'] = _wep_sub_diff
-	#_skill_diffs['rifles'] = _wep_rif_diff
-	#_skill_diffs['pistols'] = _wep_pis_diff
-	#_skill_diffs['explosives'] = _wep_exp_diff
-	
-	#while 1:
-	#	_lowest_cost = 99999
-	#	
-	#	for skill_name in _skill_names:
-	#		_tries = 3
-	#		
-	#		while 1:
-	#			_level = _levels[skill_name] + random.randint(0, 1)
-	#			_cost = int(round(math.pow(_level * (_skill_diffs[skill_name] + _r_int), _level)))
-	#			
-	#			if _levels[skill_name] - _level and _cost < _lowest_cost:
-	#				_lowest_cost = _cost
-	#			
-	#			if _cost < _max_skill_points:
-	#				if _levels[skill_name] - _level:
-	#					_levels[skill_name] = _level
-	#					_max_skill_points -= _cost
-	#				
-	#				break
-	#			
-	#			_tries -= 1
-	#			
-	#			if not _tries:
-	#				break
-	#	
-	#	if _lowest_cost > _max_skill_points and not _lowest_cost == 99999:
-	#		#print 'ex', _lowest_cost, _max_skill_points
-	#		break
-
-	for skill_name in _skill_names:
-		_levels[skill_name] = int(round(100 * (_levels[skill_name] / 5.)))
-		#print skill_name, _levels[skill_name]
-	
-	_levels['intelligence'] = _int
-	_levels['skill_points'] = _max_skill_points
-
-	#for skill_name in _skill_names:
-	#	print skill_name, '\t', _levels[skill_name]#, _max_skill_points
-	
-	STATS = _levels
+		for skill_name in SKILL_NAMES:
+			_levels[skill_name] = random.randint(20 + random.randint(-8, 8), 55 + random.randint(-20, 12))
+			_total_cost += _levels[skill_name] * _skill_cost[skill_name]
+		
+		_levels['intelligence'] = random.randint(1, 5)
+		_levels['skill_points'] = 80 + ((_levels['intelligence'] - 1) * 32)
+		_levels['pay'] = _total_cost
+		
+		HIRED_MEMBERS.append(_levels)
 
 def handle_input():
 	events.trigger_event('input')
@@ -113,22 +92,55 @@ def handle_input():
 	if controls.get_input_char_pressed('\r'):
 		return False
 	
-	if controls.get_input_char_pressed(' '):
+	elif controls.get_input_char_pressed(' '):
 		roll()
 	
-	if controls.get_input_char_pressed('k'):
+	elif controls.get_input_char_pressed('k'):
 		display.screenshot('screenshot-%s.bmp' % time.time())
 	
 	return True
 
 def draw():
-	_y = 10
+	_x = 3
+	_y_mod = 0
+	_total_money = 0
 	
-	display.write_string('text', 20, _y - 2, 'Tester Toaster')
+	display.write_string('text', (SIDEBAR_WIDTH / 2) - (len(TITLE) / 2), 3, TITLE, fore_color=(255, 255, 255))
 	
-	for stat in STATS:
-		display.write_string('text', 20, _y, '%s: %s' % (stat, STATS[stat]))
-		_y += 1
+	for squad_member in HIRED_MEMBERS:
+		_y = 10 + _y_mod
+		
+		display.write_string('text', _x, _y - 2, 'Tester Toaster', fore_color=(255, 255, 255))
+		
+		for stat in SKILL_NAMES:
+			_r = int(round(220 * (1 - (squad_member[stat] / 75.0))))
+			_g = int(round(250 * (squad_member[stat] / 75.0)))
+			
+			display.write_string('text', _x, _y, '%s: ' % stat.upper())
+			display.write_string('text', _x + 15, _y, '%s' % (squad_member[stat]), fore_color=(_r, _g, 0))
+			
+			_y += 1
+	
+		display.write_string('text', _x, _y + 2, 'Pay: ')
+		display.write_string('text', _x + 6, _y + 2, '$%.2f' % squad_member['pay'], fore_color=(0, 200, 0), back_color=(0, 40, 0))
+		display.write_string('text', _x + 6 + len('$%.2f' % squad_member['pay']) + 0, _y + 2, '/week', fore_color=(150, 150, 150), back_color=(0, 0, 0))
+		
+		_x += 20
+		
+		if _x > 40:
+			_x = 3
+			_y_mod += 12
+		
+		_total_money += squad_member['pay']
+	
+	display.write_string('text', 3, constants.WINDOW_HEIGHT - 4, '<Space>', fore_color=(255, 255, 255))
+	display.write_string('text', 10, constants.WINDOW_HEIGHT - 4, ' - Reroll', fore_color=(200, 200, 200))
+	
+	display.write_string('text', 3, constants.WINDOW_HEIGHT - 5, '<Enter>', fore_color=(255, 255, 255))
+	display.write_string('text', 10, constants.WINDOW_HEIGHT - 5, ' - Accept', fore_color=(200, 200, 200))
+	
+	display.write_string('text', 3, constants.WINDOW_HEIGHT - 2, 'Total Cost: ')
+	display.write_string('text', 15, constants.WINDOW_HEIGHT - 2, '$%.2f' % _total_money, fore_color=(0, 200, 0), back_color=(0, 40, 0))
 	
 	display.blit_surface_viewport('background', 0, 0, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)
 	display.blit_surface('text')
