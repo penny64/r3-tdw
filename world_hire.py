@@ -11,11 +11,12 @@ import math
 
 
 SKILL_NAMES = ['mobility', 'smgs', 'rifles', 'pistols', 'explosives']
+CLASS_SKILLS = ['smgs', 'rifles', 'pistols', 'explosives']
 HIRED_MEMBERS = []
 NOISE = None
 ZOOM = .5
 SIDEBAR_WIDTH = 44
-TITLE = 'Hire Squad'
+TITLE = 'Hire New Squad'
 
 
 def create():
@@ -33,12 +34,7 @@ def create():
 			                 (ZOOM * y / (constants.WINDOW_HEIGHT))]
 			_height = 1 - tcod.noise_get_turbulence(NOISE, _noise_values, tcod.NOISE_SIMPLEX)
 			_dist_to_crosshair = 30
-			#_height *= _dist_to_crosshair
-			
 			_crosshair_mod = abs((_dist_to_crosshair - 1))
-			
-			#if not initial and not _crosshair_mod:
-			#	continue
 			
 			if _height > .4:
 				_height = (_height - .4) / .4
@@ -46,8 +42,6 @@ def create():
 			
 			else:
 				_r, _g, _b = 20, 0, 30
-				#_height = 1 - (_height / .5)
-				#_r, _g, _b = 60 * _height, 60 * _height, 100 * _height
 			
 			_r += 80 * _crosshair_mod
 			
@@ -63,23 +57,30 @@ def roll():
 	
 	HIRED_MEMBERS = []
 	
+	_skill_cost = {_skill: 1 for _skill in SKILL_NAMES}
+	_skill_cost['mobility'] = .3
+	_skill_cost['smgs'] = .48
+	_skill_cost['rifles'] = .75
+	_skill_cost['pistols'] = .41
+	_skill_cost['explosives'] = .65
+	
 	for i in range(5):
 		_levels = {_skill: 1 for _skill in SKILL_NAMES}
-		_skill_cost = {_skill: 1 for _skill in SKILL_NAMES}
-		_skill_cost['mobility'] = .3
-		_skill_cost['smgs'] = .48
-		_skill_cost['rifles'] = .75
-		_skill_cost['pistols'] = .41
-		_skill_cost['explosives'] = .65
 		_total_cost = 0
+		_skill_focus = {'stat': None, 'amount': 0}
 		
 		for skill_name in SKILL_NAMES:
 			_levels[skill_name] = random.randint(20 + random.randint(-8, 8), 55 + random.randint(-20, 12))
 			_total_cost += _levels[skill_name] * _skill_cost[skill_name]
+			
+			if skill_name in CLASS_SKILLS and (not _skill_focus['stat'] or _levels[skill_name] > _skill_focus['amount']):
+				_skill_focus['amount'] = _levels[skill_name]
+				_skill_focus['stat'] = skill_name
 		
 		_levels['intelligence'] = random.randint(1, 5)
 		_levels['skill_points'] = 80 + ((_levels['intelligence'] - 1) * 32)
 		_levels['pay'] = _total_cost
+		_levels['skill_focus'] = _skill_focus['stat']
 		
 		HIRED_MEMBERS.append(_levels)
 
@@ -109,15 +110,17 @@ def draw():
 	
 	for squad_member in HIRED_MEMBERS:
 		_y = 10 + _y_mod
+		_name = 'Tester Toaster'
 		
-		display.write_string('text', _x, _y - 2, 'Tester Toaster', fore_color=(255, 255, 255))
+		display.write_string('text', _x, _y - 2, _name, fore_color=(255, 255, 255))
+		display.write_string('text', _x, _y - 1, squad_member['skill_focus'].title() + ' ' * (len(_name) - len(squad_member['skill_focus'])), fore_color=(180, 180, 180), back_color=(40, 40, 40))
 		
 		for stat in SKILL_NAMES:
 			_r = int(round(220 * (1 - (squad_member[stat] / 75.0))))
 			_g = int(round(250 * (squad_member[stat] / 75.0)))
 			
-			display.write_string('text', _x, _y, '%s: ' % stat.upper())
-			display.write_string('text', _x + 15, _y, '%s' % (squad_member[stat]), fore_color=(_r, _g, 0))
+			display.write_string('text', _x, _y + 1, '%s: ' % stat.upper())
+			display.write_string('text', _x + 15, _y + 1, '%s' % squad_member[stat], fore_color=(_r, _g, 0))
 			
 			_y += 1
 	
