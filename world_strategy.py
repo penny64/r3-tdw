@@ -5,6 +5,7 @@ import ui_strategy
 import ai_factions
 import constants
 import worldgen
+import words
 import main
 
 import random
@@ -25,6 +26,7 @@ def create():
 	global MAP
 	
 	worlds.create('strategy')
+	words.reset()
 	
 	display.create_surface('background')
 	display.create_surface('map', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)

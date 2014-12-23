@@ -7,6 +7,7 @@ import world_action
 import world_intro
 import world_hire
 import world_menu
+import words
 
 import cProfile
 import time
@@ -40,6 +41,8 @@ def main():
 
 if __name__ == '__main__':
 	framework.init()
+	
+	framework.events.register_event('boot', words.boot)
 	
 	if '--debug' in sys.argv:
 		cProfile.run('framework.run(main)', 'profile.dat')
