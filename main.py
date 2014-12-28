@@ -27,10 +27,10 @@ def main():
 		while world_menu.loop():
 			events.trigger_event('cleanup')
 	
-	world_hire.create()
+	#world_hire.create()
 	
-	while world_hire.loop():
-		events.trigger_event('cleanup')
+	#while world_hire.loop():
+	#	events.trigger_event('cleanup')
 	
 	world_strategy.create()	
 	

@@ -49,9 +49,9 @@ def create():
 			
 			if x < SIDEBAR_WIDTH:
 				if y < 7:
-					_r = numbers.interp(_r, .0, .5)
-					_g = numbers.interp(_g, .0, .5)
-					_b = numbers.interp(_b, .0, .5)
+					_r = numbers.interp(_r, .0, .4)
+					_g = numbers.interp(_g, .0, .4)
+					_b = numbers.interp(_b, .0, .4)
 					
 				elif y < 43:
 					_r = numbers.interp(_r, .0, .6)
@@ -73,6 +73,12 @@ def create():
 					_r = numbers.interp(_r, 255, .1)
 					_g = numbers.interp(_g, 255, .1)
 					_b = numbers.interp(_b, 255, .1)
+			
+			if x > SIDEBAR_WIDTH + 3 and x < constants.WINDOW_WIDTH - 6:
+				if y > 10 and y < 16:
+					_r = numbers.interp(_r, .0, .4)
+					_g = numbers.interp(_g, .0, .4)
+					_b = numbers.interp(_b, .0, .4)
 			
 			display._set_char('background', x, y, ' ', (0, 0, 0), (_r, _g, _b))
 
@@ -181,6 +187,11 @@ def draw():
 			_y_mod += 12
 		
 		_total_money += squad_member['pay']
+	
+	#for y in range(12, 14):
+		#for x in range(SIDEBAR_WIDTH + 10, constants.WINDOW_WIDTH - 14):
+	display.write_string('text', SIDEBAR_WIDTH + 10, 12, 'Operation', fore_color=(255, 255, 255))
+	display.write_string('text', SIDEBAR_WIDTH + 10, 13, 'Dark Wing', fore_color=(255, 255, 255))
 	
 	for y in range(20, 28):
 		for x in range(SIDEBAR_WIDTH + 10, constants.WINDOW_WIDTH - 14):

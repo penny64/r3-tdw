@@ -29,10 +29,11 @@ def generate(width, height):
 	_possible_camps = set()
 	_trees = {}
 	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
-	_room_size = 13
+	_room_size = 17
 	_door_width = 1
 	_place_x, _place_y = 15, 30
 	_floor = set()
+	#_room_bitmask_maps = {}
 	
 	_min_door_pos = (_room_size / 2) - _door_width
 	_max_door_pos = (_room_size / 2) + _door_width
@@ -55,6 +56,15 @@ def generate(width, height):
 				_wall_padding_2 = [(_room_size-1) - i for i in range(_blueprint['rooms'][_room_name]['wall_padding'] + 1)]
 				_wall_padding_3 = range(_blueprint['rooms'][_room_name]['doorway_padding'] + 1)
 				_wall_padding_4 = [(_room_size-1) - i for i in range(_blueprint['rooms'][_room_name]['doorway_padding'] + 1)]
+				_wall_bitmask = 0
+				
+				if _o_bitmask > 100 and _o_bitmask < 200:
+					_wall_bitmask = _o_bitmask
+				
+				#if not _room_name in _room_bitmask_maps:
+				#	_room_bitmask_maps[_room_name] = {'walls': {}}
+				
+				#_room_bitmask_maps[_room_name]['walls'][x, y] = _wall_bitmask
 			
 			for y1 in range(_room_size):
 				for x1 in range(_room_size):
@@ -168,7 +178,7 @@ def generate(width, height):
 			if (x, y) in list(_ground_tiles):
 				_ground_tiles.remove((x, y))		
 	
-	for x, y in _solids:#_ground_tiles.copy():
+	for x, y in _solids:
 		_count = 0
 		
 		for x1, y1 in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
@@ -179,52 +189,40 @@ def generate(width, height):
 				_count += _lookup[x1, y1]
 		
 		_tile_type[x, y] = _count
-	
+
+	#This generates the outside walls	
 	for pos in _solids:
-		_type = _tile_type[pos]
+		#_type = _tile_type[pos]
 		_tile = tiles.wooden_fence(pos[0], pos[1])
 		
-		if _type in [11, 14]: # left - right
-			_tile['c'] = chr(196)
-			_tile['c_f'] = (200, 200, 200)
+		#if _type in [11, 14]: # left - right
+		#	_tile['c'] = chr(196)
+		#	_tile['c_f'] = (200, 200, 200)
 		
-		elif _type == 6: # top left
-			_tile['c'] = chr(218)
-			_tile['c_f'] = (200, 200, 200)
+		#elif _type == 6: # top left
+		#	_tile['c'] = chr(218)
+		#	_tile['c_f'] = (200, 200, 200)
 		
-		elif _type in [7, 13]: # top - bottom
-			_tile['c'] = chr(179)
-			_tile['c_f'] = (200, 200, 200)
+		#elif _type in [7, 13]: # top - bottom
+		#	_tile['c'] = chr(179)
+		#	_tile['c_f'] = (200, 200, 200)
 		
-		elif _type == 12: # top right
-			_tile['c'] = chr(187)
-			_tile['c_f'] = (200, 200, 200)
+		#elif _type == 12: # top right
+		#	_tile['c'] = chr(187)
+		#	_tile['c_f'] = (200, 200, 200)
 		
-		elif _type == 3: # bottom left
-			_tile['c'] = chr(192)
-			_tile['c_f'] = (200, 200, 200)
+		#elif _type == 3: # bottom left
+		#	_tile['c'] = chr(192)
+		#	_tile['c_f'] = (200, 200, 200)
 		
-		elif _type == 9: # bottom right
-			_tile['c'] = chr(188)
-			_tile['c_f'] = (200, 200, 200)
+		#elif _type == 9: # bottom right
+		#	_tile['c'] = chr(188)
+		#	_tile['c_f'] = (200, 200, 200)
 		
 		_tile_map[pos[1]][pos[0]] = _tile
-		_weight_map[pos[1]][pos[0]] = _tile['w']
+		_weight_map[pos[1]][pos[0]] = _tile['w']	
 	
-	for x, y in _ground_tiles:
-		_tile = tiles.grass(x, y)
-		_tile_map[y][x] = _tile
-		_weight_map[y][x] = _tile['w']
-	
-	_item_locations = roomgen.spawn_items(_blueprint['rooms'], _floor, _solids, _room_size)
-	
-	for x, y, room_name in _floor:
-		if (x, y) in _item_locations:
-			continue
-		
-		_tile = _blueprint['rooms'][room_name]['tile'](x, y)
-		_tile_map[y][x] = _tile
-		_weight_map[y][x] = _tile['w']
+	_new_floors = roomgen.spawn_items(_blueprint['rooms'], _blueprint['bitmask_map'], _blueprint['bitmask_door_map'], _floor, _solids, _room_size, _room_size, (_place_x, _place_y), _tile_map, _weight_map)
 	
 	_floor_new = set()
 	
@@ -232,6 +230,22 @@ def generate(width, height):
 		_floor_new.add((x, y))
 	
 	_floor = _floor_new
+	_floor.update(_new_floors)
+	
+	for x, y in _ground_tiles - _floor:
+		_tile = tiles.grass(x, y)
+		_tile_map[y][x] = _tile
+		_weight_map[y][x] = _tile['w']
+	
+	#for x, y, room_name in _floor:
+	#	#if (x, y) in _item_locations:
+	#	#	continue
+	#	if (x, y) in _solids:
+	#		raise Exception('WHAT')
+	#	
+	#	_tile = _blueprint['rooms'][room_name]['tile'](x, y)
+	#	_tile_map[y][x] = _tile
+	#	_weight_map[y][x] = _tile['w']
 	
 	mapgen.build_node_grid(_node_grid, _solids)
 	

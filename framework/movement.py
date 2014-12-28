@@ -69,8 +69,6 @@ def get_position_via_id(entity_id):
 def get_move_cost(entity):
 	_mobility = stats.get_mobility(entity)
 	
-	print 'Move cost', _mobility, int(round(2.75 * (2 - (_mobility / 100.0))))
-	
 	return int(round(2.75 * (2 - (_mobility / 100.0))))
 
 def set_turn_speed(entity, speed):
