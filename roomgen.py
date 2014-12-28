@@ -64,6 +64,7 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 	_placed_map = numpy.zeros((room_size, room_size))
 	_room_spawns = {}
 	_floors = set()
+	_solids = set()
 	
 	for x, y, room_name in floor_list:
 		_r_x, _r_y = (x - offsets[0]) / divisor, (y - offsets[1]) / divisor
@@ -103,7 +104,6 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 		for r_x, r_y in _rooms:
 			_wall_bitmask = bitmask_map[r_y, r_x]
 			_spawns = _rooms[r_x, r_y]
-			_solids = set()
 			
 			if room_name == 'Bunks':
 				print 'Spawn here:', _wall_bitmask
@@ -143,6 +143,5 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 				weight_map[y][x] = _tile['w']
 			
 			_floors.update(_floor_tiles)
-			solids.update(_solids)
 	
-	return _floors
+	return _floors, _solids

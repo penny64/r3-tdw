@@ -63,6 +63,9 @@ def create():
 			               'income': .025}
 	
 	worldgen.generate()
+	
+	unregister_input()
+	world_action.start_battle(attacking_squads=[entities.get_entity_group('squads')[0]], defending_squads=[entities.get_entity_group('squads')[1]])
 
 def register_input():
 	events.register_event('mouse_moved', handle_mouse_moved)
