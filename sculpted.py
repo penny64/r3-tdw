@@ -80,7 +80,7 @@ _hall = {'name': 'hall',
          'tile': tiles.carpet_brown,
          'rules': {'banned_rooms': [],
                    'required_rooms': [],
-                   'allow_only_if_required_by_neighbor': False,
+                   'allow_only_if_required_by_neighbor': True,
                    'whitelist_required': False,
                    'entry_room': False}}
 
@@ -117,15 +117,15 @@ _range = {'name': 'range',
           'rules': {'banned_rooms': [],
                     'required_rooms': ['hall'],
                     'allow_only_if_required_by_neighbor': False,
-                    'whitelist_required': True,
+                    'whitelist_required': False,
                     'entry_room': False}}
 
 _ammo_room = {'name': 'ammo_room',
               'size': 1,
               'wall_offset': 0,
-              'wall_padding': 3,
+              'wall_padding': 5,
               'doorway_padding': 0,
-              'tile': tiles.concrete_striped,
+              'tile': tiles.swamp,
               'rules': {'banned_rooms': [],
                         'required_rooms': ['range'],
                         'allow_only_if_required_by_neighbor': False,
@@ -149,8 +149,8 @@ ROOMS = {_landing['name']: _landing,
          _pantry['name']: _pantry,
          _bathroom['name']: _bathroom,
          _hall['name']: _hall,
-         #_range['name']: _range,
-         #_ammo_room['name']: _ammo_room,
+         _range['name']: _range,
+         _ammo_room['name']: _ammo_room,
          _bunks['name']: _bunks,
          _closet['name']: _closet}
 
@@ -187,7 +187,7 @@ def _create_blueprint(room_list):
 	
 	#Pick an entry point - can be keyword arg at some point
 	_current_room_name = random.choice(_potential_start_rooms)
-	_placer_x, _placer_y = _width / 2, 1
+	_placer_x, _placer_y = _width / 2, 0
 	_potential_next_positions = set([(_placer_x, _placer_y)])
 	_placed_rooms = {}
 	_room_pool_priority = set()
@@ -203,20 +203,18 @@ def _create_blueprint(room_list):
 			#NOTE: _potential_next_positions will almost always be empty
 			if not _potential_next_positions:
 				if len(_room_pool) > 1:
-					#if _try_new_positions_first:
-					#	_try_new_positions_first = False
+					if _try_new_positions_first:
+						_try_new_positions_first = False
 					
-					#else:
-					_temp_room_pool = _room_pool[:]
-					
-					_temp_room_pool.remove(_current_room_name)
-					
-					_last_room_name = _current_room_name
-					_current_room_name = random.choice(_temp_room_pool)
-					
-					logging.debug('Failed to place \'%s\', moving to \'%s\'' % (_last_room_name, _current_room_name))
-					#import sys
-					#sys.exit(0)
+					else:
+						_temp_room_pool = _room_pool[:]
+						
+						_temp_room_pool.remove(_current_room_name)
+						
+						_last_room_name = _current_room_name
+						_current_room_name = random.choice(_temp_room_pool)
+						
+						logging.debug('Failed to place \'%s\', moving to \'%s\'' % (_last_room_name, _current_room_name))
 				
 				_room_rules = room_list[_current_room_name]['rules']
 				_room_size = room_list[_current_room_name]['size']
@@ -224,9 +222,6 @@ def _create_blueprint(room_list):
 				
 				if _room_rules['required_rooms'] and len(set(_room_rules['required_rooms']) & set(_placed_rooms.keys())) == len(_room_rules['required_rooms']):
 					_placed_rooms_to_check = _room_rules['required_rooms']
-					
-					if _placed_rooms_to_check:
-						print 'WHAT'
 				
 				else:
 					_placed_rooms_to_check = _placed_rooms
@@ -287,7 +282,7 @@ def _create_blueprint(room_list):
 							
 							continue
 						
-						if _neighbor_room_rules['allow_only_if_required_by_neighbor'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+						if _neighbor_room_rules['allow_only_if_required_by_neighbor'] and not _neighbor_room_name in _room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor banned us: Not in required list: %s (is only allowed if required by this room)' % _neighbor_room_name)
@@ -317,6 +312,7 @@ def _create_blueprint(room_list):
 					
 					_room_id_map[_placer_y, _placer_x] = _room_id
 					_failures = 0
+					_try_new_positions_first = True
 					
 					logging.debug('\tPutting down 1 room at %i, %i' % (_placer_x, _placer_y))
 					
@@ -377,9 +373,6 @@ def _create_blueprint(room_list):
 			break
 		
 		if _fail:
-			#print 'Failed'
-			#import sys
-			#sys.exit(0)
 			return False
 		
 		_room_pool.remove(_current_room_name)
