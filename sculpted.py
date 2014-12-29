@@ -424,7 +424,7 @@ def _create_blueprint(room_list):
 			_room_id = _room_id_map[y, x]
 			_neighbor_count = 0
 			_door_count = 0
-			_has_door_to = set()
+			_has_door_to = [] #set()
 			_room_name = None
 			
 			if _room_id:
@@ -459,18 +459,21 @@ def _create_blueprint(room_list):
 							if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
 								continue
 							
-							if not _neighbor_room_name in _has_door_to:
-								if _neighbor_room_name in _doors_map and _room_name in _doors_map[_neighbor_room_name] and not _doors_map[_neighbor_room_name][_room_name] == (x, y):
+							if _has_door_to.count(_neighbor_room_name) < 2:
+								if _neighbor_room_name in _doors_map and _room_name in _doors_map[_neighbor_room_name] and not (x, y) in _doors_map[_neighbor_room_name][_room_name]:
 									continue
 								
 								_door_count += LOOKUP[x_mod, y_mod]
-								_has_door_to.add(_neighbor_room_name)
+								_has_door_to.append(_neighbor_room_name)
 								
 								if _room_name in _doors_map:
-									_doors_map[_room_name][_neighbor_room_name] = (_neighbor_x, _neighbor_y)
+									if _neighbor_room_name in _doors_map[_room_name]:
+										_doors_map[_room_name][_neighbor_room_name].append((_neighbor_x, _neighbor_y))
+									else:
+										_doors_map[_room_name][_neighbor_room_name] = [(_neighbor_x, _neighbor_y)]
 								
 								else:
-									_doors_map[_room_name] = {_neighbor_room_name: (_neighbor_x, _neighbor_y)}
+									_doors_map[_room_name] = {_neighbor_room_name: [(_neighbor_x, _neighbor_y)]}
 							
 							else:
 								continue
