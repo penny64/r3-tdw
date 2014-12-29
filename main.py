@@ -40,7 +40,7 @@ def main():
 	framework.shutdown()
 
 if __name__ == '__main__':
-	framework.init()
+	framework.init(debug='--debug' in sys.argv)
 	
 	framework.events.register_event('boot', words.boot)
 	

@@ -31,7 +31,7 @@ def generate(width, height):
 	_blueprint = sculpted.create_blueprint(sculpted.ROOMS)
 	_room_size = 17
 	_door_width = 1
-	_place_x, _place_y = 15, 30
+	_place_x, _place_y = 5, 10
 	_floor = set()
 	#_room_bitmask_maps = {}
 	
