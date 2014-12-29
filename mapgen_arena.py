@@ -49,11 +49,10 @@ def generate(width, height):
 			
 			if _bitmask < 100:
 				_bitmask += 100
-				_wall_offset = -1
 			
 			else:
 				_room_name = _blueprint['room_lookup'][_blueprint['room_map'][y, x]]
-				_wall_offset = _blueprint['rooms'][_room_name]['wall_offset']
+				_wall_offset = 0 #Don't even think about touching this...
 				_wall_padding = range(_blueprint['rooms'][_room_name]['wall_padding'] + 1)
 				_wall_padding_actual = range(_wall_offset, _blueprint['rooms'][_room_name]['wall_padding'] + 1)
 				_wall_padding_2_actual = [(_room_size-1) - i for i in range(_wall_offset, _blueprint['rooms'][_room_name]['wall_padding'] + 1)]
@@ -63,6 +62,8 @@ def generate(width, height):
 				_wall_padding_4 = [(_room_size-1) - i for i in range(_blueprint['rooms'][_room_name]['doorway_padding'] + 1)]
 				_wall_padding_4_actual = [(_room_size-1) - i for i in range(_wall_offset, _blueprint['rooms'][_room_name]['doorway_padding'] + 1)]
 				_wall_bitmask = 0
+				
+				print 'Building: %s' % _room_name 
 				
 				if _o_bitmask > 100 and _o_bitmask < 200:
 					_wall_bitmask = _o_bitmask
@@ -103,20 +104,19 @@ def generate(width, height):
 							_placed = True
 					
 					else:
-					#elif _wall_offset > -1:
-						if y1 == _wall_offset and _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
+						if y1 == 0 and _bitmask in [101, 103, 105, 107, 109, 111, 113, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
-					#	
-						elif y1 == _wall_offset - 1 and _bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
+						
+						elif y1 == _room_size - 1 and _bitmask in [104, 105, 106, 107, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
-					#	
-						if x1 == _wall_offset - 1 and _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
+						
+						if x1 == _room_size - 1 and _bitmask in [102, 103, 106, 107, 110, 111, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
-					#	
-						elif x1 == _wall_offset and _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
+						
+						elif x1 == 0 and _bitmask in [108, 109, 110, 111, 112, 113, 114, 115]:
 							_solids.add((_place_x + _p_x, _place_y + _p_y))
 							_placed = True
 			

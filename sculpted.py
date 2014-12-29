@@ -14,7 +14,6 @@ LOOKUP = {(0, -1): 1,
 
 _landing = {'name': 'landing',
             'size': 1,
-            'wall_offset': 0,
             'wall_padding': 0,
             'doorway_padding': 0,
             'tile': tiles.wood_floor,
@@ -22,11 +21,11 @@ _landing = {'name': 'landing',
                       'required_rooms': [],
                       'allow_only_if_required_by_neighbor': False,
                       'whitelist_required': False,
-                      'entry_room': True}}
+                      'entry_room': True,
+                      'max_doors_to_same_room': 1}}
 
 _kitchen = {'name': 'kitchen',
             'size': 2,
-            'wall_offset': 0,
             'wall_padding': 1,
             'doorway_padding': 0,
             'tile': tiles.tile_checkered,
@@ -34,11 +33,11 @@ _kitchen = {'name': 'kitchen',
                       'required_rooms': [],
                       'allow_only_if_required_by_neighbor': False,
                       'whitelist_required': False,
-                      'entry_room': False}}
+                      'entry_room': False,
+                      'max_doors_to_same_room': 2}}
 
 _pantry = {'name': 'pantry',
            'size': 1,
-           'wall_offset': 0,
            'wall_padding': 2,
            'doorway_padding': 0,
            'tile': tiles.wood_floor,
@@ -46,11 +45,11 @@ _pantry = {'name': 'pantry',
                      'required_rooms': ['kitchen'],
                      'allow_only_if_required_by_neighbor': False,
                      'whitelist_required': True,
-                     'entry_room': False}}
+                     'entry_room': False,
+                     'max_doors_to_same_room': 1}}
 
 _closet = {'name': 'closet',
            'size': 1,
-           'wall_offset': 0,
            'wall_padding': 4,
            'doorway_padding': 0,
            'tile': tiles.wood_floor,
@@ -58,11 +57,11 @@ _closet = {'name': 'closet',
                      'required_rooms': ['kitchen'],
                      'allow_only_if_required_by_neighbor': False,
                      'whitelist_required': True,
-                     'entry_room': False}}
+                     'entry_room': False,
+                     'max_doors_to_same_room': 1}}
 
 _bathroom = {'name': 'bathroom',
              'size': 1,
-             'wall_offset': 0,
              'wall_padding': 3,
              'doorway_padding': 0,
              'tile': tiles.concrete_striped,
@@ -70,11 +69,11 @@ _bathroom = {'name': 'bathroom',
                        'required_rooms': ['hall'],
                        'allow_only_if_required_by_neighbor': False,
                        'whitelist_required': True,
-                       'entry_room': False}}
+                       'entry_room': False,
+                       'max_doors_to_same_room': 1}}
 
 _hall = {'name': 'hall',
          'size': 3,
-         'wall_offset': 0,
          'wall_padding': 4,
          'doorway_padding': 0,
          'tile': tiles.carpet_brown,
@@ -82,11 +81,11 @@ _hall = {'name': 'hall',
                    'required_rooms': [],
                    'allow_only_if_required_by_neighbor': True,
                    'whitelist_required': False,
-                   'entry_room': False}}
+                   'entry_room': False,
+                   'max_doors_to_same_room': 1}}
 
 _bunks = {'name': 'bunks',
           'size': 2,
-          'wall_offset': 0,
           'wall_padding': 2,
           'doorway_padding': 0,
           'tile': tiles.concrete_striped,
@@ -94,23 +93,23 @@ _bunks = {'name': 'bunks',
                     'required_rooms': ['hall'],
                     'allow_only_if_required_by_neighbor': False,
                     'whitelist_required': True,
-                    'entry_room': False}}
+                    'entry_room': False,
+                    'max_doors_to_same_room': 1}}
 
 _lab = {'name': 'lab',
         'size': 2,
-        'wall_offset': 0,
         'wall_padding': 3,
         'doorway_padding': 0,
-        'tile': tiles.concrete_striped,
+        'tile': tiles.tile_checkered,
         'rules': {'banned_rooms': [],
                   'required_rooms': ['hall'],
                   'allow_only_if_required_by_neighbor': False,
                   'whitelist_required': True,
-                  'entry_room': False}}
+                  'entry_room': False,
+                  'max_doors_to_same_room': 1}}
 
 _range = {'name': 'range',
           'size': 1,
-          'wall_offset': 0,
           'wall_padding': 0,
           'doorway_padding': 0,
           'tile': tiles.carpet_burgandy,
@@ -118,11 +117,11 @@ _range = {'name': 'range',
                     'required_rooms': ['hall'],
                     'allow_only_if_required_by_neighbor': False,
                     'whitelist_required': False,
-                    'entry_room': False}}
+                    'entry_room': False,
+                    'max_doors_to_same_room': 1}}
 
 _ammo_room = {'name': 'ammo_room',
               'size': 1,
-              'wall_offset': 0,
               'wall_padding': 5,
               'doorway_padding': 0,
               'tile': tiles.swamp,
@@ -130,19 +129,20 @@ _ammo_room = {'name': 'ammo_room',
                         'required_rooms': ['range'],
                         'allow_only_if_required_by_neighbor': False,
                         'whitelist_required': True,
-                        'entry_room': False}}
+                        'entry_room': False,
+                        'max_doors_to_same_room': 1}}
 
 _lab_closet = {'name': 'lab_closet',
                'size': 1,
-               'wall_offset': 0,
                'wall_padding': 3,
                'doorway_padding': 0,
-               'tile': tiles.concrete_striped,
+               'tile': tiles.swamp,
                'rules': {'banned_rooms': [],
                          'required_rooms': ['lab'],
                          'allow_only_if_required_by_neighbor': False,
-                         'whitelist_required': True,
-                         'entry_room': False}}
+                         'whitelist_required': False,
+                         'entry_room': False,
+                         'max_doors_to_same_room': 1}}
 
 ROOMS = {_landing['name']: _landing,
          _kitchen['name']: _kitchen,
@@ -152,7 +152,9 @@ ROOMS = {_landing['name']: _landing,
          _range['name']: _range,
          _ammo_room['name']: _ammo_room,
          _bunks['name']: _bunks,
-         _closet['name']: _closet}
+         _closet['name']: _closet,
+         _lab['name']: _lab,
+         _lab_closet['name']: _lab_closet}
 
 
 def _create_blueprint(room_list):
@@ -183,7 +185,7 @@ def _create_blueprint(room_list):
 	_bitmask_map = numpy.zeros((_total_room_size, _total_room_size))
 	_bitmask_door_map = numpy.zeros((_total_room_size, _total_room_size))
 	_room_id_map = numpy.zeros((_total_room_size, _total_room_size), dtype=numpy.int32)
-	_width, _height = int(round(_total_room_size * 1.0)), int(round(_total_room_size * 1.0))
+	_width, _height = int(round(_total_room_size * .5)), int(round(_total_room_size * .5))
 	
 	#Pick an entry point - can be keyword arg at some point
 	_current_room_name = random.choice(_potential_start_rooms)
@@ -245,18 +247,25 @@ def _create_blueprint(room_list):
 			
 			logging.debug('Placement start: %s (%i potential location(s) left)' % (_current_room_name, len(_potential_next_positions)))
 			
+			if not _potential_next_positions:
+				logging.warning('No potential next positions. If this is happening a lot, check your room list.')
+				
+				return False
+			
 			_placer_x, _placer_y = random.choice(list(_potential_next_positions))
 			_potential_potential_next_positions = set()
 			_failures = 0
-			_fail = False
+			_placed_at_least_one_room = False
 			
 			while _room_size:
 				_fail_bad_neighbor = False
+				_had_one_good_neighbor = False
 				_failures += 1
 				
 				if _failures >= 12:
-					_fail = True
-					break
+					logging.warning('Failed too many times when placing room. If this is happening a lot, check your room list.')
+					
+					return False
 				
 				#Required/banned neighbor check
 				for x_mod, y_mod in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
@@ -269,6 +278,9 @@ def _create_blueprint(room_list):
 					_neighbor_id = _room_id_map[_neighbor_y, _neighbor_x]
 					
 					if not _neighbor_id:
+						if _room_size == 1 or _placed_at_least_one_room:
+							_had_one_good_neighbor = True
+						
 						continue
 					
 					_neighbor_room_name = _room_lookup[_neighbor_id]
@@ -282,28 +294,38 @@ def _create_blueprint(room_list):
 							
 							continue
 						
-						if _neighbor_room_rules['allow_only_if_required_by_neighbor'] and not _neighbor_room_name in _room_rules['required_rooms']:
+						elif _neighbor_room_rules['allow_only_if_required_by_neighbor'] and not _neighbor_room_name in _room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor banned us: Not in required list: %s (is only allowed if required by this room)' % _neighbor_room_name)
 							
 							continue
 						
-						if _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
+						elif _room_rules['whitelist_required'] and not _neighbor_room_name in _room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor is banned: Only allowing required links: %s' % _neighbor_room_name)
 							
 							continue
 						
-						if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
+						elif _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
 							_fail_bad_neighbor = True
 							
 							logging.debug('\tNeighbor banned us: Not in required list: %s' % _neighbor_room_name)
 							
 							continue
+						
+						else:
+							_had_one_good_neighbor = True
+							
+							break
+					
+					else:
+						_had_one_good_neighbor = True
+						
+						break
 				
-				if not _fail_bad_neighbor:
+				if _had_one_good_neighbor:
 					if (_placer_x, _placer_y) in _potential_next_positions:
 						_potential_next_positions.remove((_placer_x, _placer_y))
 					
@@ -313,6 +335,7 @@ def _create_blueprint(room_list):
 					_room_id_map[_placer_y, _placer_x] = _room_id
 					_failures = 0
 					_try_new_positions_first = True
+					_placed_at_least_one_room = True
 					
 					logging.debug('\tPutting down 1 room at %i, %i' % (_placer_x, _placer_y))
 					
@@ -357,23 +380,18 @@ def _create_blueprint(room_list):
 							_potential_potential_next_positions.add((_neighbor_x, _neighbor_y))
 					
 					if not _potential_potential_next_positions:
-						raise Exception('No next position to place room: %s' % _current_room_name)
+						logging.warning('No next position to place room: %s' % _current_room_name)
+						
+						return False
 					
 					_placer_x, _placer_y = random.choice(list(_potential_potential_next_positions))
-					#print 'taking off pp list'
 					
 					continue
 				
 				else:
 					_placer_x, _placer_y = random.choice(list(_potential_next_positions))
-					#print 'taking off Next pos'
-				
-				
 			
 			break
-		
-		if _fail:
-			return False
 		
 		_room_pool.remove(_current_room_name)
 		_potential_next_positions = set()
@@ -436,6 +454,7 @@ def _create_blueprint(room_list):
 				_neighbor_x = x + x_mod
 				_neighbor_y = y + y_mod
 				
+				#Outside door
 				if _neighbor_x < 0 or _neighbor_x > _width-1 or _neighbor_y < 0 or _neighbor_y > _height-1:
 					if _room_id and _room_rules['entry_room'] and _neighbor_y < 0:
 						_door_count += LOOKUP[x_mod, y_mod]
@@ -459,7 +478,7 @@ def _create_blueprint(room_list):
 							if _neighbor_room_rules['whitelist_required'] and not _current_room_name in _neighbor_room_rules['required_rooms']:
 								continue
 							
-							if _has_door_to.count(_neighbor_room_name) < 2:
+							if _has_door_to.count(_neighbor_room_name) < _room_rules['max_doors_to_same_room']:
 								if _neighbor_room_name in _doors_map and _room_name in _doors_map[_neighbor_room_name] and not (x, y) in _doors_map[_neighbor_room_name][_room_name]:
 									continue
 								
