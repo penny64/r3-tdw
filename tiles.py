@@ -146,6 +146,22 @@ def carpet_burgandy(x, y):
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
 
+def carpet_blue(x, y):
+	_c_1, _c_2 = random.sample([constants.BLUE_1,
+	                            constants.BLUE_2,
+	                            constants.BLUE_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
+def carpet_light_blue(x, y):
+	_c_1, _c_2 = random.sample([constants.LIGHT_BLUE_1,
+	                            constants.LIGHT_BLUE_2,
+	                            constants.LIGHT_BLUE_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
 def carpet_brown(x, y):
 	_c_1, _c_2 = random.sample([constants.BROWN_1,
 	                            constants.BROWN_2,

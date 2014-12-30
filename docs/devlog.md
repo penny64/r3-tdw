@@ -1,3 +1,50 @@
+#Mon Dec 29 2014
+
+One thing I wanted to avoid with any game I was involved with after Reactor 3
+was feeling like I constantly needed to be working on or thinking about
+whatever project I'm on. This is tough for me even though I have a few other
+projects I could be attending to, because for whatever reason I almost always
+value my work in games more than I do work in other hobbies. I suspect this
+is something stemming from the rather troubled and never-ending development
+history of Reactor 3: I'm constantly trying to prove myself.
+
+The answer - at least for me - isn't to work harder. Instead, after looking
+for insight in other aspects of my life, I am slowly discovering that maybe
+I need to work a lot less and focus on other things, and through that get the
+motivation I need to work on games naturally, rather than force it upon myself.
+After all, I'm working on this game because I want to work on it, not because
+I have to.
+
+What I've discovered recently is that I'm very good at executing ideas. What
+I'm not good at, however, is connecting complex ideas in a way that makes
+sense. In web development (my actual job), I'm often given mockups and told to
+"make it work," which is great for me because I absolutely love piecing that
+sort of thing together. You might have guessed it, but games aren't that
+simple; they're complex, potentially huge code-wise, and definitely not aimed
+to make sense to absolutely everyone, whereas on the other hand it's hard to
+make websites that absolutely bewilder the average Joe.
+
+Designing Insurgence involves a lot of thinking, but the biggest time sink is
+prototyping something just to see if it meshes with the rest of the game. A
+lot of the time I'm lucky enough to manage this prototyping outside the game's
+code, but on the occasion I do need to attach something to the order of
+operations, it can get a bit hairy.
+
+With that said, Insurgence is crawling along at just the right pace. In the
+past few weeks I've done the following:
+
+* Character stats - These got completely revamped to give differences in stats
+a greater impact on a character's performance.
+
+* Character & squad hiring
+
+* Building generation - Some of the original screenshots from Insurgence showed
+a lot of fighting outdoors, and while I'm not ruling that out, levels are now
+almost entirely based around the inside of various buildings, some of which will
+include outdoor elements, like patios, food courts, etc. Those aren't specific
+examples, but you get the gist.
+
+
 #Fri Nov 21 2014
 
 It turns out the design needs to be tossed. I saved a few things, but I need a

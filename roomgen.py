@@ -1,8 +1,15 @@
 import items
 import tiles
 
+import random
 import numpy
 
+
+def get_corner_points(spawns):
+	return [(spawns['min_x'] + 1, spawns['min_y'] + 1),
+	        (spawns['min_x'] + spawns['width'] - 2, spawns['min_y'] + 1),
+	        (spawns['min_x'] + 1, spawns['min_y'] + spawns['height'] - 2),
+	        (spawns['max_x'] - 2, spawns['max_y'] - 2)]
 
 def neighbors_in_set(x, y, check_set, diag=False):
 	_return_set = set()
@@ -77,11 +84,30 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 		if not (_r_x, _r_y) in _room_spawns[room_name]:
 			_room_spawns[room_name][_r_x, _r_y] = {'against_wall': set(),
 			                                       'away_from_wall': set(),
-			                                       'floor': set()}
+			                                       'floor': set(),
+			                                       'direction': None,
+			                                       'width': 0,
+			                                       'height': 0,
+			                                       'min_x': 9999,
+			                                       'max_x': 0,
+			                                       'min_y': 9999,
+			                                       'max_y': 0}
 			
 		
 		_spawn_list = _room_spawns[room_name][_r_x, _r_y]
 		_hit_solid = False
+		
+		if x < _spawn_list['min_x']:
+			_spawn_list['min_x'] = x
+		
+		if x > _spawn_list['max_x']:
+			_spawn_list['max_x'] = x
+		
+		if y < _spawn_list['min_y']:
+			_spawn_list['min_y'] = y
+		
+		if y > _spawn_list['max_y']:
+			_spawn_list['max_y'] = y
 		
 		for x1, y1 in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
 			_neighbor_x, _neighbor_y = x + x1, y + y1
@@ -100,12 +126,46 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 	
 	for room_name in _room_spawns:
 		_rooms = _room_spawns[room_name]
+		#_min_x = 9999
+		#_max_x = 0
+		#_min_y = 9999
+		#_max_y = 0
+		
+		for r_x, r_y in _rooms:
+			_spawns = _rooms[r_x, r_y]
+			_spawns['width'] = _spawns['max_x'] - _spawns['min_x']
+			_spawns['height'] = _spawns['max_y'] - _spawns['min_y']
+			
+			if _spawns['width'] > _spawns['height']:
+				_spawns['direction'] = 'horizontal'
+			
+			else:
+				_spawns['direction'] = 'vertical'
+			
+			#if _spawns['min_x'] < _min_x:
+			#	_min_x = _spawns['min_x']
+			
+			#if _spawns['min_y'] < _min_y:
+			#	_min_y = _spawns['min_y']
+			
+			#if _spawns['max_x'] > _max_x:
+			#	_max_x = _spawns['max_x']
+			
+			#if _spawns['max_y'] > _max_y:
+			#	_max_y = _spawns['max_y']
+		
+		#_width_of_all_rooms = _max_x - _min_x
+		#height_of_all_rooms = _max_y - _min_y
+	
+	for room_name in _room_spawns:
+		_rooms = _room_spawns[room_name]
 		
 		for r_x, r_y in _rooms:
 			_wall_bitmask = bitmask_map[r_y, r_x]
 			_spawns = _rooms[r_x, r_y]
+			_new_floor = set()
 			
-			if room_name == 'Bunks':
+			if room_name == 'bunks':
 				print 'Spawn here:', _wall_bitmask
 				
 				if _wall_bitmask in [105]:
@@ -130,7 +190,71 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 								
 								_solids.add((x1, y1))
 			
+			elif room_name == 'landing':
+				for x, y in _spawns['floor']:
+					_xx = x - _spawns['min_x']
+					_yy = y - _spawns['min_y']
+					
+					if _spawns['width'] * .15 < _xx < _spawns['width'] * .85 and _spawns['height'] * .15 < _yy < _spawns['height'] * .85:
+						if _xx < _spawns['width'] * .3 or _xx > _spawns['width'] * .7 or _yy < _spawns['height'] * .3 or _yy > _spawns['height'] * .7:
+							if random.uniform(0, 1) > .6:
+								_tile = tiles.carpet_light_blue(x, y)
+							
+							else:
+								_tile = tiles.carpet_blue(x, y)
+						
+						else:
+							_tile = tiles.carpet_blue(x, y)
+					
+					elif _spawns['width'] * .10 < _xx < _spawns['width'] * .90 and _spawns['height'] * .10 < _yy < _spawns['height'] * .90:
+						_tile = tiles.carpet_burgandy(x, y)
+					
+					else:
+						_tile = tiles.wood_floor(x, y)
+					
+					tile_map[y][x] = _tile
+					weight_map[y][x] = _tile['w']
+					
+					_new_floor.add((x, y))
+			
+			elif room_name == 'lab':
+				#_x_split = 0
+				#_y_split = 0
+				
+				#print _spawns['direction'], r_x, r_y
+				#if _spawns['direction'] == 'horizontal':
+				#	_start_x_dist_split = 6
+				#	_start_y_dist_split = 4
+				
+				#else:
+				#	_start_x_dist_split = 4
+				#	_start_y_dist_split = 5
+				
+				#for dist_split in range(_start_x_dist_split, 9):
+				#	if not _spawns['width'] % (dist_split):
+				#		_x_split = dist_split
+				#		
+				#		break
+				
+				
+				#for dist_split in range(_start_y_dist_split, 9):
+				#	if not _spawns['height'] % (dist_split):
+				#		_y_split = dist_split
+				#		
+				#		break
+				
+				for x, y in get_corner_points(_spawns):
+					for m_x, m_y in [(0, 0), (1, 0), (0, 1), (1, 1)]:
+						_x = x + m_x
+						_y = y + m_y
+						
+						_tile = tiles.carpet_burgandy(_x, _y)
+						tile_map[_y][_x] = _tile
+						weight_map[_y][_x] = _tile['w']
+						_new_floor.add((_x, _y))
+			
 			_floor_tiles = _spawns['floor'] - _solids
+			_floor_tiles = _floor_tiles - _new_floor
 			
 			for x, y in list(_floor_tiles):
 				_tile = room_list[room_name]['tile'](x, y)
