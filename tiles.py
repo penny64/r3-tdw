@@ -117,6 +117,14 @@ def wood_floor(x, y):
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 2, _c_1, _c_2)
 
+def wood_block(x, y):
+	_c_1, _c_2 = random.sample([constants.DARK_WOOD_1,
+	                            constants.DARK_WOOD_2,
+	                            constants.DARK_WOOD_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
 def tile_checkered(x, y):
 	if not x % 2 or not y % 2:
 		_c_1 = (255, 255, 255)
@@ -146,6 +154,14 @@ def carpet_burgandy(x, y):
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
 
+def carpet_burgandy_specs(x, y):
+	_c_1, _c_2 = random.sample([constants.SPEC_BURGANDY_1,
+	                            constants.SPEC_BURGANDY_2,
+	                            constants.SPEC_BURGANDY_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
 def carpet_blue(x, y):
 	_c_1, _c_2 = random.sample([constants.BLUE_1,
 	                            constants.BLUE_2,
@@ -166,6 +182,14 @@ def carpet_brown(x, y):
 	_c_1, _c_2 = random.sample([constants.BROWN_1,
 	                            constants.BROWN_2,
 	                            constants.BROWN_3],
+	                           2)
+	
+	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)
+
+def countertop(x, y):
+	_c_1, _c_2 = random.sample([constants.MARBLE_1,
+	                            constants.MARBLE_2,
+	                            constants.MARBLE_3],
 	                           2)
 	
 	return _tile(x, y, random.choice([chr(176), chr(177), chr(178)]), 1, _c_1, _c_2)

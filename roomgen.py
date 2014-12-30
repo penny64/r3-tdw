@@ -1,3 +1,6 @@
+from framework import entities
+
+import effects
 import items
 import tiles
 
@@ -72,6 +75,8 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 	_room_spawns = {}
 	_floors = set()
 	_solids = set()
+	_windows = set()
+	_lights = []
 	
 	for x, y, room_name in floor_list:
 		_r_x, _r_y = (x - offsets[0]) / divisor, (y - offsets[1]) / divisor
@@ -191,31 +196,94 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 								_solids.add((x1, y1))
 			
 			elif room_name == 'landing':
+				_carpet = set()
+				
 				for x, y in _spawns['floor']:
 					_xx = x - _spawns['min_x']
 					_yy = y - _spawns['min_y']
 					
+					if _xx == _spawns['width'] / 2 and _yy == _spawns['height'] / 2:
+						_lights.append((x, y, 16, 1.5, 1.5, 1.5))
+					
 					if _spawns['width'] * .15 < _xx < _spawns['width'] * .85 and _spawns['height'] * .15 < _yy < _spawns['height'] * .85:
 						if _xx < _spawns['width'] * .3 or _xx > _spawns['width'] * .7 or _yy < _spawns['height'] * .3 or _yy > _spawns['height'] * .7:
-							if random.uniform(0, 1) > .6:
+							if random.uniform(0, 1) > .5:
 								_tile = tiles.carpet_light_blue(x, y)
+								_carpet.add((x, y))
 							
 							else:
 								_tile = tiles.carpet_blue(x, y)
+								_carpet.add((x, y))
 						
 						else:
-							_tile = tiles.carpet_blue(x, y)
+							_tile = tiles.carpet_burgandy_specs(x, y)
+							_carpet.add((x, y))
 					
 					elif _spawns['width'] * .10 < _xx < _spawns['width'] * .90 and _spawns['height'] * .10 < _yy < _spawns['height'] * .90:
 						_tile = tiles.carpet_burgandy(x, y)
+						_carpet.add((x, y))
 					
 					else:
-						_tile = tiles.wood_floor(x, y)
+						_tile = tiles.carpet_brown(x, y)
 					
 					tile_map[y][x] = _tile
 					weight_map[y][x] = _tile['w']
 					
 					_new_floor.add((x, y))
+				
+				#Placing tables
+				_placed_tables = set()
+				
+				for x, y in _spawns['against_wall']:
+					if neighbors_in_set(x, y, [_carpet]):
+						continue
+					
+					if random.uniform(0, 1) > .87:
+						if neighbors_in_set(x, y, _placed_tables):
+							continue
+						
+						_neighbors = neighbors_in_set(x, y, _spawns['against_wall'])
+						
+						if len(_neighbors) >= 2:
+							_neighbors.add((x, y))
+							_placed_tables.add(tuple(_neighbors))
+				
+				for table in _placed_tables:
+					_temp_windows = set()
+					
+					for x, y in table:
+						_tile = tiles.countertop(x, y)
+						tile_map[y][x] = _tile
+						weight_map[y][x] = _tile['w']
+						
+						_wood_blocks = set()
+						_new_floor.add((x, y))
+						
+						for x1, y1 in neighbors_in_set(x, y, _spawns['floor'], diag=True) - neighbors_in_set(x, y, table, diag=True):
+							_tile = tiles.wood_block(x1, y1)
+							tile_map[y1][x1] = _tile
+							weight_map[y1][x1] = _tile['w']
+							
+							_new_floor.add((x1, y1))
+							_wood_blocks.add((x1, y1))
+						
+						for x1, y1 in neighbors_in_set(x, y, solids, diag=True):
+							_temp_windows.add((x1, y1))
+							
+							#_tile = tiles.water(x1, y1)
+							#tile_map[y1][x1] = _tile
+							#weight_map[y1][x1] = _tile['w']
+					
+					for x, y in _temp_windows:
+						pass
+						#if neighbors_in_set(x, y, solids) - neighbors_in_set(x, y, _temp_windows):
+						#	break
+					else:
+						for x, y in _temp_windows:
+							_tile = tiles.water(x, y)
+							tile_map[y][x] = _tile
+							weight_map[y][x] = _tile['w']
+						_windows.update(_temp_windows)
 			
 			elif room_name == 'lab':
 				#_x_split = 0
@@ -268,4 +336,4 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 			
 			_floors.update(_floor_tiles)
 	
-	return _floors, _solids
+	return _floors, _solids, _windows, _lights

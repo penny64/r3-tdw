@@ -33,6 +33,7 @@ def generate(width, height):
 	_door_width = 1
 	_place_x, _place_y = 5, 10
 	_floor = set()
+	_lights = []
 	#_room_bitmask_maps = {}
 	
 	_min_door_pos = (_room_size / 2) - _door_width
@@ -167,7 +168,7 @@ def generate(width, height):
 	           (0, 1): 4,
 	           (-1, 0): 8}		
 	
-	_new_floors, _new_solids = roomgen.spawn_items(_blueprint['rooms'], _blueprint['bitmask_map'], _blueprint['bitmask_door_map'], _floor, _solids, _room_size, _room_size, (_place_x, _place_y), _tile_map, _weight_map)
+	_new_floors, _new_solids, _windows, _new_lights = roomgen.spawn_items(_blueprint['rooms'], _blueprint['bitmask_map'], _blueprint['bitmask_door_map'], _floor, _solids, _room_size, _room_size, (_place_x, _place_y), _tile_map, _weight_map)
 	_floor_new = set()
 	
 	for x, y, room_name in _floor.copy():
@@ -177,6 +178,8 @@ def generate(width, height):
 	_floor.update(_new_floors)
 	_solids.update(_new_solids)
 	_remove_solids = set()
+	_solids = _solids - _windows
+	_lights.extend(_new_lights)
 	
 	for x, y in _solids:
 		#_count = 0
@@ -209,6 +212,8 @@ def generate(width, height):
 		_tile_map[pos[1]][pos[0]] = _tile
 		_weight_map[pos[1]][pos[0]] = _tile['w']
 	
+	_ground_tiles = _ground_tiles - _windows
+	
 	for x, y in _ground_tiles - _floor:
 		_tile = tiles.grass(x, y)
 		_tile_map[y][x] = _tile
@@ -216,4 +221,4 @@ def generate(width, height):
 	
 	mapgen.build_node_grid(_node_grid, _solids)
 	
-	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, {}, _trees, _floor
+	return width, height, _node_grid, mapgen.NODE_SETS.copy(), _weight_map, _tile_map, _solids, {}, _trees, _floor, _lights

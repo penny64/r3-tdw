@@ -21,7 +21,7 @@ ZONES = {}
 ACTIVE_ZONE = None
 
 
-def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees, inside):
+def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees, inside, lights):
 	ZONES[name] = {'name': name,
 	               'width': width,
 	               'height': height,
@@ -36,6 +36,7 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'inside': inside,
 	               'los_map': None,
 	               'light_maps': {},
+	               'lights': lights,
 	               'shaders': []}
 	
 	logging.info('Created zone: %s' % name)
@@ -87,6 +88,10 @@ def activate(zone_id):
 			_shader[2][y, x] = 1.1 * _height
 	
 	_zone['shaders'].append(_shader)
+	
+	for light in _zone['lights']:
+		effects.light(light[0], light[1], light[2], r=light[3], g=light[4], b=light[5], light_map='static_lighting')
+	
 	#if not '--no-fx' in sys.argv:
 	#	post_processing.run(time=8,
 	#		                repeat=-1,

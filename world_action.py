@@ -89,9 +89,9 @@ def create():
 def start_battle(attacking_squads=[], defending_squads=[]):
 	create()
 	
-	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside = mapgen_arena.generate(200, 200)
-	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside)
-	
+	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights = mapgen_arena.generate(200, 200)
+	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights)
+
 	zones.activate(_zone)
 	
 	display.blit_background('tiles')
