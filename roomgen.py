@@ -77,6 +77,7 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 	_solids = set()
 	_windows = set()
 	_lights = []
+	_spawn_positions = set()
 	
 	for x, y, room_name in floor_list:
 		_r_x, _r_y = (x - offsets[0]) / divisor, (y - offsets[1]) / divisor
@@ -332,6 +333,7 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 				_tile = room_list[room_name]['tile'](x, y)
 				tile_map[y][x] = _tile
 				weight_map[y][x] = _tile['w']
+				_spawn_positions.add((x, y))
 			
 			for x, y in list(_solids):
 				_tile = tiles.wooden_fence(x, y)
@@ -340,4 +342,4 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 			
 			_floors.update(_floor_tiles)
 	
-	return _floors, _solids, _windows, _lights
+	return _floors, _solids, _windows, _lights, _spawn_positions

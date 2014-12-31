@@ -1,4 +1,4 @@
-from framework import entities, controls, display, events, worlds, movement, pathfinding, numbers, stats, timers
+from framework import entities, controls, display, events, worlds, movement, pathfinding, numbers, stats, timers, shapes
 
 import framework
 
@@ -30,6 +30,7 @@ import life
 import ai
 
 import cProfile
+import random
 import numpy
 import time
 import sys
@@ -89,8 +90,33 @@ def create():
 def start_battle(attacking_squads=[], defending_squads=[]):
 	create()
 	
-	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights = mapgen_arena.generate(200, 200)
-	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights)
+	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns = mapgen_arena.generate(200, 200)
+	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns)
+	
+	print list(_spawns['attacking'])
+	_attacking_spawn_x, _attacking_spawn_y = random.choice(list(_spawns['attacking']))
+	_attacking_spawn_positions = [(x, y) for x, y in shapes.circle(_attacking_spawn_x, _attacking_spawn_y, 5) if not (x, y) in _solids]
+	
+	for squad_id in attacking_squads:
+		_squad = entities.get_entity(squad_id)
+		
+		for member_id in _squad['members']:
+			_member = entities.get_entity(member_id)
+			_spawn_x, _spawn_y = _attacking_spawn_positions.pop(random.randint(0, len(_attacking_spawn_positions) - 1))
+			
+			entities.trigger_event(_member, 'set_position', x=_spawn_x, y=_spawn_y)
+	
+	_defending_spawn_x, _defending_spawn_y = random.choice(list(_spawns['defending']))
+	_attacking_spawn_positions = [(x, y) for x, y in shapes.circle(_defending_spawn_x, _defending_spawn_y, 5) if not (x, y) in _solids]
+	
+	for squad_id in defending_squads:
+		_squad = entities.get_entity(squad_id)
+		
+		for member_id in _squad['members']:
+			_member = entities.get_entity(member_id)
+			_spawn_x, _spawn_y = _attacking_spawn_positions.pop(random.randint(0, len(_attacking_spawn_positions) - 1))
+			
+			entities.trigger_event(_member, 'set_position', x=_spawn_x, y=_spawn_y)
 
 	zones.activate(_zone)
 	

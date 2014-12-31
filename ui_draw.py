@@ -143,6 +143,9 @@ def draw_life_memory():
 		if entity_id in _can_see_life or not entity_id in entities.ENTITIES:
 			continue
 		
+		if not entity_id in _last_seen_locations:
+			continue
+		
 		_entity = entities.get_entity(entity_id)
 		_x, _y = _last_seen_locations[entity_id]
 		_x -= _camera_x

@@ -44,7 +44,7 @@ def generate():
 			#_camp = world_strategy.MAP['grid'][_m_x, _m_y]
 			_tile_map[_m_y][_m_x] = tiles.grass(_m_x, _m_y)
 	
-	_zone_id = zones.create('arena', constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE, constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE, _node_grid, _node_sets, _weight_map, _tile_map, {}, _fsl, {}, {}, [])
+	_zone_id = zones.create('arena', constants.STRAT_MAP_WIDTH/constants.MAP_CELL_SPACE, constants.STRAT_MAP_HEIGHT/constants.MAP_CELL_SPACE, _node_grid, _node_sets, _weight_map, _tile_map, {}, _fsl, {}, {}, [], [])
 	zones.activate(_zone_id)
 	#if '--arena' in sys.argv:
 	#	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside = mapgen_arena.generate(100, 100)
@@ -175,11 +175,12 @@ def create_factions():
 			else:
 				if random.randint(0, 1):
 					#_e = life.sniper(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
-					_e = life.turret(10, 70 + i * 2, 'Turret', faction_name)
+					#_e = life.turret(10, 70 + i * 2, 'Turret', faction_name)
+					_e = life.engineer(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
 				
 				else:
-					#_e = life.engineer(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
-					_e = life.turret(10, 70 + i * 2, 'Turret', faction_name)
+					_e = life.engineer(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
+					#_e = life.turret(10, 70 + i * 2, 'Turret', faction_name)
 	
 			ai_squads.register_with_squad(_e, _squad['squad_id'])
 

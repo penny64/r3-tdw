@@ -21,7 +21,7 @@ ZONES = {}
 ACTIVE_ZONE = None
 
 
-def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees, inside, lights):
+def create(name, width, height, node_grid, node_sets, weight_map, tile_map, solids, faction_spawn_list, trees, inside, lights, spawns):
 	ZONES[name] = {'name': name,
 	               'width': width,
 	               'height': height,
@@ -37,7 +37,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'los_map': None,
 	               'light_maps': {},
 	               'lights': lights,
-	               'shaders': []}
+	               'shaders': [],
+	               'spawns': spawns}
 	
 	logging.info('Created zone: %s' % name)
 	
