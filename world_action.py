@@ -92,8 +92,6 @@ def start_battle(attacking_squads=[], defending_squads=[]):
 	
 	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns = mapgen_arena.generate(200, 200)
 	_zone = zones.create('swamps', _width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns)
-	
-	print list(_spawns['attacking'])
 	_attacking_spawn_x, _attacking_spawn_y = random.choice(list(_spawns['attacking']))
 	_attacking_spawn_positions = [(x, y) for x, y in shapes.circle(_attacking_spawn_x, _attacking_spawn_y, 5) if not (x, y) in _solids]
 	

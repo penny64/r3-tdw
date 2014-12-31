@@ -177,7 +177,7 @@ def generate(width, height):
 		_floor_new.add((x, y))
 	
 	_spawns['defending'].update(_new_spawns)
-	_spawns['attacking'].add((10, 10))
+	_spawns['attacking'].add((70, 5))
 	_floor = _floor_new
 	_floor.update(_new_floors)
 	_solids.update(_new_solids)
