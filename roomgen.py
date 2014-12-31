@@ -248,6 +248,8 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 							_neighbors.add((x, y))
 							_placed_tables.add(tuple(_neighbors))
 				
+				_windows_placed = 0
+				
 				for table in _placed_tables:
 					_temp_windows = set()
 					
@@ -267,12 +269,13 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 							_new_floor.add((x1, y1))
 							_wood_blocks.add((x1, y1))
 						
+						if _windows_placed > 2:
+							continue
+						
 						for x1, y1 in neighbors_in_set(x, y, solids, diag=True):
 							_temp_windows.add((x1, y1))
-							
-							#_tile = tiles.water(x1, y1)
-							#tile_map[y1][x1] = _tile
-							#weight_map[y1][x1] = _tile['w']
+					
+					_windows_placed += 1
 					
 					for x, y in _temp_windows:
 						pass
@@ -283,6 +286,7 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 							_tile = tiles.water(x, y)
 							tile_map[y][x] = _tile
 							weight_map[y][x] = _tile['w']
+						
 						_windows.update(_temp_windows)
 			
 			elif room_name == 'lab':
