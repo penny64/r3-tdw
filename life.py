@@ -641,7 +641,7 @@ def _shoot_weapon(entity, weapon_id, target_id):
 
 	effects.light(_x, _y, random.randint(3, 5), r=1.5, g=1.5, b=0)
 	
-	if _weapon['type'] == 'explosives':
+	if _weapon['stats']['type'] == 'explosives':
 		items.explosive(entity, _x, _y, _tx, _ty, 5, _accuracy, _damage)
 	
 	else:

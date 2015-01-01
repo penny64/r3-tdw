@@ -3,7 +3,7 @@ from framework import entities, numbers, flags
 import random
 
 
-def register(entity, health, speed, vision, class_name='Gunner', respect=1, accuracy=1.0, mobility=80, intelligence=90, action_points=100, smgs=50, rifles=50, pistols=50, name='Unknown', kind='unknown'):
+def register(entity, health, speed, vision, class_name='Gunner', respect=1, accuracy=1.0, mobility=80, explosives=70, intelligence=90, action_points=100, smgs=50, rifles=50, pistols=50, name='Unknown', kind='unknown'):
 	_stats = {'health': health,
 	          'max_health': health,
 	          'speed': speed,
@@ -23,6 +23,7 @@ def register(entity, health, speed, vision, class_name='Gunner', respect=1, accu
 	          'smgs': smgs,
 	          'rifles': rifles,
 	          'pistols': pistols,
+	          'explosives': explosives,
 	          'name': name,
 	          'kind': kind,
 	          'last_engaged': None,
@@ -128,6 +129,9 @@ def get_accuracy(entity, weapon_id):
 	
 	elif _weapon['stats']['kind'] == 'rifle':
 		_weapon_accuracy *= 1 + (1 - (entity['stats']['rifles'] / 100.0))
+	
+	elif _weapon['stats']['kind'] == 'explosive':
+		_weapon_accuracy *= 1 + (1 - (entity['stats']['explosives'] / 100.0))
 	
 	else:
 		raise Exception('Invalid gun type.')
