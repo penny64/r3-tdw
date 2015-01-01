@@ -13,7 +13,7 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	             'collisions': collisions,
 				 'direction': direction,
 				 'turn_speed': turn_speed,
-	             'override_speed': 6,
+	             'override_speed': 1,#6,
 	             'path': {'positions': [],
 	                      'destination': None,
 	                      'refresh': False}}

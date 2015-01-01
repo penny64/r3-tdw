@@ -1,4 +1,7 @@
-import entities, events
+import entities
+import events
+
+import logging
 
 
 def register(entity, use_system_event=None, use_entity_event='tick'):
@@ -68,6 +71,17 @@ def delete_timer(entity, name):
 			
 			break
 
+def stop_timer(entity, name):
+	for timer in entity['timers']:
+		if timer['stop']:
+			continue
+		
+		if timer['name'].count(name.lower()):
+			timer['stop'] = True
+			print 'Stopped timer'
+			
+			break
+
 def tick(entity):
 	_remove_timers = []
 	
@@ -106,4 +120,8 @@ def tick(entity):
 		if timer['delete_callback']:
 			timer['delete_callback'](entity)
 
-		entity['timers'].remove(timer)
+		if timer in entity['timers']:
+			entity['timers'].remove(timer)
+		
+		else:
+			logging.warning('Removing a timer in a timer... hopefully')

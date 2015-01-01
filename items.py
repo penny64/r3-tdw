@@ -45,6 +45,8 @@ def _create(x, y, name, char, weight, item_type, equip_to=None, fore_color=(255,
 	flags.register(_entity)
 	tile.register(_entity, surface='items', char=char, fore_color=fore_color)
 	
+	entities.create_event(_entity, 'collision_with_solid')
+	entities.create_event(_entity, 'collision_with_entity')
 	entities.create_event(_entity, 'get_interactions')
 	entities.create_event(_entity, 'get_actions')
 	entities.create_event(_entity, 'get_display_name')
@@ -312,6 +314,12 @@ def frag_grenade():
 	
 	return _entity
 
+def frag_grenade_explode(entity):
+	_x, _y = movement.get_position(entity)
+	_damage = entity['damage']
+	
+	effects.explosion(_x, _y, 4 * int(round((_damage * .01))))
+
 def ammo_9x19mm(x, y):
 	_entity = _create(x, y, '9x19mm rounds', '+', 4, 'ammo')
 	
@@ -331,6 +339,27 @@ def _bullet_tick(entity):
 	if _distance > _starting_target_distance + (12 - (entity['speed'] * 2)):
 		entities.delete_entity(entity)
 
+def _explosive_tick(entity):
+	_direction = movement.get_direction(entity)
+	
+	entities.trigger_event(entity, 'push_tank', direction=_direction)
+	
+	_x, _y = movement.get_position(entity)
+	_distance = numbers.distance((_x, _y), entity['end_position'])
+	_starting_target_distance = numbers.distance(entity['start_position'], entity['end_position'])
+	
+	if _distance <= entity['accuracy'] * 2.5:
+		entity['slow_down'] = True
+	
+	if entity['slow_down']:
+		entity['speed'] = numbers.clip(entity['speed'] * 1.2, 0, 40)	
+	
+	if entity['speed'] < 40:
+		entities.trigger_event(entity, 'create_timer', time=int(round(entity['speed'])), name='movement', exit_callback=_explosive_tick)
+	
+	else:
+		entities.trigger_event(entity, 'activate_explosive')
+
 def check_for_collisions(entity):
 	_x, _y = movement.get_position(entity)
 	
@@ -340,10 +369,7 @@ def check_for_collisions(entity):
 		return
 	
 	if (_x, _y) in zones.get_active_solids(entity):
-		entities.delete_entity(entity)
-		
-		effects.light(_x, _y, random.randint(3, 4))
-		effects.smoke_cloud(_x, _y, random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65), decay_amount=1.5)
+		entities.trigger_event(entity, 'collision_with_solid')
 		
 		return
 	
@@ -352,8 +378,7 @@ def check_for_collisions(entity):
 			continue
 		
 		if movement.get_position(entity) == movement.get_position_via_id(entity_id):
-			entities.trigger_event(entities.get_entity(entity_id), 'hit', projectile=entity)
-			entities.delete_entity(entity)
+			entities.trigger_event(entity, 'collision_with_entity', target_id=entity_id)
 			
 			return
 
@@ -391,24 +416,46 @@ def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.uniform(-accuracy, accuracy))
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
+	entities.register_event(_entity, 'collision_with_entity', lambda e, target_id: entities.trigger_event(entities.get_entity(target_id), 'hit', projectile=e))
+	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.light(movement.get_position(e)[0], movement.get_position(e)[1], random.randint(3, 4)))
+	entities.register_event(_entity, 'collision_with_solid', lambda e: entities.delete_entity(e))
+	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.smoke_cloud(movement.get_position(e)[0], movement.get_position(e)[1], random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65), decay_amount=1.5))
 	
 	if not '--no-fx' in sys.argv:
 		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))
 
+def _explosive_stop_dumb_hack(entity):
+	entity['speed'] = 40
+
 def explosive(entity, x, y, tx, ty, speed, accuracy, damage):
-	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
+	_entity = _create(x, y, 'Explosive', '.', 0, 'bullet')
 	_entity['owner'] = entity['_id']
 	_entity['start_position'] = (x, y)
 	_entity['end_position'] = (tx, ty)
 	_entity['speed'] = speed
 	_entity['damage'] = damage
+	_toss_distance = numbers.distance(_entity['start_position'], _entity['end_position'])
+	_entity['accuracy'] = numbers.clip(random.randint(int(round(accuracy * .25)), accuracy), 0, 100) - (accuracy * (1 - (_toss_distance / 20.0)))
+	_entity['slow_down'] = False
+	_direction_mod = random.uniform(-accuracy, accuracy) * 2
+	
+	entities.create_event(_entity, 'explode')
+	entities.create_event(_entity, 'activate_explosive')
+	entities.register_event(_entity, 'explode', frag_grenade_explode)
+	entities.register_event(_entity, 'explode', entities.delete_entity)
+	entities.register_event(_entity, 'activate_explosive', lambda e: entities.trigger_event(e, 'create_timer', time=90, exit_callback=lambda ee: entities.trigger_event(ee, 'explode')))
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)
 	
-	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.uniform(-accuracy, accuracy))
-	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
+	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty)) + _direction_mod)
+	entities.trigger_event(_entity, 'create_timer', time=speed, enter_callback=_explosive_tick, name='movement')
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
 	
 	if not '--no-fx' in sys.argv:
 		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))
+	
+	entities.register_event(_entity, 'collision_with_entity', lambda e, **kwargs: entities.trigger_event(e, 'activate_explosive'))
+	entities.register_event(_entity, 'collision_with_solid', lambda e: timers.stop_timer(e, 'movement'))
+	entities.register_event(_entity, 'collision_with_solid', _explosive_stop_dumb_hack)
+	entities.register_event(_entity, 'collision_with_solid', lambda e: entities.trigger_event(e, 'activate_explosive'))
