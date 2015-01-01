@@ -9,6 +9,7 @@ import mapgen
 import tiles
 import life
 
+import logging
 import random
 
 
@@ -66,15 +67,10 @@ def generate(width, height):
 				_wall_padding_4_actual = [(_room_size-1) - i for i in range(_wall_offset, _blueprint['rooms'][_room_name]['doorway_padding'] + 1)]
 				_wall_bitmask = 0
 				
-				print 'Building: %s' % _room_name 
+				logging.debug('Building: %s' % _room_name)
 				
 				if _o_bitmask > 100 and _o_bitmask < 200:
 					_wall_bitmask = _o_bitmask
-				
-				#if not _room_name in _room_bitmask_maps:
-				#	_room_bitmask_maps[_room_name] = {'walls': {}}
-				
-				#_room_bitmask_maps[_room_name]['walls'][x, y] = _wall_bitmask
 			
 			for y1 in range(_room_size):
 				for x1 in range(_room_size):

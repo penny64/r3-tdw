@@ -257,6 +257,7 @@ def glock(x, y, ammo=0):
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=2.35)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=3)
+	entities.trigger_event(_entity, 'set_flag', flag='is_throwable', value=False)
 	entities.register_event(_entity, 'get_display_name', _handle_weapon_display_name)
 	
 	#entities.register_event(_entity, 'get_actions', lambda e, menu: ui_menu.add_selectable(menu,
@@ -281,6 +282,7 @@ def shortrifle():
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=40)
 	entities.trigger_event(_entity, 'set_flag', flag='damage', value=189)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
+	entities.trigger_event(_entity, 'set_flag', flag='is_throwable', value=False)
 	
 	return _entity
 
@@ -293,6 +295,20 @@ def chaingun():
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=15)
 	entities.trigger_event(_entity, 'set_flag', flag='damage', value=148)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=6)
+	entities.trigger_event(_entity, 'set_flag', flag='is_throwable', value=False)
+	
+	return _entity
+
+def frag_grenade():
+	_entity = _create(0, 0, 'Frag. Grenade', 'O', 2, 'weapon', equip_to='weapon', kind='explosive')
+	
+	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=1)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=3)
+	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4.00)
+	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=55)
+	entities.trigger_event(_entity, 'set_flag', flag='damage', value=240)
+	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
+	entities.trigger_event(_entity, 'set_flag', flag='is_throwable', value=True)
 	
 	return _entity
 
@@ -362,6 +378,24 @@ def _bullet_effects(entity, x, y):
 			effects.light(_x, _y, _size, r=1.3, g=1.3, b=1.3)
 
 def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
+	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
+	_entity['owner'] = entity['_id']
+	_entity['start_position'] = (x, y)
+	_entity['end_position'] = (tx, ty)
+	_entity['speed'] = speed
+	_entity['damage'] = damage
+	
+	entities.add_entity_to_group(_entity, 'bullets')
+	timers.register(_entity)
+	
+	entities.trigger_event(_entity, 'set_direction', direction=numbers.direction_to((x, y), (tx, ty))+random.uniform(-accuracy, accuracy))
+	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
+	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
+	
+	if not '--no-fx' in sys.argv:
+		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))
+
+def explosive(entity, x, y, tx, ty, speed, accuracy, damage):
 	_entity = _create(x, y, 'Bullet', '.', 0, 'bullet')
 	_entity['owner'] = entity['_id']
 	_entity['start_position'] = (x, y)

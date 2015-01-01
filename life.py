@@ -360,7 +360,7 @@ def engineer(x, y, name, faction, is_player=False):
 	_entity['stats']['pistols'] = random.randint(20, 25)
 	_entity['stats']['rifles'] = random.randint(12, 16)
 	
-	_get_and_hold_item(_entity, items.glock(0, 0, ammo=17)['_id'])
+	_get_and_hold_item(_entity, items.frag_grenade()['_id'])
 	
 	return _entity
 
@@ -640,7 +640,12 @@ def _shoot_weapon(entity, weapon_id, target_id):
 	_damage = flags.get_flag(_weapon, 'damage')
 
 	effects.light(_x, _y, random.randint(3, 5), r=1.5, g=1.5, b=0)
-	items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy, _damage)
+	
+	if _weapon['type'] == 'explosives':
+		items.explosive(entity, _x, _y, _tx, _ty, 5, _accuracy, _damage)
+	
+	else:
+		items.bullet(entity, _x, _y, _tx, _ty, 1, _accuracy, _damage)
 
 def shoot_weapon(entity, target_id):
 	if timers.has_timer_with_name(entity, 'shoot'):
