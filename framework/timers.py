@@ -78,7 +78,6 @@ def stop_timer(entity, name):
 		
 		if timer['name'].count(name.lower()):
 			timer['stop'] = True
-			print 'Stopped timer'
 			
 			break
 

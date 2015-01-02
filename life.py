@@ -493,8 +493,6 @@ def handle_player_received_memory(entity, memory, message, member_id):
 def handle_player_start_of_turn(entity, squad_id):
 	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
 		settings.set_tick_mode('strategy')
-		
-		print 'Start of turn'
 	
 		_squad = entities.get_entity(squad_id)
 		
@@ -516,8 +514,6 @@ def handle_player_start_of_turn(entity, squad_id):
 def handle_player_end_of_turn(entity, squad_id):
 	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
 		settings.set_tick_mode('normal')
-		
-		print 'End of turn'
 		
 		return False
 

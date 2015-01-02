@@ -307,7 +307,7 @@ def frag_grenade():
 	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=1)
 	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=3)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4.00)
-	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=55)
+	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=100)
 	entities.trigger_event(_entity, 'set_flag', flag='damage', value=240)
 	entities.trigger_event(_entity, 'set_flag', flag='rounds_per_shot', value=1)
 	entities.trigger_event(_entity, 'set_flag', flag='is_throwable', value=True)
@@ -317,8 +317,18 @@ def frag_grenade():
 def frag_grenade_explode(entity):
 	_x, _y = movement.get_position(entity)
 	_damage = entity['damage']
+	_size = 3 * int(round((_damage * .01)))
 	
-	effects.explosion(_x, _y, 4 * int(round((_damage * .01))))
+	effects.explosion(_x, _y, _size)
+	
+	for entity_id in entities.get_entity_group('life'):
+		_entity = entities.get_entity(entity_id)
+		_distance = numbers.distance((_x, _y), movement.get_position(_entity))
+		
+		if _distance - 1 > _size or not life.can_see_position(_entity, (_x, _y)):
+			continue
+		
+		entities.trigger_event(_entity, 'hit', projectile=entity, damage_mod=1 - ((_distance - 1) / float(_size)))
 
 def ammo_9x19mm(x, y):
 	_entity = _create(x, y, '9x19mm rounds', '+', 4, 'ammo')
@@ -456,6 +466,7 @@ def explosive(entity, x, y, tx, ty, speed, accuracy, damage):
 		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))
 	
 	entities.register_event(_entity, 'collision_with_entity', lambda e, **kwargs: entities.trigger_event(e, 'activate_explosive'))
+	entities.register_event(_entity, 'collision_with_entity', lambda e, **kwargs: _explosive_stop_dumb_hack(e))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: timers.stop_timer(e, 'movement'))
 	entities.register_event(_entity, 'collision_with_solid', _explosive_stop_dumb_hack)
 	entities.register_event(_entity, 'collision_with_solid', lambda e: entities.trigger_event(e, 'activate_explosive'))
