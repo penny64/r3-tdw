@@ -285,6 +285,9 @@ def explosion(x, y, size):
 		_c_mod = 1 - (numbers.float_distance((x, y), pos) / size)
 		_c_mod_clip = numbers.clip(1 - numbers.float_distance((x, y), pos) / size, random.uniform(.3, .45), 1)
 		
+		if pos in _solids or set(shapes.line((x, y), (int(round(pos[0])), int(round(pos[1]))))) & _solids:
+			continue
+		
 		smoke(pos[0], pos[1], _c_mod_clip)
 		
 		if random.uniform(0, 1) < numbers.clip(_c_mod, 0, .75) and not pos in _solids:
