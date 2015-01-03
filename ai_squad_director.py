@@ -144,6 +144,7 @@ def _reset_fire_position(entity):
 
 def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)
+	_member_pos = movement.get_position(_member)
 	_best_vantage = {'position': None, 'score': 1000}
 	_vision = stats.get_vision(_member)
 	_engage_range = int(round(_vision * .75))
@@ -158,9 +159,10 @@ def get_vantage_point(squad, member_id):
 	
 	for pos in squad['position_map_scores']:
 		_scores = squad['position_map_scores'][pos]
-		_score = _scores['vantage'] + _scores['member_coverage']
+		_dist = numbers.distance(_member_pos, pos)
+		_score = _scores['vantage'] + _scores['member_coverage'] + _dist
 		
-		if not _scores['targets'] or _score < 6 or _score > _engage_range:
+		if not _scores['targets'] or _score < 6 or _score > _engage_range + _dist:
 			continue
 
 		if _score < _best_vantage['score']:
@@ -170,7 +172,7 @@ def get_vantage_point(squad, member_id):
 	if not _best_vantage['position']:
 		_member['ai']['meta']['has_firing_position'] = False
 		
-		entities.trigger_event(_member, 'create_timer', time=90, exit_callback=_reset_fire_position)
+		entities.trigger_event(_member, 'create_timer', time=60, exit_callback=_reset_fire_position)
 		
 		return
 	

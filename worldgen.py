@@ -169,7 +169,8 @@ def create_factions():
 				if i == 0:
 					_e = life.engineer(30 + i * 2, 7, 'Good Dude %i' % i, faction_name, is_player=True)
 				else:
-					_e = life.turret(30, 7 + i * 2, 'Turret %i' % i, faction_name)
+					continue
+					#_e = life.turret(30, 7 + i * 2, 'Turret %i' % i, faction_name)
 					#_e = life.engineer(30 + i * 2, 17, 'Good Dude %i' % i, faction_name)
 			
 			else:
@@ -179,7 +180,7 @@ def create_factions():
 					_e = life.engineer(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
 				
 				else:
-					_e = life.engineer(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
+					_e = life.grenadier(50 + i * 2, 50, 'Bad Dude %i' % i, faction_name)
 					#_e = life.turret(10, 70 + i * 2, 'Turret', faction_name)
 	
 			ai_squads.register_with_squad(_e, _squad['squad_id'])

@@ -304,8 +304,8 @@ def chaingun():
 def frag_grenade():
 	_entity = _create(0, 0, 'Frag. Grenade', 'O', 2, 'weapon', equip_to='weapon', kind='explosive')
 	
-	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=1)
-	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=3)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo', value=6)
+	entities.trigger_event(_entity, 'set_flag', flag='ammo_max', value=6)
 	entities.trigger_event(_entity, 'set_flag', flag='accuracy', value=4.00)
 	entities.trigger_event(_entity, 'set_flag', flag='shoot_cost', value=100)
 	entities.trigger_event(_entity, 'set_flag', flag='damage', value=240)
@@ -427,6 +427,7 @@ def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	entities.trigger_event(_entity, 'create_timer', time=speed, repeat=-1, enter_callback=_bullet_tick, repeat_callback=_bullet_tick)
 	entities.register_event(_entity, 'position_changed', lambda e, **kwargs: check_for_collisions(e))
 	entities.register_event(_entity, 'collision_with_entity', lambda e, target_id: entities.trigger_event(entities.get_entity(target_id), 'hit', projectile=e))
+	entities.register_event(_entity, 'collision_with_entity', lambda e, target_id: entities.delete_entity(e))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.light(movement.get_position(e)[0], movement.get_position(e)[1], random.randint(3, 4)))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: entities.delete_entity(e))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.smoke_cloud(movement.get_position(e)[0], movement.get_position(e)[1], random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65), decay_amount=1.5))

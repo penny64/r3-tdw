@@ -360,6 +360,19 @@ def engineer(x, y, name, faction, is_player=False):
 	_entity['stats']['pistols'] = random.randint(20, 25)
 	_entity['stats']['rifles'] = random.randint(12, 16)
 	
+	_get_and_hold_item(_entity, items.glock(0, 0, 16)['_id'])
+	
+	return _entity
+
+def grenadier(x, y, name, faction, is_player=False):
+	_entity = _human(x, y, name, is_player, faction)
+	
+	_entity['stats']['class'] = 'Engineer'
+	_entity['stats']['rank'] = 'Novice'
+	_entity['stats']['smgs'] = random.randint(25, 30)
+	_entity['stats']['pistols'] = random.randint(20, 25)
+	_entity['stats']['rifles'] = random.randint(12, 16)
+	
 	_get_and_hold_item(_entity, items.frag_grenade()['_id'])
 	
 	return _entity

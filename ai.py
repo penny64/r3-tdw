@@ -461,9 +461,11 @@ def _human_logic(entity):
 			logging.info('%s: %s -> %s' % (entity['_id'], entity['ai']['last_action'], _plan['actions'][0]['name']))
 		
 		#TODO: Only do this if the action requires movement changes
-		#entities.trigger_event(entity, 'stop')
+		entities.trigger_event(entity, 'stop')
 		
-		entity['ai']['last_action'] = _plan['actions'][0]['name']	
+		entity['ai']['last_action'] = _plan['actions'][0]['name']
+		
+		print _plan['actions'][0]['name']
 	
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 	
