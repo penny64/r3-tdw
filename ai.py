@@ -379,14 +379,14 @@ def _animal_logic(entity):
 	entity['ai']['current_action'] = _plan['actions'][0]['name']
 
 def _human_logic(entity):
-	if timers.has_timer_with_name(entity, 'passout'):
-		return
-	
 	_t = time.time()
 	ai_visuals.build_item_list(entity)
 	ai_visuals.build_life_list(entity)
 	
 	if ai_flow.is_flow_active() and not ai_flow.can_act(entity):
+		return
+	
+	if timers.has_timer_with_name(entity, 'passout'):
 		return
 	
 	#if not ai_squads.is_active(ai_squads.get_assigned_squad(entity)) or entity['stats']['action_points'] <= 0:
@@ -413,11 +413,17 @@ def _human_logic(entity):
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
-		_engage_distance = stats.get_vision(entity) * .75
+		_engage_distance = stats.get_vision(entity) * .5
 		_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
 		_engage_distance =  numbers.clip(_engage_distance - (flags.get_flag(_weapon, 'accuracy') * 3), 1, stats.get_vision(entity))
+		_min_engage_distance = 4
+		
+		if _weapon['stats']['kind'] == 'explosive':
+			_engage_distance /= 2
+			_min_engage_distance = 8
 		
 		entities.trigger_event(entity, 'set_flag', flag='engage_distance', value=_engage_distance)
+		entities.trigger_event(entity, 'set_flag', flag='min_engage_distance', value=_min_engage_distance)
 		
 		#NOTE: Mirror change in ai_logic!
 		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance

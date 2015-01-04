@@ -40,7 +40,7 @@ def create_position_map(squad):
 			if pos[0] < 0 or pos[0] >= _map_size[0] or pos[1] < 0 or pos[1] >= _map_size[1]:
 				continue
 			
-			if not tcod.map_is_walkable(squad['member_los_maps'][member_id], pos[0], pos[1]):
+			if not tcod.map_is_in_fov(squad['member_los_maps'][member_id], pos[0], pos[1]):
 				continue
 		
 			_coverage_positions.add(pos)
@@ -141,27 +141,53 @@ def build_push_map(squad):
 
 def _reset_fire_position(entity):
 	entity['ai']['meta']['has_firing_position'] = True
+	
+	print entity['stats']['name'], 'reset firing'
 
 def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)
 	_member_pos = movement.get_position(_member)
 	_best_vantage = {'position': None, 'score': 1000}
 	_engage_range = flags.get_flag(_member, 'engage_distance')
+	_min_engage_range = flags.get_flag(_member, 'min_engage_distance')
 	
 	if _member['movement']['path']['destination']:
 		if _member['movement']['path']['destination'] in squad['position_map_scores']:
 			_scores = squad['position_map_scores'][_member['movement']['path']['destination']]
 			_score = _scores['vantage'] + _scores['member_coverage']
+			_continue = False
 			
-			if _scores['targets'] and _score >= 6 and _score <= _engage_range:
+			for target_id in squad['known_targets']:
+				_last_known_position = _member['ai']['life_memory'][target_id]['last_seen_at']
+				_distance_to_target = numbers.distance(_member['movement']['path']['destination'], _last_known_position)
+				
+				if _distance_to_target < _min_engage_range:
+					_continue = True
+					
+					break
+			
+			if not _continue and _scores['targets'] and _score >= _min_engage_range and _score <= _engage_range:
 				return _member['movement']['path']['destination']
 	
 	for pos in squad['position_map_scores']:
 		_scores = squad['position_map_scores'][pos]
 		_dist = numbers.distance(_member_pos, pos)
 		_score = _scores['vantage'] + _scores['member_coverage'] + _dist
+		_continue = False
 		
-		if not _scores['targets'] or _score < 6 or _score > _engage_range + _dist:
+		if not _scores['targets'] or _score - _dist < _min_engage_range or _score > _engage_range + _dist:
+			continue
+		
+		for target_id in squad['known_targets']:
+			_last_known_position = _member['ai']['life_memory'][target_id]['last_seen_at']
+			_distance_to_target = numbers.distance(pos, _last_known_position)
+			
+			if _distance_to_target < _min_engage_range:
+				_continue = True
+				
+				break
+			
+		if _continue:
 			continue
 
 		if _score < _best_vantage['score']:
@@ -169,7 +195,7 @@ def get_vantage_point(squad, member_id):
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:
-		print 'NO FIRING POSITION'
+		print _member['stats']['name'], 'NO FIRING POSITION'
 		_member['ai']['meta']['has_firing_position'] = False
 		
 		entities.trigger_event(_member, 'create_timer', time=60, exit_callback=_reset_fire_position)
@@ -264,6 +290,7 @@ def get_push_position(squad, member_id):
 def get_cover_position(squad, member_id):
 	_member = entities.get_entity(member_id)
 	_best_coverage = {'position': None, 'score': 0}
+	_inside = zones.get_active_inside_positions()
 	
 	if _member['movement']['path']['destination']:
 		_hide_pos = _member['movement']['path']['destination']
@@ -282,6 +309,9 @@ def get_cover_position(squad, member_id):
 		_scores = squad['position_map_scores'][pos]
 		#TODO: Add or subtract here? Subtraction will make some NPCs run away from teammates
 		_score = _scores['coverage'] + _scores['member_coverage']
+		
+		if not pos in _inside:
+			continue
 		
 		if _scores['targets'] or _score <= 0:
 			continue

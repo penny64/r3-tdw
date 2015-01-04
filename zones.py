@@ -138,6 +138,12 @@ def get_active_solids(entity, ignore_entities=[], ignore_calling_entity=False, n
 	
 	return _solids
 
+def get_active_inside_positions():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['inside']
+
 def get_active_light_maps():
 	if not ACTIVE_ZONE:
 		raise Exception('No zone is active.')

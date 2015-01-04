@@ -134,6 +134,7 @@ def _search_for_target(entity, target_id):
 
 def search_for_target(entity):
 	_lost_targets = entity['ai']['targets_to_search']
+	_inside = zones.get_active_inside_positions()
 	
 	if not _lost_targets:
 		print 'Trying to search with no lost targets'
@@ -173,6 +174,9 @@ def search_for_target(entity):
 		_distance = numbers.distance((_tx, _ty), (node_x, node_y))
 		
 		if _distance >= 30:
+			continue
+		
+		if not (node_x, node_y) in _inside:
 			continue
 		
 		_continue = False
