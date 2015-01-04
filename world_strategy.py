@@ -1,4 +1,4 @@
-from framework import display, worlds, entities, events, controls, movement, pathfinding
+from framework import display, worlds, entities, events, controls, movement, pathfinding, numbers, timers
 
 import world_action
 import ui_strategy
@@ -15,15 +15,32 @@ SELECTED_SQUAD = None
 SELECTED_CAMP = None
 MAP_PATH = []
 DRAW_MODE = 'news'
+FADE_VALUE = 0.0
+FADE_TICKS = 6.0
+FADE_STEP = 255 / FADE_TICKS
+SHOW_MESSAGE_TIME = 3
 MAP = None
+FADER = None
 _DEBUG_ORD = 10
 TIME = 14 * 60
 NEWS = [('> Contact lost with camp C2.', (200, 200, 200), None),
         ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]
 
 
+def _fade_in():
+	global FADE_VALUE
+	
+	FADE_VALUE = numbers.clip(FADE_VALUE + FADE_STEP, 0, 255)
+
+def _draw_message():
+	_minutes = int(round(TIME))
+	_time = '%s:%02d' % (_minutes / 60, _minutes - ((_minutes / 60) * 60))
+	_message = 'Day 1 - %s' % _time
+	
+	display.write_string('map_squads', (constants.STRAT_MAP_WIDTH / 2) - len(_message) / 2 , constants.STRAT_MAP_HEIGHT / 2, _message)
+
 def create():
-	global MAP
+	global MAP, FADER
 	
 	worlds.create('strategy')
 	words.reset()
@@ -35,7 +52,6 @@ def create():
 	display.create_surface('map_path', width=constants.STRAT_MAP_WIDTH, height=constants.STRAT_MAP_HEIGHT)
 	display.create_surface('ui_bar', width=constants.WINDOW_WIDTH, height=constants.WINDOW_HEIGHT-constants.STRAT_MAP_HEIGHT)
 	display.fill_surface('ui_bar', (30, 30, 30))
-	
 	display.blit_background('background')
 	
 	register_input()
@@ -45,6 +61,16 @@ def create():
 	entities.create_entity_group('factions', static=True)
 	entities.create_entity_group('squads', static=True)
 	entities.create_entity_group('systems')
+	
+	FADER = entities.create_entity()
+	timers.register(FADER)
+	
+	entities.trigger_event(FADER, 'create_timer', time=7, repeat=FADE_TICKS,
+	                       repeat_callback=lambda e: _fade_in(),
+	                       exit_callback=lambda e: entities.trigger_event(e,
+	                                                                      'create_timer',
+	                                                                      time=constants.FPS * SHOW_MESSAGE_TIME,
+	                                                                      callback=lambda ee: _draw_message()))
 	
 	_grid = {}
 	_color_map = {}
@@ -211,6 +237,8 @@ def tick():
 		entities.trigger_event(_squad, 'tick')
 	
 	TIME += 0.01
+	
+	entities.trigger_event(FADER, 'tick')
 
 def draw():
 	if SELECTED_SQUAD:
@@ -220,7 +248,7 @@ def draw():
 	else:
 		_selected_grid = None
 	
-	ui_strategy.draw_map_grid(selected_grid=_selected_grid)
+	ui_strategy.draw_map_grid(selected_grid=_selected_grid, fade=FADE_VALUE/255.0)
 	ui_strategy.draw_squads(selected_squad=SELECTED_SQUAD)	
 	ui_strategy.draw_time()
 	ui_strategy.draw_money()

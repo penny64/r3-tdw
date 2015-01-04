@@ -11,15 +11,15 @@ import numpy
 import time
 
 
-def draw_map_grid(selected_grid=None):
+def draw_map_grid(selected_grid=None, fade=1.0):
 	_shader = []
 	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
 	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
 	_shader.append(numpy.zeros((constants.STRAT_MAP_HEIGHT, constants.STRAT_MAP_WIDTH), dtype=numpy.float))
 	
-	_shader[0] += .9
-	_shader[1] += .9
-	_shader[2] += .8
+	_shader[0] += 1.35 * fade
+	_shader[1] += 1.35 * fade
+	_shader[2] += 1.25 * fade
 	
 	display.apply_surface_shader('map', _shader, constants.STRAT_MAP_WIDTH, constants.STRAT_MAP_HEIGHT)
 	
