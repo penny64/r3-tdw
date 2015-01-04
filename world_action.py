@@ -3,6 +3,7 @@ from framework import entities, controls, display, events, worlds, movement, pat
 import framework
 
 import post_processing
+import world_strategy
 import mapgen_arena
 import ai_factions
 import ai_visuals
@@ -87,7 +88,7 @@ def create():
 	ui_dialog.boot()
 	ui_director.boot()
 
-def start_battle(attacking_squads=[], defending_squads=[]):
+def _start_battle(attacking_squads=[], defending_squads=[]):
 	create()
 	
 	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns = mapgen_arena.generate(200, 200)
@@ -122,6 +123,13 @@ def start_battle(attacking_squads=[], defending_squads=[]):
 	
 	while loop():
 		events.trigger_event('cleanup')
+
+def start_battle(attacking_squads=[], defending_squads=[]):
+	entities.trigger_event(world_strategy.FADER, 'create_timer',
+	                       time=7,
+	                       repeat=world_strategy.FADE_TICKS,
+	                       repeat_callback=lambda e: world_strategy._fade_out(),
+	                       exit_callback=lambda e: _start_battle(attacking_squads=attacking_squads, defending_squads=defending_squads))
 
 def handle_input():
 	if settings.TICK_MODE in ['normal', 'strategy']:

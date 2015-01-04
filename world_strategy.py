@@ -32,6 +32,11 @@ def _fade_in():
 	
 	FADE_VALUE = numbers.clip(FADE_VALUE + FADE_STEP, 0, 255)
 
+def _fade_out():
+	global FADE_VALUE
+	
+	FADE_VALUE = numbers.clip(FADE_VALUE - FADE_STEP, 0, 255)
+
 def _draw_message():
 	_minutes = int(round(TIME))
 	_time = '%s:%02d' % (_minutes / 60, _minutes - ((_minutes / 60) * 60))
@@ -90,8 +95,8 @@ def create():
 	
 	worldgen.generate()
 	
-	unregister_input()
-	world_action.start_battle(attacking_squads=[entities.get_entity_group('squads')[0]], defending_squads=[entities.get_entity_group('squads')[1]])
+	#unregister_input()
+	#world_action.start_battle(attacking_squads=[entities.get_entity_group('squads')[0]], defending_squads=[entities.get_entity_group('squads')[1]])
 
 def register_input():
 	events.register_event('mouse_moved', handle_mouse_moved)
