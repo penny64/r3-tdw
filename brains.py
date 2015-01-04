@@ -95,16 +95,14 @@ def search_for_container():
 
 def search_for_target():
 	_brain = goapy.Planner('weapon_loaded',
-		                   'has_lost_target',
-		                   'is_squad_mobile_ready')
+		                   'has_lost_target')
 
 	_brain.set_goal_state(has_lost_target=False)
 
 	_actions = goapy.Action_List()
 	_actions.add_condition('search',
 		                   has_lost_target=True,
-		                   weapon_loaded=True,
-		                   is_squad_mobile_ready=True)
+		                   weapon_loaded=True)
 	_actions.add_callback('search', ai_logic.search_for_target)
 	_actions.add_reaction('search', has_lost_target=False)
 
@@ -225,8 +223,7 @@ def combat():
 		                          in_enemy_los=True,
 		                          is_panicked=False,
 	                              is_injured=False,
-	                              has_firing_position=True,
-	                              is_squad_combat_ready=True)
+	                              has_firing_position=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
 

@@ -201,6 +201,10 @@ def set_squad_meta(entity, meta, value):
 		entity['meta'][meta] = value
 
 def update_group_status(entity):
+	set_squad_meta(entity, 'is_squad_combat_ready', True)
+	
+	return
+	
 	_members_combat_ready = 0
 	
 	for member_id in entity['member_info']:

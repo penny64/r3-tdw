@@ -1,4 +1,4 @@
-from framework import entities, movement, shapes, stats, numbers, timers
+from framework import entities, movement, shapes, stats, numbers, timers, flags
 
 import libtcodpy as tcod
 
@@ -146,8 +146,7 @@ def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)
 	_member_pos = movement.get_position(_member)
 	_best_vantage = {'position': None, 'score': 1000}
-	_vision = stats.get_vision(_member)
-	_engage_range = int(round(_vision * .75))
+	_engage_range = flags.get_flag(_member, 'engage_distance')
 	
 	if _member['movement']['path']['destination']:
 		if _member['movement']['path']['destination'] in squad['position_map_scores']:
@@ -170,6 +169,7 @@ def get_vantage_point(squad, member_id):
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:
+		print 'NO FIRING POSITION'
 		_member['ai']['meta']['has_firing_position'] = False
 		
 		entities.trigger_event(_member, 'create_timer', time=60, exit_callback=_reset_fire_position)

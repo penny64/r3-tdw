@@ -204,15 +204,15 @@ def register_human(entity, player=False):
 	#_ai['brain'].add_planner(brains.squad_leader_regroup())
 
 	#Panic
-	_ai['brain'].add_planner(brains.panic())
+	#_ai['brain'].add_planner(brains.panic())
 
 	#Food
-	_ai['brain'].add_planner(brains.food())
+	#_ai['brain'].add_planner(brains.food())
 	
 	#Search
-	_ai['brain'].add_planner(brains.search_for_weapon())
-	_ai['brain'].add_planner(brains.search_for_ammo())
-	_ai['brain'].add_planner(brains.search_for_container())
+	#_ai['brain'].add_planner(brains.search_for_weapon())
+	#_ai['brain'].add_planner(brains.search_for_ammo())
+	#_ai['brain'].add_planner(brains.search_for_container())
 	_ai['brain'].add_planner(brains.search_for_target())
 	
 	#Reload
@@ -413,7 +413,11 @@ def _human_logic(entity):
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
-		_engage_distance = stats.get_vision(entity) * .6
+		_engage_distance = stats.get_vision(entity) * .75
+		_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
+		_engage_distance =  numbers.clip(_engage_distance - (flags.get_flag(_weapon, 'accuracy') * 3), 1, stats.get_vision(entity))
+		
+		entities.trigger_event(entity, 'set_flag', flag='engage_distance', value=_engage_distance)
 		
 		#NOTE: Mirror change in ai_logic!
 		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance
@@ -452,6 +456,13 @@ def _human_logic(entity):
 		entities.trigger_event(entity, 'finish_turn')
 		entities.trigger_event(entity, 'stop')
 		
+		#print
+		#print entity['stats']['name'], 'no possible action'
+		#print
+		
+		#for meta_name in entity['ai']['meta']:
+		#	print meta_name, '\t', entity['ai']['meta'][meta_name]
+		
 		return	
 	
 	_plan = _goap[0]
@@ -464,8 +475,8 @@ def _human_logic(entity):
 		entities.trigger_event(entity, 'stop')
 		
 		entity['ai']['last_action'] = _plan['actions'][0]['name']
-		
-		print _plan['actions'][0]['name']
+	
+	print entity['stats']['name'], _plan['actions'][0]['name']
 	
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 	
