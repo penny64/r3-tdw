@@ -19,6 +19,7 @@ FADE_VALUE = 0.0
 FADE_TICKS = 6.0
 FADE_STEP = 255 / FADE_TICKS
 SHOW_MESSAGE_TIME = 3
+NEED_FADE_IN = False
 MAP = None
 FADER = None
 _DEBUG_ORD = 10
@@ -27,15 +28,30 @@ NEWS = [('> Contact lost with camp C2.', (200, 200, 200), None),
         ('> Supplies arrived at A6.', (200, 200, 200), (50, 50, 50))]
 
 
+def fade_in():
+	global NEED_FADE_IN
+	
+	NEED_FADE_IN = False
+	
+	entities.trigger_event(FADER, 'create_timer', time=7, repeat=FADE_TICKS,
+	                       repeat_callback=lambda e: _fade_in(),
+	                       exit_callback=lambda e: entities.trigger_event(e,
+	                                                                      'create_timer',
+	                                                                      time=constants.FPS * SHOW_MESSAGE_TIME,
+	                                                                      callback=lambda ee: _draw_message()))
+
 def _fade_in():
 	global FADE_VALUE
 	
 	FADE_VALUE = numbers.clip(FADE_VALUE + FADE_STEP, 0, 255)
 
 def _fade_out():
-	global FADE_VALUE
+	global FADE_VALUE, NEED_FADE_IN
 	
 	FADE_VALUE = numbers.clip(FADE_VALUE - FADE_STEP, 0, 255)
+	
+	if not FADE_VALUE:
+		NEED_FADE_IN = True
 
 def _draw_message():
 	_minutes = int(round(TIME))
@@ -69,13 +85,7 @@ def create():
 	
 	FADER = entities.create_entity()
 	timers.register(FADER)
-	
-	entities.trigger_event(FADER, 'create_timer', time=7, repeat=FADE_TICKS,
-	                       repeat_callback=lambda e: _fade_in(),
-	                       exit_callback=lambda e: entities.trigger_event(e,
-	                                                                      'create_timer',
-	                                                                      time=constants.FPS * SHOW_MESSAGE_TIME,
-	                                                                      callback=lambda ee: _draw_message()))
+	fade_in()
 	
 	_grid = {}
 	_color_map = {}
@@ -242,6 +252,9 @@ def tick():
 		entities.trigger_event(_squad, 'tick')
 	
 	TIME += 0.01
+	
+	if NEED_FADE_IN:
+		fade_in()
 	
 	entities.trigger_event(FADER, 'tick')
 

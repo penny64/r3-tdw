@@ -39,9 +39,15 @@ import sys
 MOVIE_TIME = 0
 MOVIE_TIME_MAX = 10
 PLAYER_HAS_SHOOT_TIMER = False
+EXIT_MENU = None
+QUIT = False
 
 
 def create():
+	global QUIT
+	
+	QUIT = False
+	
 	entities.create_entity_group('tiles', static=True)
 	entities.create_entity_group('bullets', static=True)
 	entities.create_entity_group('node_grid', static=True)
@@ -131,12 +137,25 @@ def start_battle(attacking_squads=[], defending_squads=[]):
 	                       repeat_callback=lambda e: world_strategy._fade_out(),
 	                       exit_callback=lambda e: _start_battle(attacking_squads=attacking_squads, defending_squads=defending_squads))
 
+def _quit():
+	global QUIT
+	
+	QUIT = True
+
 def handle_input():
+	global EXIT_MENU
+	
+	if QUIT:
+		return False
+	
 	if settings.TICK_MODE in ['normal', 'strategy']:
 		if controls.get_input_ord_pressed(constants.KEY_ESCAPE):
 			if ui_dialog.get_active_dialog():
 				ui_dialog.delete(ui_dialog.get_active_dialog())
-				
+			
+			elif EXIT_MENU:
+				return False
+			
 			elif ui_menu.get_active_menu():
 				_menu = ui_menu.get_active_menu()
 
@@ -145,7 +164,9 @@ def handle_input():
 				if ui_panel.ACTIVE_MENU == _menu:
 					ui_panel.close()
 			else:
-				return False
+				EXIT_MENU = ui_menu.create((constants.WINDOW_WIDTH / 2) - 6, 1, title='Menu')
+				
+				ui_menu.add_selectable(EXIT_MENU, 'Quit', lambda: _quit())
 
 		if settings.TICK_MODE == 'strategy':
 			ui_squad_control.handle_keyboard_input()
