@@ -426,7 +426,7 @@ def _human_logic(entity):
 		entities.trigger_event(entity, 'set_flag', flag='min_engage_distance', value=_min_engage_distance)
 		
 		#NOTE: Mirror change in ai_logic!
-		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance
+		entity['ai']['meta']['in_firing_range'] = _target_distance <= _engage_distance and _target_distance >= _min_engage_distance
 		
 		if entity['ai']['meta']['in_enemy_los']:
 			if flags.has_flag(entity, 'search_nodes'):
