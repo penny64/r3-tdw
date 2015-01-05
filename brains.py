@@ -221,8 +221,6 @@ def combat():
 		                          weapon_loaded=True,
 		                          in_firing_range=True,
 		                          in_enemy_los=True,
-		                          is_panicked=False,
-	                              is_injured=False,
 	                              has_firing_position=True)
 	_combat_actions.add_callback('shoot', ai_logic.shoot_weapon)
 	_combat_actions.add_reaction('shoot', in_engagement=False)
