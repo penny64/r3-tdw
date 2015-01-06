@@ -466,7 +466,7 @@ def _handle_new_target(entity, target_id):
 		#	settings.set_tick_mode('strategy')
 		
 		if entity['ai']['life_memory'][target_id]['seen_time'] == 1:
-			ui_director.focus_on_entity(entity, target_id, show_line=_can_see, pause=_can_see)
+			ui_director.focus_on_entity(entity, target_id, show_line=_can_see)
 
 def handle_heard_noise(entity, x, y, text, direction, accuracy, show_on_sight, callback, context_callback):
 	if accuracy <= .75 and accuracy < random.uniform(0, 1):
@@ -525,7 +525,12 @@ def handle_player_start_of_turn(entity, squad_id):
 			effects.message(_message, time=120, center=True)
 
 def handle_player_end_of_turn(entity, squad_id):
-	if ai_squads.get_assigned_squad(entity)['_id'] == squad_id:
+	_squad = ai_squads.get_assigned_squad(entity)
+	
+	if not _squad:
+		return
+	
+	if _squad['_id'] == squad_id:
 		settings.set_tick_mode('normal')
 		
 		return False

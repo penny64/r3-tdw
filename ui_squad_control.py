@@ -16,8 +16,6 @@ WALK_DEST = None
 
 
 def handle_squad_member_select(x, y):
-	global SELECTED_SQUAD_MEMBER
-
 	for squad_id in entities.get_entity_group('squads'):
 		_squad = entities.get_entity(squad_id)
 		
@@ -26,7 +24,7 @@ def handle_squad_member_select(x, y):
 		
 		for entity_id in _squad['members']:
 			if movement.get_position_via_id(entity_id) == (x, y):
-				SELECTED_SQUAD_MEMBER = entity_id
+				select_squad_member(entity_id)
 				
 				return True
 
@@ -190,8 +188,18 @@ def create_shoot_menu(entity, target_id):
 	ui_menu.add_selectable(_menu, 'Spray (Acc: %.2d)' % _spray_accuracy, lambda: entities.trigger_event(entity, 'shoot', target_id=target_id) and settings.set_tick_mode('normal'))
 	ui_menu.add_selectable(_menu, 'Snipe (Acc: %s)' % _accuracy, lambda: _)
 
-def reset_selected_squad_member():
+def select_squad_member(entity_id):
+	global SELECTED_SQUAD_MEMBER
+	
+	SELECTED_SQUAD_MEMBER = entity_id
+	
+	entities.register_event(entities.get_entity(SELECTED_SQUAD_MEMBER), 'delete', reset_selected_squad_member)
+
+def reset_selected_squad_member(entity=None):
 	global SELECTED_SQUAD_MEMBER, WALK_PATH, WALK_DEST
+	
+	if SELECTED_SQUAD_MEMBER:
+		entities.unregister_event(entities.get_entity(SELECTED_SQUAD_MEMBER), 'delete', reset_selected_squad_member)
 	
 	SELECTED_SQUAD_MEMBER = None
 	WALK_PATH = None

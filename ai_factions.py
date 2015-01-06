@@ -116,6 +116,8 @@ def cleanup(entity):
 		del _squad['member_info'][entity['_id']]
 	
 	if not _squad['members']:
+		del FACTIONS[_squad['faction']]['squads'][_squad['squad_id']]
+		
 		entities.delete_entity(_squad)
 
 def _faction_is_enemy(entity, target_id):

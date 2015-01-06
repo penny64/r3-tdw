@@ -154,7 +154,7 @@ def get_vantage_point(squad, member_id):
 	if _member['movement']['path']['destination']:
 		if _member['movement']['path']['destination'] in squad['position_map_scores']:
 			_scores = squad['position_map_scores'][_member['movement']['path']['destination']]
-			_score = _scores['vantage'] + _scores['member_coverage']
+			_score = _scores['vantage']# + _scores['member_coverage']
 			_continue = False
 			
 			for target_id in squad['known_targets']:
@@ -172,7 +172,7 @@ def get_vantage_point(squad, member_id):
 	for pos in squad['position_map_scores']:
 		_scores = squad['position_map_scores'][pos]
 		_dist = numbers.distance(_member_pos, pos)
-		_score = _scores['vantage'] + _scores['member_coverage'] + _dist
+		_score = _scores['vantage'] + _dist
 		_continue = False
 		
 		if not _scores['targets'] or _score - _dist < _min_engage_range or _score > _engage_range + _dist:
@@ -191,7 +191,7 @@ def get_vantage_point(squad, member_id):
 			continue
 
 		if _score < _best_vantage['score']:
-			_best_vantage['score'] = _score
+			_best_vantage['score'] = _score + _scores['member_coverage']
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:

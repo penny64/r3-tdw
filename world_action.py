@@ -21,6 +21,7 @@ import ui_menu
 import ui_draw
 import missions
 import worldgen
+import effects
 import mapgen
 import camera
 import zones
@@ -41,6 +42,10 @@ MOVIE_TIME_MAX = 10
 PLAYER_HAS_SHOOT_TIMER = False
 EXIT_MENU = None
 QUIT = False
+FADER = None
+FADE_VALUE = 0.0
+FADE_TICKS = 6.0
+FADE_STEP = 255 / FADE_TICKS
 
 
 def create():
@@ -94,7 +99,40 @@ def create():
 	ui_dialog.boot()
 	ui_director.boot()
 
+def fade_in():
+	entities.trigger_event(FADER, 'create_timer', time=7, repeat=FADE_TICKS,
+	                       repeat_callback=lambda e: _fade_in(),
+	                       enter_callback=lambda e: effects.message('Warehouse', center=True, vert_center=True))
+
+def _fade_in():
+	global FADE_VALUE
+	
+	FADE_VALUE = numbers.clip(FADE_VALUE + FADE_STEP, 0, 255)
+	
+	_fader = zones.get_active_fader()
+	_fader[0] = _fader[0].clip(0, 0)
+	_fader[0] += FADE_VALUE / 255.0
+	_fader[1] = _fader[1].clip(0, 0)
+	_fader[1] += FADE_VALUE / 255.0
+	_fader[2] = _fader[2].clip(0, 0)
+	_fader[2] += FADE_VALUE / 255.0
+
+def _fade_out():
+	global FADE_VALUE
+	
+	FADE_VALUE = numbers.clip(FADE_VALUE - FADE_STEP, 0, 255)
+	
+	_fader = zones.get_active_fader()
+	_fader[0] = _fader[0].clip(0, 0)
+	_fader[0] += FADE_VALUE / 255.0
+	_fader[1] = _fader[1].clip(0, 0)
+	_fader[1] += FADE_VALUE / 255.0
+	_fader[2] = _fader[2].clip(0, 0)
+	_fader[2] += FADE_VALUE / 255.0
+
 def _start_battle(attacking_squads=[], defending_squads=[]):
+	global FADER
+	
 	create()
 	
 	_width, _height, _node_grid, _node_sets, _weight_map, _tile_map, _solids, _fsl, _trees, _inside, _lights, _spawns = mapgen_arena.generate(200, 200)
@@ -124,6 +162,10 @@ def _start_battle(attacking_squads=[], defending_squads=[]):
 			entities.trigger_event(_member, 'set_position', x=_spawn_x, y=_spawn_y)
 
 	zones.activate(_zone)
+	
+	FADER = entities.create_entity()
+	timers.register(FADER)
+	fade_in()
 	
 	display.blit_background('tiles')
 	
@@ -164,7 +206,7 @@ def handle_input():
 				if ui_panel.ACTIVE_MENU == _menu:
 					ui_panel.close()
 			else:
-				EXIT_MENU = ui_menu.create((constants.WINDOW_WIDTH / 2) - 6, 1, title='Menu')
+				EXIT_MENU = ui_menu.create((constants.WINDOW_WIDTH / 2) - 2, 18, title='Menu')
 				
 				ui_menu.add_selectable(EXIT_MENU, 'Quit', lambda: _quit())
 
@@ -212,6 +254,8 @@ def tick():
 def free_tick():
 	for entity_id in entities.get_entity_group('effects_freetick'):
 		entities.trigger_event(entities.get_entity(entity_id), 'tick')
+	
+	entities.trigger_event(FADER, 'tick')
 
 def post_tick():
 	for entity_id in entities.get_entity_group('life'):
@@ -383,7 +427,7 @@ def loop():
 	if not handle_input():
 		return False
 
-	events.trigger_event('tick')
+	events.trigger_event('tick')	
 	events.trigger_event('camera')
 	
 	draw()

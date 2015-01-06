@@ -66,7 +66,12 @@ def logic():
 			
 			entities.trigger_event(_entity, 'logic')
 	
-	for squad_id in settings.TURN_QUEUE:
+	for squad_id in settings.TURN_QUEUE[:]:
+		if not squad_id in entities.ENTITIES:
+			settings.TURN_QUEUE.remove(squad_id)
+			
+			continue
+		
 		_squad = entities.get_entity(squad_id)
 		
 		for entity_id in _squad['members']:

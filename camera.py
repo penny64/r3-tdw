@@ -1,5 +1,6 @@
 from framework import display, numbers
 
+import world_action
 import zones
 
 import constants
@@ -43,6 +44,9 @@ def update():
 	
 	display.set_surface_camera('tiles', X, Y)
 	display.reset_surface_shaders('tiles')
+	
+	if world_action.FADE_VALUE < 255:
+		display.apply_surface_shader('tiles', zones.get_active_fader(), constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)
 	
 	for shader in _zone['shaders']:
 		display.apply_surface_shader('tiles', shader, constants.MAP_VIEW_WIDTH, constants.MAP_VIEW_HEIGHT)

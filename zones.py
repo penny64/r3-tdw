@@ -38,7 +38,8 @@ def create(name, width, height, node_grid, node_sets, weight_map, tile_map, soli
 	               'light_maps': {},
 	               'lights': lights,
 	               'shaders': [],
-	               'spawns': spawns}
+	               'spawns': spawns,
+	               'fader': None}
 	
 	logging.info('Created zone: %s' % name)
 	
@@ -73,6 +74,7 @@ def activate(zone_id):
 	
 	_noise = tcod.noise_new(3)
 	_zoom = 2.0
+	_zone['fader'] = display.create_shader(_zone['width'], _zone['height'])
 	_shader = display.create_shader(_zone['width'], _zone['height'])
 	
 	for y in range(0, _zone['height']):
@@ -143,6 +145,12 @@ def get_active_inside_positions():
 		raise Exception('No zone is active.')
 	
 	return ZONES[ACTIVE_ZONE]['inside']
+
+def get_active_fader():
+	if not ACTIVE_ZONE:
+		raise Exception('No zone is active.')
+	
+	return ZONES[ACTIVE_ZONE]['fader']
 
 def get_active_light_maps():
 	if not ACTIVE_ZONE:

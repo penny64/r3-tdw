@@ -137,6 +137,11 @@ def get_assigned_squad(entity):
 	if _squad == -1:
 		raise Exception('Entity is not in a squad.')
 	
+	if not _squad in _faction['squads']:
+		logging.warning('Fetching deleted squad.')
+		
+		return None
+	
 	return entities.get_entity(_faction['squads'][_squad])
 
 '''def assign_to_squad(entity):

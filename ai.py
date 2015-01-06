@@ -413,10 +413,10 @@ def _human_logic(entity):
 	if entity['ai']['meta']['in_engagement']:
 		_target = entity['ai']['nearest_target']
 		_target_distance = numbers.distance(movement.get_position_via_id(_target), movement.get_position(entity))
-		_engage_distance = stats.get_vision(entity) * .5
+		_engage_distance = stats.get_vision(entity) * .75
 		_weapon = entities.get_entity(items.get_items_in_holder(entity, 'weapon')[0])
 		_engage_distance =  numbers.clip(_engage_distance - (flags.get_flag(_weapon, 'accuracy') * 3), 1, stats.get_vision(entity))
-		_min_engage_distance = 4
+		_min_engage_distance = 3
 		
 		if _weapon['stats']['kind'] == 'explosive':
 			_engage_distance /= 2
