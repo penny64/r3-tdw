@@ -482,7 +482,7 @@ def _human_logic(entity):
 		
 		entity['ai']['last_action'] = _plan['actions'][0]['name']
 	
-	print entity['stats']['name'], _plan['actions'][0]['name']
+	#print entity['stats']['name'], _plan['actions'][0]['name']
 	
 	_plan['planner'].trigger_callback(entity, _plan['actions'][0]['name'])
 	

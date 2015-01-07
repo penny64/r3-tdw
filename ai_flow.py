@@ -181,7 +181,7 @@ def tick():
 			if not _entity['movement']['path']['positions'] and not timers.has_timer_with_name(_entity, 'shoot') and not timers.has_timer_with_name(_entity, 'move'):
 				_entity['stats']['action_points'] -= constants.IDLE_COST
 			
-			if _entity['stats']['action_points'] <= 0 and list(_squad['members']).index(entity_id)+1 == len(_squad['members']):
+			if _entity['stats']['action_points'] <= 0:# and list(_squad['members']).index(entity_id)+1 == len(_squad['members']):
 				entities.trigger_event(_squad, 'update_position_map')
 			
 			#print _entity['stats']['name'], _entity['stats']['action_points']

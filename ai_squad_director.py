@@ -1,4 +1,4 @@
-from framework import entities, movement, shapes, stats, numbers, timers, flags
+from framework import entities, movement, shapes, stats, numbers, timers, flags, pathfinding
 
 import libtcodpy as tcod
 
@@ -141,8 +141,6 @@ def build_push_map(squad):
 
 def _reset_fire_position(entity):
 	entity['ai']['meta']['has_firing_position'] = True
-	
-	print entity['stats']['name'], 'reset firing'
 
 def get_vantage_point(squad, member_id):
 	_member = entities.get_entity(member_id)
@@ -191,11 +189,11 @@ def get_vantage_point(squad, member_id):
 			continue
 
 		if _score < _best_vantage['score']:
-			_best_vantage['score'] = _score + _scores['member_coverage']
+			_astar_distance = len(pathfinding.astar(_member_pos, pos, zones.get_active_astar_map(), zones.get_active_weight_map()))
+			_best_vantage['score'] = _score + _scores['member_coverage'] + int(round((_astar_distance * .25)))
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:
-		print _member['stats']['name'], 'NO FIRING POSITION'
 		_member['ai']['meta']['has_firing_position'] = False
 		
 		entities.trigger_event(_member, 'create_timer', time=60, exit_callback=_reset_fire_position)
