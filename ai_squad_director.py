@@ -83,6 +83,9 @@ def update_position_maps(squad):
 	_score_map = {pos: {'coverage': 0, 'vantage': 100, 'member_coverage': 0, 'danger': 0, 'targets': [], 'owned': False} for pos in _coverage_positions}
 	
 	for faction_name, squad_id in _known_squads:
+		if not squad_id in ai_factions.FACTIONS[faction_name]['squads']:
+			continue
+		
 		_squad = entities.get_entity(ai_factions.FACTIONS[faction_name]['squads'][squad_id])
 		_member_set = set(_squad['members'])
 		_check_members = _known_targets_left_to_check & _member_set
