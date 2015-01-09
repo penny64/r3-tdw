@@ -292,19 +292,33 @@ def spawn_items(room_list, bitmask_map, bitmask_door_map, floor_list, solids, ro
 						_windows.update(_temp_windows)
 			
 			elif room_name == 'hall':
-				#for x, y in _spawns['floor']:
+				_pillars = set()
+				
 				if _door_bitmask:
 					_xx = _spawns['min_x'] + int(round((_spawns['width'] * .5))) - 1
 					_yy = _spawns['min_y'] + int(round((_spawns['height'] * .5))) - 1
 					
 					for x1, y1 in [(0, 0), (1, 0), (0, 1), (1, 1)]:
 						_solids.add((_xx + x1, _yy + y1))
+						_pillars.add((_xx + x1, _yy + y1))
 				
 				else:
 					for x, y in [(_spawns['min_x'] + 2, _spawns['min_y'] + 2),
 					             (_spawns['min_x'] + 2, _spawns['min_y'] + _spawns['height'] - 3)]:
 						for x1, y1 in [(0, 0), (1, 0), (0, 1), (1, 1)]:
 							_solids.add((x + x1, y + y1))
+							_pillars.add((x + x1, y + y1))
+				
+				for x, y in _spawns['floor'] - _spawns['away_from_wall']:
+					if (x, y) in _pillars:
+						continue
+					
+					_tile = tiles.wood_floor(x, y)
+					tile_map[y][x] = _tile
+					weight_map[y][x] = _tile['w']
+					
+					_new_floor.add((x, y))
+					#_solids.add((x, y))
 			
 			elif room_name == 'lab':
 				#_x_split = 0
