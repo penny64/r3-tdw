@@ -10,6 +10,8 @@ import logging
 def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	_movement = {'x': x,
 				 'y': y,
+	             'next_x': x,
+	             'next_y': y,
 	             'collisions': collisions,
 				 'direction': direction,
 				 'turn_speed': turn_speed,
@@ -30,7 +32,10 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	entities.create_event(entity, 'thrown')
 	entities.create_event(entity, 'position_changed')
 	entities.create_event(entity, 'recovering')
+	entities.create_event(entity, 'check_next_position')
 	entities.create_event(entity, 'move_to_position')
+	entities.create_event(entity, 'disable_collisions')
+	entities.create_event(entity, 'enable_collisions')
 	entities.create_event(entity, 'stop')
 	entities.register_event(entity, 'save', save)
 	entities.register_event(entity, 'tick', _walk_path)
@@ -41,9 +46,17 @@ def register(entity, x=0, y=0, direction=0, turn_speed=15, collisions=False):
 	entities.register_event(entity, 'set_direction', _set_tank_direction)
 	entities.register_event(entity, 'push_tank', _push_tank)
 	entities.register_event(entity, 'move_to_position', walk_to_position)
+	entities.register_event(entity, 'enable_collisions', _enable_collisions)
+	entities.register_event(entity, 'disable_collisions', _disable_collisions)
 
 def save(entity, snapshot):
 	snapshot['movement'] = entity['movement']
+
+def _enable_collisions(entity):
+	entity['movement']['collisions'] = True
+
+def _disable_collisions(entity):
+	entity['movement']['collisions'] = False
 
 def set_position(entity, x, y):
 	_old_x = entity['movement']['x']
@@ -100,8 +113,13 @@ def _push_tank(entity, direction):
 	_push(entity, _nx, _ny)
 
 def _push(entity, x, y):
-	_nx = entity['movement']['x'] + x
-	_ny = entity['movement']['y'] + y
+	entity['movement']['next_x'] = entity['movement']['x'] + x
+	entity['movement']['next_y'] = entity['movement']['y'] + y
+	
+	entities.trigger_event(entity, 'check_next_position')
+	
+	_nx = entity['movement']['next_x']
+	_ny = entity['movement']['next_y']
 	
 	if entity['movement']['collisions']:
 		_solids = [get_position_via_id(p) for p in entities.get_entity_group('life') if not p == entity['_id']]

@@ -370,6 +370,20 @@ def _explosive_tick(entity):
 	else:
 		entities.trigger_event(entity, 'activate_explosive')
 
+def check_next_position(entity):
+	_x = int(round(entity['movement']['next_x']))
+	_y = int(round(entity['movement']['next_y']))
+	
+	if (_x, _y) in zones.get_active_solids({}, no_life=True, ignore_calling_entity=True):
+		entity['movement']['next_x'] = entity['movement']['x']
+		entity['movement']['next_y'] = entity['movement']['y']
+		
+		entities.trigger_event(entity, 'collision_with_solid')
+		
+		return True
+	
+	return False
+
 def check_for_collisions(entity):
 	_x, _y = movement.get_position(entity)
 	
@@ -455,6 +469,7 @@ def explosive(entity, x, y, tx, ty, speed, accuracy, damage):
 	entities.register_event(_entity, 'explode', frag_grenade_explode)
 	entities.register_event(_entity, 'explode', entities.delete_entity)
 	entities.register_event(_entity, 'activate_explosive', lambda e: entities.trigger_event(e, 'create_timer', time=90, exit_callback=lambda ee: entities.trigger_event(ee, 'explode')))
+	entities.register_event(_entity, 'check_next_position', check_next_position)
 	
 	entities.add_entity_to_group(_entity, 'bullets')
 	timers.register(_entity)
