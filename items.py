@@ -445,6 +445,7 @@ def bullet(entity, x, y, tx, ty, speed, accuracy, damage):
 	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.light(movement.get_position(e)[0], movement.get_position(e)[1], random.randint(3, 4)))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: entities.delete_entity(e))
 	entities.register_event(_entity, 'collision_with_solid', lambda e: effects.smoke_cloud(movement.get_position(e)[0], movement.get_position(e)[1], random.uniform(2, 2.75), start_alpha=random.uniform(0.45, .65), decay_amount=1.5))
+	entities.register_event(_entity, 'check_next_position', check_next_position)
 	
 	if not '--no-fx' in sys.argv:
 		entities.register_event(_entity, 'position_changed', lambda e, x, y, **kwargs: _bullet_effects(e, x, y))

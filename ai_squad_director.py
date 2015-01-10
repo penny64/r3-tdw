@@ -193,7 +193,7 @@ def get_vantage_point(squad, member_id):
 
 		if _score < _best_vantage['score']:
 			_astar_distance = len(pathfinding.astar(_member_pos, pos, zones.get_active_astar_map(), zones.get_active_weight_map()))
-			_best_vantage['score'] = _score + _scores['member_coverage'] + int(round((_astar_distance * .25)))
+			_best_vantage['score'] = _score + _scores['member_coverage'] + int(round((_astar_distance * .15)))
 			_best_vantage['position'] = pos[:]
 	
 	if not _best_vantage['position']:
@@ -248,7 +248,7 @@ def get_vantage_point(squad, member_id):
 		
 		squad['position_map_scores'][coverage_pos]['member_coverage'] += _c_dist
 	
-	squad['position_map_scores'][_v_p]['member_coverage'] += 20
+	squad['position_map_scores'][_v_p]['member_coverage'] += 6
 	
 	return _v_p
 
